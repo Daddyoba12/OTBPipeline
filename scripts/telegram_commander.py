@@ -5,7 +5,7 @@ Runs continuously as a background process (OTB-Commander task).
 """
 
 import json, os, sys, time, subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -13,8 +13,9 @@ from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, DATA, BASE
 
 import requests
 
-OFFSET_FILE = DATA / "tg_offset.json"
-BASE_URL    = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
+OFFSET_FILE  = DATA / "tg_offset.json"
+MSG_LOG_FILE = DATA / "tg_message_log.json"
+BASE_URL     = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}"
 
 
 def _load_offset() -> int:
@@ -31,13 +32,59 @@ def _save_offset(offset: int):
     OFFSET_FILE.write_text(json.dumps({"offset": offset}))
 
 
+def _log_message(msg_id: int):
+    """Record a sent message ID so clean_old_messages() can delete it after 48h."""
+    try:
+        log = json.loads(MSG_LOG_FILE.read_text(encoding="utf-8")) if MSG_LOG_FILE.exists() else []
+        log.append({"id": msg_id, "sent_at": datetime.utcnow().isoformat()})
+        log = log[-500:]   # keep last 500 entries max
+        MSG_LOG_FILE.write_text(json.dumps(log, indent=2), encoding="utf-8")
+    except Exception:
+        pass
+
+
+def clean_old_messages():
+    """
+    Delete bot messages older than 48 hours from the Telegram chat.
+    Called from run_commander() every 48 hours automatically.
+    """
+    if not MSG_LOG_FILE.exists():
+        return
+    try:
+        log      = json.loads(MSG_LOG_FILE.read_text(encoding="utf-8"))
+        cutoff   = datetime.utcnow() - timedelta(hours=48)
+        keep     = []
+        deleted  = 0
+        for entry in log:
+            sent_at = datetime.fromisoformat(entry.get("sent_at", "2000-01-01"))
+            if sent_at < cutoff:
+                try:
+                    requests.post(
+                        f"{BASE_URL}/deleteMessage",
+                        json={"chat_id": TELEGRAM_CHAT_ID, "message_id": entry["id"]},
+                        timeout=8,
+                    )
+                    deleted += 1
+                except Exception:
+                    keep.append(entry)   # keep if delete fails
+            else:
+                keep.append(entry)
+        MSG_LOG_FILE.write_text(json.dumps(keep, indent=2), encoding="utf-8")
+        print(f"[Cmdr] Clean: deleted {deleted} messages older than 48h ({len(keep)} remaining)")
+    except Exception as e:
+        print(f"[Cmdr] Clean error: {e}")
+
+
 def send(text: str, reply_markup: dict = None) -> dict:
     payload = {"chat_id": TELEGRAM_CHAT_ID, "text": text, "parse_mode": "HTML"}
     if reply_markup:
         payload["reply_markup"] = json.dumps(reply_markup)
     try:
-        r = requests.post(f"{BASE_URL}/sendMessage", json=payload, timeout=15)
-        return r.json()
+        r    = requests.post(f"{BASE_URL}/sendMessage", json=payload, timeout=15)
+        data = r.json()
+        if data.get("ok"):
+            _log_message(data["result"]["message_id"])
+        return data
     except Exception as e:
         print(f"[Cmdr] Send error: {e}")
         return {}
@@ -75,6 +122,7 @@ def send_video_preview(video_path: str, caption: str, slot: int, content: dict) 
         data = r.json()
         if data.get("ok"):
             msg_id = data["result"]["message_id"]
+            _log_message(msg_id)
             print(f"[Cmdr] Preview sent, msg_id={msg_id}")
             return msg_id
     except Exception as e:
@@ -188,8 +236,14 @@ def _handle_command(text: str, chat_id: str):
 def run_commander():
     """Long-running commander loop."""
     print("[Cmdr] OTB Commander started")
-    offset = _load_offset()
+    offset       = _load_offset()
+    last_clean   = datetime.utcnow() - timedelta(hours=49)  # run clean on first startup
     while True:
+        # 48-hour Telegram cleanup
+        if (datetime.utcnow() - last_clean).total_seconds() >= 48 * 3600:
+            clean_old_messages()
+            last_clean = datetime.utcnow()
+
         try:
             r = requests.get(
                 f"{BASE_URL}/getUpdates",
