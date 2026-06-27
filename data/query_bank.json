@@ -1,0 +1,712 @@
+[
+  {
+    "query": "airplane takeoff runway sunrise",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "london black cab night city",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "heathrow airport departure gate",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "train departing station platform",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "cargo plane loading airport freight",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "taxi cab london street rain",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "eurostar train platform london",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "airport runway plane taxiing",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "ocean cargo ship harbour port",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "london underground tube commuter",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "gatwick airport departure lounge",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "commercial aircraft boarding passengers",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "night flight airplane window city lights",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "container ship open sea horizon",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "black cab picking up passenger london",
+    "role": "hook",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "airport queue long waiting customs",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "stressed traveller missed flight gate",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "heavy suitcase luggage overweight check",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "airport customs officer inspection",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "delayed flight departure board",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "commuter waiting train platform stressed",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "crowded airport terminal busy",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "immigration passport queue airport",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "overweight baggage airline counter",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "man woman stressing airport phone",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "missed train station platform run",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "taxi waiting traffic jam city",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "cargo delay shipping port container",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "person rushing airport escalator",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "train delay announcement platform",
+    "role": "problem",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "woman phone call airport emotional",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "family farewell airport departure terminal",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "man sitting airport gate alone",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "traveller looking at passport nervous",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "person hugging goodbye airport",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "young woman crying airport goodbye",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "professional traveller briefcase airport",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "african man airport departure lounge",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "diaspora traveller london heathrow",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "woman waiting taxi night rain",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "man at train window thinking",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "business traveller boarding plane",
+    "role": "stakes",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "parcel package handover smiling",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "luggage claim belt passengers happy",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "traveller delivery doorstep smile",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "taxi arriving destination passenger happy",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "plane landing runway arrival",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "package delivered door receiver happy",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "train arrival platform people smiling",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "cargo ship docking port workers",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "traveller handing parcel airport",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "person receiving package doorstep",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "woman opening delivery box happy",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "successful flight arrival terminal",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "freight unloading truck warehouse",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "passenger taxi arrival smiling",
+    "role": "resolution",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "professional business person london city",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "confident woman airport professional",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "london skyline cityscape evening",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "lagos nigeria city skyline aerial",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "black cab london professional driver",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "business traveller lounge airport",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "cargo ship horizon open ocean",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "london bridge city professional",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "entrepreneur phone london street",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "freight terminal logistics professional",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "airline pilot cockpit professional",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "train passenger business class working",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "london heathrow terminal modern",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "shipping container port aerial view",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  },
+  {
+    "query": "professional driver london street night",
+    "role": "lesson_pre",
+    "source": "seed",
+    "status": "seed",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-06-27"
+  }
+]

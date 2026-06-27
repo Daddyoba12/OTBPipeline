@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+venv/
+.venv/
+env/
+
+# Large video/audio outputs — never commit these
+output/
+temp/
+music/daily/
+music/_tmp/
+
+# Runtime data — sync separately, not via git
+data/pipeline_step.txt
+data/pipeline_crash.log
+data/pipeline_ran_today.json
+data/post_log.json
+
+# Credentials & secrets
+.env
+social_credentials.json
+youtube_token.json
+youtube_credentials.json
+*.pem
+*.key
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
