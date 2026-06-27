@@ -56,12 +56,24 @@ if _ON_WINDOWS:
         GEMINI_API_KEY    = ""
         YOUTUBE_API_KEY   = ""
 else:
+    # On Oracle: read keys from the existing /opt/boothop/config.py
+    # (same keys that BootHopPipeline uses — no duplication needed)
     import os
-    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-    PEXELS_KEY        = os.environ.get("PEXELS_KEY", "")
-    PIXABAY_KEY       = os.environ.get("PIXABAY_KEY", "")
-    GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY", "")
-    YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY", "")
+    sys.path.insert(0, "/opt/boothop")
+    try:
+        import config as _bhp
+        ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
+        PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "")  # BHP uses PEXELS_API_KEY
+        PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
+        GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
+        YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
+    except ImportError:
+        # Fallback to environment variables if /opt/boothop not available
+        ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+        PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
+        PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
+        GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
+        YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",  "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
