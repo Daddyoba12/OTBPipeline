@@ -306,7 +306,10 @@ def _process_clip(src: Path, dest: Path, beat: str, beat_text: str) -> bool:
 
 
 def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> bool:
-    """Create a 5-second lesson card: dark indigo overlay + lesson text + CTA."""
+    """Create a 5-second lesson card: dark overlay + lesson text + CTA.
+    Two-pass approach: generate plain colour video first, then overlay text via -vf.
+    This avoids the lavfi+drawtext parsing issue with apostrophes on Windows.
+    """
     color_map = {
         "community":          "4F46E5",
         "family":             "7C3AED",
@@ -322,9 +325,21 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
     lesson_wrapped = _wrap(lesson_escaped, 22)
     font_t = _font("title")
     font_b = _font("body")
-    frames = LESSON_DUR * VIDEO_FPS
+
+    # Pass 1 — plain colour card (no text, no lavfi parsing issues)
+    plain = dest.parent / (dest.stem + "_plain.mp4")
+    ok = _ff(
+        "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x{bg}:rate={VIDEO_FPS}",
+        "-t", str(LESSON_DUR),
+        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-pix_fmt", "yuv420p", "-an", str(plain),
+        timeout=30,
+    )
+    if not ok or not plain.exists():
+        return False
+
+    # Pass 2 — overlay text via -vf drawtext (same parser path as clips)
     vf = (
-        f"color=size={W}x{H}:color=0x{bg}:rate={VIDEO_FPS},"
         f"drawtext=fontfile='{font_t}':text='THE LESSON':fontsize=34:"
         f"fontcolor=0xFFFFFF@0.6:x=(w-text_w)/2:y=h*0.30,"
         f"drawtext=fontfile='{font_t}':text='{lesson_wrapped}':fontsize=62:"
@@ -333,13 +348,15 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
         f"drawtext=fontfile='{font_b}':text='boothop.com':fontsize=38:"
         f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.72"
     )
-    return _ff(
-        "-f", "lavfi", "-i", vf,
-        "-t", str(LESSON_DUR),
+    result = _ff(
+        "-i", str(plain),
+        "-vf", vf,
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(dest),
         timeout=60,
     )
+    plain.unlink(missing_ok=True)
+    return result
 
 
 def _add_progress_bar(src: Path, dest: Path) -> bool:
@@ -533,15 +550,20 @@ def render_video(content: dict, slot: int, output_path: str) -> bool:
             timeout=60,
         )
     else:
-        # Simple branded end card if FIG4End missing
-        _ff("-f", "lavfi", "-i",
-            f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS},"
-            f"drawtext=fontfile='{_font('title')}':text='BootHop':fontsize=90:"
-            f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-30,"
-            f"drawtext=fontfile='{_font('body')}':text='boothop.com':fontsize=42:"
-            f"fontcolor=0xFFFFFF:x=(w-text_w)/2:y=(h-th)/2+70",
+        # Two-pass brand card (plain colour → overlay text via -vf, same as lesson card)
+        _plain = TEMP / f"{prefix}_brand_plain.mp4"
+        _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS}",
             "-t", str(BRAND_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-            str(brand_card), timeout=30)
+            str(_plain), timeout=30)
+        if _plain.exists():
+            _ff("-i", str(_plain),
+                "-vf", (f"drawtext=fontfile='{_font('title')}':text='BootHop':fontsize=90:"
+                        f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-30,"
+                        f"drawtext=fontfile='{_font('body')}':text='boothop.com':fontsize=42:"
+                        f"fontcolor=0xFFFFFF:x=(w-text_w)/2:y=(h-th)/2+70"),
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-pix_fmt", "yuv420p", "-an", str(brand_card), timeout=30)
+            _plain.unlink(missing_ok=True)
 
     proc_clips.append(str(brand_card))
 
