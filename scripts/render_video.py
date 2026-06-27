@@ -107,13 +107,31 @@ def _ff(*args, timeout=120):
 
 
 def _font(kind="title") -> str:
-    path = FONT_TITLE if kind == "title" else FONT_BODY
+    """Return font path in FFmpeg drawtext format (forward slashes, colon escaped as C\\:/)."""
+    path     = FONT_TITLE if kind == "title" else FONT_BODY
     fallback = FONT_TITLE_FB if kind == "title" else FONT_BODY_FB
-    return path if Path(path.replace("C\\:/", "C:/")).exists() else fallback
+    # Normalise to a real filesystem path for existence check
+    real = path.replace("C\\:/", "C:/").replace("\\", "/")
+    if not Path(real).exists():
+        return fallback
+    # Convert to FFmpeg drawtext format: forward slashes, drive colon escaped
+    ffmpeg_path = real.replace("C:/", "C\\:/")
+    return ffmpeg_path
 
 
 def _esc(text: str) -> str:
-    """Escape text for FFmpeg drawtext."""
+    """Escape text for FFmpeg drawtext, preserving readable unicode."""
+    # Replace common unicode punctuation with ASCII equivalents BEFORE escaping
+    text = (text
+            .replace("—", "-")    # em dash —
+            .replace("–", "-")    # en dash –
+            .replace("‘", "'")    # left single quote '
+            .replace("’", "'")    # right single quote '
+            .replace("“", '"')    # left double quote "
+            .replace("”", '"')    # right double quote "
+            .replace("…", "...")  # ellipsis …
+            .replace("â", "'"))  # UTF-8 mangled apostrophe
+    # FFmpeg drawtext escaping
     text = (text
             .replace("\\", "\\\\")
             .replace("'", "\\'")
@@ -121,7 +139,8 @@ def _esc(text: str) -> str:
             .replace("%", "\\%")
             .replace("[", "\\[")
             .replace("]", "\\]"))
-    text = text.encode("ascii", "replace").decode("ascii")
+    # Strip remaining non-ASCII safely (keeps latin characters, drops emoji etc.)
+    text = text.encode("ascii", "ignore").decode("ascii")
     return text[:120]
 
 
