@@ -1,53 +1,67 @@
 """
 OTB_Pipeline — config
 All API keys, paths, and constants in one place.
+Works on both Windows (laptop) and Linux (Oracle server).
 """
 
+import sys, platform
 from pathlib import Path
 
-# ── Paths ──────────────────────────────────────────────────────────────────────
-BASE        = Path(r"C:\Users\babso\Desktop\OTB_Pipeline")
+# ── Paths — auto-detect whether we're on Windows or Oracle ────────────────────
+# BASE derives from this file's location so it works on both machines without changes.
+BASE        = Path(__file__).resolve().parent
 DATA        = BASE / "data"
 OUTPUT      = BASE / "output"
 TEMP        = BASE / "temp"
 SCRIPTS     = BASE / "scripts"
 
-# Reuse assets / music / credentials from BootHopPipeline
-MAIN_BASE    = Path(r"C:\Users\babso\Desktop\BootHopPipeline")
-ASSETS       = MAIN_BASE / "assets"
-MUSIC_DIR    = BASE / "music" / "daily"    # OTB slot-specific tracks (fetch_trending_music.py)
-MUSIC_ARCHIVE = MAIN_BASE / "music" / "archive"  # shared royalty-free fallback library
-CREDS_PATH   = MAIN_BASE / "scripts" / "social_credentials.json"
+# BootHopPipeline — only exists on Windows laptop (assets, credentials, music archive)
+_ON_WINDOWS = platform.system() == "Windows"
+MAIN_BASE   = (Path(r"C:\Users\babso\Desktop\BootHopPipeline")
+               if _ON_WINDOWS else BASE)
+
+ASSETS        = MAIN_BASE / "assets"
+MUSIC_DIR     = BASE / "music" / "daily"          # OTB slot-specific tracks (fetch_trending_music.py)
+MUSIC_ARCHIVE = MAIN_BASE / "music" / "archive"   # shared royalty-free fallback library
+CREDS_PATH    = MAIN_BASE / "scripts" / "social_credentials.json"
 YOUTUBE_TOKEN = MAIN_BASE / "scripts" / "youtube_token.json"
 YOUTUBE_CREDS = MAIN_BASE / "scripts" / "youtube_credentials.json"
 
 # FFmpeg / font paths
-FONT_TITLE  = str(ASSETS / "fonts" / "Oswald-Bold.ttf")
-FONT_BODY   = str(ASSETS / "fonts" / "Montserrat-ExtraBold.ttf")
-FONT_TITLE_FB = r"C\:/Windows/Fonts/impact.ttf"
-FONT_BODY_FB  = r"C\:/Windows/Fonts/arialbd.ttf"
+FONT_TITLE    = str(ASSETS / "fonts" / "Oswald-Bold.ttf")
+FONT_BODY     = str(ASSETS / "fonts" / "Montserrat-ExtraBold.ttf")
+FONT_TITLE_FB = r"C\:/Windows/Fonts/impact.ttf" if _ON_WINDOWS else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+FONT_BODY_FB  = r"C\:/Windows/Fonts/arialbd.ttf" if _ON_WINDOWS else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 LOGO_PATH   = ASSETS / "mainlogo.png"
 FIG_END     = ASSETS / "FIG4End.png"
 
 # ── API Keys ───────────────────────────────────────────────────────────────────
-# Inherit from BootHopPipeline config.py
-import sys
-sys.path.insert(0, str(MAIN_BASE))
-try:
-    from config import (
-        ANTHROPIC_API_KEY,
-        PEXELS_KEY,
-        PIXABAY_KEY,
-        GEMINI_API_KEY,
-        YOUTUBE_API_KEY,
-    )
-except ImportError:
-    ANTHROPIC_API_KEY = ""
-    PEXELS_KEY        = ""
-    PIXABAY_KEY       = ""
-    GEMINI_API_KEY    = ""
-    YOUTUBE_API_KEY   = ""
+# On Windows: inherit from BootHopPipeline config.py
+# On Oracle:  read from environment variables (set in /etc/environment or systemd service)
+if _ON_WINDOWS:
+    sys.path.insert(0, str(MAIN_BASE))
+    try:
+        from config import (
+            ANTHROPIC_API_KEY,
+            PEXELS_KEY,
+            PIXABAY_KEY,
+            GEMINI_API_KEY,
+            YOUTUBE_API_KEY,
+        )
+    except ImportError:
+        ANTHROPIC_API_KEY = ""
+        PEXELS_KEY        = ""
+        PIXABAY_KEY       = ""
+        GEMINI_API_KEY    = ""
+        YOUTUBE_API_KEY   = ""
+else:
+    import os
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+    PEXELS_KEY        = os.environ.get("PEXELS_KEY", "")
+    PIXABAY_KEY       = os.environ.get("PIXABAY_KEY", "")
+    GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY", "")
+    YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY", "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
