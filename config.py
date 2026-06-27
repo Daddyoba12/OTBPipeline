@@ -40,16 +40,20 @@ FIG_END     = ASSETS / "FIG4End.png"
 # On Windows: inherit from BootHopPipeline config.py
 # On Oracle:  read from environment variables (set in /etc/environment or systemd service)
 if _ON_WINDOWS:
-    sys.path.insert(0, str(MAIN_BASE))
+    # Load by file path to avoid circular import (importing by name re-imports this file)
+    import importlib.util as _ilu
+    _bhp_cfg = MAIN_BASE / "config.py"
     try:
-        from config import (
-            ANTHROPIC_API_KEY,
-            PEXELS_KEY,
-            PIXABAY_KEY,
-            GEMINI_API_KEY,
-            YOUTUBE_API_KEY,
-        )
-    except ImportError:
+        _spec = _ilu.spec_from_file_location("bhp_config", str(_bhp_cfg))
+        _bhp  = _ilu.module_from_spec(_spec)
+        _spec.loader.exec_module(_bhp)
+        ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
+        PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "") or getattr(_bhp, "PEXELS_KEY", "")
+        PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
+        GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
+        YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
+    except Exception as _e:
+        print(f"[Config] Warning: could not load BHP keys: {_e}")
         ANTHROPIC_API_KEY = ""
         PEXELS_KEY        = ""
         PIXABAY_KEY       = ""
