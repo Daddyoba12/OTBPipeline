@@ -45,32 +45,29 @@ function Do-GitPush {
     }
 }
 
-# ── Oracle rsync / scp ────────────────────────────────────────────────────────
+# ── Oracle sync via SCP ───────────────────────────────────────────────────────
 function Do-OracleSync {
     param([string]$ChangedFile = "")
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: syncing..." -ForegroundColor Cyan
+    $dest = "${OracleUser}@${OracleIP}:${RemotePath}"
+    $scp  = @("-i", $KeyFile, "-o", "StrictHostKeyChecking=no", "-o", "BatchMode=yes")
 
-    $WslAvail = $null -ne (Get-Command wsl -ErrorAction SilentlyContinue)
-    if ($WslAvail) {
-        $WslLocal = (wsl wslpath -u "$LocalPath").Trim()
-        $WslKey   = (wsl wslpath -u "$KeyFile").Trim()
-        $rsync = "rsync -az --delete " +
-                 "--exclude='.git' --exclude='__pycache__' --exclude='*.pyc' " +
-                 "--exclude='output/' --exclude='temp/' --exclude='music/daily/' " +
-                 "--exclude='data/pipeline_crash.log' --exclude='data/pipeline_step.txt' " +
-                 "-e 'ssh -i $WslKey -o StrictHostKeyChecking=no' " +
-                 "${WslLocal}/ ${OracleUser}@${OracleIP}:${RemotePath}/"
-        wsl bash -c $rsync
+    # If we know exactly which file changed, just push that one file
+    if ($ChangedFile -and (Test-Path $ChangedFile)) {
+        $rel = $ChangedFile.Substring($LocalPath.Length).TrimStart("\").Replace("\", "/")
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: pushing $rel..." -ForegroundColor Cyan
+        & scp @scp "$ChangedFile" "${dest}/${rel}" 2>&1 | Out-Null
     } else {
-        # SCP fallback
-        $scpArgs = @("-i", $KeyFile, "-o", "StrictHostKeyChecking=no")
-        & scp @scpArgs -r "$LocalPath\scripts" "$LocalPath\pipeline.py" "$LocalPath\config.py" `
-            "${OracleUser}@${OracleIP}:${RemotePath}/" 2>&1
+        # Full sync of code folders (no large output/temp/music)
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: full sync..." -ForegroundColor Cyan
+        & scp @scp "$LocalPath\pipeline.py"  "${dest}/pipeline.py"  2>&1 | Out-Null
+        & scp @scp "$LocalPath\config.py"    "${dest}/config.py"    2>&1 | Out-Null
+        & scp @scp -r "$LocalPath\scripts"   "${dest}/scripts"      2>&1 | Out-Null
+        & scp @scp -r "$LocalPath\deploy"    "${dest}/deploy"       2>&1 | Out-Null
     }
 
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: done" -ForegroundColor Green
 
-    # Restart commander if pipeline core changed
+    # Restart commander if a core file changed
     if ($ChangedFile -match "telegram_commander|pipeline\.py|config\.py") {
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: restarting commander..." -ForegroundColor Magenta
         & ssh -i "$KeyFile" -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" `
