@@ -56,19 +56,21 @@ if _ON_WINDOWS:
         GEMINI_API_KEY    = ""
         YOUTUBE_API_KEY   = ""
 else:
-    # On Oracle: read keys from the existing /opt/boothop/config.py
-    # (same keys that BootHopPipeline uses — no duplication needed)
-    import os
-    sys.path.insert(0, "/opt/boothop")
+    # On Oracle: load keys from /opt/boothop/config.py by file path to avoid
+    # circular import (importing by name would re-import this file itself).
+    import os, importlib.util
+    _bhp_path = Path("/opt/boothop/config.py")
     try:
-        import config as _bhp
+        _spec = importlib.util.spec_from_file_location("bhp_config", str(_bhp_path))
+        _bhp  = importlib.util.module_from_spec(_spec)
+        _spec.loader.exec_module(_bhp)
         ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
         PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "")  # BHP uses PEXELS_API_KEY
         PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
         GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
         YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
-    except ImportError:
-        # Fallback to environment variables if /opt/boothop not available
+    except Exception:
+        # Fallback to environment variables if /opt/boothop not present
         ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
         PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
         PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
