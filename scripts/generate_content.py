@@ -298,21 +298,22 @@ NEVER USE IN ANY QUERY:
 - Halloween/pumpkin/thanksgiving/easter
 - Generic stock clichés (handshake, trophy, success mountain, cartoon, lightbulb)
 
-CORRECT query examples: "airplane takeoff runway sunrise", "london black cab night rain",
-"heathrow airport departure gate", "cargo ship open sea", "train platform departure",
-"traveller suitcase airport lounge", "parcel handover doorstep smile"
+CORRECT query examples: "airplane takeoff runway sunrise", "woman shocked phone screen close up face",
+"traveller stressed queue airport close up reaction", "cargo ship open sea horizon",
+"man frustrated phone call close up face", "parcel handover doorstep smile close up"
 
 WRONG (never do this): "food delivery driver", "dog with parcel", "christmas gift shipping",
-"uber eats rider", "restaurant kitchen", "pizza delivery man", "cat in suitcase"
+"wide airport hall crowd far shot", "establishing shot terminal building exterior"
 
-Clip 0 (hook): dramatic transport scene, motion, energy
-Clip 1 (hook reinforce): same transport energy, different angle
-Clip 2 (problem): airport/travel stress, waiting, queue
-Clip 3 (problem escalate): heavier frustration at transport hub
-Clip 4 (stakes): emotional human moment — farewell, worry, connection
-Clip 5 (resolution): successful handover, arrival, delivery moment
-Clip 6 (resolution payoff): happy outcome, reunion, relief
-Clip 7 (lesson/brand): professional, confident — London or Lagos transport/city
+SHOT TYPE RULES — these determine visual quality:
+- Clip 0 (hook): CLOSE UP face reaction — "woman shocked face phone close up reaction"
+- Clip 1 (hook reinforce): motion/energy transport scene — "airplane wing takeoff dramatic"
+- Clip 2 (problem): CLOSE UP or MEDIUM SHOT person stressed — "man frustrated phone call close up face"
+- Clip 3 (problem escalate): MEDIUM SHOT stressed person at transport hub — not wide establishing shots
+- Clip 4 (stakes): MEDIUM CLOSE emotional moment — face or hands, NOT wide crowd shots
+- Clip 5 (resolution): MEDIUM SHOT successful handover/delivery, person visible clearly
+- Clip 6 (resolution payoff): CLOSE UP or MEDIUM — happy face, relief expression
+- Clip 7 (lesson/brand): WIDE confident city shot OR MEDIUM professional — London or Lagos cityscape
 
 ENGAGEMENT: One short question (under 10 words) that invites real comments.
 
