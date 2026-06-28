@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Login — BootHop Pipeline</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}:root{--bg:#08080f;--card:#121220;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--red:#ff4040;--r:14px}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.logo{font-size:1.1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:28px}.card{background:var(--card);border:1px solid #ffffff12;border-radius:var(--r);padding:36px 32px;width:100%;max-width:400px}h2{font-size:1.3rem;font-weight:800;margin-bottom:6px}p.sub{color:var(--muted);font-size:.85rem;margin-bottom:24px}label{display:block;font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}input{width:100%;background:#1a1a2e;border:1px solid #ffffff18;border-radius:8px;padding:11px 14px;color:var(--text);font-size:.9rem;margin-bottom:16px;outline:none}input:focus{border-color:var(--or)}.btn{width:100%;padding:13px;background:var(--gr);color:#000;font-weight:800;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;margin-top:4px}.err{background:#ff404020;border:1px solid #ff404040;border-radius:8px;padding:10px 14px;color:var(--red);font-size:.83rem;margin-bottom:16px}.link{text-align:center;margin-top:20px;font-size:.82rem;color:var(--muted)}a{color:var(--or)}</style></head>
+<body><div class="card">
+<div class="logo">⚡ BootHop Pipeline</div>
+<h2>Sign in</h2><p class="sub">Enter your company ID and password</p>
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+<form method="post" action="/login">
+<label>Company ID</label><input name="slug" placeholder="e.g. acme-corp" required autocomplete="username">
+<label>Password</label><input type="password" name="password" required autocomplete="current-password">
+<button class="btn">Sign In →</button>
+</form>
+<div class="link">No account? <a href="/onboard">Get started free</a></div>
+</div></body></html>
