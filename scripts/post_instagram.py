@@ -72,13 +72,13 @@ def _build_caption(content: dict) -> str:
 
 
 def _upload_to_host(video_path: str) -> str | None:
-    """Upload video to catbox.moe for temporary hosting (proven BootHop BD approach)."""
-    _log("Uploading to catbox.moe...")
+    """Upload video to litterbox.catbox.moe (72h temp link) for Instagram container."""
+    _log("Uploading to litterbox...")
     try:
         with open(video_path, "rb") as f:
             r = requests.post(
-                "https://catbox.moe/user/api.php",
-                data={"reqtype": "fileupload"},
+                "https://litterbox.catbox.moe/resources/internals/api.php",
+                data={"reqtype": "fileupload", "time": "72h"},
                 files={"fileToUpload": (Path(video_path).name, f, "video/mp4")},
                 timeout=120,
             )
@@ -86,9 +86,9 @@ def _upload_to_host(video_path: str) -> str | None:
         if url.startswith("https://"):
             _log(f"Hosted: {url}")
             return url
-        _log(f"catbox error: {url}")
+        _log(f"litterbox error: {url}")
     except Exception as e:
-        _log(f"catbox upload failed: {e}")
+        _log(f"litterbox upload failed: {e}")
     return None
 
 

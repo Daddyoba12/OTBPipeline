@@ -270,15 +270,15 @@ def _upload_to_catbox(image_path: str) -> str | None:
     try:
         with open(image_path, "rb") as f:
             r = requests.post(
-                "https://catbox.moe/user/api.php",
-                data={"reqtype": "fileupload"},
+                "https://litterbox.catbox.moe/resources/internals/api.php",
+                data={"reqtype": "fileupload", "time": "72h"},
                 files={"fileToUpload": ("newspaper.jpg", f, "image/jpeg")},
                 timeout=30,
             )
         if r.status_code == 200 and r.text.strip().startswith("https://"):
             return r.text.strip()
     except Exception as e:
-        _log(f"catbox upload failed: {e}")
+        _log(f"litterbox upload failed: {e}")
     return None
 
 
