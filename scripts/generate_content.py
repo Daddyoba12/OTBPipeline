@@ -257,6 +257,11 @@ HOOK: 1-2 sentences, max 15 words. Must stop the scroll in 2 seconds.
   Structure: SHORT PUNCH (3-6 words) + STORY (rest of hook).
   Best formats: "She/He [specific moment]..." or "[pound-amount] for [weight]?" or "3 people. 1 route. [number] earned."
   NEVER start with "BootHop". NEVER be generic. Use specific numbers, routes, items.
+  PRICE REALITY — only use figures within these real-world ranges:
+  - DHL/FedEx UK→Nigeria: £35–75 for a small parcel (0.5–2kg). A phone charger (<500g) costs £35–50, NOT £150+.
+  - BootHop peer-to-peer: £8–25 for a typical parcel on the same route.
+  - Traveller earnings: £20–85 per trip, depending on parcel size.
+  NEVER invent prices outside these ranges. If unsure, use a story-based hook instead of a price hook.
 
 PROBLEM: 2-3 sentences. The friction, the pain, the struggle. Make the viewer feel it.
 
