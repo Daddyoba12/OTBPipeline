@@ -31,6 +31,7 @@ ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 FFMPEG         = shutil.which("ffmpeg") or "ffmpeg"
 FFPROBE        = shutil.which("ffprobe") or "ffprobe"
+ADMIN_PREFIX   = os.environ.get("ADMIN_PREFIX", "/admin")   # /onboard/admin when behind Vercel proxy
 
 app       = FastAPI(title="OTB Pipeline")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
@@ -505,7 +506,7 @@ async def admin_login(request: Request, password: str = Form(...)):
     with _db() as c:
         c.execute("INSERT INTO sessions (token,company_id,is_admin,expires_at) VALUES (?,?,1,?)",
                   (token, -1, expires))
-    resp = RedirectResponse("/admin", status_code=303)
+    resp = RedirectResponse(f"{ADMIN_PREFIX}", status_code=303)
     resp.set_cookie("session_token", token, httponly=True, max_age=86400)
     return resp
 
@@ -515,7 +516,7 @@ async def admin_logout(session_token: str | None = Cookie(None)):
     if session_token:
         with _db() as c:
             c.execute("DELETE FROM sessions WHERE token=? AND is_admin=1", (session_token,))
-    resp = RedirectResponse("/admin/login", status_code=303)
+    resp = RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
     resp.delete_cookie("session_token")
     return resp
 
@@ -524,7 +525,7 @@ async def admin_logout(session_token: str | None = Cookie(None)):
 async def admin_dashboard(request: Request, session_token: str | None = Cookie(None)):
     sess = _get_sess(session_token)
     if not sess or not sess["is_admin"]:
-        return RedirectResponse("/admin/login", status_code=303)
+        return RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
 
     with _db() as c:
         companies = c.execute(
@@ -572,7 +573,7 @@ async def admin_add_company(
         _co_dir(slug)
     except sqlite3.IntegrityError:
         pass
-    return RedirectResponse("/admin", status_code=303)
+    return RedirectResponse(f"{ADMIN_PREFIX}", status_code=303)
 
 
 @app.post("/admin/delete-company/{company_id}")
@@ -582,7 +583,7 @@ async def admin_delete(company_id: int, session_token: str | None = Cookie(None)
         raise HTTPException(403)
     with _db() as c:
         c.execute("UPDATE companies SET active=0 WHERE id=?", (company_id,))
-    return RedirectResponse("/admin", status_code=303)
+    return RedirectResponse(f"{ADMIN_PREFIX}", status_code=303)
 
 
 if __name__ == "__main__":
