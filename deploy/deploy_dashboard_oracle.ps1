@@ -49,7 +49,7 @@ WorkingDirectory=${BasePath}/dashboard
 ExecStart=/usr/bin/python3 ${BasePath}/dashboard/main.py
 Restart=always
 RestartSec=10
-Environment=PORT=1031
+Environment=PORT=8080
 Environment=PIPELINE_ROOT=${BasePath}
 Environment=TELEGRAM_TOKEN=${TgToken}
 Environment=ADMIN_PASSWORD=${AdminPassword}
@@ -74,8 +74,8 @@ sudo systemctl status otb-dashboard --no-pager -l
 # ── 5. Open port 1031 in Ubuntu firewall ──────────────────────────────────────
 Write-Host "[5/5] Opening port 1031 in Ubuntu firewall..." -ForegroundColor Yellow
 ssh "${OracleUser}@${OracleIP}" @"
-sudo iptables -I INPUT -p tcp --dport 1031 -j ACCEPT
-sudo iptables -I INPUT -p tcp --dport 1031 -j ACCEPT -m comment --comment "OTB Dashboard"
+sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT
+sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT -m comment --comment "OTB Dashboard"
 # Persist iptables rules
 sudo iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null 2>&1 || \
 sudo sh -c 'iptables-save > /etc/iptables.rules' 2>/dev/null || true
@@ -86,10 +86,10 @@ echo "  Port 1031: OPEN"
 Write-Host ""
 Write-Host "Dashboard deployed on Oracle!" -ForegroundColor Green
 Write-Host ""
-Write-Host "  URL: http://${OracleIP}:1031" -ForegroundColor Cyan
-Write-Host "  Admin: http://${OracleIP}:1031/admin/login  (password: $AdminPassword)" -ForegroundColor Cyan
-Write-Host "  Onboard: http://${OracleIP}:1031/onboard" -ForegroundColor Cyan
-Write-Host "  Wizard:  http://${OracleIP}:1031/client-onboarding" -ForegroundColor Cyan
+Write-Host "  URL: http://${OracleIP}:8080" -ForegroundColor Cyan
+Write-Host "  Admin: http://${OracleIP}:8080/admin/login  (password: $AdminPassword)" -ForegroundColor Cyan
+Write-Host "  Onboard: http://${OracleIP}:8080/onboard" -ForegroundColor Cyan
+Write-Host "  Wizard:  http://${OracleIP}:8080/client-onboarding" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "ACTION REQUIRED — Open port 1031 in OCI Console:" -ForegroundColor Yellow
 Write-Host "  1. Go to cloud.oracle.com -> Networking -> Virtual Cloud Networks"
@@ -98,5 +98,5 @@ Write-Host "  3. Add Ingress Rule:"
 Write-Host "       Source CIDR : 0.0.0.0/0"
 Write-Host "       Protocol    : TCP"
 Write-Host "       Dest Port   : 1031"
-Write-Host "  4. Save. Dashboard will be live at http://${OracleIP}:1031"
+Write-Host "  4. Save. Dashboard will be live at http://${OracleIP}:8080"
 Write-Host ""
