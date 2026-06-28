@@ -180,6 +180,20 @@ def run_slot(slot: int, force: bool = False):
 
         _log(f"Base render done: {video_file.stat().st_size // 1024}KB")
 
+        # Save sidecar so Revoice Studio can read hook/caption text
+        try:
+            sidecar = video_file.with_suffix(".json")
+            sidecar.write_text(json.dumps({
+                "hook":        content.get("hook", ""),
+                "lesson":      content.get("lesson", ""),
+                "pillar":      content.get("pillar", ""),
+                "slot":        slot,
+                "caption":     content.get("caption_tiktok", ""),
+                "rendered_at": datetime.now().isoformat(),
+            }, indent=2), encoding="utf-8")
+        except Exception:
+            pass
+
         # Derive platform-specific variants (Instagram warm grade, LinkedIn B2B card)
         _step(f"slot{slot}: platform variants")
         _log("Creating platform variants (IG grade, LinkedIn intro)...")
