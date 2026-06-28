@@ -221,6 +221,15 @@ def _split_hook(text: str) -> list[str]:
     return _split_lines(clean, 24, 3)
 
 
+_BEAT_LABELS = {
+    "hook":       "",           # hook text IS the label — no duplicate tag
+    "problem":    "THE PROBLEM",
+    "stakes":     "THE STAKES",
+    "resolution": "THE RESOLUTION",
+    "lesson_pre": "THE LESSON",
+}
+
+
 def _drawtext_filters(text: str, beat: str) -> str:
     """Return comma-chained drawtext filters - one per line - with explicit pixel Y.
 
@@ -235,11 +244,22 @@ def _drawtext_filters(text: str, beat: str) -> str:
         return ""
 
     font  = _font("title" if style.get("title_font") else "body")
+    font_b = _font("body")
     y0    = style["y_start"]
     gap   = style["line_gap"]
     color = style["color"]
 
     parts = []
+
+    # Section label at top-left for non-hook beats (BD-style story structure marker)
+    label = _BEAT_LABELS.get(beat, "")
+    if label:
+        parts.append(
+            f"drawtext=fontfile='{font_b}':text='{label}':fontsize=28:"
+            f"fontcolor=0xFFFFFF@0.85:x=44:y=72:"
+            f"box=1:boxcolor=0x000000@0.5:boxborderw=10"
+        )
+
     for i, line in enumerate(lines):
         if not line.strip():
             continue

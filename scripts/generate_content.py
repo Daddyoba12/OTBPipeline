@@ -237,6 +237,29 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     month_name = ["","January","February","March","April","May","June",
                   "July","August","September","October","November","December"][current_month]
 
+    # Pillar-specific content angle — informational pillars use a documentary/educational tone
+    # (proven by BootHopBD: educational content gets 3-5x more shares than pure promo)
+    _PILLAR_ANGLES = {
+        "supply_chain": (
+            "Write this as a mini-documentary about how global supply chains actually work — "
+            "a real or realistic story (a port strike, a famous shipping failure, a courier crisis, "
+            "or a UK-Nigeria logistics gap). Hook with a surprising fact. BootHop appears in RESOLUTION "
+            "only — as the smart peer-to-peer alternative to the broken system you just described."
+        ),
+        "logistics_stories": (
+            "Write this as an interesting logistics story — a real brand, a famous incident, or a "
+            "surprising fact about how parcels move around the world (DHL, FedEx, customs, last-mile "
+            "delivery gaps in Nigeria, UK postal strikes, etc.). Make it genuinely educational. "
+            "BootHop appears in RESOLUTION only — positioned as the solution the big players can't offer."
+        ),
+        "airport_deliveries": (
+            "Write a dramatic real-or-realistic airport/customs story — a missed package, a seized parcel, "
+            "a last-minute save at the gate, or a traveller who carried something important. "
+            "Make the viewer feel the tension. BootHop appears in RESOLUTION as the smarter, safer way."
+        ),
+    }
+    pillar_angle = _PILLAR_ANGLES.get(pillar, "")
+
     prompt = f"""You write viral content for OTB — BootHop's content engine targeting UK/Nigeria diaspora on TikTok, Instagram, and YouTube.
 
 CONTEXT:
@@ -244,6 +267,7 @@ CONTEXT:
 - Content Pillar: {pillar_label}
 - Day: {day_name}, {month_name}
 - Platform bucket tone: {bucket}
+{f"- CONTENT ANGLE FOR THIS PILLAR: {pillar_angle}" if pillar_angle else ""}
 
 ABOUT BOOTHOP:
 BootHop is a peer-to-peer parcel delivery app. Travellers already flying between UK and Nigeria (or other routes) carry parcels for senders and earn money. Senders pay less than courier services and get same-day delivery.
