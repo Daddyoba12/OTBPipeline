@@ -79,16 +79,60 @@ BEATS = [
     (28,  32, "lesson_pre"), # clip  7 (leads into lesson card)
 ]
 
-# Text styles per beat.
-# wrap  = max chars per line (sized to prevent horizontal overflow at each font size)
-# lines = max lines rendered (keeps text block from dominating the frame)
-# y positions avoid top/bottom UI chrome on TikTok, Instagram Reels, YouTube Shorts
+# Beat text layout — one entry per beat type.
+# Each line of text is rendered as a SEPARATE drawtext filter with an explicit pixel Y,
+# matching BHP pipeline's approach (no \n / line_spacing squash).
+#
+# y_start   : pixel Y of the first line (1080×1920 frame)
+# line_gap  : pixels between lines  ≈ font_size × 1.35
+# size      : primary font size (px)
+# size_cont : continuation font for hook h2/h3 (smaller than punch)
+# max_chars : max chars per line before wrapping
+# max_lines : max lines rendered per clip
+# title_font: True = Oswald-Bold (condensed), False = Montserrat (body)
+# color     : hex string, no '#'
 BEAT_STYLE = {
-    "hook":       {"color": "FFE600", "size": 72, "shadow": "000000", "y": "(h-th)/2-60", "wrap": 18, "lines": 3},
-    "problem":    {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.18",       "wrap": 22, "lines": 3},
-    "stakes":     {"color": "FF8C00", "size": 58, "shadow": "000000", "y": "(h-th)/2-40", "wrap": 20, "lines": 3},
-    "resolution": {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.18",       "wrap": 22, "lines": 3},
-    "lesson_pre": {"color": "FFFFFF", "size": 48, "shadow": "000000", "y": "h*0.18",       "wrap": 24, "lines": 3},
+    "hook": {
+        "size": 72, "size_cont": 56,
+        "color": "FFE600",
+        "y_start": 160,   # top zone — below TikTok/IG UI chrome
+        "line_gap": 90,
+        "max_chars": 20,
+        "max_lines": 3,
+        "title_font": True,
+    },
+    "problem": {
+        "size": 52, "color": "FFFFFF",
+        "y_start": 880,   # center-lower — natural reading zone
+        "line_gap": 70,
+        "max_chars": 26,
+        "max_lines": 2,
+        "title_font": False,
+    },
+    "stakes": {
+        "size": 58, "color": "FF8C00",
+        "y_start": 840,
+        "line_gap": 78,
+        "max_chars": 22,
+        "max_lines": 2,
+        "title_font": True,
+    },
+    "resolution": {
+        "size": 52, "color": "FFFFFF",
+        "y_start": 880,
+        "line_gap": 70,
+        "max_chars": 26,
+        "max_lines": 2,
+        "title_font": False,
+    },
+    "lesson_pre": {
+        "size": 48, "color": "FFFFFF",
+        "y_start": 900,
+        "line_gap": 65,
+        "max_chars": 28,
+        "max_lines": 2,
+        "title_font": False,
+    },
 }
 
 CLIP_BEAT = [
@@ -123,35 +167,29 @@ def _font(kind="title") -> str:
 
 
 def _esc(text: str) -> str:
-    """Escape text for FFmpeg drawtext.
+    """Sanitise text for FFmpeg drawtext single-quoted option values.
 
-    FFmpeg single-quoted option values cannot contain apostrophes:
-    text='isn\'t' closes the quoted string early.
-    Fix: remove apostrophes entirely (text stays readable without them).
+    Apostrophes REMOVED (not escaped) - inside text='...' the char closes the
+    quoted string; there is no valid escape.  Smart punctuation -> ASCII.
+    Currency symbols (pound, euro) kept as Unicode - our fonts support them.
     """
     text = (text
-            .replace("\u2014", "-")
-            .replace("\u2013", "-")
-            .replace("\u2018", "")
-            .replace("\u2019", "")
-            .replace("'", "")
-            .replace("\u201c", """)
-            .replace("\u201d", """)
-            .replace("\u2026", "..."))
+            .replace("—", "-").replace("–", "-")
+            .replace("‘", "").replace("’", "").replace("'", "")
+            .replace("“", '"').replace("”", '"')
+            .replace("…", "..."))
+    # Escape FFmpeg drawtext special chars only
     text = (text
             .replace("\\", "\\\\")
-            .replace(":", "\\:")
-            .replace("%", "\\%")
-            .replace("[", "\\[")
-            .replace("]", "\\]"))
-    # Preserve common currency symbols before stripping non-ASCII
-    text = text.replace("£", "GBP ").replace("€", "EUR ").replace("₦", "NGN ")
-    text = text.encode("ascii", "ignore").decode("ascii")
-    return text[:120]
+            .replace(":",  "\\:")
+            .replace("%",  "\\%")
+            .replace("[",  "\\[")
+            .replace("]",  "\\]"))
+    return text[:140]
 
 
-def _wrap(text: str, max_chars: int = 26, max_lines: int = 3) -> str:
-    """Wrap text to at most max_lines lines, using \\n for FFmpeg drawtext."""
+def _split_lines(text: str, max_chars: int, max_lines: int) -> list[str]:
+    """Word-wrap into a list of strings - no newlines, just a list."""
     words = text.split()
     lines, cur = [], ""
     for w in words:
@@ -161,40 +199,64 @@ def _wrap(text: str, max_chars: int = 26, max_lines: int = 3) -> str:
         else:
             if cur:
                 lines.append(cur)
+                if len(lines) >= max_lines:
+                    break
             cur = w[:max_chars]
-            if len(lines) == max_lines - 1:
-                break
     if cur and len(lines) < max_lines:
         lines.append(cur)
-    return "\\n".join(lines[:max_lines])
+    return lines[:max_lines]
 
 
-def _drawtext_filter(text: str, beat: str, line: int = 0) -> str:
-    """Build a drawtext filter string for a given beat.
-
-    Box background ensures legibility on any B-roll colour.
-    wrap/lines are sized per font-size to prevent horizontal overflow.
+def _split_hook(text: str) -> list[str]:
+    """BHP-style hook split: first sentence (<=8 words) = punch line.
+    Rest wraps at 22 chars into up to 2 continuation lines.
     """
-    style   = BEAT_STYLE.get(beat, BEAT_STYLE["problem"])
-    wrap_w  = style.get("wrap", 22)
-    max_lns = style.get("lines", 3)
-    wrapped = _wrap(_esc(text), wrap_w, max_lns)
-    y_base  = style["y"]
-    line_h  = style["size"] + 12
-    y_expr  = f"({y_base})+{line * line_h}" if line else y_base
+    import re as _re
+    clean = _esc(text)
+    m = _re.search(r"[.!?]", clean[:80])
+    if m and len(clean[: m.start()].split()) <= 8:
+        punch = clean[: m.start()].strip()
+        rest  = clean[m.end() :].strip()
+        return [punch] + _split_lines(rest, 22, 2)
+    return _split_lines(clean, 24, 3)
 
-    return (
-        f"drawtext=fontfile='{_font('title' if beat in ('hook','stakes') else 'body')}':"
-        f"text='{wrapped}':"
-        f"fontsize={style['size']}:"
-        f"fontcolor=0x{style['color']}:"
-        f"x=(w-text_w)/2:"
-        f"y={y_expr}:"
-        f"box=1:boxcolor=0x000000@0.55:boxborderw=14:"
-        f"shadowx=2:shadowy=2:"
-        f"line_spacing=10"
-    )
 
+def _drawtext_filters(text: str, beat: str) -> str:
+    """Return comma-chained drawtext filters - one per line - with explicit pixel Y.
+
+    Replaces single drawtext + line_spacing=10 which squashes lines together
+    (10px gap is tiny against 52-72px fonts).  Each line is absolutely positioned
+    so spacing is proportional to the font size (approx font_size * 1.35).
+    """
+    style = BEAT_STYLE.get(beat, BEAT_STYLE["problem"])
+    lines = (_split_hook(text) if beat == "hook"
+             else _split_lines(_esc(text), style["max_chars"], style["max_lines"]))
+    if not lines:
+        return ""
+
+    font  = _font("title" if style.get("title_font") else "body")
+    y0    = style["y_start"]
+    gap   = style["line_gap"]
+    color = style["color"]
+
+    parts = []
+    for i, line in enumerate(lines):
+        if not line.strip():
+            continue
+        size = (style["size"] if (i == 0 or beat != "hook")
+                else style.get("size_cont", style["size"]))
+        y = y0 + i * gap
+        parts.append(
+            f"drawtext=fontfile='{font}':"
+            f"text='{line}':"
+            f"fontsize={size}:"
+            f"fontcolor=0x{color}:"
+            f"x=(w-text_w)/2:"
+            f"y={y}:"
+            f"box=1:boxcolor=0x000000@0.55:boxborderw=14:"
+            f"shadowx=2:shadowy=2:shadowcolor=0x000000@0.8"
+        )
+    return ",".join(parts)
 
 # ── Video clip fetching ────────────────────────────────────────────────────────
 
@@ -298,12 +360,14 @@ def _download_clip(url: str, dest: Path) -> bool:
 
 def _process_clip(src: Path, dest: Path, beat: str, beat_text: str) -> bool:
     """Resize, crop to 9:16, add beat text overlay, trim to CLIP_DUR."""
+    text_f = _drawtext_filters(beat_text, beat)
     vf_parts = [
         f"scale={W}:{H}:force_original_aspect_ratio=increase",
         f"crop={W}:{H}",
         "setsar=1",
-        _drawtext_filter(beat_text, beat),
     ]
+    if text_f:
+        vf_parts.append(text_f)
     vf = ",".join(vf_parts)
     return _ff(
         "-ss", "0", "-i", str(src),
@@ -332,12 +396,13 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
         "supply_chain":       "DC2626",
     }
     bg = color_map.get(pillar_color, "4F46E5")
-    lesson_escaped = _esc(lesson)
-    lesson_wrapped = _wrap(lesson_escaped, 22)
     font_t = _font("title")
     font_b = _font("body")
 
-    # Pass 1 — plain colour card (no text, no lavfi parsing issues)
+    # Split lesson into at most 2 lines (28 chars each) — separate drawtext per line
+    lesson_lines = _split_lines(_esc(lesson), 28, 2)
+
+    # Pass 1 — plain colour card
     plain = dest.parent / (dest.stem + "_plain.mp4")
     ok = _ff(
         "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x{bg}:rate={VIDEO_FPS}",
@@ -349,16 +414,26 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
     if not ok or not plain.exists():
         return False
 
-    # Pass 2 — overlay text via -vf drawtext (same parser path as clips)
-    vf = (
+    # Pass 2 — overlay text: label + lesson lines (each separate drawtext) + URL
+    # Lesson block centred vertically — y_mid is the top of the text block
+    n_lines  = len(lesson_lines)
+    line_gap = 80   # 62px font * 1.3
+    y_mid    = f"(h - {n_lines * line_gap}) / 2"
+    lesson_parts = []
+    for i, ln in enumerate(lesson_lines):
+        y_expr = f"({y_mid}) + {i * line_gap}"
+        lesson_parts.append(
+            f"drawtext=fontfile='{font_t}':text='{ln}':fontsize=62:"
+            f"fontcolor=0xFFE600:x=(w-text_w)/2:y={y_expr}:"
+            f"shadowcolor=0x000000@0.8:shadowx=3:shadowy=3"
+        )
+    vf = ",".join([
         f"drawtext=fontfile='{font_t}':text='THE LESSON':fontsize=34:"
-        f"fontcolor=0xFFFFFF@0.6:x=(w-text_w)/2:y=h*0.30,"
-        f"drawtext=fontfile='{font_t}':text='{lesson_wrapped}':fontsize=62:"
-        f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-20:"
-        f"line_spacing=10:shadowcolor=0x000000@0.8:shadowx=3:shadowy=3,"
+        f"fontcolor=0xFFFFFF@0.6:x=(w-text_w)/2:y=h*0.26",
+    ] + lesson_parts + [
         f"drawtext=fontfile='{font_b}':text='boothop.com':fontsize=38:"
-        f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.72"
-    )
+        f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.74",
+    ])
     result = _ff(
         "-i", str(plain),
         "-vf", vf,
@@ -660,10 +735,15 @@ def _make_linkedin_intro(content: dict, dest: Path) -> bool:
     5-second professional B2B intro card for LinkedIn.
     Two-pass: plain navy → overlay text via -vf (same pattern as lesson card).
     """
-    hook    = _esc(content.get("hook", ""))[:70]
-    wrapped = _wrap(hook, 24)
-    font_t  = _font("title")
-    font_b  = _font("body")
+    hook_esc = _esc(content.get("hook", ""))[:70]
+    font_t   = _font("title")
+    font_b   = _font("body")
+
+    # Split hook into up to 2 lines — separate drawtext per line
+    hook_lines = _split_lines(hook_esc, 24, 2)
+    n_lines    = len(hook_lines)
+    line_gap   = 72   # 56px font × 1.3
+    y_mid      = f"(h - {n_lines * line_gap}) / 2 - 20"
 
     plain = dest.parent / (dest.stem + "_plain.mp4")
     ok = _ff(
@@ -676,15 +756,21 @@ def _make_linkedin_intro(content: dict, dest: Path) -> bool:
     if not ok or not plain.exists():
         return False
 
-    vf = (
+    hook_parts = []
+    for i, ln in enumerate(hook_lines):
+        y_expr = f"({y_mid}) + {i * line_gap}"
+        hook_parts.append(
+            f"drawtext=fontfile='{font_t}':text='{ln}':"
+            f"fontsize=56:fontcolor=0xFFE600:x=(w-text_w)/2:y={y_expr}:"
+            f"shadowcolor=0x000000@0.6:shadowx=2:shadowy=2"
+        )
+    vf = ",".join([
         f"drawtext=fontfile='{font_t}':text='LOGISTICS INTELLIGENCE':"
-        f"fontsize=26:fontcolor=0x4F46E5:x=(w-text_w)/2:y=h*0.27,"
-        f"drawtext=fontfile='{font_t}':text='{wrapped}':"
-        f"fontsize=56:fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-30:"
-        f"line_spacing=8:shadowcolor=0x000000@0.6:shadowx=2:shadowy=2,"
+        f"fontsize=26:fontcolor=0x4F46E5:x=(w-text_w)/2:y=h*0.27",
+    ] + hook_parts + [
         f"drawtext=fontfile='{font_b}':text='BootHop - boothop.com':"
-        f"fontsize=34:fontcolor=0xFFFFFF@0.75:x=(w-text_w)/2:y=h*0.73"
-    )
+        f"fontsize=34:fontcolor=0xFFFFFF@0.75:x=(w-text_w)/2:y=h*0.73",
+    ])
     result = _ff(
         "-i", str(plain),
         "-vf", vf,
