@@ -323,6 +323,20 @@ def run_slot(slot: int, force: bool = False):
     _crash(f"[{datetime.now().isoformat()}] Slot {slot} DONE — {results}")
     _clear_step()
 
+    # Push data files to Oracle so commander has latest post_log / query_log
+    try:
+        sync_script = BASE / "deploy" / "sync_data.ps1"
+        if sync_script.exists():
+            import subprocess as _sp
+            _sp.Popen(
+                ["powershell.exe", "-WindowStyle", "Hidden", "-ExecutionPolicy", "Bypass",
+                 "-File", str(sync_script), "-Direction", "push"],
+                creationflags=0x00000008,  # DETACHED_PROCESS
+            )
+            _log("Data sync → Oracle started (background)")
+    except Exception as _e:
+        _log(f"Data sync warning: {_e}")
+
     # Clean up platform variant files (keep base video, remove derived copies)
     try:
         for plat, path in platform_videos.items():
