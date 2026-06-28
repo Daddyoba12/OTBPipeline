@@ -272,6 +272,11 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
         for v in random.sample(videos, min(len(videos), 8)):
             if v["id"] in exclude_ids:
                 continue
+            # Check Pexels page URL slug for animal/banned terms (e.g. ".../dog-at-airport-1234/")
+            page_slug = v.get("url", "").lower()
+            if any(term in page_slug for term in _BANNED_FETCH_TERMS):
+                print(f"    [Pexels] Skipped banned metadata: {page_slug.split('/')[-2]}")
+                continue
             files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0))
             hd = next((f for f in files if f.get("width", 0) >= 1080 and "portrait" in f.get("quality", "").lower()), None)
             hd = hd or next((f for f in files if f.get("width", 0) >= 720), None)
@@ -297,6 +302,11 @@ def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
         for v in random.sample(hits, min(len(hits), 8)):
             vid_id = f"pb_{v['id']}"
             if vid_id in exclude_ids:
+                continue
+            # Check Pixabay tags string for animal/banned terms (e.g. "airport, dog, travel")
+            tags = v.get("tags", "").lower()
+            if any(term in tags for term in _BANNED_FETCH_TERMS):
+                print(f"    [Pixabay] Skipped banned tags: {tags[:80]}")
                 continue
             sizes = v.get("videos", {})
             url = (sizes.get("large", {}).get("url") or
