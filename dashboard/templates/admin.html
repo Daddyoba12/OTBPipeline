@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — BootHop Pipeline</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--r:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
+.logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:#ff6b0022;color:var(--or);border:1px solid #ff6b0040;padding:3px 8px;border-radius:6px}
+.logout{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid #ffffff15;border-radius:6px}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px}
+h2{font-size:1.1rem;font-weight:800;margin:28px 0 12px}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:18px 20px}
+.stat-val{font-size:2rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:20px;margin-bottom:16px}
+.card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:.83rem}
+thead th{text-align:left;font-size:.72rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:6px 10px;border-bottom:1px solid #ffffff12}
+tbody tr{border-bottom:1px solid #ffffff08;transition:.15s}
+tbody tr:hover{background:#ffffff05}
+td{padding:10px 10px;vertical-align:middle}
+.co-name{font-weight:700}
+.co-slug{font-size:.72rem;color:var(--muted);font-family:monospace}
+.plan-badge{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:5px;background:#5ba4e620;color:var(--blue)}
+.plan-pro{background:#c080ff20;color:#c080ff}
+.bake-count{font-weight:700;color:var(--green)}
+.last-active{color:var(--muted);font-size:.78rem}
+.actions{display:flex;gap:8px}
+.view-btn{font-size:.75rem;padding:5px 12px;background:var(--card2);color:var(--text);border:none;border-radius:6px;cursor:pointer;text-decoration:none;display:inline-block}
+.del-btn{font-size:.75rem;padding:5px 12px;background:#ff404018;color:var(--red);border:1px solid #ff404030;border-radius:6px;cursor:pointer}
+/* Add company form */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.form-row{grid-template-columns:1fr}}
+label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;margin-top:12px}
+label:first-child{margin-top:0}
+input,select{width:100%;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:9px 12px;color:var(--text);font-size:.85rem;outline:none}
+input:focus,select:focus{border-color:var(--or)}
+.add-btn{padding:10px 22px;background:var(--gr);color:#000;font-weight:800;font-size:.85rem;border:none;border-radius:8px;cursor:pointer;margin-top:16px}
+.err{background:#ff404020;border:1px solid #ff404040;border-radius:8px;padding:10px 14px;color:var(--red);font-size:.83rem;margin-bottom:16px}
+.ok{background:#00e67612;border:1px solid #00e67630;border-radius:8px;padding:10px 14px;color:var(--green);font-size:.83rem;margin-bottom:16px}
+</style>
+</head>
+<body>
+<nav>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="logo">⚡ BootHop Pipeline</div>
+    <div class="badge">Admin</div>
+  </div>
+  <a href="/admin/logout" class="logout">Sign out</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- Stats -->
+  <h2>Overview</h2>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val">{{ companies|length }}</div><div class="stat-lbl">Companies</div></div>
+    <div class="stat"><div class="stat-val">{{ total_bakes }}</div><div class="stat-lbl">Total Bakes</div></div>
+    <div class="stat"><div class="stat-val">{{ active_today }}</div><div class="stat-lbl">Active Today</div></div>
+  </div>
+
+  {% if msg %}<div class="ok">{{ msg }}</div>{% endif %}
+  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+
+  <!-- Companies table -->
+  <h2>All Companies</h2>
+  <div class="card">
+    <div class="card-title">Registered companies</div>
+    {% if companies %}
+    <table>
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Plan</th>
+          <th>Bakes</th>
+          <th>Last Active</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for co in companies %}
+        <tr>
+          <td>
+            <div class="co-name">{{ co.name }}</div>
+            <div class="co-slug">{{ co.slug }}</div>
+          </td>
+          <td style="color:var(--muted);font-size:.8rem">{{ co.email or '—' }}</td>
+          <td><span class="plan-badge {% if co.plan=='pro' %}plan-pro{% endif %}">{{ co.plan }}</span></td>
+          <td><span class="bake-count">{{ co.bake_count }}</span></td>
+          <td class="last-active">{{ co.last_activity[:16] if co.last_activity else 'Never' }}</td>
+          <td>
+            <div class="actions">
+              <a class="view-btn" href="/admin/company/{{ co.id }}">View</a>
+              <form method="post" action="/admin/delete-company/{{ co.id }}" style="display:inline" onsubmit="return confirm('Delete {{ co.name }}? This cannot be undone.')">
+                <button class="del-btn">Delete</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:32px;color:var(--muted);font-size:.88rem">No companies yet — add one below or share the onboarding link.</div>
+    {% endif %}
+  </div>
+
+  <!-- Add company -->
+  <h2>Add Company Manually</h2>
+  <div class="card">
+    <div class="card-title">Create a company account directly</div>
+    <form method="post" action="/admin/add-company">
+      <div class="form-row">
+        <div>
+          <label>Company Name *</label>
+          <input name="company_name" placeholder="e.g. Acme Media" required>
+        </div>
+        <div>
+          <label>Password *</label>
+          <input type="password" name="password" placeholder="Temporary password" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Contact Name</label>
+          <input name="contact_name" placeholder="John Smith">
+        </div>
+        <div>
+          <label>Email</label>
+          <input type="email" name="email" placeholder="john@company.com">
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Telegram Chat ID</label>
+          <input name="tg_chat_id" placeholder="123456789">
+        </div>
+        <div>
+          <label>Plan</label>
+          <select name="plan">
+            <option value="basic">Basic</option>
+            <option value="pro">Pro</option>
+          </select>
+        </div>
+      </div>
+      <button class="add-btn">Add Company →</button>
+    </form>
+  </div>
+
+</div>
+</body>
+</html>

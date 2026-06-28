@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — BootHop Pipeline</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--pu:#c080ff;--r:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
+nav{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
+.logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.co-name{font-size:.82rem;color:var(--muted)}
+.logout{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid #ffffff15;border-radius:6px}
+.wrap{max-width:620px;margin:0 auto;padding:0 16px}
+h2{font-size:1.1rem;font-weight:800;margin:24px 0 12px}
+.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:20px;margin-bottom:16px}
+.card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+
+/* Video section */
+.video-wrap{position:relative;border-radius:10px;overflow:hidden;background:#000;margin-bottom:12px;aspect-ratio:9/16;max-height:320px}
+.video-wrap video{width:100%;height:100%;object-fit:cover}
+.upload-area{border:2px dashed #ffffff20;border-radius:10px;padding:32px;text-align:center;cursor:pointer;transition:.2s}
+.upload-area:hover{border-color:var(--or)}
+.upload-area p{color:var(--muted);font-size:.85rem;margin-top:8px}
+#video-name{font-size:.78rem;color:var(--green);margin-top:8px}
+
+/* Voice section */
+.rec-btn{width:100%;padding:14px;border:none;border-radius:10px;font-weight:800;font-size:.95rem;cursor:pointer;background:#dc2626;color:#fff;transition:.2s;margin-bottom:10px}
+.rec-btn.recording{background:#7f1d1d;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.rec-status{font-size:.8rem;color:var(--muted);text-align:center;margin-bottom:10px;min-height:18px}
+.or-divider{text-align:center;color:var(--muted);font-size:.75rem;margin:10px 0}
+.file-input-btn{width:100%;padding:10px;background:var(--card2);color:var(--text);border:1px solid #ffffff18;border-radius:8px;font-size:.85rem;cursor:pointer;text-align:center;display:block}
+#voice-name{font-size:.78rem;color:var(--green);margin-top:6px;text-align:center}
+
+/* Music section */
+select{width:100%;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:10px 12px;color:var(--text);font-size:.85rem;margin-bottom:10px;outline:none}
+select:focus{border-color:var(--or)}
+.yt-row{display:flex;gap:8px}
+.yt-input{flex:1;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:10px 12px;color:var(--text);font-size:.85rem;outline:none}
+.yt-input:focus{border-color:var(--or)}
+.yt-btn{padding:10px 16px;background:var(--or);color:#000;border:none;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
+.yt-status{font-size:.78rem;color:var(--muted);margin-top:6px;min-height:16px}
+
+/* Bake button */
+.bake-btn{width:100%;padding:16px;background:var(--gr);color:#000;font-weight:900;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:.2s}
+.bake-btn:disabled{background:#333;color:#666;cursor:not-allowed}
+.bake-status{text-align:center;padding:14px;font-size:.85rem;color:var(--muted);min-height:20px}
+
+/* Bake result */
+.bake-result{background:#00e67610;border:1px solid #00e67630;border-radius:10px;padding:16px;text-align:center;display:none}
+.bake-result p{color:var(--green);font-weight:700;margin-bottom:10px}
+.dl-btn{display:inline-block;padding:10px 20px;background:var(--green);color:#000;font-weight:800;border-radius:8px;text-decoration:none;font-size:.85rem;margin-right:8px}
+
+/* History */
+.bake-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ffffff08;font-size:.82rem}
+.bake-item:last-child{border-bottom:none}
+.bake-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
+.dot-done{background:var(--green)}
+.dot-fail{background:var(--red)}
+.dot-proc{background:var(--or)}
+.bake-info{flex:1;color:var(--muted)}
+.bake-dl{color:var(--blue);font-size:.78rem;text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <div>
+    <div class="logo">⚡ BootHop Pipeline</div>
+    <div class="co-name">{{ company.name }}</div>
+  </div>
+  <a href="/logout" class="logout">Sign out</a>
+</nav>
+
+<div class="wrap">
+
+  <!-- 1. Video -->
+  <h2>1. Your Video</h2>
+  <div class="card">
+    <div class="card-title">Upload or use existing video</div>
+    {% if latest_video %}
+    <div class="video-wrap">
+      <video id="vid-preview" src="/api/video-file?path={{ latest_video|urlencode }}" controls playsinline></video>
+    </div>
+    <div id="video-name" style="color:var(--muted)">Current: {{ latest_video.split('/')[-1].split('\\')[-1] }}</div>
+    <input type="hidden" id="video-path" value="{{ latest_video }}">
+    {% else %}
+    <div class="upload-area" onclick="document.getElementById('vid-file').click()">
+      <div style="font-size:2rem">🎬</div>
+      <p>Tap to upload a video file</p>
+    </div>
+    <div id="video-name"></div>
+    <input type="hidden" id="video-path" value="">
+    {% endif %}
+    <input type="file" id="vid-file" accept="video/*" style="display:none" onchange="uploadVideo(this)">
+    <div style="margin-top:10px">
+      <label style="font-size:.78rem;color:var(--muted);cursor:pointer" onclick="document.getElementById('vid-file').click()">📂 Upload different video</label>
+    </div>
+  </div>
+
+  <!-- 2. Voice -->
+  <h2>2. Your Voice</h2>
+  <div class="card">
+    <div class="card-title">Record or upload your voice</div>
+    <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">⏺ Start Recording</button>
+    <div class="rec-status" id="rec-status">Tap to start — read the script while recording</div>
+    <div class="or-divider">— or upload a file —</div>
+    <label class="file-input-btn" for="voice-file">📁 Choose audio file</label>
+    <input type="file" id="voice-file" accept="audio/*" style="display:none" onchange="loadVoiceFile(this)">
+    <div id="voice-name"></div>
+  </div>
+
+  <!-- 3. Music -->
+  <h2>3. Music</h2>
+  <div class="card">
+    <div class="card-title">Pick from library or search YouTube</div>
+    <select id="music-sel" onchange="selectMusic(this)">
+      <option value="">— No music (voice only) —</option>
+      {% for t in music_tracks %}
+      <option value="{{ t.path }}">{{ t.label }}</option>
+      {% endfor %}
+    </select>
+    <div class="yt-row">
+      <input class="yt-input" id="yt-query" placeholder="Search YouTube (e.g. afrobeats chill)" onkeydown="if(event.key==='Enter')ytDownload()">
+      <button class="yt-btn" onclick="ytDownload()">⬇ Get</button>
+    </div>
+    <div class="yt-status" id="yt-status"></div>
+  </div>
+
+  <!-- 4. Bake -->
+  <h2>4. Bake &amp; Send</h2>
+  <div class="card">
+    <button class="bake-btn" id="bake-btn" onclick="doBake()">✅ Bake Video</button>
+    <div class="bake-status" id="bake-status">Upload a video and record/upload voice first</div>
+    <div class="bake-result" id="bake-result">
+      <p>✅ Done! Video sent to your Telegram.</p>
+      <span id="dl-link"></span>
+    </div>
+  </div>
+
+  <!-- History -->
+  {% if bakes %}
+  <h2>Recent Bakes</h2>
+  <div class="card">
+    {% for b in bakes %}
+    <div class="bake-item">
+      <div class="bake-dot {% if b.status=='done' %}dot-done{% elif b.status=='failed' %}dot-fail{% else %}dot-proc{% endif %}"></div>
+      <div class="bake-info">{{ b.created_at[:16] }} · {{ b.status }}</div>
+      {% if b.status=='done' and b.output_path %}
+      <a class="bake-dl" href="/api/download-bake/{{ b.id }}">⬇ Download</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+let mediaRec = null, audioChunks = [], isRecording = false, voiceBlob = null;
+let videoPath = document.getElementById('video-path').value;
+let musicPath = '';
+
+function uploadVideo(inp) {
+  const f = inp.files[0]; if(!f) return;
+  const fd = new FormData(); fd.append('file', f);
+  document.getElementById('video-name').textContent = 'Uploading…';
+  fetch('/api/upload-video', {method:'POST', body:fd})
+    .then(r=>r.json()).then(d=>{
+      videoPath = d.path;
+      document.getElementById('video-path').value = d.path;
+      document.getElementById('video-name').textContent = '✓ ' + d.name;
+      document.getElementById('video-name').style.color = 'var(--green)';
+    }).catch(e=>{ document.getElementById('video-name').textContent = 'Upload failed: '+e; });
+}
+
+async function toggleRecord() {
+  if(!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      audioChunks = [];
+      mediaRec = new MediaRecorder(stream);
+      mediaRec.ondataavailable = e => { if(e.data.size>0) audioChunks.push(e.data); };
+      mediaRec.onstop = () => {
+        voiceBlob = new Blob(audioChunks, {type:'audio/webm'});
+        document.getElementById('voice-name').textContent = '✓ Recording saved (' + (voiceBlob.size/1024).toFixed(0) + ' KB)';
+        document.getElementById('voice-name').style.color = 'var(--green)';
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRec.start();
+      isRecording = true;
+      document.getElementById('rec-btn').textContent = '⏹ Stop Recording';
+      document.getElementById('rec-btn').classList.add('recording');
+      document.getElementById('rec-status').textContent = '● Recording… tap Stop when done';
+      _startTimer();
+    } catch(e) {
+      document.getElementById('rec-status').textContent = 'Mic access denied — check browser permissions';
+    }
+  } else {
+    mediaRec.stop(); isRecording = false;
+    document.getElementById('rec-btn').textContent = '⏺ Record Again';
+    document.getElementById('rec-btn').classList.remove('recording');
+    document.getElementById('rec-status').textContent = 'Saved! Tap Bake to use this recording.';
+    clearInterval(_timerInt);
+  }
+}
+let _timerInt, _secs=0;
+function _startTimer(){_secs=0;_timerInt=setInterval(()=>{_secs++;document.getElementById('rec-status').textContent='● Recording… '+_secs+'s — tap Stop when done';},1000);}
+
+function loadVoiceFile(inp) {
+  const f = inp.files[0]; if(!f) return;
+  voiceBlob = f;
+  document.getElementById('voice-name').textContent = '✓ ' + f.name;
+  document.getElementById('voice-name').style.color = 'var(--green)';
+}
+
+function selectMusic(sel) { musicPath = sel.value; }
+
+function ytDownload() {
+  const q = document.getElementById('yt-query').value.trim();
+  if(!q) return;
+  document.getElementById('yt-status').textContent = '⬇ Downloading… (~20 seconds)';
+  const fd = new FormData(); fd.append('query', q);
+  fetch('/api/youtube-music', {method:'POST', body:fd})
+    .then(r=>{ if(!r.ok) return r.text().then(t=>{throw t;}); return r.json(); })
+    .then(d=>{
+      musicPath = d.path;
+      const opt = new Option(d.label, d.path, true, true);
+      document.getElementById('music-sel').add(opt);
+      document.getElementById('yt-status').textContent = '✓ Added: ' + d.label;
+      document.getElementById('yt-status').style.color = 'var(--green)';
+    }).catch(e=>{ document.getElementById('yt-status').textContent = 'Failed: '+e; document.getElementById('yt-status').style.color='var(--red)'; });
+}
+
+async function doBake() {
+  if(!videoPath){ alert('Please upload a video first.'); return; }
+  if(!voiceBlob){ alert('Please record or upload a voice first.'); return; }
+  const fd = new FormData();
+  fd.append('video_path', videoPath);
+  fd.append('music_path', musicPath || '');
+  const ext = voiceBlob instanceof File ? voiceBlob.name.split('.').pop() : 'webm';
+  fd.append('voice', voiceBlob, 'voice.'+ext);
+  document.getElementById('bake-btn').disabled = true;
+  document.getElementById('bake-status').textContent = '⏳ Baking your video…';
+  document.getElementById('bake-result').style.display = 'none';
+  try {
+    const r = await fetch('/api/bake', {method:'POST', body:fd});
+    if(!r.ok) throw await r.text();
+    const d = await r.json();
+    pollJob(d.job_id, d.bake_id);
+  } catch(e) {
+    document.getElementById('bake-btn').disabled = false;
+    document.getElementById('bake-status').textContent = 'Error: '+e;
+    document.getElementById('bake-status').style.color = 'var(--red)';
+  }
+}
+
+function pollJob(jobId, bakeId) {
+  document.getElementById('bake-status').textContent = '⏳ Processing… (this takes ~30 seconds)';
+  const iv = setInterval(async()=>{
+    const r = await fetch('/api/job/'+jobId);
+    const d = await r.json();
+    if(d.status==='done'){
+      clearInterval(iv);
+      document.getElementById('bake-btn').disabled = false;
+      document.getElementById('bake-status').textContent = '';
+      document.getElementById('bake-result').style.display = 'block';
+      document.getElementById('dl-link').innerHTML = '<a class="dl-btn" href="/api/download-bake/'+bakeId+'">⬇ Download</a>';
+    } else if(d.status==='failed'){
+      clearInterval(iv);
+      document.getElementById('bake-btn').disabled = false;
+      document.getElementById('bake-status').textContent = 'Failed: '+(d.error||'unknown error');
+      document.getElementById('bake-status').style.color = 'var(--red)';
+    }
+  }, 3000);
+}
+</script>
+</body>
+</html>

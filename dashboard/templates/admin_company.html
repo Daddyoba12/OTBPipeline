@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ company.name }} — Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--r:14px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
+nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
+.logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.back{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid #ffffff15;border-radius:6px}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px}
+h2{font-size:1.1rem;font-weight:800;margin:28px 0 12px}
+.co-header{margin:24px 0 16px}
+.co-header h1{font-size:1.5rem;font-weight:900}
+.co-header .slug{font-size:.82rem;color:var(--muted);font-family:monospace;margin-top:2px}
+.meta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.meta-chip{font-size:.75rem;background:var(--card);border:1px solid #ffffff10;padding:5px 12px;border-radius:7px;color:var(--muted)}
+.meta-chip b{color:var(--text)}
+.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:20px;margin-bottom:16px}
+.card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}}
+.info-item{background:var(--card2);border-radius:8px;padding:10px 14px}
+.info-key{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.info-val{font-size:.88rem}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead th{text-align:left;font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:5px 8px;border-bottom:1px solid #ffffff12}
+tbody tr{border-bottom:1px solid #ffffff08}
+td{padding:9px 8px;vertical-align:middle}
+.status-done{color:var(--green);font-weight:700}
+.status-fail{color:var(--red)}
+.status-proc{color:var(--or)}
+.dl-link{color:var(--blue);font-size:.78rem;text-decoration:none}
+.del-zone{background:#ff404010;border:1px solid #ff404020;border-radius:var(--r);padding:20px}
+.del-zone p{color:var(--muted);font-size:.83rem;margin-bottom:14px}
+.del-btn{padding:10px 22px;background:var(--red);color:#fff;font-weight:800;font-size:.85rem;border:none;border-radius:8px;cursor:pointer}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:.85rem}
+</style>
+</head>
+<body>
+<nav>
+  <div class="logo">⚡ BootHop Pipeline</div>
+  <a href="/admin" class="back">← All Companies</a>
+</nav>
+
+<div class="wrap">
+
+  <div class="co-header">
+    <h1>{{ co.name }}</h1>
+    <div class="slug">ID: {{ co.slug }}</div>
+    <div class="meta-row">
+      <span class="meta-chip">Plan: <b>{{ co.plan }}</b></span>
+      <span class="meta-chip">Bakes: <b>{{ bakes|length }}</b></span>
+      {% if co.tg_chat_id %}<span class="meta-chip">Telegram: <b>{{ co.tg_chat_id }}</b></span>{% endif %}
+      {% if co.whatsapp %}<span class="meta-chip">WhatsApp: <b>{{ co.whatsapp }}</b></span>{% endif %}
+      <span class="meta-chip">Joined: <b>{{ co.created_at[:10] }}</b></span>
+    </div>
+  </div>
+
+  <!-- Company info -->
+  <h2>Details</h2>
+  <div class="card">
+    <div class="info-grid">
+      <div class="info-item"><div class="info-key">Contact</div><div class="info-val">{{ co.contact or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Email</div><div class="info-val">{{ co.email or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Telegram Chat ID</div><div class="info-val">{{ co.tg_chat_id or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">WhatsApp</div><div class="info-val">{{ co.whatsapp or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Plan</div><div class="info-val">{{ co.plan }}</div></div>
+      <div class="info-item"><div class="info-key">Created</div><div class="info-val">{{ co.created_at[:16] }}</div></div>
+    </div>
+  </div>
+
+  <!-- Bake history -->
+  <h2>Bake History ({{ bakes|length }})</h2>
+  <div class="card">
+    {% if bakes %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Music</th>
+          <th>Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in bakes %}
+        <tr>
+          <td style="color:var(--muted)">{{ b.id }}</td>
+          <td>{{ b.created_at[:16] }}</td>
+          <td>
+            <span class="{% if b.status=='done' %}status-done{% elif b.status=='failed' %}status-fail{% else %}status-proc{% endif %}">
+              {{ b.status }}
+            </span>
+          </td>
+          <td style="color:var(--muted);font-size:.78rem">{% if b.music_path %}✓{% else %}—{% endif %}</td>
+          <td>
+            {% if b.status=='done' and b.output_path %}
+            <a class="dl-link" href="/api/download-bake/{{ b.id }}">⬇ Download</a>
+            {% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty">No bakes yet for this company.</div>
+    {% endif %}
+  </div>
+
+  <!-- Danger zone -->
+  <h2>Danger Zone</h2>
+  <div class="del-zone">
+    <p>Permanently delete this company and all their bake history. This cannot be undone.</p>
+    <form method="post" action="/admin/delete-company/{{ co.id }}" onsubmit="return confirm('Permanently delete {{ co.name }}?')">
+      <button class="del-btn">Delete Company</button>
+    </form>
+  </div>
+
+</div>
+</body>
+</html>
