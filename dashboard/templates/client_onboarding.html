@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTB Pipeline — Client Onboarding</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08080f;--card:#121220;--card2:#1a1a2e;--border:#ffffff14;--border2:#ffffff22;
+  --or:#ff6b00;--or2:#ffb800;--or-g:linear-gradient(135deg,#ff6b00,#ffb800);
+  --green:#00e676;--red:#ff4040;--blue:#5ba4e6;--pu:#c080ff;
+  --text:#e0e0f0;--muted:#8888a8;--r:14px;--r2:10px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+/* Header */
+header{background:#08080fcc;backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 0;position:sticky;top:0;z-index:100}
+.wrap{max-width:780px;margin:0 auto;padding:0 20px}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.1rem;font-weight:800;background:var(--or-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:var(--or-g);display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:900;-webkit-text-fill-color:#fff;flex-shrink:0}
+.doc-tag{font-size:.64rem;color:var(--or);font-weight:700;padding:2px 8px;border:1px solid #ff6b0040;border-radius:20px;-webkit-text-fill-color:var(--or)}
+
+/* Hero */
+.hero{padding:44px 0 32px;text-align:center}
+.hero h1{font-size:2rem;font-weight:900;background:var(--or-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero p{font-size:.9rem;color:var(--muted);max-width:500px;margin:0 auto}
+
+/* Step indicator */
+.steps-bar{display:flex;align-items:center;justify-content:center;gap:0;margin:0 0 32px}
+.step-item{display:flex;align-items:center;gap:0}
+.step-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:var(--muted);transition:all .3s;cursor:default;flex-shrink:0}
+.step-dot.active{background:var(--or-g);border-color:transparent;color:#000}
+.step-dot.done{background:#00e67622;border-color:var(--green);color:var(--green)}
+.step-line{width:40px;height:2px;background:var(--border2);transition:background .3s}
+.step-line.done{background:var(--green)}
+.step-label{font-size:.6rem;color:var(--muted);text-align:center;margin-top:4px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.steps-labels{display:flex;justify-content:center;gap:0;margin-bottom:28px}
+.step-lbl-item{text-align:center;min-width:60px;font-size:.6rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.step-lbl-item.active{color:var(--or)}
+.step-lbl-item.done{color:var(--green)}
+
+/* Form card */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px 32px;margin-bottom:16px;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;inset:0;border-radius:var(--r);background:linear-gradient(135deg,#ffffff05,transparent 60%);pointer-events:none}
+.form-step{display:none}.form-step.active{display:block}
+
+/* Form elements */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+.field label span.req{color:var(--or);margin-left:2px}
+.field input,.field textarea,.field select{
+  width:100%;background:#0a0a14;border:1.5px solid var(--border2);
+  border-radius:var(--r2);padding:10px 14px;color:var(--text);font-size:.84rem;
+  font-family:inherit;transition:border-color .2s;outline:none;
+}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--or)}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+.field textarea{resize:vertical;min-height:80px}
+.field select option{background:#121220}
+.field-hint{font-size:.7rem;color:var(--muted);margin-top:4px;line-height:1.5}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.field-row{grid-template-columns:1fr}}
+
+/* Industry picker */
+.industry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:6px}
+.ind-card{background:#0a0a14;border:1.5px solid var(--border2);border-radius:var(--r2);padding:12px 10px;cursor:pointer;text-align:center;transition:all .2s;position:relative}
+.ind-card:hover{border-color:var(--border)}.ind-card.selected{border-color:var(--or);background:#ff6b0012}
+.ind-card .ind-icon{font-size:1.5rem;margin-bottom:4px}
+.ind-card .ind-name{font-size:.72rem;font-weight:700;color:var(--text)}
+.ind-card .ind-kws{font-size:.6rem;color:var(--muted);margin-top:2px}
+
+/* Platform picker */
+.platform-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:6px}
+.plat-card{background:#0a0a14;border:1.5px solid var(--border2);border-radius:var(--r2);padding:14px 12px;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:10px}
+.plat-card:hover{border-color:var(--border)}.plat-card.selected{border-color:var(--or);background:#ff6b0012}
+.plat-card.selected.tiktok{border-color:#00f2ea;background:#00f2ea10}
+.plat-card.selected.instagram{border-color:#e1306c;background:#e1306c10}
+.plat-card.selected.linkedin{border-color:#0a66c2;background:#0a66c210}
+.plat-card.selected.youtube{border-color:#ff0000;background:#ff000010}
+.plat-card.selected.telegram{border-color:#229ed9;background:#229ed910}
+.plat-icon{font-size:1.3rem;flex-shrink:0}
+.plat-label{font-size:.76rem;font-weight:700;color:var(--text)}
+.plat-sub{font-size:.62rem;color:var(--muted)}
+.plat-check{margin-left:auto;width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#000;transition:all .2s}
+.plat-card.selected .plat-check{background:var(--or);border-color:var(--or)}
+
+/* Tone & focus picker */
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.choice-card{background:#0a0a14;border:1.5px solid var(--border2);border-radius:var(--r2);padding:12px 14px;cursor:pointer;transition:all .2s}
+.choice-card:hover{border-color:var(--border)}.choice-card.selected{border-color:var(--or);background:#ff6b0012}
+.choice-card .c-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.choice-card .c-desc{font-size:.68rem;color:var(--muted);line-height:1.4}
+
+/* Comms picker */
+.comms-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:6px}
+.comms-card{background:#0a0a14;border:1.5px solid var(--border2);border-radius:var(--r2);padding:14px 12px;cursor:pointer;text-align:center;transition:all .2s}
+.comms-card:hover{border-color:var(--border)}.comms-card.selected{border-color:var(--green);background:#00e67610}
+.comms-icon{font-size:1.8rem;margin-bottom:6px}
+.comms-name{font-size:.76rem;font-weight:700;color:var(--text)}
+.comms-sub{font-size:.64rem;color:var(--muted);margin-top:2px}
+
+/* Credential fields */
+.cred-section{display:none;background:#0a0a14;border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-top:10px}
+.cred-section.show{display:block}
+.cred-title{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.cred-title .dot{width:6px;height:6px;border-radius:50%}
+
+/* Tags/keywords */
+.tags-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.tag{display:inline-flex;align-items:center;gap:5px;background:#1a1a2e;border:1px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:.72rem;color:var(--text);cursor:default}
+.tag .x{cursor:pointer;color:var(--muted);font-size:.65rem;line-height:1;padding:0 2px}.tag .x:hover{color:var(--red)}
+.tag-input{background:#0a0a14;border:1.5px solid var(--border2);border-radius:20px;padding:4px 12px;font-size:.72rem;color:var(--text);outline:none;width:120px;font-family:inherit}
+.tag-input:focus{border-color:var(--or)}
+
+/* Config preview */
+.config-preview{background:#0a0a14;border:1px solid var(--border);border-radius:var(--r2);padding:18px;font-family:'Courier New',monospace;font-size:.74rem;line-height:1.8;overflow-x:auto;white-space:pre;color:var(--text);max-height:420px;overflow-y:auto}
+.config-preview .cmt{color:var(--muted)}.config-preview .key{color:var(--or)}.config-preview .val{color:var(--green)}.config-preview .empty-val{color:#ff6b0070}
+
+/* Boxes */
+.box{padding:12px 16px;border-radius:var(--r2);margin:10px 0;font-size:.78rem;line-height:1.6}
+.box.info{background:#5ba4e612;border:1px solid #5ba4e640;color:var(--blue)}
+.box.tip{background:#00e67612;border:1px solid #00e67640;color:var(--green)}
+.box.warn{background:#ffb80012;border:1px solid #ffb80040;color:#ffcc55}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}
+.btn{padding:10px 22px;border-radius:var(--r2);font-size:.8rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;letter-spacing:.03em;display:inline-flex;align-items:center;gap:6px}
+.btn-or{background:var(--or-g);color:#000;min-width:120px;justify-content:center}.btn-or:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted)}.btn-ghost:hover{border-color:var(--border);color:var(--text)}
+.btn-green{background:linear-gradient(135deg,#00c853,#00e676);color:#000;min-width:140px;justify-content:center}.btn-green:hover{filter:brightness(1.05);transform:translateY(-1px)}
+.btn-dl{background:var(--card2);border:1px solid var(--border2);color:var(--text)}.btn-dl:hover{border-color:var(--green);color:var(--green)}
+.btn:disabled{opacity:.4;pointer-events:none}
+
+/* Success */
+.success-panel{display:none;text-align:center;padding:32px 0}
+.success-icon{font-size:3rem;margin-bottom:12px}
+.success-title{font-size:1.4rem;font-weight:900;background:var(--or-g);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.success-sub{font-size:.84rem;color:var(--muted);margin-bottom:24px}
+.next-steps{text-align:left;background:#0a0a14;border:1px solid var(--border);border-radius:var(--r2);padding:20px;max-width:500px;margin:0 auto}
+.next-steps h4{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.next-step-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--muted)}
+.next-step-item:last-child{border-bottom:none}
+.ns-num{width:20px;height:20px;border-radius:50%;background:var(--or-g);color:#000;font-size:.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+code{background:#1a1a2e;border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:'Courier New',monospace;font-size:.74rem;color:var(--or2)}
+
+footer{padding:40px 0 20px;text-align:center;color:var(--muted);font-size:.68rem}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hdr-inner">
+    <div class="logo"><div class="logo-icon">B</div>BootHop</div>
+    <div class="doc-tag">Client Onboarding</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="hero">
+  <h1>New Client Setup</h1>
+  <p>Fill in the details below — the system auto-generates your client's pipeline config, image keywords, AI content style, and platform wiring.</p>
+</div>
+
+<!-- Step indicator -->
+<div class="steps-bar">
+  <div class="step-item">
+    <div class="step-dot active" id="dot-1">1</div>
+    <div class="step-line" id="line-1"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-dot" id="dot-2">2</div>
+    <div class="step-line" id="line-2"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-dot" id="dot-3">3</div>
+    <div class="step-line" id="line-3"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-dot" id="dot-4">4</div>
+    <div class="step-line" id="line-4"></div>
+  </div>
+  <div class="step-item">
+    <div class="step-dot" id="dot-5">5</div>
+  </div>
+</div>
+<div class="steps-labels">
+  <div class="step-lbl-item active" id="lbl-1" style="min-width:80px">Business</div>
+  <div class="step-lbl-item" id="lbl-2" style="min-width:80px">Content</div>
+  <div class="step-lbl-item" id="lbl-3" style="min-width:80px">Platforms</div>
+  <div class="step-lbl-item" id="lbl-4" style="min-width:80px">Comms</div>
+  <div class="step-lbl-item" id="lbl-5" style="min-width:80px">Generate</div>
+</div>
+
+<div class="form-card">
+
+  <!-- ── STEP 1: Business Info ─────────────────────────────────────────────── -->
+  <div class="form-step active" id="step-1">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">Step 1 — Business Identity</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Brand / Company Name <span class="req">*</span></label>
+        <input type="text" id="f-company" placeholder="e.g. BootHop Logistics" oninput="syncPreview()">
+      </div>
+      <div class="field">
+        <label>Pipeline Folder Slug <span class="req">*</span></label>
+        <input type="text" id="f-slug" placeholder="boothop" oninput="syncPreview()">
+        <div class="field-hint">Lowercase, no spaces — used in URL path <code>/c/slug</code></div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Industry / Business Type <span class="req">*</span></label>
+      <div class="industry-grid" id="industry-grid"></div>
+      <div class="field" style="margin-top:10px;display:none" id="custom-ind-wrap">
+        <input type="text" id="f-industry-custom" placeholder="Describe your industry..." oninput="syncPreview()">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>What your business does <span class="req">*</span></label>
+      <textarea id="f-bio" rows="3" placeholder="e.g. We connect UK-based job seekers with hospitality employers through fast, efficient placement services. We serve candidates across London, Bristol, Manchester and Newcastle." oninput="syncPreview()"></textarea>
+      <div class="field-hint">This goes directly into the AI content generation prompt — be specific. Include your USP.</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Business Location <span class="req">*</span></label>
+        <input type="text" id="f-location" placeholder="e.g. London, UK" oninput="syncPreview()">
+      </div>
+      <div class="field">
+        <label>Area / Markets Covered <span class="req">*</span></label>
+        <input type="text" id="f-area" placeholder="e.g. UK and Nigeria" oninput="syncPreview()">
+        <div class="field-hint">Where your customers/clients are</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Target Audience</label>
+      <input type="text" id="f-audience" placeholder="e.g. Nigerian job seekers aged 21–35 looking for UK hospitality jobs" oninput="syncPreview()">
+    </div>
+
+    <div class="field">
+      <label>Visual Keywords <span style="color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none;font-size:.68rem">(auto-filled from industry — edit as needed)</span></label>
+      <div class="tags-wrap" id="kw-tags"></div>
+      <input class="tag-input" id="kw-input" placeholder="+ add keyword" onkeydown="addKwTag(event)">
+      <div class="field-hint">These are used to search Pexels & Pixabay for background images. Be specific to your brand visual style.</div>
+    </div>
+
+    <div class="btn-row" style="justify-content:flex-end">
+      <button class="btn btn-or" onclick="goStep(2)">Next: Content Strategy →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Content Strategy ─────────────────────────────────────────── -->
+  <div class="form-step" id="step-2">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">Step 2 — Content Strategy</div>
+
+    <div class="field">
+      <label>Marketing Focus <span class="req">*</span></label>
+      <div class="choice-grid" id="focus-grid">
+        <div class="choice-card selected" data-val="awareness_and_sales" onclick="pick('focus',this)">
+          <div class="c-title">⚡ Awareness + Sales (Recommended)</div>
+          <div class="c-desc">Mix of brand awareness and conversion content — what BootHop does. Best for most clients.</div>
+        </div>
+        <div class="choice-card" data-val="awareness" onclick="pick('focus',this)">
+          <div class="c-title">📣 Brand Awareness Only</div>
+          <div class="c-desc">Building brand recognition and trust. Good for new brands or repositioning.</div>
+        </div>
+        <div class="choice-card" data-val="sales" onclick="pick('focus',this)">
+          <div class="c-title">💰 Sales & Lead Generation</div>
+          <div class="c-desc">Direct response content — CTAs, offers, urgency. Good for product launches.</div>
+        </div>
+        <div class="choice-card" data-val="thought_leadership" onclick="pick('focus',this)">
+          <div class="c-title">🎓 Thought Leadership</div>
+          <div class="c-desc">Educational, expert-positioning content. Strong for LinkedIn-heavy strategies.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>Content Tone <span class="req">*</span></label>
+      <div class="choice-grid" id="tone-grid">
+        <div class="choice-card selected" data-val="inspirational" onclick="pick('tone',this)">
+          <div class="c-title">✨ Inspirational & Motivational</div>
+          <div class="c-desc">Empowering language that speaks to ambition and transformation.</div>
+        </div>
+        <div class="choice-card" data-val="nigerian_street" onclick="pick('tone',this)">
+          <div class="c-title">🇳🇬 Nigerian Street / Pidgin</div>
+          <div class="c-desc">Authentic Nigerian voice — relatable, culturally resonant, cheeky. Best for diaspora audience.</div>
+        </div>
+        <div class="choice-card" data-val="professional" onclick="pick('tone',this)">
+          <div class="c-title">🤝 Professional & Corporate</div>
+          <div class="c-desc">Clean, authoritative, polished. Best for B2B or financial services.</div>
+        </div>
+        <div class="choice-card" data-val="casual_friendly" onclick="pick('tone',this)">
+          <div class="c-title">😊 Casual & Friendly</div>
+          <div class="c-desc">Conversational, warm, approachable. Good for lifestyle and consumer brands.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>Content Niche Keywords <span style="font-weight:400;color:var(--muted);letter-spacing:0;text-transform:none;font-size:.68rem">(auto-set — override if needed)</span></label>
+      <input type="text" id="f-content-niche" placeholder="e.g. UK jobs, hospitality, Nigerian diaspora, work permit, career change" oninput="syncPreview()">
+      <div class="field-hint">These guide what topics Claude AI focuses on when generating hooks. 5–8 keywords works best.</div>
+    </div>
+
+    <div class="field">
+      <label>Brand Voice Notes</label>
+      <textarea id="f-voice-notes" rows="2" placeholder="e.g. Always mention the UK and Nigeria connection. Avoid formal corporate language. Never say 'utilize'. Use 'you' a lot." oninput="syncPreview()"></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+      <button class="btn btn-or" onclick="goStep(3)">Next: Platforms →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Platforms ─────────────────────────────────────────────────── -->
+  <div class="form-step" id="step-3">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">Step 3 — Platforms &amp; Credentials</div>
+
+    <div class="field">
+      <label>Select platforms to post on <span class="req">*</span></label>
+      <div class="platform-grid">
+        <div class="plat-card tiktok selected" data-plat="tiktok" onclick="togglePlat(this)">
+          <div class="plat-icon">🎵</div>
+          <div><div class="plat-label">TikTok</div><div class="plat-sub">Short video feed</div></div>
+          <div class="plat-check">✓</div>
+        </div>
+        <div class="plat-card instagram selected" data-plat="instagram" onclick="togglePlat(this)">
+          <div class="plat-icon">📷</div>
+          <div><div class="plat-label">Instagram</div><div class="plat-sub">Feed + Stories</div></div>
+          <div class="plat-check">✓</div>
+        </div>
+        <div class="plat-card linkedin selected" data-plat="linkedin" onclick="togglePlat(this)">
+          <div class="plat-icon">💼</div>
+          <div><div class="plat-label">LinkedIn</div><div class="plat-sub">B2B article post</div></div>
+          <div class="plat-check">✓</div>
+        </div>
+        <div class="plat-card youtube" data-plat="youtube" onclick="togglePlat(this)">
+          <div class="plat-icon">▶️</div>
+          <div><div class="plat-label">YouTube Shorts</div><div class="plat-sub">Short-form video</div></div>
+          <div class="plat-check"></div>
+        </div>
+        <div class="plat-card telegram" data-plat="telegram_channel" onclick="togglePlat(this)">
+          <div class="plat-icon">✈️</div>
+          <div><div class="plat-label">Telegram Channel</div><div class="plat-sub">Broadcast content</div></div>
+          <div class="plat-check"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TikTok credentials -->
+    <div class="cred-section show" id="cred-tiktok">
+      <div class="cred-title"><div class="dot" style="background:#00f2ea"></div> TikTok Credentials</div>
+      <div class="field"><input type="text" id="f-tiktok-session" placeholder="TikTok session ID (from browser cookies)" oninput="syncPreview()"></div>
+      <div class="box info" style="margin:0">Get from browser: Log into TikTok → F12 → Application → Cookies → tiktok.com → copy <code>sessionid</code> value.</div>
+    </div>
+
+    <!-- Instagram credentials -->
+    <div class="cred-section show" id="cred-instagram">
+      <div class="cred-title"><div class="dot" style="background:#e1306c"></div> Instagram Credentials</div>
+      <div class="field-row">
+        <div class="field"><label>Username</label><input type="text" id="f-ig-user" placeholder="@handle" oninput="syncPreview()"></div>
+        <div class="field"><label>Password</label><input type="password" id="f-ig-pass" placeholder="Account password" oninput="syncPreview()"></div>
+      </div>
+      <div class="box warn" style="margin:0">Must be a Business or Creator account. Disable 2FA or set an App Password in Instagram settings.</div>
+    </div>
+
+    <!-- LinkedIn credentials -->
+    <div class="cred-section show" id="cred-linkedin">
+      <div class="cred-title"><div class="dot" style="background:#0a66c2"></div> LinkedIn Credentials</div>
+      <div class="field"><input type="text" id="f-li-token" placeholder="LinkedIn OAuth Access Token" oninput="syncPreview()"></div>
+      <div class="box info" style="margin:0">Create LinkedIn Developer App → OAuth 2.0 → Generate token with <code>w_member_social</code> scope. Expires every 60 days.</div>
+    </div>
+
+    <!-- YouTube credentials -->
+    <div class="cred-section" id="cred-youtube">
+      <div class="cred-title"><div class="dot" style="background:#ff0000"></div> YouTube Credentials</div>
+      <div class="field-row">
+        <div class="field"><label>YouTube Data API Key</label><input type="text" id="f-yt-api" placeholder="AIza..." oninput="syncPreview()"></div>
+        <div class="field"><label>Channel ID</label><input type="text" id="f-yt-channel" placeholder="UCxxxxxxxx" oninput="syncPreview()"></div>
+      </div>
+    </div>
+
+    <!-- Telegram channel credentials -->
+    <div class="cred-section" id="cred-telegram_channel">
+      <div class="cred-title"><div class="dot" style="background:#229ed9"></div> Telegram Channel</div>
+      <div class="field"><input type="text" id="f-tg-channel" placeholder="@channel_name or -100xxxxxxxxxx" oninput="syncPreview()"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+      <button class="btn btn-or" onclick="goStep(4)">Next: Notifications →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Comms / Notifications ─────────────────────────────────────── -->
+  <div class="form-step" id="step-4">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:20px">Step 4 — Real-time Notifications</div>
+
+    <div class="box info">How should the pipeline deliver completed videos, alerts, and reports to the client in real-time?</div>
+
+    <div class="field" style="margin-top:16px">
+      <label>Notification Channel <span class="req">*</span></label>
+      <div class="comms-grid">
+        <div class="comms-card selected" data-comms="telegram" onclick="pickComms(this)">
+          <div class="comms-icon">✈️</div>
+          <div class="comms-name">Telegram</div>
+          <div class="comms-sub">Bot delivers videos + alerts to phone</div>
+        </div>
+        <div class="comms-card" data-comms="whatsapp" onclick="pickComms(this)">
+          <div class="comms-icon">💬</div>
+          <div class="comms-name">WhatsApp</div>
+          <div class="comms-sub">Via Twilio API — messages to WhatsApp number</div>
+        </div>
+        <div class="comms-card" data-comms="both" onclick="pickComms(this)">
+          <div class="comms-icon">📱</div>
+          <div class="comms-name">Both</div>
+          <div class="comms-sub">Telegram + WhatsApp notifications</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Telegram bot -->
+    <div class="cred-section show" id="cred-comms-telegram">
+      <div class="cred-title"><div class="dot" style="background:#229ed9"></div> Telegram Bot Setup</div>
+      <div class="field-row">
+        <div class="field"><label>Bot Token</label><input type="text" id="f-tg-token" placeholder="1234567890:ABCdef..." oninput="syncPreview()"></div>
+        <div class="field"><label>Chat ID</label><input type="text" id="f-tg-chatid" placeholder="-100123456789 or 123456789" oninput="syncPreview()"></div>
+      </div>
+      <div class="box tip" style="margin:0">
+        Create bot: Message <strong>@BotFather</strong> → /newbot → copy token.<br>
+        Get Chat ID: Message your bot once, then visit <code>api.telegram.org/bot{TOKEN}/getUpdates</code> — find <code>chat.id</code>.
+      </div>
+    </div>
+
+    <!-- WhatsApp via Twilio -->
+    <div class="cred-section" id="cred-comms-whatsapp">
+      <div class="cred-title"><div class="dot" style="background:#25d366"></div> WhatsApp (Twilio API)</div>
+      <div class="field"><label>Client WhatsApp Number</label><input type="text" id="f-wa-number" placeholder="+447911123456" oninput="syncPreview()"></div>
+      <div class="field-row">
+        <div class="field"><label>Twilio Account SID</label><input type="text" id="f-twilio-sid" placeholder="ACxxxxxxxxxxxxxxxx" oninput="syncPreview()"></div>
+        <div class="field"><label>Twilio Auth Token</label><input type="text" id="f-twilio-token" placeholder="your-twilio-auth-token" oninput="syncPreview()"></div>
+      </div>
+      <div class="field"><label>Twilio WhatsApp Number (from)</label><input type="text" id="f-twilio-from" placeholder="whatsapp:+14155238886" value="whatsapp:+14155238886" oninput="syncPreview()"></div>
+      <div class="box info" style="margin:0">Sign up at <strong>twilio.com</strong> → Messaging → Senders → WhatsApp Senders. Sandbox available for testing. ~$0.005/message.</div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+      <button class="btn btn-or" onclick="goStep(5)">Next: Generate Config →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Generate ───────────────────────────────────────────────────── -->
+  <div class="form-step" id="step-5">
+    <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Step 5 — Generated Config</div>
+
+    <div class="box tip">✅ All settings captured. Preview your generated <code>config.env</code> below, then download and send to the client.</div>
+
+    <div style="margin:14px 0 6px;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">config.env preview</div>
+    <div class="config-preview" id="config-preview">Generating…</div>
+
+    <div style="margin:14px 0 6px;font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase">pipeline_profile.json preview</div>
+    <div class="config-preview" id="profile-preview">Generating…</div>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button class="btn btn-ghost" onclick="goStep(4)">← Back</button>
+      <button class="btn btn-dl" onclick="downloadConfig()">⬇ Download config.env</button>
+      <button class="btn btn-dl" onclick="downloadProfile()">⬇ Download profile.json</button>
+      <button class="btn btn-green" onclick="saveClient()">✅ Save &amp; Register Client</button>
+    </div>
+
+    <div class="success-panel" id="success-panel">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">Client Registered!</div>
+      <div class="success-sub" id="success-msg">Pipeline wired and ready.</div>
+      <div class="next-steps">
+        <h4>Next Steps</h4>
+        <div class="next-step-item"><div class="ns-num">1</div><div>Send the downloaded <code>config.env</code> to the client — they put it in the same folder as <code>OTBCommander.exe</code>.</div></div>
+        <div class="next-step-item"><div class="ns-num">2</div><div>Send the Commander .exe — client double-clicks, browser opens at <code>localhost:1031</code>.</div></div>
+        <div class="next-step-item"><div class="ns-num">3</div><div>Their pipeline is accessible at <code>localhost:1031/c/<span id="ns-slug"></span></code> on this machine, or their own machine.</div></div>
+        <div class="next-step-item"><div class="ns-num">4</div><div>Verify first pipeline run — confirm Telegram/WhatsApp delivers the video + all platforms post successfully.</div></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+        <a href="/" style="text-decoration:none"><button class="btn btn-ghost">← Back to Dashboard</button></a>
+        <a href="/requirements" style="text-decoration:none"><button class="btn btn-ghost">📋 API Requirements Sheet</button></a>
+        <button class="btn btn-or" onclick="resetForm()">+ Onboard Another Client</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /form-card -->
+
+<footer><div class="wrap">OTB Pipeline — Client Onboarding &nbsp;·&nbsp; <span style="color:var(--or)">localhost:1031</span></div></footer>
+</div><!-- /wrap -->
+
+<script>
+// ── Industry definitions ────────────────────────────────────────────────────────
+const INDUSTRIES = [
+  {id:'logistics',name:'Logistics / Delivery',icon:'✈️',kws:['delivery','airplane','cargo','movement','logistics','shipping','airport','supply chain','freight'],niche:'logistics, delivery, supply chain, movement, cargo'},
+  {id:'hospitality',name:'Hospitality / Jobs',icon:'🏨',kws:['hotel','hospitality','restaurant staff','chef','waiter','front desk','service','careers'],niche:'hospitality jobs, career opportunities, UK hospitality, placement'},
+  {id:'restaurant',name:'Food & Restaurant',icon:'🍽️',kws:['food','cooking','restaurant','dining','chef','kitchen','fresh ingredients','cuisine'],niche:'food, dining, restaurant, cuisine, fresh cooking'},
+  {id:'tech',name:'Tech / SaaS',icon:'💻',kws:['technology','software','laptop','code','digital','innovation','startup','AI','data'],niche:'technology, software, innovation, digital transformation'},
+  {id:'real_estate',name:'Real Estate',icon:'🏡',kws:['property','house','building','architecture','apartment','city skyline','real estate','neighbourhood'],niche:'real estate, property, investment, homes, development'},
+  {id:'healthcare',name:'Health & Wellness',icon:'⚕️',kws:['health','wellness','doctor','hospital','fitness','medical','care','healthy living'],niche:'healthcare, wellness, medical, fitness, healthy lifestyle'},
+  {id:'finance',name:'Finance / Fintech',icon:'💰',kws:['money','investment','finance','banking','success','growth','charts','business'],niche:'finance, investment, money, fintech, wealth management'},
+  {id:'fashion',name:'Fashion & Beauty',icon:'👗',kws:['fashion','clothing','style','model','boutique','design','beauty','cosmetics'],niche:'fashion, style, beauty, clothing, lifestyle'},
+  {id:'education',name:'Education',icon:'🎓',kws:['education','learning','school','student','book','knowledge','university','training'],niche:'education, learning, skills, training, knowledge'},
+  {id:'fitness',name:'Fitness & Sports',icon:'💪',kws:['fitness','gym','workout','sports','athlete','health','training','exercise'],niche:'fitness, sports, exercise, health, training'},
+  {id:'entertainment',name:'Entertainment',icon:'🎬',kws:['entertainment','music','event','performance','concert','fun','lifestyle','celebrity'],niche:'entertainment, music, events, performance, lifestyle'},
+  {id:'other',name:'Other / Custom',icon:'⚙️',kws:[],niche:''},
+];
+
+const _state = {
+  industry: 'logistics',
+  focus:    'awareness_and_sales',
+  tone:     'inspirational',
+  comms:    'telegram',
+  keywords: [...INDUSTRIES[0].kws],
+  platforms: {tiktok:true,instagram:true,linkedin:true,youtube:false,telegram_channel:false},
+};
+
+// ── Build industry grid ────────────────────────────────────────────────────────
+function buildIndustryGrid(){
+  const g = document.getElementById('industry-grid');
+  g.innerHTML = INDUSTRIES.map(ind=>`
+    <div class="ind-card ${ind.id===_state.industry?'selected':''}" data-ind="${ind.id}" onclick="pickIndustry(this)">
+      <div class="ind-icon">${ind.icon}</div>
+      <div class="ind-name">${ind.name}</div>
+    </div>
+  `).join('');
+}
+
+function pickIndustry(el){
+  document.querySelectorAll('.ind-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  _state.industry = el.dataset.ind;
+  const ind = INDUSTRIES.find(i=>i.id===_state.industry);
+  if(ind){
+    _state.keywords = [...ind.kws];
+    renderTags();
+    if(ind.id==='other'){document.getElementById('custom-ind-wrap').style.display='';}
+    else{document.getElementById('custom-ind-wrap').style.display='none';}
+    const ni = document.getElementById('f-content-niche');
+    if(ni && !ni._userEdited) ni.value = ind.niche;
+  }
+  syncPreview();
+}
+
+// ── Tags ───────────────────────────────────────────────────────────────────────
+function renderTags(){
+  const wrap = document.getElementById('kw-tags');
+  wrap.innerHTML = _state.keywords.map((kw,i)=>`
+    <div class="tag">${kw}<span class="x" onclick="removeKw(${i})">✕</span></div>
+  `).join('');
+  syncPreview();
+}
+
+function removeKw(i){ _state.keywords.splice(i,1); renderTags(); }
+
+function addKwTag(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.trim().replace(',','');
+    if(v && !_state.keywords.includes(v)){_state.keywords.push(v);renderTags();}
+    e.target.value='';
+  }
+}
+
+// ── Generic pickers ────────────────────────────────────────────────────────────
+function pick(type,el){
+  const grid=el.parentElement;
+  grid.querySelectorAll('.choice-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  _state[type]=el.dataset.val;
+  syncPreview();
+}
+
+function togglePlat(el){
+  const plat=el.dataset.plat;
+  const was=el.classList.contains('selected');
+  el.classList.toggle('selected',!was);
+  el.querySelector('.plat-check').textContent=was?'':'✓';
+  _state.platforms[plat]=!was;
+  // Show/hide cred sections
+  const credEl=document.getElementById('cred-'+plat);
+  if(credEl){credEl.classList.toggle('show',!was);}
+  syncPreview();
+}
+
+function pickComms(el){
+  document.querySelectorAll('.comms-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  _state.comms=el.dataset.comms;
+  const hasTg=_state.comms==='telegram'||_state.comms==='both';
+  const hasWa=_state.comms==='whatsapp'||_state.comms==='both';
+  document.getElementById('cred-comms-telegram').classList.toggle('show',hasTg);
+  document.getElementById('cred-comms-whatsapp').classList.toggle('show',hasWa);
+  syncPreview();
+}
+
+// ── Step navigation ────────────────────────────────────────────────────────────
+function goStep(n){
+  document.querySelectorAll('.form-step').forEach((s,i)=>s.classList.toggle('active',i===n-1));
+  for(let i=1;i<=5;i++){
+    document.getElementById('dot-'+i).className='step-dot'+(i<n?' done':i===n?' active':'');
+    document.getElementById('dot-'+i).textContent=i<n?'✓':i;
+    document.getElementById('lbl-'+i).className='step-lbl-item'+(i<n?' done':i===n?' active':'');
+    if(i<5)document.getElementById('line-'+i).className='step-line'+(i<n?' done':'');
+  }
+  if(n===5)buildConfigPreview();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Config preview ─────────────────────────────────────────────────────────────
+function syncPreview(){ if(document.getElementById('step-5').classList.contains('active')) buildConfigPreview(); }
+
+function v(id){return(document.getElementById(id)||{value:''}).value.trim();}
+
+function buildConfigPreview(){
+  const company  = v('f-company')||'YourCompany';
+  const slug     = v('f-slug')||company.toLowerCase().replace(/\s+/g,'-');
+  const bio      = v('f-bio');
+  const loc      = v('f-location');
+  const area     = v('f-area');
+  const audience = v('f-audience');
+  const niche    = v('f-content-niche');
+  const voiceN   = v('f-voice-notes');
+  const kws      = _state.keywords.join(',');
+  const ind      = INDUSTRIES.find(i=>i.id===_state.industry)||INDUSTRIES[0];
+  const hasTg    = _state.comms==='telegram'||_state.comms==='both';
+  const hasWa    = _state.comms==='whatsapp'||_state.comms==='both';
+
+  const cmt=s=>`<span class="cmt">${s}</span>`;
+  const key=s=>`<span class="key">${s}</span>`;
+  const val=s=>s?`<span class="val">${s}</span>`:`<span class="empty-val">FILL_IN</span>`;
+  const flag=b=>`<span class="val">${b?'true':'false'}</span>`;
+
+  const conf = [
+    cmt('# ── Company Identity ──────────────────────────────────────────────'),
+    `${key('COMPANY_NAME')}=${val(company)}`,
+    `${key('COMPANY_SLUG')}=${val(slug)}`,
+    `${key('PIPELINE_ROOT')}=${val('C:\\OTBClients\\'+slug)}`,
+    `${key('BUSINESS_TYPE')}=${val(ind.id)}`,
+    `${key('BUSINESS_LOCATION')}=${val(loc)}`,
+    `${key('AREA_COVERED')}=${val(area)}`,
+    `${key('TARGET_AUDIENCE')}=${val(audience)}`,
+    '',
+    cmt('# ── Content Strategy ─────────────────────────────────────────────'),
+    `${key('MARKETING_FOCUS')}=${val(_state.focus)}`,
+    `${key('CONTENT_TONE')}=${val(_state.tone)}`,
+    `${key('CONTENT_NICHE')}=${val(niche||ind.niche)}`,
+    `${key('VISUAL_KEYWORDS')}=${val(kws)}`,
+    bio?`${key('BUSINESS_BIO')}=${val(bio.replace(/\n/g,' '))}`:cmt('# BUSINESS_BIO not set'),
+    voiceN?`${key('BRAND_VOICE_NOTES')}=${val(voiceN.replace(/\n/g,' '))}`:cmt('# BRAND_VOICE_NOTES not set'),
+    '',
+    cmt('# ── Platform Flags ────────────────────────────────────────────────'),
+    `${key('POST_TIKTOK')}=${flag(_state.platforms.tiktok)}`,
+    `${key('POST_INSTAGRAM')}=${flag(_state.platforms.instagram)}`,
+    `${key('POST_INSTAGRAM_STORY')}=${flag(_state.platforms.instagram)}`,
+    `${key('POST_LINKEDIN')}=${flag(_state.platforms.linkedin)}`,
+    `${key('POST_YOUTUBE')}=${flag(_state.platforms.youtube)}`,
+    `${key('POST_TELEGRAM_CHANNEL')}=${flag(_state.platforms.telegram_channel)}`,
+    '',
+    cmt('# ── Social Credentials ────────────────────────────────────────────'),
+    _state.platforms.tiktok?`${key('TIKTOK_SESSION_ID')}=${val(v('f-tiktok-session'))}`:cmt('# TikTok disabled'),
+    _state.platforms.instagram?[
+      `${key('INSTAGRAM_USERNAME')}=${val(v('f-ig-user'))}`,
+      `${key('INSTAGRAM_PASSWORD')}=${val(v('f-ig-pass'))}`,
+    ].join('\n'):cmt('# Instagram disabled'),
+    _state.platforms.linkedin?`${key('LINKEDIN_ACCESS_TOKEN')}=${val(v('f-li-token'))}`:cmt('# LinkedIn disabled'),
+    _state.platforms.youtube?[
+      `${key('YOUTUBE_API_KEY')}=${val(v('f-yt-api'))}`,
+      `${key('YOUTUBE_CHANNEL_ID')}=${val(v('f-yt-channel'))}`,
+    ].join('\n'):cmt('# YouTube disabled'),
+    _state.platforms.telegram_channel?`${key('TELEGRAM_BROADCAST_CHANNEL')}=${val(v('f-tg-channel'))}`:cmt('# Telegram channel disabled'),
+    '',
+    cmt('# ── Notifications ─────────────────────────────────────────────────'),
+    `${key('NOTIFY_TELEGRAM')}=${flag(hasTg)}`,
+    `${key('NOTIFY_WHATSAPP')}=${flag(hasWa)}`,
+    hasTg?[
+      `${key('TELEGRAM_TOKEN')}=${val(v('f-tg-token'))}`,
+      `${key('TELEGRAM_CHAT_ID')}=${val(v('f-tg-chatid'))}`,
+    ].join('\n'):cmt('# Telegram notifications off'),
+    hasWa?[
+      `${key('WHATSAPP_NUMBER')}=${val(v('f-wa-number'))}`,
+      `${key('TWILIO_SID')}=${val(v('f-twilio-sid'))}`,
+      `${key('TWILIO_AUTH_TOKEN')}=${val(v('f-twilio-token'))}`,
+      `${key('TWILIO_WHATSAPP_FROM')}=${val(v('f-twilio-from')||'whatsapp:+14155238886')}`,
+    ].join('\n'):cmt('# WhatsApp notifications off'),
+    '',
+    cmt('# ── AI Keys ───────────────────────────────────────────────────────'),
+    `${key('ANTHROPIC_API_KEY')}=${val('')}`,
+    `${key('OPENAI_API_KEY')}=${val('')}`,
+    '',
+    cmt('# ── Media APIs ────────────────────────────────────────────────────'),
+    `${key('PEXELS_API_KEY')}=${val('')}`,
+    `${key('PIXABAY_API_KEY')}=${val('')}`,
+  ].join('\n');
+
+  document.getElementById('config-preview').innerHTML=conf;
+
+  // Profile JSON
+  const profile = {
+    company:        company,
+    slug:           slug,
+    industry:       ind.id,
+    industry_name:  ind.name,
+    location:       loc,
+    area_covered:   area,
+    target_audience:audience,
+    marketing_focus:_state.focus,
+    content_tone:   _state.tone,
+    content_niche:  niche||ind.niche,
+    visual_keywords:_state.keywords,
+    business_bio:   bio,
+    brand_voice:    voiceN,
+    platforms:      _state.platforms,
+    notifications:  {telegram:hasTg, whatsapp:hasWa},
+    created_at:     new Date().toISOString(),
+  };
+  document.getElementById('profile-preview').textContent=JSON.stringify(profile,null,2);
+}
+
+// ── Downloads ──────────────────────────────────────────────────────────────────
+function getRawConfig(){
+  const company  = v('f-company')||'YourCompany';
+  const slug     = v('f-slug')||company.toLowerCase().replace(/\s+/g,'-');
+  const bio      = v('f-bio');
+  const niche    = v('f-content-niche');
+  const kws      = _state.keywords.join(',');
+  const ind      = INDUSTRIES.find(i=>i.id===_state.industry)||INDUSTRIES[0];
+  const hasTg    = _state.comms==='telegram'||_state.comms==='both';
+  const hasWa    = _state.comms==='whatsapp'||_state.comms==='both';
+  const lines = [
+    '# OTB Pipeline — Client Configuration',
+    `# Generated: ${new Date().toLocaleString()}`,
+    `# Client: ${company}`,
+    '',
+    '# ── Company Identity ──',
+    `COMPANY_NAME=${company}`,
+    `COMPANY_SLUG=${slug}`,
+    `PIPELINE_ROOT=C:\\OTBClients\\${slug}`,
+    `BUSINESS_TYPE=${ind.id}`,
+    `BUSINESS_LOCATION=${v('f-location')}`,
+    `AREA_COVERED=${v('f-area')}`,
+    `TARGET_AUDIENCE=${v('f-audience')}`,
+    `BUSINESS_BIO=${bio.replace(/\n/g,' ')}`,
+    '',
+    '# ── Content Strategy ──',
+    `MARKETING_FOCUS=${_state.focus}`,
+    `CONTENT_TONE=${_state.tone}`,
+    `CONTENT_NICHE=${niche||ind.niche}`,
+    `VISUAL_KEYWORDS=${kws}`,
+    `BRAND_VOICE_NOTES=${v('f-voice-notes').replace(/\n/g,' ')}`,
+    '',
+    '# ── Platform Flags ──',
+    `POST_TIKTOK=${_state.platforms.tiktok}`,
+    `POST_INSTAGRAM=${_state.platforms.instagram}`,
+    `POST_INSTAGRAM_STORY=${_state.platforms.instagram}`,
+    `POST_LINKEDIN=${_state.platforms.linkedin}`,
+    `POST_YOUTUBE=${_state.platforms.youtube}`,
+    `POST_TELEGRAM_CHANNEL=${_state.platforms.telegram_channel}`,
+    '',
+    '# ── Social Credentials ──',
+    `TIKTOK_SESSION_ID=${v('f-tiktok-session')}`,
+    `INSTAGRAM_USERNAME=${v('f-ig-user')}`,
+    `INSTAGRAM_PASSWORD=${v('f-ig-pass')}`,
+    `LINKEDIN_ACCESS_TOKEN=${v('f-li-token')}`,
+    `YOUTUBE_API_KEY=${v('f-yt-api')}`,
+    `YOUTUBE_CHANNEL_ID=${v('f-yt-channel')}`,
+    `TELEGRAM_BROADCAST_CHANNEL=${v('f-tg-channel')}`,
+    '',
+    '# ── Notifications ──',
+    `NOTIFY_TELEGRAM=${hasTg}`,
+    `NOTIFY_WHATSAPP=${hasWa}`,
+    `TELEGRAM_TOKEN=${v('f-tg-token')}`,
+    `TELEGRAM_CHAT_ID=${v('f-tg-chatid')}`,
+    `WHATSAPP_NUMBER=${v('f-wa-number')}`,
+    `TWILIO_SID=${v('f-twilio-sid')}`,
+    `TWILIO_AUTH_TOKEN=${v('f-twilio-token')}`,
+    `TWILIO_WHATSAPP_FROM=${v('f-twilio-from')||'whatsapp:+14155238886'}`,
+    '',
+    '# ── AI Keys ──',
+    'ANTHROPIC_API_KEY=',
+    'OPENAI_API_KEY=',
+    '',
+    '# ── Media APIs ──',
+    'PEXELS_API_KEY=',
+    'PIXABAY_API_KEY=',
+  ];
+  return lines.join('\n');
+}
+
+function downloadConfig(){
+  const slug=v('f-slug')||(v('f-company')||'client').toLowerCase().replace(/\s+/g,'-');
+  dl(`config_${slug}.env`, getRawConfig());
+}
+
+function downloadProfile(){
+  const slug=v('f-slug')||(v('f-company')||'client').toLowerCase().replace(/\s+/g,'-');
+  const company=v('f-company')||'YourCompany';
+  const ind=INDUSTRIES.find(i=>i.id===_state.industry)||INDUSTRIES[0];
+  const niche=v('f-content-niche');
+  const hasTg=_state.comms==='telegram'||_state.comms==='both';
+  const hasWa=_state.comms==='whatsapp'||_state.comms==='both';
+  const profile={
+    company,slug,industry:ind.id,industry_name:ind.name,
+    location:v('f-location'),area_covered:v('f-area'),
+    target_audience:v('f-audience'),marketing_focus:_state.focus,
+    content_tone:_state.tone,content_niche:niche||ind.niche,
+    visual_keywords:_state.keywords,business_bio:v('f-bio'),
+    brand_voice:v('f-voice-notes'),platforms:_state.platforms,
+    notifications:{telegram:hasTg,whatsapp:hasWa},
+    created_at:new Date().toISOString(),
+  };
+  dl(`profile_${slug}.json`, JSON.stringify(profile,null,2));
+}
+
+function dl(filename, content){
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(content);
+  a.download=filename; a.click();
+}
+
+// ── Save to server ─────────────────────────────────────────────────────────────
+async function saveClient(){
+  const company=v('f-company');
+  const slug=v('f-slug')||(company||'client').toLowerCase().replace(/\s+/g,'-');
+  if(!company||!slug){alert('Company name and slug are required');return;}
+
+  const ind=INDUSTRIES.find(i=>i.id===_state.industry)||INDUSTRIES[0];
+  const niche=v('f-content-niche');
+  const hasTg=_state.comms==='telegram'||_state.comms==='both';
+  const hasWa=_state.comms==='whatsapp'||_state.comms==='both';
+
+  const payload={
+    company, slug,
+    industry: ind.id, industry_name: ind.name,
+    location: v('f-location'), area_covered: v('f-area'),
+    target_audience: v('f-audience'),
+    marketing_focus: _state.focus, content_tone: _state.tone,
+    content_niche: niche||ind.niche,
+    visual_keywords: _state.keywords,
+    business_bio: v('f-bio'), brand_voice: v('f-voice-notes'),
+    platforms: _state.platforms,
+    notifications: {telegram:hasTg, whatsapp:hasWa},
+    raw_config: getRawConfig(),
+  };
+
+  try{
+    const r=await fetch('/api/onboard',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload),
+    });
+    const d=await r.json();
+    if(d.success){
+      document.getElementById('success-panel').style.display='block';
+      document.getElementById('success-msg').textContent=`Client "${company}" wired as /c/${slug}`;
+      document.getElementById('ns-slug').textContent=slug;
+      document.querySelector('.form-step.active')
+        .querySelectorAll('button').forEach(b=>{if(!b.closest('#success-panel'))b.disabled=true});
+    }else{
+      alert('Error: '+(d.error||JSON.stringify(d)));
+    }
+  }catch(e){
+    alert('Server error: '+e+'. Config downloaded instead.');
+    downloadConfig(); downloadProfile();
+  }
+}
+
+function resetForm(){location.reload();}
+
+// ── Auto-slug from company name ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('f-company').addEventListener('input',function(){
+    const slugEl=document.getElementById('f-slug');
+    if(!slugEl._userEdited)
+      slugEl.value=this.value.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+  });
+  document.getElementById('f-slug').addEventListener('input',function(){this._userEdited=true;});
+  document.getElementById('f-content-niche').addEventListener('input',function(){this._userEdited=true;});
+
+  buildIndustryGrid();
+  renderTags();
+});
+</script>
+</body>
+</html>

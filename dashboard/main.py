@@ -1,0 +1,591 @@
+"""
+OTB_Pipeline Dashboard — Multi-tenant client portal
+Ported from BootHopPipeline dashboard/main.py
+
+Routes:
+  /onboard         — new client self-registration
+  /login           — company login
+  /dashboard       — client revoice studio + bake history
+  /admin           — admin overview of all clients
+  /api/bake        — background FFmpeg bake job
+  /api/youtube-music — yt-dlp audio download
+"""
+
+import hashlib, json, os, re, secrets, shutil, sqlite3, subprocess, sys, tempfile, threading, time
+from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Optional
+
+from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, UploadFile, File, Form, Cookie
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
+from fastapi.templating import Jinja2Templates
+
+BASE_DIR   = Path(__file__).parent
+PIPELINE   = Path(os.environ.get("PIPELINE_ROOT", str(Path(__file__).parent.parent)))
+MUSIC_DIR  = PIPELINE / "music"
+CO_DIR     = BASE_DIR / "companies"
+DB_PATH    = BASE_DIR / "otb.db"
+CO_DIR.mkdir(exist_ok=True)
+
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
+FFMPEG         = shutil.which("ffmpeg") or "ffmpeg"
+FFPROBE        = shutil.which("ffprobe") or "ffprobe"
+
+app       = FastAPI(title="OTB Pipeline")
+templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+
+# ── Database ───────────────────────────────────────────────────────────────────
+
+def _db():
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def _init_db():
+    with _db() as c:
+        c.executescript("""
+        CREATE TABLE IF NOT EXISTS companies (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug       TEXT UNIQUE NOT NULL,
+            name       TEXT NOT NULL,
+            email      TEXT DEFAULT '',
+            contact    TEXT DEFAULT '',
+            plan       TEXT DEFAULT 'basic',
+            password_h TEXT NOT NULL,
+            api_key    TEXT UNIQUE,
+            tg_chat_id TEXT DEFAULT '',
+            whatsapp   TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now')),
+            active     INTEGER DEFAULT 1
+        );
+        CREATE TABLE IF NOT EXISTS sessions (
+            token      TEXT PRIMARY KEY,
+            company_id INTEGER NOT NULL,
+            is_admin   INTEGER DEFAULT 0,
+            expires_at TEXT NOT NULL
+        );
+        CREATE TABLE IF NOT EXISTS bakes (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            company_id  INTEGER NOT NULL,
+            video_path  TEXT DEFAULT '',
+            voice_path  TEXT DEFAULT '',
+            music_path  TEXT DEFAULT '',
+            output_path TEXT DEFAULT '',
+            hook        TEXT DEFAULT '',
+            status      TEXT DEFAULT 'pending',
+            created_at  TEXT DEFAULT (datetime('now'))
+        );
+        INSERT OR IGNORE INTO companies (id,slug,name,password_h,plan,api_key)
+            VALUES (-1,'__admin__','Admin','','admin','');
+        """)
+
+
+_init_db()
+
+# ── Auth ───────────────────────────────────────────────────────────────────────
+
+def _hash(pw: str) -> str:
+    return hashlib.sha256(pw.encode()).hexdigest()
+
+
+def _make_session(company_id: int, is_admin: bool = False) -> str:
+    token   = secrets.token_hex(32)
+    expires = (datetime.now() + timedelta(days=7)).isoformat()
+    with _db() as c:
+        c.execute("INSERT INTO sessions (token,company_id,is_admin,expires_at) VALUES (?,?,?,?)",
+                  (token, company_id, 1 if is_admin else 0, expires))
+    return token
+
+
+def _get_sess(token: str | None) -> dict | None:
+    if not token:
+        return None
+    with _db() as c:
+        row = c.execute(
+            "SELECT s.*,co.slug,co.name,co.tg_chat_id,co.whatsapp,co.email,co.plan "
+            "FROM sessions s JOIN companies co ON co.id=s.company_id "
+            "WHERE s.token=? AND s.expires_at > datetime('now')", (token,)
+        ).fetchone()
+    return dict(row) if row else None
+
+# ── Music helpers ──────────────────────────────────────────────────────────────
+
+def _music_list() -> list[dict]:
+    tracks = []
+    for folder, label in [
+        (MUSIC_DIR / "daily",        "Daily"),
+        (MUSIC_DIR / "archive",      "Archive"),
+        (MUSIC_DIR / "yt_downloads", "YouTube"),
+    ]:
+        if folder.exists():
+            for f in sorted(folder.glob("*.mp3")):
+                tracks.append({"label": f"[{label}] {f.name}", "path": str(f)})
+    return tracks
+
+
+def _co_dir(slug: str) -> Path:
+    d = CO_DIR / slug
+    d.mkdir(parents=True, exist_ok=True)
+    return d
+
+# ── FFmpeg helpers ─────────────────────────────────────────────────────────────
+
+def _duration(path: str) -> float:
+    r = subprocess.run(
+        [FFPROBE, "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=noprint_wrappers=1:nokey=1", path],
+        capture_output=True, text=True,
+    )
+    try:
+        return float(r.stdout.strip())
+    except Exception:
+        return 30.0
+
+# ── Telegram send ──────────────────────────────────────────────────────────────
+
+def _tg_send_video(chat_id: str, path: str, caption: str = ""):
+    if not TELEGRAM_TOKEN or not chat_id:
+        return
+    try:
+        import requests as _r
+        with open(path, "rb") as f:
+            _r.post(
+                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo",
+                data={"chat_id": chat_id, "caption": caption, "supports_streaming": "true"},
+                files={"video": f}, timeout=180,
+            )
+    except Exception as e:
+        print(f"[TG send] {e}")
+
+# ── Background bake ────────────────────────────────────────────────────────────
+
+_jobs: dict  = {}
+_jlock       = threading.Lock()
+
+
+def _bake_worker(job_id: str, bake_id: int, video: str, voice: str,
+                 music: str | None, tg_chat: str, co_dir: Path):
+    out = str(co_dir / f"baked_{int(time.time())}.mp4")
+    try:
+        dur   = _duration(video)
+        fade  = max(0, dur - 2.0)
+        ts    = tempfile.mktemp(suffix="_s.mp4")
+        ta    = tempfile.mktemp(suffix="_a.aac")
+
+        subprocess.run([FFMPEG, "-y", "-i", video, "-c:v", "copy", "-an", ts],
+                       check=True, capture_output=True)
+
+        if music and Path(music).exists():
+            subprocess.run([
+                FFMPEG, "-y", "-i", voice, "-i", music,
+                "-filter_complex",
+                f"[1:a]volume=0.18[m];[0:a][m]amix=inputs=2:duration=longest:normalize=0[mx];"
+                f"[mx]afade=t=out:st={fade}:d=2[out]",
+                "-map", "[out]", "-t", str(dur),
+                "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", ta,
+            ], check=True, capture_output=True)
+        else:
+            subprocess.run([
+                FFMPEG, "-y", "-i", voice,
+                "-filter_complex", f"afade=t=out:st={fade}:d=2",
+                "-t", str(dur), "-c:a", "aac", "-b:a", "192k", ta,
+            ], check=True, capture_output=True)
+
+        subprocess.run([FFMPEG, "-y", "-i", ts, "-i", ta,
+                        "-c:v", "copy", "-c:a", "copy", "-t", str(dur),
+                        "-movflags", "+faststart", out],
+                       check=True, capture_output=True)
+
+        for f in [ts, ta]:
+            try:
+                Path(f).unlink(missing_ok=True)
+            except Exception:
+                pass
+
+        with _db() as c:
+            c.execute("UPDATE bakes SET output_path=?,status='done' WHERE id=?", (out, bake_id))
+
+        if tg_chat:
+            _tg_send_video(tg_chat, out, "✅ Your re-voiced video is ready!")
+
+        with _jlock:
+            _jobs[job_id] = {"status": "done", "output_path": out, "bake_id": bake_id}
+
+    except subprocess.CalledProcessError as e:
+        err = (e.stderr or b"").decode(errors="replace")[-300:]
+        with _db() as c:
+            c.execute("UPDATE bakes SET status='failed' WHERE id=?", (bake_id,))
+        with _jlock:
+            _jobs[job_id] = {"status": "failed", "error": err}
+    except Exception as e:
+        with _db() as c:
+            c.execute("UPDATE bakes SET status='failed' WHERE id=?", (bake_id,))
+        with _jlock:
+            _jobs[job_id] = {"status": "failed", "error": str(e)}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PUBLIC ROUTES
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if sess:
+        return RedirectResponse("/dashboard", status_code=303)
+    return RedirectResponse("/onboard", status_code=303)
+
+
+@app.get("/onboard", response_class=HTMLResponse)
+async def onboard_page(request: Request):
+    return templates.TemplateResponse("onboard.html",
+        {"request": request, "success": False, "slug": "", "error": ""})
+
+
+@app.post("/onboard", response_class=HTMLResponse)
+async def onboard_submit(
+    request:      Request,
+    company_name: str = Form(...),
+    contact_name: str = Form(""),
+    email:        str = Form(""),
+    password:     str = Form(...),
+    tg_chat_id:   str = Form(""),
+    whatsapp:     str = Form(""),
+    plan:         str = Form("basic"),
+):
+    raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
+    slug = re.sub(r"[\s_]+", "-", raw)[:30]
+    if not slug:
+        return templates.TemplateResponse("onboard.html",
+            {"request": request, "success": False, "slug": "", "error": "Invalid company name."})
+    try:
+        with _db() as c:
+            c.execute(
+                "INSERT INTO companies (slug,name,email,contact,plan,password_h,api_key,tg_chat_id,whatsapp) "
+                "VALUES (?,?,?,?,?,?,?,?,?)",
+                (slug, company_name, email, contact_name, plan,
+                 _hash(password), secrets.token_hex(16), tg_chat_id, whatsapp)
+            )
+        _co_dir(slug)
+        return templates.TemplateResponse("onboard.html",
+            {"request": request, "success": True, "slug": slug, "error": ""})
+    except sqlite3.IntegrityError:
+        return templates.TemplateResponse("onboard.html",
+            {"request": request, "success": False, "slug": "",
+             "error": f"'{company_name}' is already registered. Try a different name."})
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "error": ""})
+
+
+@app.post("/login")
+async def login_submit(
+    request:  Request,
+    slug:     str = Form(...),
+    password: str = Form(...),
+):
+    with _db() as c:
+        row = c.execute(
+            "SELECT * FROM companies WHERE slug=? AND password_h=? AND active=1 AND id!=-1",
+            (slug.strip().lower(), _hash(password))
+        ).fetchone()
+    if not row:
+        return templates.TemplateResponse("login.html",
+            {"request": request, "error": "Wrong company ID or password."})
+    token = _make_session(row["id"])
+    resp  = RedirectResponse("/dashboard", status_code=303)
+    resp.set_cookie("session_token", token, httponly=True, max_age=604800)
+    return resp
+
+
+@app.get("/logout")
+async def logout(session_token: str | None = Cookie(None)):
+    if session_token:
+        with _db() as c:
+            c.execute("DELETE FROM sessions WHERE token=?", (session_token,))
+    resp = RedirectResponse("/login", status_code=303)
+    resp.delete_cookie("session_token")
+    return resp
+
+
+# ── Client onboarding wizard (admin-facing, no auth required) ─────────────────
+
+@app.get("/client-onboarding", response_class=HTMLResponse)
+async def client_onboarding_page(request: Request):
+    return templates.TemplateResponse("client_onboarding.html", {"request": request})
+
+
+@app.post("/api/onboard")
+async def api_onboard(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(400, "Invalid JSON")
+
+    slug    = payload.get("slug", "").strip().lower()
+    company = payload.get("company", "").strip()
+    if not slug or not company:
+        return JSONResponse({"success": False, "error": "slug and company are required"})
+
+    profile_dir = BASE_DIR / "clients" / slug
+    profile_dir.mkdir(parents=True, exist_ok=True)
+    (profile_dir / "pipeline_profile.json").write_text(
+        json.dumps(payload, indent=2), encoding="utf-8"
+    )
+    (profile_dir / "config.env").write_text(
+        payload.get("raw_config", ""), encoding="utf-8"
+    )
+    return JSONResponse({"success": True, "slug": slug})
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  COMPANY DASHBOARD
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard(request: Request, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess:
+        return RedirectResponse("/login", status_code=303)
+    if sess["is_admin"]:
+        return RedirectResponse("/admin", status_code=303)
+
+    cdir  = _co_dir(sess["slug"])
+    music = _music_list()
+
+    with _db() as c:
+        bakes = c.execute(
+            "SELECT * FROM bakes WHERE company_id=? ORDER BY created_at DESC LIMIT 8",
+            (sess["company_id"],)
+        ).fetchall()
+
+    videos       = sorted(cdir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True)
+    latest_video = str(videos[0]) if videos else ""
+
+    return templates.TemplateResponse("dashboard.html", {
+        "request":      request,
+        "company":      sess,
+        "music_tracks": music,
+        "bakes":        [dict(b) for b in bakes],
+        "latest_video": latest_video,
+    })
+
+
+@app.post("/api/upload-video")
+async def upload_video(
+    file:          UploadFile = File(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess:
+        raise HTTPException(401)
+    cdir = _co_dir(sess["slug"])
+    dest = cdir / f"video_{int(time.time())}.mp4"
+    dest.write_bytes(await file.read())
+    return {"path": str(dest), "name": dest.name}
+
+
+@app.post("/api/bake")
+async def bake(
+    background:    BackgroundTasks,
+    voice:         UploadFile = File(...),
+    video_path:    str = Form(...),
+    music_path:    str = Form(""),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess:
+        raise HTTPException(401)
+    if not Path(video_path).exists():
+        raise HTTPException(400, "Video file not found on server")
+
+    cdir       = _co_dir(sess["slug"])
+    voice_dest = cdir / f"voice_{int(time.time())}.ogg"
+    voice_dest.write_bytes(await voice.read())
+
+    with _db() as c:
+        cur     = c.execute(
+            "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
+            "VALUES (?,?,?,?,'processing')",
+            (sess["company_id"], video_path, str(voice_dest), music_path or "")
+        )
+        bake_id = cur.lastrowid
+
+    job_id = f"bake_{bake_id}"
+    with _jlock:
+        _jobs[job_id] = {"status": "processing"}
+
+    background.add_task(
+        _bake_worker, job_id, bake_id, video_path, str(voice_dest),
+        music_path or None, sess.get("tg_chat_id", ""), cdir
+    )
+    return {"job_id": job_id, "bake_id": bake_id}
+
+
+@app.get("/api/job/{job_id}")
+async def job_status(job_id: str, session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    with _jlock:
+        return _jobs.get(job_id, {"status": "unknown"})
+
+
+@app.post("/api/youtube-music")
+async def yt_music(
+    query:         str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess:
+        raise HTTPException(401)
+    dl_dir = MUSIC_DIR / "yt_downloads"
+    dl_dir.mkdir(parents=True, exist_ok=True)
+    safe   = re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
+    target = query if query.startswith("http") else f"ytsearch1:{query}"
+    raw_t  = str(dl_dir / f"{safe}_raw.%(ext)s")
+    final  = dl_dir / f"{safe}_0s.mp3"
+
+    r = subprocess.run(
+        ["yt-dlp", "--no-playlist", "-x", "--audio-format", "mp3",
+         "--audio-quality", "0", "--output", raw_t, "--no-warnings", target],
+        capture_output=True, text=True, timeout=120,
+    )
+    if r.returncode != 0:
+        raise HTTPException(400, r.stderr[-300:] or "yt-dlp failed")
+
+    raws = sorted(dl_dir.glob(f"{safe}_raw.*"), key=lambda f: f.stat().st_mtime, reverse=True)
+    if not raws:
+        raise HTTPException(400, "No file downloaded")
+
+    subprocess.run(
+        [FFMPEG, "-y", "-i", str(raws[0]), "-ss", "0", "-t", "60",
+         "-c:a", "libmp3lame", "-q:a", "2", str(final)],
+        check=True, capture_output=True, timeout=60,
+    )
+    raws[0].unlink(missing_ok=True)
+    return {"label": f"[YouTube] {final.name}", "path": str(final)}
+
+
+@app.get("/api/download-bake/{bake_id}")
+async def download_bake(bake_id: int, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess:
+        raise HTTPException(401)
+    with _db() as c:
+        row = c.execute(
+            "SELECT * FROM bakes WHERE id=? AND company_id=?",
+            (bake_id, sess["company_id"])
+        ).fetchone()
+    if not row or not row["output_path"] or not Path(row["output_path"]).exists():
+        raise HTTPException(404)
+    return FileResponse(row["output_path"], media_type="video/mp4",
+                        filename=f"revoiced_{bake_id}.mp4")
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  ADMIN
+# ══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page(request: Request):
+    return templates.TemplateResponse("admin_login.html", {"request": request, "error": ""})
+
+
+@app.post("/admin/login")
+async def admin_login(request: Request, password: str = Form(...)):
+    if password != ADMIN_PASSWORD:
+        return templates.TemplateResponse("admin_login.html",
+            {"request": request, "error": "Wrong password."})
+    token   = secrets.token_hex(32)
+    expires = (datetime.now() + timedelta(hours=24)).isoformat()
+    with _db() as c:
+        c.execute("INSERT INTO sessions (token,company_id,is_admin,expires_at) VALUES (?,?,1,?)",
+                  (token, -1, expires))
+    resp = RedirectResponse("/admin", status_code=303)
+    resp.set_cookie("session_token", token, httponly=True, max_age=86400)
+    return resp
+
+
+@app.get("/admin/logout")
+async def admin_logout(session_token: str | None = Cookie(None)):
+    if session_token:
+        with _db() as c:
+            c.execute("DELETE FROM sessions WHERE token=? AND is_admin=1", (session_token,))
+    resp = RedirectResponse("/admin/login", status_code=303)
+    resp.delete_cookie("session_token")
+    return resp
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard(request: Request, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        return RedirectResponse("/admin/login", status_code=303)
+
+    with _db() as c:
+        companies = c.execute(
+            "SELECT co.*, COUNT(b.id) AS bake_count, MAX(b.created_at) AS last_activity "
+            "FROM companies co LEFT JOIN bakes b ON b.company_id=co.id "
+            "WHERE co.id != -1 GROUP BY co.id ORDER BY co.created_at DESC"
+        ).fetchall()
+        total_bakes  = c.execute("SELECT COUNT(*) FROM bakes").fetchone()[0]
+        today        = datetime.now().strftime("%Y-%m-%d")
+        active_today = c.execute(
+            "SELECT COUNT(DISTINCT company_id) FROM bakes WHERE created_at >= ?", (today,)
+        ).fetchone()[0]
+
+    return templates.TemplateResponse("admin.html", {
+        "request":      request,
+        "companies":    [dict(c) for c in companies],
+        "total_bakes":  total_bakes,
+        "active_today": active_today,
+    })
+
+
+@app.post("/admin/add-company")
+async def admin_add_company(
+    company_name:  str = Form(...),
+    contact_name:  str = Form(""),
+    password:      str = Form(...),
+    email:         str = Form(""),
+    tg_chat_id:    str = Form(""),
+    plan:          str = Form("basic"),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
+    slug = re.sub(r"[\s_]+", "-", raw)[:30]
+    try:
+        with _db() as c:
+            c.execute(
+                "INSERT INTO companies (slug,name,email,contact,plan,password_h,api_key,tg_chat_id) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (slug, company_name, email, contact_name, plan,
+                 _hash(password), secrets.token_hex(16), tg_chat_id)
+            )
+        _co_dir(slug)
+    except sqlite3.IntegrityError:
+        pass
+    return RedirectResponse("/admin", status_code=303)
+
+
+@app.post("/admin/delete-company/{company_id}")
+async def admin_delete(company_id: int, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        c.execute("UPDATE companies SET active=0 WHERE id=?", (company_id,))
+    return RedirectResponse("/admin", status_code=303)
+
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 1031))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)
