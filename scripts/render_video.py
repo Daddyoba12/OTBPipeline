@@ -264,7 +264,7 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
     try:
         r = requests.get(
             "https://api.pexels.com/videos/search",
-            params={"query": query, "per_page": 15, "orientation": "portrait", "size": "medium"},
+            params={"query": query, "per_page": 50, "orientation": "portrait", "size": "medium"},
             headers={"Authorization": PEXELS_KEY},
             timeout=15,
         )
@@ -277,10 +277,9 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
             if any(term in page_slug for term in _BANNED_FETCH_TERMS):
                 print(f"    [Pexels] Skipped banned metadata: {page_slug.split('/')[-2]}")
                 continue
-            files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0))
+            files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0), reverse=True)
+            # Only accept FHD portrait (width=1080) — 720p upscales 1.5x and looks blurry
             hd = next((f for f in files if f.get("width", 0) >= 1080 and "portrait" in f.get("quality", "").lower()), None)
-            hd = hd or next((f for f in files if f.get("width", 0) >= 720), None)
-            hd = hd or (files[0] if files else None)
             if hd:
                 return {"id": v["id"], "url": hd["link"], "source": "pexels"}
     except Exception as e:
@@ -369,12 +368,14 @@ def _download_clip(url: str, dest: Path) -> bool:
 
 
 def _process_clip(src: Path, dest: Path, beat: str, beat_text: str) -> bool:
-    """Resize, crop to 9:16, add beat text overlay, trim to CLIP_DUR."""
+    """Resize, crop to 9:16, sharpen, add beat text overlay, trim to CLIP_DUR."""
     text_f = _drawtext_filters(beat_text, beat)
     vf_parts = [
         f"scale={W}:{H}:force_original_aspect_ratio=increase",
         f"crop={W}:{H}",
         "setsar=1",
+        # Counteract upscaling blur (BHP premium mode approach)
+        "unsharp=luma_msize_x=3:luma_msize_y=3:luma_amount=0.8",
     ]
     if text_f:
         vf_parts.append(text_f)
@@ -383,7 +384,7 @@ def _process_clip(src: Path, dest: Path, beat: str, beat_text: str) -> bool:
         "-ss", "0", "-i", str(src),
         "-t", str(CLIP_DUR),
         "-vf", vf,
-        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-c:v", "libx264", "-crf", "18", "-preset", "fast",
         "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an",
         str(dest),
         timeout=90,
