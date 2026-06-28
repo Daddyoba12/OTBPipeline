@@ -333,7 +333,7 @@ def post_newspaper(content: dict, slot: int = 0) -> str | None:
     # Create IG feed IMAGE container (not REELS, not STORIES)
     try:
         r = requests.post(
-            f"https://graph.facebook.com/v21.0/{ig_user_id}/media",
+            f"https://graph.instagram.com/v21.0/{ig_user_id}/media",
             data={
                 "image_url":    image_url,
                 "caption":      caption,
@@ -356,7 +356,7 @@ def post_newspaper(content: dict, slot: int = 0) -> str | None:
         time.sleep(5)
         try:
             st = requests.get(
-                f"https://graph.facebook.com/v21.0/{container_id}",
+                f"https://graph.instagram.com/v21.0/{container_id}",
                 params={"fields": "status_code", "access_token": access_token},
                 timeout=15,
             ).json()
@@ -370,7 +370,7 @@ def post_newspaper(content: dict, slot: int = 0) -> str | None:
     # Publish
     try:
         r = requests.post(
-            f"https://graph.facebook.com/v21.0/{ig_user_id}/media_publish",
+            f"https://graph.instagram.com/v21.0/{ig_user_id}/media_publish",
             data={"creation_id": container_id, "access_token": access_token},
             timeout=20,
         )
