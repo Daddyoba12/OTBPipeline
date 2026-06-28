@@ -97,19 +97,28 @@ SLOT_TIMES = {1: "07:00", 2: "12:00", 3: "17:30", 4: "20:30"}
 # Platform targets per slot — every platform has its own algorithm logic
 #
 # Slot 1  7am  — TikTok + Instagram Reel + YouTube + LinkedIn + Blog + Newspaper + IG Story
-# Slot 2  12pm — TikTok + Instagram Reel + LinkedIn (weekdays only)
-# Slot 3  6pm  — TikTok + Instagram Reel + YouTube + Newspaper + IG Story
-# Slot 4  9pm  — TikTok + Instagram Reel
+# Redesigned to match timing grid (timing.docx):
 #
-# LinkedIn: Slot 1 + 2 only, weekdays only (Mon-Fri) — algo fires on business hours
-# Blog:     Slot 1 only, daily — consistent 7am crawl window for Google indexing
-# Newspaper: Slot 1 + 3 — content variety signal, pairs with Reel on same day
-# IG Story: Slot 1 + 3 — double-tap boost immediately after each Reel
+# Slot 1  07:00 — IG Story + Blog + Newspaper + LinkedIn (Mon/Wed/Fri)
+#           Morning "soft" content: story, blog, newspaper land at 7am
+#           LinkedIn B2B post fires early for morning inbox
+#
+# Slot 2  09:00 — TikTok V1 + Instagram Reel
+#           Premium morning slot — best hook of the day
+#           No LinkedIn (already fired), no YouTube (too early)
+#
+# Slot 3  18:00 — TikTok V2 + Instagram Reel + IG Story
+#           Evening peak slot — diaspora scroll window
+#           Second IG Story for double-tap algo boost
+#
+# Slot 4  20:30 — TikTok + YouTube
+#           Night TikTok + late YouTube (21:30 in doc — 20:30 fire lands ~20:40)
+#           YouTube late watch-time window (Nigeria prime time)
 SLOT_PLATFORMS = {
-    1: ["tiktok", "instagram", "youtube", "linkedin", "blog", "newspaper", "instagram_story"],
-    2: ["tiktok", "instagram", "linkedin"],
-    3: ["tiktok", "instagram", "youtube", "newspaper", "instagram_story"],
-    4: ["tiktok", "instagram"],
+    1: ["instagram_story", "blog", "newspaper", "linkedin"],
+    2: ["tiktok", "instagram"],
+    3: ["tiktok", "instagram", "instagram_story"],
+    4: ["tiktok", "youtube"],
 }
 
 # ── Content pillars per slot — rotating by day ─────────────────────────────────
