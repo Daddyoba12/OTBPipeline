@@ -32,15 +32,15 @@ Unregister-ScheduledTask -TaskName "OTB-MusicRefresh" -Confirm:$false -ErrorActi
 Register-ScheduledTask -TaskName "OTB-MusicRefresh" -Action $musicAction -Trigger $musicTrigger -Settings $musicSettings -Principal $Principal -Description "OTB daily trending music download" | Out-Null
 Write-Output "Registered: OTB-MusicRefresh at 06:00"
 
-# Slot times account for ~10min generation+render so the post lands IN the peak window
-# Slot 1: 7:00am  -> posts ~7:10am  (morning commute peak)
-# Slot 2: 12:00pm -> posts ~12:10pm (lunch scroll peak)
-# Slot 3: 5:30pm  -> posts ~5:40pm  (evening peak 6-8pm — arrives early to catch it)
-# Slot 4: 8:30pm  -> posts ~8:40pm  (night scroll peak, also 9-11pm Nigeria time)
+# Slot times aligned to timing.docx grid (accounts for ~10min render before post lands):
+# Slot 1: 07:00 -> posts ~07:10  IG Story + Blog + Newspaper + LinkedIn
+# Slot 2: 08:50 -> posts ~09:00  TikTok V1 + IG Reel  (premium 9am slot)
+# Slot 3: 17:50 -> posts ~18:00  TikTok V2 + IG Reel + IG Story  (evening peak)
+# Slot 4: 20:20 -> posts ~20:30  TikTok + YouTube  (night scroll / Nigeria prime time)
 Register-OTBTask -Name "OTB-Slot1" -Hour 7  -Minute 0  -Slot 1
-Register-OTBTask -Name "OTB-Slot2" -Hour 12 -Minute 0  -Slot 2
-Register-OTBTask -Name "OTB-Slot3" -Hour 17 -Minute 30 -Slot 3
-Register-OTBTask -Name "OTB-Slot4" -Hour 20 -Minute 30 -Slot 4
+Register-OTBTask -Name "OTB-Slot2" -Hour 8  -Minute 50 -Slot 2
+Register-OTBTask -Name "OTB-Slot3" -Hour 17 -Minute 50 -Slot 3
+Register-OTBTask -Name "OTB-Slot4" -Hour 20 -Minute 20 -Slot 4
 
 # Commander - runs at startup, restarts on failure
 $cmdAction   = New-ScheduledTaskAction -Execute $Python -Argument $Cmdr -WorkingDirectory $WorkDir
