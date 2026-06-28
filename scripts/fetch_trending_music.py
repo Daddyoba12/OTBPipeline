@@ -410,5 +410,13 @@ def _already_fresh_today() -> bool:
 if __name__ == "__main__":
     if "--skip-if-fresh" in sys.argv and _already_fresh_today():
         print("[Music] Fresh tracks already downloaded today — skipping.")
-        sys.exit(0)
-    fetch_trending_music()
+    else:
+        fetch_trending_music()
+
+    # Pre-warm trending hashtags so Slot 1 doesn't pay the fetch cost at 7am
+    print("\n[Hashtags] Pre-warming trending hashtags for today...")
+    try:
+        from fetch_trending_hashtags import fetch_today as _fth
+        _fth()
+    except Exception as e:
+        print(f"[Hashtags] Pre-warm failed (will retry at slot time): {e}")

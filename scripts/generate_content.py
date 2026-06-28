@@ -15,6 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import ANTHROPIC_API_KEY, SLOT_PILLARS, PILLAR_LABELS, DAY_BUCKETS, DATA
+from fetch_trending_hashtags import fetch_today as _fetch_trending_tags
 
 import requests
 from query_learner import (
@@ -188,11 +189,13 @@ YOUTUBE_CATEGORIES = {
 }
 
 
-def _tiktok_hashtags(pillar: str) -> str:
-    pillar_tags = TIKTOK_PILLAR.get(pillar, TIKTOK_DISCOVERY[:5])
-    broad_sample = random.sample(TIKTOK_BROAD, 5)
-    diaspora_sample = random.sample(TIKTOK_DISCOVERY, 5)
-    tags = CORE_TAGS + pillar_tags[:5] + diaspora_sample + broad_sample
+def _tiktok_hashtags(pillar: str, trending: list[str]) -> str:
+    # Slot 1-5: trending tags (Nigeria→Africa→Global→Niche) replace the static CORE_TAGS
+    # Remaining 15: pillar-specific + diaspora discovery + broad FYP tags
+    pillar_tags   = TIKTOK_PILLAR.get(pillar, TIKTOK_DISCOVERY[:5])
+    broad_sample  = random.sample(TIKTOK_BROAD, 5)
+    diaspora_samp = random.sample(TIKTOK_DISCOVERY, 5)
+    tags = trending[:5] + pillar_tags[:5] + diaspora_samp + broad_sample
     seen, unique = set(), []
     for t in tags:
         tl = t.lower()
@@ -202,8 +205,17 @@ def _tiktok_hashtags(pillar: str) -> str:
     return " ".join(unique[:20])
 
 
-def _instagram_hashtags(pillar: str) -> str:
-    return INSTAGRAM_TAGS.get(pillar, INSTAGRAM_TAGS["community"])
+def _instagram_hashtags(pillar: str, trending: list[str]) -> str:
+    # Prepend today's 5 trending tags to the pillar's static 15 niche tags
+    static = INSTAGRAM_TAGS.get(pillar, INSTAGRAM_TAGS["community"])
+    trending_str = " ".join(trending[:5])
+    static_tags  = static.split()
+    # Remove any overlap with trending before joining
+    trending_lower = {t.lower() for t in trending[:5]}
+    filtered_static = [t for t in static_tags if t.lower() not in trending_lower]
+    # Cap at 30 total (IG algo sweet spot: 20-30)
+    combined = trending[:5] + filtered_static
+    return " ".join(combined[:30])
 
 
 def generate_content(slot: int, pillar: str, bucket: str) -> dict:
@@ -353,9 +365,12 @@ Return ONLY valid JSON (no markdown):
 
     data["visual_queries"] = queries
 
+    # Fetch today's trending hashtags (Nigeria → Africa → Global → Niche, cached per day)
+    trending = _fetch_trending_tags()
+
     # Platform-specific metadata
-    data["hashtags_tiktok"]    = _tiktok_hashtags(pillar)
-    data["hashtags_instagram"] = _instagram_hashtags(pillar)
+    data["hashtags_tiktok"]    = _tiktok_hashtags(pillar, trending)
+    data["hashtags_instagram"] = _instagram_hashtags(pillar, trending)
     data["youtube_tags"]       = _youtube_tags(pillar, data.get("hook", ""))
     data["youtube_category"]   = YOUTUBE_CATEGORIES.get(pillar, 22)
     data["pillar"]             = pillar
