@@ -79,13 +79,16 @@ BEATS = [
     (28,  32, "lesson_pre"), # clip  7 (leads into lesson card)
 ]
 
-# Text styles per beat
+# Text styles per beat.
+# wrap  = max chars per line (sized to prevent horizontal overflow at each font size)
+# lines = max lines rendered (keeps text block from dominating the frame)
+# y positions avoid top/bottom UI chrome on TikTok, Instagram Reels, YouTube Shorts
 BEAT_STYLE = {
-    "hook":       {"color": "FFE600", "size": 72, "shadow": "000000", "y": "(h-th)/2-60"},
-    "problem":    {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.12"},
-    "stakes":     {"color": "FF8C00", "size": 58, "shadow": "000000", "y": "(h-th)/2-40"},
-    "resolution": {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.12"},
-    "lesson_pre": {"color": "FFFFFF", "size": 48, "shadow": "000000", "y": "h*0.15"},
+    "hook":       {"color": "FFE600", "size": 72, "shadow": "000000", "y": "(h-th)/2-60", "wrap": 18, "lines": 3},
+    "problem":    {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.18",       "wrap": 22, "lines": 3},
+    "stakes":     {"color": "FF8C00", "size": 58, "shadow": "000000", "y": "(h-th)/2-40", "wrap": 20, "lines": 3},
+    "resolution": {"color": "FFFFFF", "size": 52, "shadow": "000000", "y": "h*0.18",       "wrap": 22, "lines": 3},
+    "lesson_pre": {"color": "FFFFFF", "size": 48, "shadow": "000000", "y": "h*0.18",       "wrap": 24, "lines": 3},
 }
 
 CLIP_BEAT = [
@@ -120,32 +123,35 @@ def _font(kind="title") -> str:
 
 
 def _esc(text: str) -> str:
-    """Escape text for FFmpeg drawtext, preserving readable unicode."""
-    # Replace common unicode punctuation with ASCII equivalents BEFORE escaping
+    """Escape text for FFmpeg drawtext.
+
+    FFmpeg single-quoted option values cannot contain apostrophes:
+    text='isn\'t' closes the quoted string early.
+    Fix: remove apostrophes entirely (text stays readable without them).
+    """
     text = (text
-            .replace("—", "-")    # em dash —
-            .replace("–", "-")    # en dash –
-            .replace("‘", "'")    # left single quote '
-            .replace("’", "'")    # right single quote '
-            .replace("“", '"')    # left double quote "
-            .replace("”", '"')    # right double quote "
-            .replace("…", "...")  # ellipsis …
-            .replace("â", "'"))  # UTF-8 mangled apostrophe
-    # FFmpeg drawtext escaping
+            .replace("\u2014", "-")
+            .replace("\u2013", "-")
+            .replace("\u2018", "")
+            .replace("\u2019", "")
+            .replace("'", "")
+            .replace("\u201c", """)
+            .replace("\u201d", """)
+            .replace("\u2026", "..."))
     text = (text
             .replace("\\", "\\\\")
-            .replace("'", "\\'")
             .replace(":", "\\:")
             .replace("%", "\\%")
             .replace("[", "\\[")
             .replace("]", "\\]"))
-    # Strip remaining non-ASCII safely (keeps latin characters, drops emoji etc.)
+    # Preserve common currency symbols before stripping non-ASCII
+    text = text.replace("£", "GBP ").replace("€", "EUR ").replace("₦", "NGN ")
     text = text.encode("ascii", "ignore").decode("ascii")
     return text[:120]
 
 
-def _wrap(text: str, max_chars: int = 26) -> str:
-    """Wrap text to lines, using \\n for FFmpeg."""
+def _wrap(text: str, max_chars: int = 26, max_lines: int = 3) -> str:
+    """Wrap text to at most max_lines lines, using \\n for FFmpeg drawtext."""
     words = text.split()
     lines, cur = [], ""
     for w in words:
@@ -156,21 +162,26 @@ def _wrap(text: str, max_chars: int = 26) -> str:
             if cur:
                 lines.append(cur)
             cur = w[:max_chars]
-            if len(lines) == 3:
+            if len(lines) == max_lines - 1:
                 break
-    if cur and len(lines) < 4:
+    if cur and len(lines) < max_lines:
         lines.append(cur)
-    return "\\n".join(lines[:4])
+    return "\\n".join(lines[:max_lines])
 
 
 def _drawtext_filter(text: str, beat: str, line: int = 0) -> str:
-    """Build a drawtext filter string for a given beat."""
-    style = BEAT_STYLE.get(beat, BEAT_STYLE["problem"])
-    wrapped = _wrap(_esc(text))
-    y_base = style["y"]
-    line_h = style["size"] + 12
-    y_expr = f"({y_base})+{line * line_h}" if line else y_base
-    shadow_off = 3
+    """Build a drawtext filter string for a given beat.
+
+    Box background ensures legibility on any B-roll colour.
+    wrap/lines are sized per font-size to prevent horizontal overflow.
+    """
+    style   = BEAT_STYLE.get(beat, BEAT_STYLE["problem"])
+    wrap_w  = style.get("wrap", 22)
+    max_lns = style.get("lines", 3)
+    wrapped = _wrap(_esc(text), wrap_w, max_lns)
+    y_base  = style["y"]
+    line_h  = style["size"] + 12
+    y_expr  = f"({y_base})+{line * line_h}" if line else y_base
 
     return (
         f"drawtext=fontfile='{_font('title' if beat in ('hook','stakes') else 'body')}':"
@@ -179,9 +190,9 @@ def _drawtext_filter(text: str, beat: str, line: int = 0) -> str:
         f"fontcolor=0x{style['color']}:"
         f"x=(w-text_w)/2:"
         f"y={y_expr}:"
-        f"shadowcolor=0x{style['shadow']}@0.8:"
-        f"shadowx={shadow_off}:shadowy={shadow_off}:"
-        f"line_spacing=8"
+        f"box=1:boxcolor=0x000000@0.55:boxborderw=14:"
+        f"shadowx=2:shadowy=2:"
+        f"line_spacing=10"
     )
 
 
@@ -360,20 +371,20 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
 
 
 def _add_progress_bar(src: Path, dest: Path) -> bool:
-    """Burn an animated progress bar onto the full video."""
-    total = float(TOTAL_DUR)
-    vf = (
-        f"drawbox=x=0:y=H-{PROGRESS_H}:"
-        f"w='iw*t/{total}':"
-        f"h={PROGRESS_H}:color={PROGRESS_COLOR}@0.88:t=fill"
-    )
-    return _ff(
+    """Burn a static accent bar at the bottom of the video."""
+    import shutil
+    # Use ih/iw (lowercase) — uppercase H/W are not defined in drawbox expressions
+    vf = f"drawbox=x=0:y=ih-{PROGRESS_H}:w=iw:h={PROGRESS_H}:color={PROGRESS_COLOR}:t=fill"
+    ok = _ff(
         "-i", str(src),
         "-vf", vf,
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-        "-c:a", "copy", str(dest),
+        "-pix_fmt", "yuv420p", "-an", str(dest),
         timeout=180,
     )
+    if not ok:
+        shutil.copy(src, dest)
+    return dest.exists() and dest.stat().st_size > 0
 
 
 def _add_logo(src: Path, logo: Path, dest: Path) -> bool:
@@ -426,11 +437,11 @@ def _add_music(src: Path, dest: Path, slot: int = None) -> bool:
 
     total = float(TOTAL_DUR)
     print(f"    [Music] Using: {track.name}")
+    # Video has no audio track (all clips rendered with -an); use music directly
     return _ff(
         "-i", str(src), "-i", str(track),
         "-filter_complex",
-        f"[1:a]atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.22[music];"
-        "[0:a][music]amix=inputs=2:duration=first:dropout_transition=2[aout]",
+        f"[1:a]atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
         "-map", "0:v", "-map", "[aout]",
         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", str(dest),
         timeout=180,
@@ -626,12 +637,9 @@ def _grade_instagram(src: Path, dest: Path) -> bool:
     """Warm colour grade: breaks TikTok fingerprint + matches IG feed aesthetic."""
     return _ff(
         "-i", str(src),
-        "-vf", (
-            "eq=brightness=0.03:saturation=1.08:contrast=1.01,"
-            "curves=r='0/0 128/136 255/255':b='0/0 128/120 255/248'"
-        ),
+        "-vf", "eq=brightness=0.03:saturation=1.12:contrast=1.02",
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-        "-c:a", "copy", str(dest),
+        "-pix_fmt", "yuv420p", "-c:a", "copy", str(dest),
         timeout=180,
     )
 
@@ -650,30 +658,42 @@ def _grade_linkedin(src: Path, dest: Path) -> bool:
 def _make_linkedin_intro(content: dict, dest: Path) -> bool:
     """
     5-second professional B2B intro card for LinkedIn.
-    Navy background, BootHop branding, B2B hook text.
-    Prepended to the graded video so LinkedIn viewers see business context first.
+    Two-pass: plain navy → overlay text via -vf (same pattern as lesson card).
     """
     hook    = _esc(content.get("hook", ""))[:70]
     wrapped = _wrap(hook, 24)
     font_t  = _font("title")
     font_b  = _font("body")
+
+    plain = dest.parent / (dest.stem + "_plain.mp4")
+    ok = _ff(
+        "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS}",
+        "-t", "5",
+        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-pix_fmt", "yuv420p", "-an", str(plain),
+        timeout=30,
+    )
+    if not ok or not plain.exists():
+        return False
+
     vf = (
-        f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS},"
-        f"drawtext=fontfile='{font_t}':text='LOGISTICS  INTELLIGENCE':"
+        f"drawtext=fontfile='{font_t}':text='LOGISTICS INTELLIGENCE':"
         f"fontsize=26:fontcolor=0x4F46E5:x=(w-text_w)/2:y=h*0.27,"
         f"drawtext=fontfile='{font_t}':text='{wrapped}':"
         f"fontsize=56:fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-30:"
         f"line_spacing=8:shadowcolor=0x000000@0.6:shadowx=2:shadowy=2,"
-        f"drawtext=fontfile='{font_b}':text='BootHop · boothop.com':"
+        f"drawtext=fontfile='{font_b}':text='BootHop - boothop.com':"
         f"fontsize=34:fontcolor=0xFFFFFF@0.75:x=(w-text_w)/2:y=h*0.73"
     )
-    return _ff(
-        "-f", "lavfi", "-i", vf,
-        "-t", "5",
+    result = _ff(
+        "-i", str(plain),
+        "-vf", vf,
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(dest),
         timeout=60,
     )
+    plain.unlink(missing_ok=True)
+    return result
 
 
 def render_for_platforms(content: dict, slot: int, base_path: str) -> dict:
