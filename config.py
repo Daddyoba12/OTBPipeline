@@ -52,6 +52,7 @@ if _ON_WINDOWS:
         PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
         GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
         YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
+        OPENAI_API_KEY    = getattr(_bhp, "OPENAI_API_KEY",    "")
     except Exception as _e:
         print(f"[Config] Warning: could not load BHP keys: {_e}")
         ANTHROPIC_API_KEY = ""
@@ -59,6 +60,7 @@ if _ON_WINDOWS:
         PIXABAY_KEY       = ""
         GEMINI_API_KEY    = ""
         YOUTUBE_API_KEY   = ""
+        OPENAI_API_KEY    = ""
 else:
     # On Oracle: load keys from /opt/boothop/config.py by file path to avoid
     # circular import (importing by name would re-import this file itself).
@@ -80,6 +82,7 @@ else:
         PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
         GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
         YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",  "")
+        OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",   "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"

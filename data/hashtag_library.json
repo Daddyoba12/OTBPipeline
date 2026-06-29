@@ -1,0 +1,64 @@
+{
+  "_note": "OTB Pipeline hashtag library — 3-1-1 strategy. #BootHop is always appended separately. Rotate topic tags; never repeat same tag within 7 days.",
+  "brand": ["#BootHop"],
+
+  "pillars": {
+    "flights": [
+      "#CheapFlights", "#FlightDeals", "#TravelDeals", "#LagosTravel",
+      "#CheapFlightsToNigeria", "#NigeriaTravel", "#AfricanTravel",
+      "#TravelTok", "#FlightToNigeria", "#NigeriaFlights"
+    ],
+    "courier": [
+      "#TravelCourier", "#PackageDelivery", "#PeoplePowered", "#ParcelDelivery",
+      "#SendToNigeria", "#DeliveryService", "#CarryForMe", "#SendHomeUK",
+      "#PersonalShopper", "#TravelWithParcels"
+    ],
+    "earning": [
+      "#EarnWhileTraveling", "#SideHustle", "#TravelSmart", "#TravelAndEarn",
+      "#MakeMoneyTraveling", "#EarnFromTravel", "#TravelIncome",
+      "#PassiveIncomeTravel", "#FlightIncome", "#TravelSideHustle"
+    ],
+    "diaspora": [
+      "#NigeriaDiaspora", "#UKToNigeria", "#LondonToLagos", "#NaijaUK",
+      "#AfricanDiaspora", "#NigerianInUK", "#NaijaLondon", "#LagosToLondon",
+      "#DiasporaLife", "#NaijaAbroad"
+    ],
+    "community": [
+      "#AfricanCommunity", "#NaijaCommunity", "#NigerianCommunity",
+      "#DiasporaMagic", "#NaijaTwitter", "#NaijaVibes", "#AfricanInUK",
+      "#NigeriaUK", "#NigerianDiaspora", "#CommunityFirst"
+    ],
+    "travel_hacks": [
+      "#TravelHacks", "#TravelTips", "#SmartTravel", "#TravelLife",
+      "#TravelGoals", "#TravelSavings", "#BudgetTravel", "#TravelSmart",
+      "#HackYourTravel", "#TravelSecret"
+    ],
+    "airport": [
+      "#AirportVibes", "#AirportStories", "#HeathrowAirport", "#TravelDay",
+      "#AirportLife", "#BoardingNow", "#TakingOff", "#TouchdownLagos",
+      "#NigeriaAirport", "#FlyingToNigeria"
+    ],
+    "business": [
+      "#NigerianBusiness", "#AfricanBusiness", "#BlackBusiness",
+      "#DiasporaBusiness", "#SMEsNigeria", "#NigeriaEntrepreneur",
+      "#AfricanEntrepreneur", "#LogisticsNigeria", "#UKNigeriaTrade",
+      "#BusinessDiaspora"
+    ],
+    "student": [
+      "#StudentTravel", "#NigerianStudent", "#StudyAbroad", "#StudentLife",
+      "#UniStudents", "#InternationalStudent", "#NaijaStudent",
+      "#StudentHacks", "#StudentSavings", "#StudyUK"
+    ]
+  },
+
+  "pillar_map": {
+    "community":          ["community", "diaspora"],
+    "family":             ["diaspora", "community"],
+    "airport":            ["airport", "flights"],
+    "smart":              ["travel_hacks", "earning"],
+    "travel_hacks":       ["travel_hacks", "flights"],
+    "logistics_stories":  ["courier", "earning"],
+    "airport_deliveries": ["courier", "airport"],
+    "supply_chain":       ["business", "courier"]
+  }
+}

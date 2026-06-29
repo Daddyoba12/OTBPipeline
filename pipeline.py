@@ -184,12 +184,15 @@ def run_slot(slot: int, force: bool = False):
         try:
             sidecar = video_file.with_suffix(".json")
             sidecar.write_text(json.dumps({
-                "hook":        content.get("hook", ""),
-                "lesson":      content.get("lesson", ""),
-                "pillar":      content.get("pillar", ""),
-                "slot":        slot,
-                "caption":     content.get("caption_tiktok", ""),
-                "rendered_at": datetime.now().isoformat(),
+                "hook":             content.get("hook", ""),
+                "lesson":           content.get("lesson", ""),
+                "pillar":           content.get("pillar", ""),
+                "slot":             slot,
+                "caption":          content.get("caption_tiktok", ""),
+                "hashtags_311":     content.get("hashtags_311", []),
+                "hashtags_tiktok":  content.get("hashtags_tiktok", ""),
+                "hashtags_instagram": content.get("hashtags_instagram", ""),
+                "rendered_at":      datetime.now().isoformat(),
             }, indent=2), encoding="utf-8")
         except Exception:
             pass

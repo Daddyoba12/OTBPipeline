@@ -5,7 +5,8 @@
 param(
     [string]$OracleIP   = "140.238.73.32",
     [string]$OracleUser = "ubuntu",
-    [string]$BasePath   = "/opt/otb_pipeline"
+    [string]$BasePath   = "/opt/otb_pipeline",
+    [string]$KeyFile    = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
 )
 
 $TgToken       = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
@@ -16,15 +17,15 @@ Write-Host "OTB Dashboard -- Deploying to Oracle ($OracleIP)" -ForegroundColor C
 
 # 1. Pull latest code
 Write-Host "[1/5] Pulling latest code on Oracle..." -ForegroundColor Yellow
-ssh "${OracleUser}@${OracleIP}" "cd $BasePath && git pull origin main 2>&1 | tail -3"
+ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "cd $BasePath && git pull origin main 2>&1 | tail -3"
 
 # 2. Install Python packages
 Write-Host "[2/5] Installing Python packages..." -ForegroundColor Yellow
-ssh "${OracleUser}@${OracleIP}" "pip3 install fastapi uvicorn python-multipart jinja2 --quiet --break-system-packages 2>/dev/null || pip3 install fastapi uvicorn python-multipart jinja2 --quiet && echo 'Packages OK'"
+ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "pip3 install fastapi uvicorn python-multipart jinja2 --quiet --break-system-packages 2>/dev/null || pip3 install fastapi uvicorn python-multipart jinja2 --quiet && echo 'Packages OK'"
 
 # 3. Create directories
 Write-Host "[3/5] Creating directories..." -ForegroundColor Yellow
-ssh "${OracleUser}@${OracleIP}" "mkdir -p $BasePath/music/daily $BasePath/music/archive $BasePath/music/yt_downloads $BasePath/dashboard/companies $BasePath/dashboard/clients && echo 'Dirs OK'"
+ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "mkdir -p $BasePath/music/daily $BasePath/music/archive $BasePath/music/yt_downloads $BasePath/dashboard/companies $BasePath/dashboard/clients && echo 'Dirs OK'"
 
 # 4. Write systemd service file
 Write-Host "[4/5] Writing systemd service..." -ForegroundColor Yellow
@@ -51,11 +52,11 @@ WantedBy=multi-user.target
 '@
 
 $svc = $svc.Replace("BASEPATH", $BasePath).Replace("TGTOKEN", $TgToken).Replace("ADMINPW", $AdminPassword)
-$svc | ssh "${OracleUser}@${OracleIP}" "sudo tee /etc/systemd/system/otb-dashboard.service > /dev/null && echo 'Service file written'"
+$svc | ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "sudo tee /etc/systemd/system/otb-dashboard.service > /dev/null && echo 'Service file written'"
 
 # 5. Enable, start, open firewall
 Write-Host "[5/5] Starting service and opening port 8080..." -ForegroundColor Yellow
-ssh "${OracleUser}@${OracleIP}" "sudo systemctl daemon-reload && sudo systemctl enable otb-dashboard --quiet && sudo systemctl restart otb-dashboard && sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT && sleep 3 && sudo systemctl status otb-dashboard --no-pager -l"
+ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "sudo systemctl daemon-reload && sudo systemctl enable otb-dashboard --quiet && sudo systemctl restart otb-dashboard && sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT && sleep 3 && sudo systemctl status otb-dashboard --no-pager -l"
 
 Write-Host ""
 Write-Host "Done! Dashboard deployed on Oracle." -ForegroundColor Green

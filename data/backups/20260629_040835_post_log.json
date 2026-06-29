@@ -1,0 +1,60 @@
+[
+  {
+    "platform": "instagram",
+    "slot": 1,
+    "media_id": "18188842672378294",
+    "posted_at": "2026-06-27T22:40:20.231714"
+  },
+  {
+    "platform": "youtube",
+    "slot": 1,
+    "video_id": "JumvUflfvQk",
+    "url": "https://youtube.com/shorts/JumvUflfvQk",
+    "posted_at": "2026-06-27T22:40:35.901568"
+  },
+  {
+    "platform": "instagram",
+    "slot": 1,
+    "media_id": "17924357901363159",
+    "posted_at": "2026-06-28T05:49:09.040796"
+  },
+  {
+    "platform": "youtube",
+    "slot": 1,
+    "video_id": "BV_JB3ZiXWo",
+    "url": "https://youtube.com/shorts/BV_JB3ZiXWo",
+    "posted_at": "2026-06-28T05:49:24.403076"
+  },
+  {
+    "platform": "youtube",
+    "slot": 1,
+    "video_id": "dbmRQdccrB4",
+    "url": "https://youtube.com/shorts/dbmRQdccrB4",
+    "posted_at": "2026-06-28T06:29:32.962994"
+  },
+  {
+    "platform": "youtube",
+    "slot": 1,
+    "video_id": "K541kHz2luE",
+    "url": "https://youtube.com/shorts/K541kHz2luE",
+    "posted_at": "2026-06-28T07:47:38.549312"
+  },
+  {
+    "platform": "instagram_story",
+    "slot": 3,
+    "media_id": "18324550285286902",
+    "posted_at": "2026-06-28T17:53:51.190687"
+  },
+  {
+    "platform": "instagram",
+    "slot": 3,
+    "media_id": "17977390752049937",
+    "posted_at": "2026-06-28T21:22:29.364906"
+  },
+  {
+    "platform": "instagram_story",
+    "slot": 3,
+    "media_id": "18163910563395010",
+    "posted_at": "2026-06-28T21:22:45.978157"
+  }
+]
