@@ -189,33 +189,26 @@ YOUTUBE_CATEGORIES = {
 }
 
 
-def _tiktok_hashtags(pillar: str, trending: list[str]) -> str:
-    # Slot 1-5: trending tags (Nigeria→Africa→Global→Niche) replace the static CORE_TAGS
-    # Remaining 15: pillar-specific + diaspora discovery + broad FYP tags
-    pillar_tags   = TIKTOK_PILLAR.get(pillar, TIKTOK_DISCOVERY[:5])
-    broad_sample  = random.sample(TIKTOK_BROAD, 5)
-    diaspora_samp = random.sample(TIKTOK_DISCOVERY, 5)
-    tags = trending[:5] + pillar_tags[:5] + diaspora_samp + broad_sample
-    seen, unique = set(), []
-    for t in tags:
-        tl = t.lower()
-        if tl not in seen:
-            seen.add(tl)
-            unique.append(t)
-    return " ".join(unique[:20])
+def _tiktok_hashtags(pillar: str, tags_311: list[str]) -> str:
+    # 3-1-1 strategy: exactly 5 rotating hashtags — #Brand + 3 topic + 1 trending
+    # Never the same 5 twice — topic tags rotate on 7-day no-repeat cycle
+    return " ".join(tags_311[:5])
 
 
-def _instagram_hashtags(pillar: str, trending: list[str]) -> str:
-    # Prepend today's 5 trending tags to the pillar's static 15 niche tags
+def _instagram_hashtags(pillar: str, tags_311: list[str]) -> str:
+    # Core 5 from 3-1-1 engine + up to 15 more pillar-specific tags for IG reach
+    # IG algo sweet spot: 20-30 hashtags, but core 5 are the freshest/most relevant
     static = INSTAGRAM_TAGS.get(pillar, INSTAGRAM_TAGS["community"])
-    trending_str = " ".join(trending[:5])
-    static_tags  = static.split()
-    # Remove any overlap with trending before joining
-    trending_lower = {t.lower() for t in trending[:5]}
-    filtered_static = [t for t in static_tags if t.lower() not in trending_lower]
-    # Cap at 30 total (IG algo sweet spot: 20-30)
-    combined = trending[:5] + filtered_static
-    return " ".join(combined[:30])
+    static_tags = static.split()
+    core_lower = {t.lower() for t in tags_311}
+    extra = [t for t in static_tags if t.lower() not in core_lower]
+    combined = tags_311 + extra
+    seen, unique = set(), []
+    for t in combined:
+        if t.lower() not in seen:
+            seen.add(t.lower())
+            unique.append(t)
+    return " ".join(unique[:25])
 
 
 def generate_content(slot: int, pillar: str, bucket: str) -> dict:
@@ -395,12 +388,13 @@ Return ONLY valid JSON (no markdown):
 
     data["visual_queries"] = queries
 
-    # Fetch today's trending hashtags (Nigeria → Africa → Global → Niche, cached per day)
-    trending = _fetch_trending_tags()
+    # 3-1-1 hashtag engine: #Brand + 3 topic (pillar-matched, 7-day rotation) + 1 trending
+    tags_311 = _fetch_trending_tags(pillar=pillar)
 
     # Platform-specific metadata
-    data["hashtags_tiktok"]    = _tiktok_hashtags(pillar, trending)
-    data["hashtags_instagram"] = _instagram_hashtags(pillar, trending)
+    data["hashtags_tiktok"]    = _tiktok_hashtags(pillar, tags_311)
+    data["hashtags_instagram"] = _instagram_hashtags(pillar, tags_311)
+    data["hashtags_311"]       = tags_311   # raw 5-tag list for Telegram preview
     data["youtube_tags"]       = _youtube_tags(pillar, data.get("hook", ""))
     data["youtube_category"]   = YOUTUBE_CATEGORIES.get(pillar, 22)
     data["pillar"]             = pillar

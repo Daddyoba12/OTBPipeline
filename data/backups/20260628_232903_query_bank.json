@@ -1510,14 +1510,14 @@
     "added": "2026-06-28"
   },
   {
-    "query": "woman shocked phone screen close up reaction",
+    "query": "woman surprised face phone close up reaction",
     "role": "hook",
     "source": "claude",
     "status": "trial",
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
     "query": "airplane wing takeoff dramatic sky",
@@ -1527,7 +1527,7 @@
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
     "query": "man frustrated phone call close up face",
@@ -1537,37 +1537,37 @@
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
-    "query": "traveller stressed queue airport medium shot",
+    "query": "woman stressed queue airport medium shot",
     "role": "problem",
     "source": "claude",
     "status": "trial",
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
-    "query": "woman looking down hands holding parcel emotional",
+    "query": "hands holding small parcel close up emotional",
     "role": "stakes",
     "source": "claude",
     "status": "trial",
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
-    "query": "parcel handover doorstep smile close up",
+    "query": "parcel handover doorstep smile medium shot",
     "role": "resolution",
     "source": "claude",
     "status": "trial",
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
     "query": "woman relieved happy face close up reaction",
@@ -1577,66 +1577,16 @@
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   },
   {
-    "query": "london city skyline professional daytime wide",
+    "query": "London city skyline professional wide shot",
     "role": "lesson_pre",
     "source": "claude",
     "status": "trial",
     "uses": 0,
     "video_hits": 0,
     "photo_hits": 0,
-    "added": "2026-06-29"
-  },
-  {
-    "query": "woman shocked phone screen close up face",
-    "role": "hook",
-    "source": "claude",
-    "status": "trial",
-    "uses": 0,
-    "video_hits": 0,
-    "photo_hits": 0,
-    "added": "2026-06-29"
-  },
-  {
-    "query": "traveller stressed queue airport close up reaction",
-    "role": "problem",
-    "source": "claude",
-    "status": "trial",
-    "uses": 0,
-    "video_hits": 0,
-    "photo_hits": 0,
-    "added": "2026-06-29"
-  },
-  {
-    "query": "woman emotional close up airport departure gate",
-    "role": "stakes",
-    "source": "claude",
-    "status": "trial",
-    "uses": 0,
-    "video_hits": 0,
-    "photo_hits": 0,
-    "added": "2026-06-29"
-  },
-  {
-    "query": "woman relieved happy face phone medium shot",
-    "role": "resolution",
-    "source": "claude",
-    "status": "trial",
-    "uses": 0,
-    "video_hits": 0,
-    "photo_hits": 0,
-    "added": "2026-06-29"
-  },
-  {
-    "query": "London cityscape skyline professional wide shot",
-    "role": "lesson_pre",
-    "source": "claude",
-    "status": "trial",
-    "uses": 0,
-    "video_hits": 0,
-    "photo_hits": 0,
-    "added": "2026-06-29"
+    "added": "2026-06-28"
   }
 ]

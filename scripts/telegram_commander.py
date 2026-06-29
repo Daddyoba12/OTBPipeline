@@ -848,13 +848,16 @@ def _check_and_rerun():
 
 def send_video_preview(video_path: str, caption: str, slot: int, content: dict) -> int | None:
     """Send video preview to Telegram with Post / Skip / Regen buttons."""
-    hook   = content.get("hook", "")
-    pillar = content.get("pillar", "")
+    hook     = content.get("hook", "")
+    pillar   = content.get("pillar", "")
+    tags_311 = content.get("hashtags_311", [])
+    hashtag_line = " ".join(tags_311) if tags_311 else content.get("hashtags_tiktok", "")[:80]
     text   = (
         f"<b>OTB Slot {slot}</b> — {pillar.upper()}\n\n"
         f"<b>Hook:</b> {hook}\n\n"
         f"<b>Stakes:</b> {content.get('stakes', '')}\n\n"
         f"<b>Lesson:</b> {content.get('lesson', '')}\n\n"
+        f"<b>Hashtags (3-1-1):</b>\n<code>{hashtag_line}</code>\n\n"
         f"<i>Approve within 20 min — auto-posts if no response.</i>"
     )
     keyboard = {

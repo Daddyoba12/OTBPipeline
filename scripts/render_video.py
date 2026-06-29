@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import (
     ASSETS, MUSIC_DIR, MUSIC_ARCHIVE, TEMP, OUTPUT, LOGO_PATH, FIG_END,
     FONT_TITLE, FONT_BODY, FONT_TITLE_FB, FONT_BODY_FB,
-    PEXELS_KEY, PIXABAY_KEY,
+    PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
     VIDEO_W, VIDEO_H, VIDEO_FPS,
     CLIP_DUR, N_CLIPS, LESSON_DUR, BRAND_DUR, TOTAL_DUR,
     PROGRESS_COLOR, PROGRESS_H,
@@ -374,6 +374,57 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR) -> b
     return False
 
 
+def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+    """Generate a unique image with DALL-E 3 and Ken-Burns animate it into a clip."""
+    if not OPENAI_API_KEY:
+        return False
+    # Craft a cinematic prompt from the beat type and query
+    beat_mood = {
+        "hook":       "dramatic cinematic wide shot, golden hour lighting",
+        "problem":    "tense close-up, moody blue tones, documentary style",
+        "stakes":     "emotional portrait, shallow depth of field, orange accent light",
+        "resolution": "warm joyful scene, soft natural light, hopeful mood",
+        "lesson_pre": "clean professional setting, bright neutral tones",
+    }.get(beat, "cinematic wide shot")
+    prompt = (
+        f"Photorealistic {beat_mood}. Scene: {query}. "
+        f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
+        f"High quality professional photography."
+    )
+    try:
+        resp = requests.post(
+            "https://api.openai.com/v1/images/generations",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+            json={"model": "dall-e-3", "prompt": prompt[:4000], "n": 1,
+                  "size": "1024x1792", "quality": "standard"},
+            timeout=60,
+        )
+        data = resp.json()
+        img_url = data["data"][0]["url"]
+        img_bytes = requests.get(img_url, timeout=30).content
+        img_path = dest.with_suffix(".jpg")
+        img_path.write_bytes(img_bytes)
+        frames = duration * VIDEO_FPS
+        ok = _ff(
+            "-loop", "1", "-i", str(img_path),
+            "-vf",
+            f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+            f"zoompan=z='min(zoom+0.002,1.15)':d={frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},"
+            "setsar=1",
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+            timeout=90,
+        )
+        img_path.unlink(missing_ok=True)
+        if ok and dest.exists():
+            print(f"    [DALL-E] Generated unique image for: {query[:50]}")
+            return True
+    except Exception as e:
+        print(f"    [DALL-E] {query}: {e}")
+    return False
+
+
 def _download_clip(url: str, dest: Path) -> bool:
     try:
         r = requests.get(url, stream=True, timeout=60)
@@ -628,19 +679,30 @@ def render_video(content: dict, slot: int, output_path: str) -> bool:
                 raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Photo fallback
-            print(f"    Clip {i}: falling back to photo")
+            # Pexels photo fallback
+            print(f"    Clip {i}: falling back to Pexels photo")
             photo_raw = TEMP / f"{prefix}_photo_{i}.mp4"
             if _pexels_photo_as_clip(query, photo_raw):
                 if _process_clip(photo_raw, proc, beat, text):
                     got_video = True
-                    try: report_hit(query, "photo")   # learner: weak query (no video found)
+                    try: report_hit(query, "photo")
                     except Exception: pass
                 photo_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Solid colour placeholder
-            try: report_hit(query, "placeholder")     # learner: very weak query
+            # DALL-E 3 fallback — guaranteed unique image every run
+            print(f"    Clip {i}: falling back to DALL-E generation")
+            dalle_raw = TEMP / f"{prefix}_dalle_{i}.mp4"
+            if _dalle_image_as_clip(beat, query, dalle_raw):
+                if _process_clip(dalle_raw, proc, beat, text):
+                    got_video = True
+                    try: report_hit(query, "dalle")
+                    except Exception: pass
+                dalle_raw.unlink(missing_ok=True)
+
+        if not got_video:
+            # Solid colour placeholder (last resort)
+            try: report_hit(query, "placeholder")
             except Exception: pass
             _ff("-f", "lavfi", "-i",
                 f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
