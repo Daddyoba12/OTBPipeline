@@ -846,50 +846,69 @@ def _check_and_rerun():
 
 # ── Approval flow (called by pipeline.py during slot run) ────────────────────
 
-def send_video_preview(video_path: str, caption: str, slot: int, content: dict) -> int | None:
-    """Send video preview to Telegram with Post / Skip / Regen buttons."""
-    hook     = content.get("hook", "")
+def send_video_preview(video_path: str, caption: str, slot: int, content: dict,
+                       v2_path: str | None = None) -> int | None:
+    """Send V1 + V2 video previews to Telegram with Post / Skip / Regen buttons."""
     pillar   = content.get("pillar", "")
     tags_311 = content.get("hashtags_311", [])
     hashtag_line = " ".join(tags_311) if tags_311 else content.get("hashtags_tiktok", "")[:80]
-    text   = (
-        f"<b>OTB Slot {slot}</b> — {pillar.upper()}\n\n"
-        f"<b>Hook:</b> {hook}\n\n"
-        f"<b>Stakes:</b> {content.get('stakes', '')}\n\n"
-        f"<b>Lesson:</b> {content.get('lesson', '')}\n\n"
+
+    # Send V1 video (no buttons — just the video + label)
+    v1_caption = (
+        f"<b>OTB Slot {slot} — V1</b>  {pillar.upper()}\n"
+        f"<b>Hook:</b> {content.get('hook', '')}\n"
+        f"<b>Lesson:</b> {content.get('lesson', '')}\n"
+        f"<i>Gold palette — TikTok V1 + Instagram V1</i>"
+    )
+    try:
+        with open(video_path, "rb") as vf:
+            r1 = requests.post(
+                f"{BASE_URL}/sendVideo",
+                data={"chat_id": TELEGRAM_CHAT_ID, "caption": v1_caption,
+                      "parse_mode": "HTML", "supports_streaming": "true"},
+                files={"video": vf}, timeout=120,
+            )
+        if r1.ok:
+            _log_message(r1.json().get("result", {}).get("message_id", 0))
+    except Exception as e:
+        print(f"[Cmdr] V1 preview failed: {e}")
+
+    # Send V2 video if available (also no buttons)
+    if v2_path:
+        v2_caption = (
+            f"<b>OTB Slot {slot} — V2</b>  {pillar.upper()}\n"
+            f"<b>Hook:</b> {content.get('hook_v2', content.get('hook', ''))}\n"
+            f"<b>Lesson:</b> {content.get('lesson_v2', content.get('lesson', ''))}\n"
+            f"<i>Cyan palette — TikTok V2 + Instagram V2</i>"
+        )
+        try:
+            with open(v2_path, "rb") as vf:
+                r2 = requests.post(
+                    f"{BASE_URL}/sendVideo",
+                    data={"chat_id": TELEGRAM_CHAT_ID, "caption": v2_caption,
+                          "parse_mode": "HTML", "supports_streaming": "true"},
+                    files={"video": vf}, timeout=120,
+                )
+            if r2.ok:
+                _log_message(r2.json().get("result", {}).get("message_id", 0))
+        except Exception as e:
+            print(f"[Cmdr] V2 preview failed: {e}")
+
+    # Approval message with buttons — sent as a text message after both videos
+    v2_note = "V1 (gold) + V2 (cyan) ready." if v2_path else "V1 only (V2 render failed)."
+    approval_text = (
+        f"<b>OTB Slot {slot}</b> — {v2_note}\n\n"
         f"<b>Hashtags (3-1-1):</b>\n<code>{hashtag_line}</code>\n\n"
-        f"<i>Approve within 20 min — auto-posts if no response.</i>"
+        f"<i>Auto-posts in 30 min — tap Post Now to go live immediately, or Skip/Regen.</i>"
     )
     keyboard = {
         "inline_keyboard": [[
-            {"text": "✅ Post Now", "callback_data": f"post_{slot}"},
-            {"text": "⏭ Skip",     "callback_data": f"skip_{slot}"},
-            {"text": "🔄 Regen",   "callback_data": f"regen_{slot}"},
+            {"text": "✅ Post Now",  "callback_data": f"post_{slot}"},
+            {"text": "⏭ Skip",      "callback_data": f"skip_{slot}"},
+            {"text": "🔄 Regen",    "callback_data": f"regen_{slot}"},
         ]]
     }
-    try:
-        with open(video_path, "rb") as vf:
-            r = requests.post(
-                f"{BASE_URL}/sendVideo",
-                data={
-                    "chat_id":      TELEGRAM_CHAT_ID,
-                    "caption":      text,
-                    "parse_mode":   "HTML",
-                    "reply_markup": json.dumps(keyboard),
-                },
-                files={"video": vf},
-                timeout=60,
-            )
-        data = r.json()
-        if data.get("ok"):
-            msg_id = data["result"]["message_id"]
-            _log_message(msg_id)
-            print(f"[Cmdr] Preview sent, msg_id={msg_id}")
-            return msg_id
-    except Exception as e:
-        print(f"[Cmdr] Preview send failed: {e}")
-    # Fallback: text-only
-    msg = _send(text, keyboard)
+    msg = _send(approval_text, keyboard)
     return msg.get("result", {}).get("message_id")
 
 
@@ -936,17 +955,31 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
                 _send(f"🔄 Slot {slot} — regenerating…")
                 return "regen"
 
-    print(f"[Cmdr] Slot {slot} timed out — auto-posting.")
-    _send(f"⏱ Slot {slot} — no response, auto-posting now.")
+    print(f"[Cmdr] Slot {slot} — 30 min elapsed, auto-posting.")
+    _send(f"⏱ Slot {slot} — 30 min window passed, posting V1 + V2 now.")
     return "timeout"
+
+
+_RESULT_LABELS = {
+    "tiktok_v1":       "TikTok V1",
+    "tiktok_v2":       "TikTok V2",
+    "instagram_v1":    "Instagram V1",
+    "instagram_v2":    "Instagram V2",
+    "youtube":         "YouTube Shorts",
+    "linkedin":        "LinkedIn",
+    "instagram_story": "IG Story",
+    "newspaper":       "Newspaper",
+    "blog":            "Blog",
+}
 
 
 def send_result(slot: int, results: dict):
     """Send post-slot results summary to Telegram."""
-    lines = [f"<b>OTB Slot {slot} — Posted</b>"]
+    lines = [f"<b>OTB Slot {slot} — Results</b>"]
     for platform, result in results.items():
-        icon = "✅" if result else "❌"
-        lines.append(f"{icon} {platform.capitalize()}: {result or 'failed'}")
+        icon  = "✅" if result else "❌"
+        label = _RESULT_LABELS.get(platform, platform.replace("_", " ").title())
+        lines.append(f"{icon} {label}: {result or 'failed'}")
     _send("\n".join(lines))
 
 

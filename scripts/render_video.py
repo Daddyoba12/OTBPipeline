@@ -95,7 +95,7 @@ BEAT_STYLE = {
     "hook": {
         "size": 72, "size_cont": 56,
         "color": "FFE600",
-        "y_start": 160,   # top zone — below TikTok/IG UI chrome
+        "y_start": 160,
         "line_gap": 90,
         "max_chars": 20,
         "max_lines": 3,
@@ -103,7 +103,7 @@ BEAT_STYLE = {
     },
     "problem": {
         "size": 52, "color": "FFFFFF",
-        "y_start": 880,   # center-lower — natural reading zone
+        "y_start": 880,
         "line_gap": 70,
         "max_chars": 26,
         "max_lines": 2,
@@ -133,6 +133,15 @@ BEAT_STYLE = {
         "max_lines": 2,
         "title_font": False,
     },
+}
+
+# V2 uses a different colour palette so the two versions are visually distinct
+BEAT_STYLE_V2 = {
+    "hook":       {**BEAT_STYLE["hook"],       "color": "00CFFF"},  # electric cyan
+    "problem":    {**BEAT_STYLE["problem"],    "color": "FFB300"},  # amber
+    "stakes":     {**BEAT_STYLE["stakes"],     "color": "FF4081"},  # pink
+    "resolution": {**BEAT_STYLE["resolution"], "color": "69FF47"},  # lime green
+    "lesson_pre": {**BEAT_STYLE["lesson_pre"], "color": "FFFFFF"},
 }
 
 CLIP_BEAT = [
@@ -230,14 +239,15 @@ _BEAT_LABELS = {
 }
 
 
-def _drawtext_filters(text: str, beat: str) -> str:
+def _drawtext_filters(text: str, beat: str, style_override: dict | None = None) -> str:
     """Return comma-chained drawtext filters - one per line - with explicit pixel Y.
 
     Replaces single drawtext + line_spacing=10 which squashes lines together
     (10px gap is tiny against 52-72px fonts).  Each line is absolutely positioned
     so spacing is proportional to the font size (approx font_size * 1.35).
     """
-    style = BEAT_STYLE.get(beat, BEAT_STYLE["problem"])
+    palette = style_override or BEAT_STYLE
+    style = palette.get(beat, palette.get("problem", BEAT_STYLE["problem"]))
     lines = (_split_hook(text) if beat == "hook"
              else _split_lines(_esc(text), style["max_chars"], style["max_lines"]))
     if not lines:
@@ -438,9 +448,9 @@ def _download_clip(url: str, dest: Path) -> bool:
     return False
 
 
-def _process_clip(src: Path, dest: Path, beat: str, beat_text: str) -> bool:
+def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_override: dict | None = None) -> bool:
     """Resize, crop to 9:16, sharpen, add beat text overlay, trim to CLIP_DUR."""
-    text_f = _drawtext_filters(beat_text, beat)
+    text_f = _drawtext_filters(beat_text, beat, style_override)
     vf_parts = [
         f"scale={W}:{H}:force_original_aspect_ratio=increase",
         f"crop={W}:{H}",
@@ -557,45 +567,51 @@ def _add_logo(src: Path, logo: Path, dest: Path) -> bool:
     )
 
 
-def _add_music(src: Path, dest: Path, slot: int = None) -> bool:
+def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | None = None) -> Path | None:
     """
     Mix in slot-specific trending music. Priority:
       1. music/daily/track_{slot}.mp3  — today's trending pick for this slot
       2. Any file in music/daily/       — another slot's trending pick
       3. music/archive/                 — royalty-free fallback library
-    Falls back to copy (no audio overlay) only if all dirs are empty.
+    exclude_track: skip this specific file (used so V2 gets different music from V1).
+    Returns the Path of the track used, or None if no audio was available.
+    Falls back to file copy (no audio) if all dirs are empty.
     """
     import shutil
 
     track = None
 
-    # 1. Slot-specific daily track (fetched by fetch_trending_music.py at 6am)
+    # 1. Slot-specific daily track
     if slot:
         slot_track = MUSIC_DIR / f"track_{slot}.mp3"
         if slot_track.exists() and slot_track.stat().st_size > 50_000:
-            track = slot_track
+            if exclude_track is None or slot_track.resolve() != exclude_track.resolve():
+                track = slot_track
 
-    # 2. Any daily track as fallback
+    # 2. Any daily track (excluding the one already used)
     if track is None:
         daily = list(MUSIC_DIR.glob("*.mp3")) + list(MUSIC_DIR.glob("*.m4a"))
-        daily = [t for t in daily if t.stat().st_size > 50_000 and "_tmp" not in str(t)]
+        daily = [t for t in daily
+                 if t.stat().st_size > 50_000 and "_tmp" not in str(t)
+                 and (exclude_track is None or t.resolve() != exclude_track.resolve())]
         if daily:
             track = random.choice(daily)
 
     # 3. Archive fallback
     if track is None:
         archive = list(MUSIC_ARCHIVE.glob("*.mp3")) + list(MUSIC_ARCHIVE.glob("*.m4a"))
+        archive = [t for t in archive
+                   if exclude_track is None or t.resolve() != exclude_track.resolve()]
         if archive:
             track = random.choice(archive)
 
     if track is None:
         shutil.copy(src, dest)
-        return True
+        return None
 
     total = float(TOTAL_DUR)
     print(f"    [Music] Using: {track.name}")
-    # Video has no audio track (all clips rendered with -an); use music directly
-    return _ff(
+    _ff(
         "-i", str(src), "-i", str(track),
         "-filter_complex",
         f"[1:a]atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
@@ -603,6 +619,7 @@ def _add_music(src: Path, dest: Path, slot: int = None) -> bool:
         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", str(dest),
         timeout=180,
     )
+    return track
 
 
 def _concat_clips(clip_paths: list, dest: Path) -> bool:
@@ -622,42 +639,54 @@ def _concat_clips(clip_paths: list, dest: Path) -> bool:
     return ok
 
 
-def render_video(content: dict, slot: int, output_path: str) -> bool:
+def render_video(content: dict, slot: int, output_path: str,
+                 version: str = "v1", exclude_ids: set | None = None) -> tuple[bool, set]:
     """
     Full render pipeline.
-    content: dict from generate_content() with hook/problem/stakes/resolution/lesson/visual_queries
-    output_path: final .mp4 path
+    version:     "v1" (gold palette, primary queries) or "v2" (cyan palette, alt queries, diff music)
+    exclude_ids: clip IDs to skip (pass V1's used_ids so V2 gets fresh footage)
+    Returns (success, used_clip_ids).
     """
     pillar  = content.get("pillar", "community")
-    hook    = content.get("hook", "")
+    # V2 uses alternate hook/lesson/queries if Claude generated them; falls back to V1 fields
+    is_v2   = (version == "v2")
+    hook    = content.get("hook_v2" if is_v2 else "hook", content.get("hook", ""))
     problem = content.get("problem", "")
     stakes  = content.get("stakes", "")
     resolution = content.get("resolution", "")
-    lesson  = content.get("lesson", "")
-    queries = content.get("visual_queries", ["airport travel"] * N_CLIPS)
+    lesson  = content.get("lesson_v2" if is_v2 else "lesson", content.get("lesson", ""))
+    queries_key = "visual_queries_v2" if is_v2 else "visual_queries"
+    queries = content.get(queries_key) or content.get("visual_queries", ["airport travel"] * N_CLIPS)
     if len(queries) < N_CLIPS:
         queries += ["diaspora delivery uk"] * (N_CLIPS - len(queries))
 
-    # Beat text per clip
+    # V2: rotate query order so footage is drawn from a completely different search pool
+    if is_v2:
+        mid = len(queries) // 2
+        queries = queries[mid:] + queries[:mid]
+
+    beat_style = BEAT_STYLE_V2 if is_v2 else None   # None = use default BEAT_STYLE
+
     beat_texts = [
-        hook, hook,              # clips 0-1 hook
-        problem, problem,        # clips 2-3 problem
-        stakes,                  # clip 4 stakes
-        resolution, resolution,  # clips 5-6 resolution
-        lesson,                  # clip 7 lesson lead-in
+        hook, hook,
+        problem, problem,
+        stakes,
+        resolution, resolution,
+        lesson,
     ]
 
     TEMP.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)
-    prefix = f"otb_slot{slot}"
-    used_ids: set = set()
+    prefix = f"otb_slot{slot}_{version}"
+    used_ids: set = set(exclude_ids or [])
+    own_ids: set  = set()   # IDs found by THIS render (returned to caller)
     proc_clips: list = []
 
-    print(f"\n  [Render] Hook: {hook[:60]}")
-    print(f"  [Render] Pillar: {pillar} | Slot: {slot}")
+    print(f"\n  [Render-{version.upper()}] Hook: {hook[:60]}")
+    print(f"  [Render] Pillar: {pillar} | Slot: {slot} | Version: {version}")
 
     for i in range(N_CLIPS):
-        query  = _guard_query(queries[i], i)   # second-layer safety filter
+        query  = _guard_query(queries[i], i)
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
         raw    = TEMP / f"{prefix}_raw_{i}.mp4"
@@ -665,43 +694,40 @@ def render_video(content: dict, slot: int, output_path: str) -> bool:
 
         print(f"    Clip {i} [{beat}]: {query}")
 
-        # Try video sources
         clip_info = _pexels_video(query, used_ids) or _pixabay_video(query, used_ids)
         got_video = False
 
         if clip_info:
             used_ids.add(clip_info["id"])
+            own_ids.add(clip_info["id"])
             if _download_clip(clip_info["url"], raw):
-                if _process_clip(raw, proc, beat, text):
+                if _process_clip(raw, proc, beat, text, beat_style):
                     got_video = True
-                    try: report_hit(query, "video")   # learner: good query
+                    try: report_hit(query, "video")
                     except Exception: pass
                 raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Pexels photo fallback
             print(f"    Clip {i}: falling back to Pexels photo")
             photo_raw = TEMP / f"{prefix}_photo_{i}.mp4"
             if _pexels_photo_as_clip(query, photo_raw):
-                if _process_clip(photo_raw, proc, beat, text):
+                if _process_clip(photo_raw, proc, beat, text, beat_style):
                     got_video = True
                     try: report_hit(query, "photo")
                     except Exception: pass
                 photo_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # DALL-E 3 fallback — guaranteed unique image every run
             print(f"    Clip {i}: falling back to DALL-E generation")
             dalle_raw = TEMP / f"{prefix}_dalle_{i}.mp4"
             if _dalle_image_as_clip(beat, query, dalle_raw):
-                if _process_clip(dalle_raw, proc, beat, text):
+                if _process_clip(dalle_raw, proc, beat, text, beat_style):
                     got_video = True
                     try: report_hit(query, "dalle")
                     except Exception: pass
                 dalle_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Solid colour placeholder (last resort)
             try: report_hit(query, "placeholder")
             except Exception: pass
             _ff("-f", "lavfi", "-i",
@@ -765,20 +791,25 @@ def render_video(content: dict, slot: int, output_path: str) -> bool:
     with_bar.unlink(missing_ok=True)
 
     print("    Adding music...")
-    _add_music(with_logo, Path(output_path), slot=slot)
+    exclude_music = content.get("_v1_music_track")   # set by pipeline after V1 render
+    used_track = _add_music(with_logo, Path(output_path), slot=slot,
+                            exclude_track=Path(exclude_music) if exclude_music else None)
     with_logo.unlink(missing_ok=True)
 
-    # Clean up clip temps
+    # Store which track was used so pipeline can pass it as exclude for V2
+    if used_track:
+        content[f"_{version}_music_track"] = str(used_track)
+
     for p in proc_clips:
         Path(p).unlink(missing_ok=True)
 
     ok = Path(output_path).exists() and Path(output_path).stat().st_size > 500_000
     if ok:
         size_mb = Path(output_path).stat().st_size // 1_048_576
-        print(f"  [Render] Done — {size_mb}MB -> {output_path}")
+        print(f"  [Render-{version.upper()}] Done — {size_mb}MB -> {output_path}")
     else:
-        print(f"  [Render] Output missing or too small")
-    return ok
+        print(f"  [Render-{version.upper()}] Output missing or too small")
+    return ok, own_ids
 
 
 # ── Platform-specific video variants ─────────────────────────────────────────

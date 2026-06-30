@@ -62,27 +62,42 @@ if _ON_WINDOWS:
         YOUTUBE_API_KEY   = ""
         OPENAI_API_KEY    = ""
 else:
-    # On Oracle: load keys from /opt/boothop/config.py by file path to avoid
-    # circular import (importing by name would re-import this file itself).
+    # On Oracle: load keys from keys.env file (created by fix_oracle.ps1, never in git)
     import os, importlib.util
-    _bhp_path = Path("/opt/boothop/config.py")
-    try:
-        _spec = importlib.util.spec_from_file_location("bhp_config", str(_bhp_path))
-        _bhp  = importlib.util.module_from_spec(_spec)
-        _spec.loader.exec_module(_bhp)
-        ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
-        PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "")  # BHP uses PEXELS_API_KEY
-        PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
-        GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
-        YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
-    except Exception:
-        # Fallback to environment variables if /opt/boothop not present
-        ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-        PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
-        PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
-        GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
-        YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",  "")
-        OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",   "")
+    _keys_env = BASE / "keys.env"
+    if _keys_env.exists():
+        _env_pairs: dict = {}
+        for _ln in _keys_env.read_text(encoding="utf-8").splitlines():
+            _ln = _ln.strip()
+            if "=" in _ln and not _ln.startswith("#"):
+                _ek, _, _ev = _ln.partition("=")
+                _env_pairs[_ek.strip()] = _ev.strip().strip('"').strip("'")
+        ANTHROPIC_API_KEY = _env_pairs.get("ANTHROPIC_API_KEY", os.environ.get("ANTHROPIC_API_KEY", ""))
+        PEXELS_KEY        = _env_pairs.get("PEXELS_KEY",        os.environ.get("PEXELS_KEY",        ""))
+        PIXABAY_KEY       = _env_pairs.get("PIXABAY_KEY",       os.environ.get("PIXABAY_KEY",       ""))
+        GEMINI_API_KEY    = _env_pairs.get("GEMINI_API_KEY",    os.environ.get("GEMINI_API_KEY",    ""))
+        YOUTUBE_API_KEY   = _env_pairs.get("YOUTUBE_API_KEY",   os.environ.get("YOUTUBE_API_KEY",   ""))
+        OPENAI_API_KEY    = _env_pairs.get("OPENAI_API_KEY",    os.environ.get("OPENAI_API_KEY",    ""))
+    else:
+        # Fallback: try legacy BHP config path, then environment variables
+        _bhp_path = Path("/opt/boothop/config.py")
+        try:
+            _spec = importlib.util.spec_from_file_location("bhp_config", str(_bhp_path))
+            _bhp  = importlib.util.module_from_spec(_spec)
+            _spec.loader.exec_module(_bhp)
+            ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
+            PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "")
+            PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
+            GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
+            YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
+            OPENAI_API_KEY    = ""
+        except Exception:
+            ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+            PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
+            PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
+            GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
+            YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",   "")
+            OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",    "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
@@ -172,3 +187,22 @@ PROGRESS_H     = 12            # px height
 
 # ── Telegram approval window ───────────────────────────────────────────────────
 APPROVAL_TIMEOUT = 30 * 60    # 30 minutes approval window before auto-post
+
+# ── Oracle dashboard routing ───────────────────────────────────────────────────
+# After each slot, platform videos are copied/SCP'd to companies/{slug}/ so the
+# Revoice Studio dashboard can show them with proper human-readable labels.
+ORACLE_IP        = "140.238.73.32"
+ORACLE_USER      = "ubuntu"
+ORACLE_KEY       = (Path(r"C:\Users\babso\.ssh\oracle_boothop.pem")
+                    if _ON_WINDOWS else None)
+ORACLE_COMPANIES = "/opt/otb_pipeline/dashboard/companies"
+PIPELINE_SLUG    = "boothop"   # company slug used in Revoice Studio (set at /onboard)
+
+# Maps (slot, platform) → dashboard filename stem (becomes {stem}.mp4 in companies/{slug}/)
+# Also used by send_result() in telegram_commander.py for human-readable labels
+SLOT_PLATFORM_LABELS = {
+    1: {"linkedin": "linkedin", "instagram_story": "story_am"},
+    2: {"tiktok": "tiktok_v1", "instagram": "instagram_v1"},
+    3: {"tiktok": "tiktok_v2", "instagram": "instagram_v2", "instagram_story": "story_pm"},
+    4: {"tiktok": "tiktok_v3", "youtube": "youtube"},
+}
