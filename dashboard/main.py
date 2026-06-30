@@ -28,6 +28,27 @@ DB_PATH    = BASE_DIR / "otb.db"
 CO_DIR.mkdir(exist_ok=True)
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
+
+# Maps file stem → human-readable label shown in the Revoice Studio video picker
+_VIDEO_LABELS = {
+    "tiktok_v1":    "TikTok v1 — 12pm",
+    "tiktok_v2":    "TikTok v2 — 6pm",
+    "tiktok_v3":    "TikTok v3 — 9pm",
+    "instagram_v1": "Instagram v1 — 12pm",
+    "instagram_v2": "Instagram v2 — 6pm",
+    "youtube":      "YouTube — 9pm",
+    "linkedin":     "LinkedIn — 7am",
+    "story_am":     "IG Story — 7am",
+    "story_pm":     "IG Story — 6pm",
+}
+
+# Preferred display order in the picker
+_VIDEO_ORDER = [
+    "tiktok_v1", "instagram_v1",
+    "tiktok_v2", "instagram_v2", "story_pm",
+    "tiktok_v3", "youtube",
+    "linkedin", "story_am",
+]
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 FFMPEG         = shutil.which("ffmpeg") or "ffmpeg"
 FFPROBE        = shutil.which("ffprobe") or "ffprobe"
@@ -364,16 +385,43 @@ async def dashboard(request: Request, session_token: str | None = Cookie(None)):
             (sess["company_id"],)
         ).fetchall()
 
-    videos       = sorted(cdir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True)
-    latest_video = str(videos[0]) if videos else ""
+    all_mp4 = sorted(cdir.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True)
+
+    def _sort_key(f: Path) -> int:
+        return _VIDEO_ORDER.index(f.stem) if f.stem in _VIDEO_ORDER else 99
+
+    videos = [
+        {
+            "path":  str(f),
+            "name":  f.name,
+            "label": _VIDEO_LABELS.get(f.stem, f.stem.replace("_", " ").title()),
+        }
+        for f in sorted(all_mp4, key=_sort_key)
+    ]
 
     return templates.TemplateResponse("dashboard.html", {
         "request":      request,
         "company":      sess,
         "music_tracks": music,
         "bakes":        [dict(b) for b in bakes],
-        "latest_video": latest_video,
+        "videos":       videos,
     })
+
+
+@app.get("/api/video-file")
+async def serve_video_file(path: str, session_token: str | None = Cookie(None)):
+    """Serve a pipeline video by absolute path — restricted to this company's directory."""
+    sess = _get_sess(session_token)
+    if not sess:
+        raise HTTPException(401)
+    file_path = Path(path)
+    if not file_path.exists():
+        raise HTTPException(404)
+    try:
+        file_path.relative_to(CO_DIR)
+    except ValueError:
+        raise HTTPException(403, "Access outside company directory denied")
+    return FileResponse(str(file_path), media_type="video/mp4")
 
 
 @app.post("/api/upload-video")

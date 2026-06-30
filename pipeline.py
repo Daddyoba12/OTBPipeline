@@ -46,6 +46,8 @@ except Exception:
 from config import (
     DATA, OUTPUT, TEMP, SLOT_PLATFORMS, APPROVAL_TIMEOUT,
     TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
+    SLOT_PLATFORM_LABELS, PIPELINE_SLUG,
+    ORACLE_IP, ORACLE_USER, ORACLE_KEY, ORACLE_COMPANIES,
 )
 
 CRASH_LOG  = DATA / "pipeline_crash.log"
@@ -79,6 +81,74 @@ def _clear_step():
         STEP_FILE.unlink(missing_ok=True)
     except Exception:
         pass
+
+
+def _route_to_dashboard(platform_videos: dict, slot: int, base_video: Path) -> None:
+    """Copy platform videos to Revoice Studio dashboard with proper labels.
+
+    On Oracle (Linux): local copy to /opt/otb_pipeline/dashboard/companies/{slug}/
+    On Windows (backup run): SCP to Oracle over SSH.
+    """
+    import platform as _plat, shutil as _sh, subprocess as _sp
+
+    labels = SLOT_PLATFORM_LABELS.get(slot, {})
+    if not labels:
+        return
+
+    on_windows = _plat.system() == "Windows"
+
+    if on_windows:
+        if not ORACLE_KEY or not Path(str(ORACLE_KEY)).exists():
+            _log("Oracle SSH key not found — skipping dashboard video routing")
+            return
+        key    = str(ORACLE_KEY)
+        oracle = f"{ORACLE_USER}@{ORACLE_IP}"
+        rdir   = f"{ORACLE_COMPANIES}/{PIPELINE_SLUG}"
+        try:
+            _sp.run(["ssh", "-i", key, "-o", "StrictHostKeyChecking=no",
+                     oracle, f"mkdir -p {rdir}"],
+                    capture_output=True, timeout=30)
+        except Exception as e:
+            _log(f"Oracle mkdir error: {e}")
+            return
+        synced = []
+        for plat, path in platform_videos.items():
+            label = labels.get(plat)
+            if not label or not Path(path).exists():
+                continue
+            r = _sp.run(["scp", "-i", key, "-o", "StrictHostKeyChecking=no",
+                          path, f"{oracle}:{rdir}/{label}.mp4"],
+                         capture_output=True, text=True, timeout=180)
+            if r.returncode == 0:
+                synced.append(f"{plat}→{label}.mp4")
+            else:
+                _log(f"SCP failed {plat}: {r.stderr[:80]}")
+        sidecar = base_video.with_suffix(".json")
+        if sidecar.exists():
+            _sp.run(["scp", "-i", key, "-o", "StrictHostKeyChecking=no",
+                      str(sidecar), f"{oracle}:{rdir}/slot_{slot}.json"],
+                     capture_output=True, timeout=30)
+        _log(f"Dashboard route (→Oracle): {synced}")
+    else:
+        co_dir = Path(f"{ORACLE_COMPANIES}/{PIPELINE_SLUG}")
+        co_dir.mkdir(parents=True, exist_ok=True)
+        copied = []
+        for plat, path in platform_videos.items():
+            label = labels.get(plat)
+            if not label or not Path(path).exists():
+                continue
+            try:
+                _sh.copy2(path, co_dir / f"{label}.mp4")
+                copied.append(f"{plat}→{label}.mp4")
+            except Exception as e:
+                _log(f"Copy error {plat}: {e}")
+        sidecar = base_video.with_suffix(".json")
+        if sidecar.exists():
+            try:
+                _sh.copy2(str(sidecar), co_dir / f"slot_{slot}.json")
+            except Exception:
+                pass
+        _log(f"Dashboard route (local): {copied}")
 
 
 def _already_ran_today(slot: int) -> bool:
@@ -132,6 +202,22 @@ def run_slot(slot: int, force: bool = False):
     OUTPUT.mkdir(exist_ok=True)
     TEMP.mkdir(exist_ok=True)
 
+    # On Windows backup runs: pull Oracle's latest data first so dedup logs are current
+    import platform as _plat
+    if _plat.system() == "Windows" and force:
+        try:
+            import subprocess as _spp
+            sync_script = BASE / "deploy" / "sync_data.ps1"
+            if sync_script.exists():
+                _spp.run(
+                    ["powershell.exe", "-ExecutionPolicy", "Bypass",
+                     "-File", str(sync_script), "-Direction", "pull"],
+                    capture_output=True, timeout=45,
+                )
+                _log("Pre-run data pulled from Oracle")
+        except Exception:
+            pass  # Oracle offline — proceed with local data
+
     if not force and _already_ran_today(slot):
         _log(f"Slot {slot} already ran today — skipping (use --force to override)")
         return
@@ -145,12 +231,13 @@ def run_slot(slot: int, force: bool = False):
 
     # ── 2. Generate content (with regen loop) ─────────────────────────────────
     _step(f"slot{slot}: content generation")
-    from generate_content import generate_content
+    from generate_content import generate_content, generate_v2_content
     from telegram_commander import send_video_preview, poll_for_decision, send_result
 
     content = None
-    video_path = None
     regen_count = 0
+    v1_path = v2_path = None
+    platform_videos_v1 = platform_videos_v2 = {}
 
     while regen_count <= 2:
         _log(f"Generating content (attempt {regen_count + 1})...")
@@ -164,51 +251,77 @@ def run_slot(slot: int, force: bool = False):
         _log(f"Hook: {content.get('hook','')[:80]}")
         _log(f"Lesson: {content.get('lesson','')[:80]}")
 
-        # ── 3. Render video ────────────────────────────────────────────────────
-        _step(f"slot{slot}: video render")
+        # ── 3. Render V1 ──────────────────────────────────────────────────────
+        _step(f"slot{slot}: render V1")
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-        video_file = OUTPUT / f"otb_slot{slot}_{ts}.mp4"
-        _log("Rendering base video...")
+        v1_file = OUTPUT / f"otb_slot{slot}_v1_{ts}.mp4"
+        _log("Rendering V1 (gold palette — Pexels/Pixabay primary)...")
 
         from render_video import render_video, render_for_platforms
-        ok = render_video(content, slot, str(video_file))
+        ok_v1, v1_used_ids = render_video(content, slot, str(v1_file), version="v1")
 
-        if not ok or not video_file.exists():
-            _crash(f"Render failed for slot {slot}")
-            _tg_send(f"❌ OTB Slot {slot} — render failed")
+        if not ok_v1 or not v1_file.exists():
+            _crash(f"V1 render failed for slot {slot}")
+            _tg_send(f"❌ OTB Slot {slot} — V1 render failed")
             return
 
-        _log(f"Base render done: {video_file.stat().st_size // 1024}KB")
+        _log(f"V1 done: {v1_file.stat().st_size // 1024}KB  ({len(v1_used_ids)} clips)")
 
-        # Save sidecar so Revoice Studio can read hook/caption text
+        # ── 4. Generate V2 content (alt hook + rotated queries) ───────────────
+        _step(f"slot{slot}: generate V2 content")
+        _log("Generating V2 hook + alt visual queries via Claude Haiku...")
+        content = generate_v2_content(slot, pillar, bucket, content)
+
+        # ── 5. Render V2 (cyan palette, different clips + music) ──────────────
+        _step(f"slot{slot}: render V2")
+        v2_file = OUTPUT / f"otb_slot{slot}_v2_{ts}.mp4"
+        _log("Rendering V2 (cyan palette — alt queries, different music)...")
+        ok_v2, _ = render_video(content, slot, str(v2_file), version="v2", exclude_ids=v1_used_ids)
+
+        if not ok_v2 or not v2_file.exists():
+            _log("V2 render failed — continuing with V1 only")
+            v2_file = None
+
+        if v2_file:
+            _log(f"V2 done: {v2_file.stat().st_size // 1024}KB")
+
+        # Save sidecar (V1 anchor, includes V2 hooks for reference)
         try:
-            sidecar = video_file.with_suffix(".json")
+            sidecar = v1_file.with_suffix(".json")
             sidecar.write_text(json.dumps({
-                "hook":             content.get("hook", ""),
-                "lesson":           content.get("lesson", ""),
-                "pillar":           content.get("pillar", ""),
-                "slot":             slot,
-                "caption":          content.get("caption_tiktok", ""),
-                "hashtags_311":     content.get("hashtags_311", []),
-                "hashtags_tiktok":  content.get("hashtags_tiktok", ""),
+                "hook":               content.get("hook", ""),
+                "hook_v2":            content.get("hook_v2", ""),
+                "lesson":             content.get("lesson", ""),
+                "lesson_v2":          content.get("lesson_v2", ""),
+                "pillar":             content.get("pillar", ""),
+                "slot":               slot,
+                "caption":            content.get("caption_tiktok", ""),
+                "hashtags_311":       content.get("hashtags_311", []),
+                "hashtags_tiktok":    content.get("hashtags_tiktok", ""),
                 "hashtags_instagram": content.get("hashtags_instagram", ""),
-                "rendered_at":      datetime.now().isoformat(),
+                "rendered_at":        datetime.now().isoformat(),
             }, indent=2), encoding="utf-8")
         except Exception:
             pass
 
-        # Derive platform-specific variants (Instagram warm grade, LinkedIn B2B card)
+        # ── 6. Platform variants for V1 + V2 ──────────────────────────────────
         _step(f"slot{slot}: platform variants")
-        _log("Creating platform variants (IG grade, LinkedIn intro)...")
-        platform_videos = render_for_platforms(content, slot, str(video_file))
+        _log("Creating platform variants (IG warm grade) for V1 + V2...")
+        platform_videos_v1 = render_for_platforms(content, slot, str(v1_file))
+        platform_videos_v2 = render_for_platforms(content, slot, str(v2_file)) if v2_file else {}
 
-        video_path = str(video_file)   # used for Telegram preview (base version)
-        _log(f"Variants ready: {list(platform_videos.keys())}")
+        _log(f"V1 variants: {list(platform_videos_v1.keys())}")
+        if platform_videos_v2:
+            _log(f"V2 variants: {list(platform_videos_v2.keys())}")
 
-        # ── 4. Telegram approval ───────────────────────────────────────────────
-        _step(f"slot{slot}: telegram approval")
-        _log("Sending Telegram preview...")
-        send_video_preview(video_path, content.get("caption_tiktok", ""), slot, content)
+        v1_path = str(v1_file)
+        v2_path = str(v2_file) if v2_file else None
+
+        # ── 7. Telegram preview — both V1 + V2 clearly labelled ───────────────
+        _step(f"slot{slot}: telegram preview")
+        _log("Sending Telegram preview (V1 + V2)...")
+        send_video_preview(v1_path, content.get("caption_tiktok", ""), slot, content,
+                           v2_path=v2_path)
 
         decision = poll_for_decision(slot, APPROVAL_TIMEOUT)
         _log(f"Decision: {decision}")
@@ -222,70 +335,100 @@ def run_slot(slot: int, force: bool = False):
         if decision == "regen":
             regen_count += 1
             _log(f"Regenerating... (attempt {regen_count + 1})")
-            video_file.unlink(missing_ok=True)
+            v1_file.unlink(missing_ok=True)
+            if v2_file:
+                v2_file.unlink(missing_ok=True)
             continue
 
-        # post or timeout — proceed to posting
         break
 
-    if not video_path or not content:
+    if not v1_path or not content:
         _tg_send(f"❌ OTB Slot {slot} — no content after {regen_count} attempts")
         return
 
-    # ── 5. Platform posting — each platform runs its own algo-optimised poster ──
+    # ── 8. Platform posting — V1 + V2 on each platform ────────────────────────
     platforms = SLOT_PLATFORMS.get(slot, ["tiktok", "instagram"])
     _log(f"Posting to: {platforms}")
     results = {}
 
-    # Each platform receives its own video file — different colour grade, different fingerprint.
-    # TikTok/YouTube: base render. Instagram: warm grade. LinkedIn: professional grade + intro card.
+    # content_v2: swap in V2 hook/lesson so captions reflect the right video
+    content_v2 = {**content,
+                  "hook":   content.get("hook_v2",   content.get("hook", "")),
+                  "lesson": content.get("lesson_v2", content.get("lesson", ""))}
 
-    # TikTok — base video, 20 hashtags, organic flags off, 3h rate-limit guard
+    # TikTok V1
     if "tiktok" in platforms:
-        _step(f"slot{slot}: posting tiktok")
-        _log("Posting to TikTok (base video)...")
+        _step(f"slot{slot}: posting tiktok V1")
+        _log("Posting TikTok V1 (gold)...")
         try:
             from post_tiktok import post_video as tiktok_post
-            pub_id = tiktok_post(platform_videos.get("tiktok", video_path), content, slot)
-            results["tiktok"] = pub_id
-            _log(f"TikTok: {'OK ' + pub_id if pub_id else 'FAILED'}")
+            pub_id = tiktok_post(platform_videos_v1.get("tiktok", v1_path), content, slot)
+            results["tiktok_v1"] = pub_id
+            _log(f"TikTok V1: {'OK ' + pub_id if pub_id else 'FAILED'}")
         except Exception as e:
-            _crash(f"TikTok post error: {e}")
-            results["tiktok"] = None
+            _crash(f"TikTok V1 error: {e}")
+            results["tiktok_v1"] = None
 
-    # Instagram Reel — warm-graded video (different fingerprint from TikTok), 20 mid+micro hashtags
+    # TikTok V2 — 30s gap to avoid rate-limit
+    if "tiktok" in platforms and v2_path:
+        time.sleep(30)
+        _step(f"slot{slot}: posting tiktok V2")
+        _log("Posting TikTok V2 (cyan)...")
+        try:
+            from post_tiktok import post_video as tiktok_post
+            pub_id2 = tiktok_post(platform_videos_v2.get("tiktok", v2_path), content_v2, slot)
+            results["tiktok_v2"] = pub_id2
+            _log(f"TikTok V2: {'OK ' + pub_id2 if pub_id2 else 'FAILED'}")
+        except Exception as e:
+            _crash(f"TikTok V2 error: {e}")
+            results["tiktok_v2"] = None
+
+    # Instagram V1
     if "instagram" in platforms:
-        _step(f"slot{slot}: posting instagram")
-        _log("Posting to Instagram Reel (warm-graded video)...")
+        _step(f"slot{slot}: posting instagram V1")
+        _log("Posting Instagram Reel V1 (warm-graded)...")
         try:
             from post_instagram import post_video as ig_post
-            media_id = ig_post(platform_videos.get("instagram", video_path), content, slot)
-            results["instagram"] = media_id
-            _log(f"Instagram Reel: {'OK ' + media_id if media_id else 'FAILED'}")
+            media_id = ig_post(platform_videos_v1.get("instagram", v1_path), content, slot)
+            results["instagram_v1"] = media_id
+            _log(f"Instagram V1: {'OK ' + media_id if media_id else 'FAILED'}")
         except Exception as e:
-            _crash(f"Instagram post error: {e}")
-            results["instagram"] = None
+            _crash(f"Instagram V1 error: {e}")
+            results["instagram_v1"] = None
 
-    # YouTube Shorts — shares base video with TikTok (YouTube doesn't penalise cross-posts)
+    # Instagram V2
+    if "instagram" in platforms and v2_path:
+        _step(f"slot{slot}: posting instagram V2")
+        _log("Posting Instagram Reel V2 (warm-graded)...")
+        try:
+            from post_instagram import post_video as ig_post
+            media_id2 = ig_post(platform_videos_v2.get("instagram", v2_path), content_v2, slot)
+            results["instagram_v2"] = media_id2
+            _log(f"Instagram V2: {'OK ' + media_id2 if media_id2 else 'FAILED'}")
+        except Exception as e:
+            _crash(f"Instagram V2 error: {e}")
+            results["instagram_v2"] = None
+
+    # YouTube Shorts — V1 only (single upload per slot)
     if "youtube" in platforms:
         _step(f"slot{slot}: posting youtube")
-        _log("Posting to YouTube Shorts (base video)...")
+        _log("Posting to YouTube Shorts (V1)...")
         try:
             from post_youtube import post_video as yt_post
-            vid_id = yt_post(platform_videos.get("youtube", video_path), content, slot)
+            vid_id = yt_post(platform_videos_v1.get("youtube", v1_path), content, slot)
             results["youtube"] = vid_id
             _log(f"YouTube: {'OK https://youtube.com/shorts/' + vid_id if vid_id else 'FAILED'}")
         except Exception as e:
             _crash(f"YouTube post error: {e}")
             results["youtube"] = None
 
-    # LinkedIn — professional graded video + B2B intro card, weekdays only, first-comment link
+    # LinkedIn — V1 only, professional graded, weekdays only, first-comment link
     if "linkedin" in platforms:
         _step(f"slot{slot}: posting linkedin")
-        _log("Posting to LinkedIn (professional variant)...")
+        _log("Posting to LinkedIn (V1 professional variant)...")
         try:
             from post_linkedin import post_video as li_post
-            li_urn = li_post(platform_videos.get("linkedin", video_path), content, slot)
+            li_urn = li_post(platform_videos_v1.get("linkedin", v1_path), content, slot)
             results["linkedin"] = li_urn
             _log(f"LinkedIn: {'OK' if li_urn else 'SKIPPED (weekend or no creds)'}")
         except Exception as e:
@@ -340,7 +483,14 @@ def run_slot(slot: int, force: bool = False):
     _crash(f"[{datetime.now().isoformat()}] Slot {slot} DONE — {results}")
     _clear_step()
 
-    # Push data files to Oracle so commander has latest post_log / query_log
+    # ── 7. Route platform videos → Revoice Studio dashboard ──────────────────
+    # Must happen BEFORE cleanup so the files still exist when we copy/SCP them
+    try:
+        _route_to_dashboard(platform_videos_v1, slot, v1_file)
+    except Exception as _re:
+        _log(f"Dashboard routing error: {_re}")
+
+    # ── 8. Push data files to Oracle (laptop-side push, or no-op on Oracle) ──
     try:
         sync_script = BASE / "deploy" / "sync_data.ps1"
         if sync_script.exists():
@@ -354,10 +504,10 @@ def run_slot(slot: int, force: bool = False):
     except Exception as _e:
         _log(f"Data sync warning: {_e}")
 
-    # Clean up platform variant files (keep base video, remove derived copies)
+    # ── 9. Clean up platform variant files (copies are now in dashboard, safe to remove)
     try:
-        for plat, path in platform_videos.items():
-            if path != video_path and Path(path).exists():
+        for path in list(platform_videos_v1.values()) + list(platform_videos_v2.values()):
+            if path not in (v1_path, v2_path) and Path(path).exists():
                 Path(path).unlink()
     except Exception:
         pass

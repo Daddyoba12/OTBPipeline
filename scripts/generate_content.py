@@ -404,6 +404,82 @@ Return ONLY valid JSON (no markdown):
     return data
 
 
+def generate_v2_content(slot: int, pillar: str, bucket: str, v1_content: dict) -> dict:
+    """
+    Generate V2 hook, lesson, and visual queries — a completely different angle on the same pillar.
+    Shares V1's problem/stakes/resolution beats but uses a fresh hook, lesson, and clip queries.
+    """
+    pillar_label = PILLAR_LABELS.get(pillar, pillar)
+    v1_hook   = v1_content.get("hook", "")
+    v1_lesson = v1_content.get("lesson", "")
+
+    prompt = f"""You write a SECOND VERSION of a viral BootHop video for the same content pillar.
+
+V1 already uses this hook: "{v1_hook}"
+V1 lesson: "{v1_lesson}"
+
+Your job: write V2 — a COMPLETELY DIFFERENT angle on the same pillar ({pillar_label}).
+Different story. Different hook format. Different emotion. Different lesson.
+Same quality, same punch — just a fresh take so audiences who saw V1 still engage with V2.
+
+Rules:
+- Hook must be totally different from V1 (different story, different format)
+- Lesson must be a fresh insight (not a rewording of V1's lesson)
+- Visual queries: 8 transport/diaspora Pexels search queries, max 6 words each
+- ONLY: planes, airports, trains, taxis, parcels, city streets, professional people at transport hubs
+- NEVER: animals, food, holidays, handshakes, cartoons
+- Shot types: clips 0-1 close-up face/reaction, 2-3 medium stressed person, 4 emotional close-up,
+  5-6 resolution handover/happy face, 7 wide London/Lagos cityscape
+
+Return ONLY valid JSON:
+{{
+  "hook_v2": "...",
+  "lesson_v2": "...",
+  "visual_queries_v2": ["q0","q1","q2","q3","q4","q5","q6","q7"]
+}}"""
+
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 600,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=20,
+        )
+        resp.raise_for_status()
+        raw = resp.json()["content"][0]["text"].strip()
+        match = re.search(r"\{[\s\S]*\}", raw)
+        if match:
+            v2_data = json.loads(match.group())
+            # Sanitize + dedup V2 queries (same 3-layer safety)
+            raw_q = v2_data.get("visual_queries_v2", [])
+            if len(raw_q) < 8:
+                raw_q += [random.choice(ALL_TRANSPORT)] * (8 - len(raw_q))
+            q = _sanitize_queries(raw_q, _BEAT_ROLES)
+            q = _dedup_14day(q, _BEAT_ROLES)
+            _save_used_queries(q, slot)
+            v1_content["hook_v2"]           = v2_data.get("hook_v2", v1_content.get("hook", ""))
+            v1_content["lesson_v2"]         = v2_data.get("lesson_v2", v1_content.get("lesson", ""))
+            v1_content["visual_queries_v2"] = q
+            print(f"  [V2] Hook: {v1_content['hook_v2'][:80]}")
+    except Exception as e:
+        print(f"  [V2] Generation failed, using V1 with shifted queries: {e}")
+        # Fallback: shift V1 queries + reuse hook with slight prefix change
+        q1 = v1_content.get("visual_queries", [])
+        v1_content["hook_v2"]           = v1_hook
+        v1_content["lesson_v2"]         = v1_lesson
+        v1_content["visual_queries_v2"] = q1[4:] + q1[:4]  # rotate by 4
+
+    return v1_content
+
+
 def _youtube_tags(pillar: str, hook: str) -> list:
     base = ["BootHop", "London to Lagos", "diaspora delivery", "same day delivery", "peer to peer delivery"]
     pillar_map = {
