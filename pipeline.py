@@ -308,7 +308,7 @@ def run_slot(slot: int, force: bool = False):
         _step(f"slot{slot}: platform variants")
         _log("Creating platform variants (IG warm grade) for V1 + V2...")
         platform_videos_v1 = render_for_platforms(content, slot, str(v1_file))
-        platform_videos_v2 = render_for_platforms(content, slot, str(v2_file)) if v2_file else {}
+        platform_videos_v2 = render_for_platforms(content, slot, str(v2_file), tiktok_ig_only=True) if v2_file else {}
 
         _log(f"V1 variants: {list(platform_videos_v1.keys())}")
         if platform_videos_v2:
