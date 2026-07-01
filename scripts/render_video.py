@@ -906,7 +906,7 @@ def _make_linkedin_intro(content: dict, dest: Path) -> bool:
     return result
 
 
-def render_for_platforms(content: dict, slot: int, base_path: str) -> dict:
+def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_only: bool = False) -> dict:
     """
     Derive platform-specific video variants from the base render.
     Returns {platform: absolute_file_path}.
@@ -942,44 +942,44 @@ def render_for_platforms(content: dict, slot: int, base_path: str) -> dict:
         print("  [Render] Instagram grade failed — using base")
         ig_path.unlink(missing_ok=True)
 
-    # ── LinkedIn professional grade + intro card ──────────────────────────────
-    li_intro  = outdir / f"{stem}_li_intro.mp4"
-    li_graded = outdir / f"{stem}_li_graded.mp4"
-    li_path   = outdir / f"{stem}_li.mp4"
+    # ── LinkedIn professional grade + intro card (V1 only) ───────────────────
+    if not tiktok_ig_only:
+        li_intro  = outdir / f"{stem}_li_intro.mp4"
+        li_graded = outdir / f"{stem}_li_graded.mp4"
+        li_path   = outdir / f"{stem}_li.mp4"
 
-    print("  [Render] Creating LinkedIn variant...")
-    intro_ok = _make_linkedin_intro(content, li_intro)
-    grade_ok = _grade_linkedin(base, li_graded)
+        print("  [Render] Creating LinkedIn variant...")
+        intro_ok = _make_linkedin_intro(content, li_intro)
+        grade_ok = _grade_linkedin(base, li_graded)
 
-    if intro_ok and grade_ok and li_intro.exists() and li_graded.exists():
-        list_file = outdir / "li_concat.txt"
-        list_file.write_text(
-            f"file '{li_intro}'\nfile '{li_graded}'",
-            encoding="utf-8",
-        )
-        ok = _ff(
-            "-f", "concat", "-safe", "0", "-i", str(list_file),
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-            "-pix_fmt", "yuv420p", "-an", str(li_path),
-            timeout=180,
-        )
-        list_file.unlink(missing_ok=True)
-        li_intro.unlink(missing_ok=True)
-        li_graded.unlink(missing_ok=True)
+        if intro_ok and grade_ok and li_intro.exists() and li_graded.exists():
+            list_file = outdir / "li_concat.txt"
+            list_file.write_text(
+                f"file '{li_intro}'\nfile '{li_graded}'",
+                encoding="utf-8",
+            )
+            ok = _ff(
+                "-f", "concat", "-safe", "0", "-i", str(list_file),
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-pix_fmt", "yuv420p", "-an", str(li_path),
+                timeout=180,
+            )
+            list_file.unlink(missing_ok=True)
+            li_intro.unlink(missing_ok=True)
+            li_graded.unlink(missing_ok=True)
 
-        # Add music to LinkedIn version too
-        li_music = outdir / f"{stem}_li_music.mp4"
-        _add_music(li_path, li_music, slot=slot)
-        li_path.unlink(missing_ok=True)
-        if li_music.exists() and li_music.stat().st_size > 200_000:
-            paths["linkedin"] = str(li_music)
-            print(f"  [Render] LinkedIn variant OK ({li_music.stat().st_size // 1024}KB)")
+            li_music = outdir / f"{stem}_li_music.mp4"
+            _add_music(li_path, li_music, slot=slot)
+            li_path.unlink(missing_ok=True)
+            if li_music.exists() and li_music.stat().st_size > 200_000:
+                paths["linkedin"] = str(li_music)
+                print(f"  [Render] LinkedIn variant OK ({li_music.stat().st_size // 1024}KB)")
+            else:
+                li_music.unlink(missing_ok=True)
+                print("  [Render] LinkedIn music failed — using base")
         else:
-            li_music.unlink(missing_ok=True)
-            print("  [Render] LinkedIn music failed — using base")
-    else:
-        li_intro.unlink(missing_ok=True)
-        li_graded.unlink(missing_ok=True)
-        print("  [Render] LinkedIn variant failed — using base")
+            li_intro.unlink(missing_ok=True)
+            li_graded.unlink(missing_ok=True)
+            print("  [Render] LinkedIn variant failed — using base")
 
     return paths
