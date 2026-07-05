@@ -33,7 +33,8 @@ if _scripts_dir not in sys.path:
     sys.path.insert(0, _scripts_dir)
 
 # Ensure ffmpeg on PATH
-for _p in [r"C:\ffmpeg\bin", r"C:\Python314", r"C:\Python314\Scripts"]:
+for _p in [r"C:\ffmpeg\bin", r"C:\Python314", r"C:\Python314\Scripts",
+           r"C:\Windows\System32\OpenSSH"]:
     if _p not in os.environ.get("PATH", ""):
         os.environ["PATH"] = _p + os.pathsep + os.environ.get("PATH", "")
 
@@ -314,6 +315,20 @@ def run_slot(slot: int, force: bool = False):
         if platform_videos_v2:
             _log(f"V2 variants: {list(platform_videos_v2.keys())}")
 
+        # ── 6b. Voice-over — generate TTS narration + mix into V1 ─────────────
+        _step(f"slot{slot}: voiceover")
+        try:
+            from voiceover import add_voiceover_to_video
+            _log("Generating voice-over narration (OpenAI TTS)...")
+            voiced = add_voiceover_to_video(content, str(v1_file), mix_into_video=True)
+            if voiced:
+                _log(f"Voice-over ready: {voiced}")
+                content["voiced_video"] = voiced
+            else:
+                _log("Voice-over generation skipped (no key or API error)")
+        except Exception as _ve:
+            _log(f"Voice-over failed: {_ve} — continuing without narration")
+
         v1_path = str(v1_file)
         v2_path = str(v2_file) if v2_file else None
 
@@ -476,7 +491,7 @@ def run_slot(slot: int, force: bool = False):
 
     # ── 6. Log + notify ────────────────────────────────────────────────────────
     _mark_ran_today(slot)
-    send_result(slot, results)
+    send_result(slot, results, content=content)
 
     success_count = sum(1 for v in results.values() if v)
     _log(f"Slot {slot} done — {success_count}/{len(platforms)} platforms posted")

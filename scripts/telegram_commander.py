@@ -973,13 +973,21 @@ _RESULT_LABELS = {
 }
 
 
-def send_result(slot: int, results: dict):
+def send_result(slot: int, results: dict, content: dict = None):
     """Send post-slot results summary to Telegram."""
     lines = [f"<b>OTB Slot {slot} — Results</b>"]
+    if content:
+        hook = content.get("hook", "")[:120]
+        if hook:
+            lines.append(f"🎯 <i>{hook}</i>")
+        lines.append("")
     for platform, result in results.items():
         icon  = "✅" if result else "❌"
         label = _RESULT_LABELS.get(platform, platform.replace("_", " ").title())
-        lines.append(f"{icon} {label}: {result or 'failed'}")
+        if result and result not in ("posted", "failed"):
+            lines.append(f"{icon} {label}: <code>{result}</code>")
+        else:
+            lines.append(f"{icon} {label}: {'posted' if result else 'failed'}")
     _send("\n".join(lines))
 
 

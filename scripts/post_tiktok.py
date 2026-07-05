@@ -101,6 +101,42 @@ def _build_caption(content: dict) -> tuple[str, str]:
     return title, description[:2200]
 
 
+def _save_manual_caption(video_path: str, content: dict, slot: int):
+    """Save caption file and send to Telegram for manual TikTok upload."""
+    title, description = _build_caption(content)
+    out = Path(video_path).with_suffix(".tiktok.txt")
+    out.write_text(
+        f"VIDEO: {Path(video_path).name}\n"
+        f"{'='*60}\n"
+        f"TITLE:\n{title}\n\n"
+        f"{'='*60}\n"
+        f"FULL CAPTION (copy below):\n\n"
+        f"{description}\n",
+        encoding="utf-8",
+    )
+    _log(f"Manual upload file saved: {out.name}")
+
+    try:
+        import requests as _req
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+        msg = (
+            f"📱 <b>TikTok Manual Upload — Slot {slot}</b>\n\n"
+            f"🎬 <b>Video:</b> <code>{Path(video_path).name}</code>\n\n"
+            f"📝 <b>Title:</b>\n{title}\n\n"
+            f"📋 <b>Caption:</b>\n<code>{description[:3000]}</code>"
+        )
+        _req.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": msg,
+                  "parse_mode": "HTML", "disable_web_page_preview": True},
+            timeout=15,
+        )
+        _log("Caption sent to Telegram")
+    except Exception as e:
+        _log(f"Telegram send failed: {e}")
+
+
 def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     """
     Upload video to TikTok using Content Posting API v2.
@@ -116,7 +152,9 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
 
     access_token = _creds()
     if not access_token:
-        _log("No access_token — skipping"); return None
+        _log("No access_token — saving manual upload file instead")
+        _save_manual_caption(video_path, content, slot)
+        return None
 
     if not os.path.isfile(video_path):
         _log(f"Video not found: {video_path}"); return None
