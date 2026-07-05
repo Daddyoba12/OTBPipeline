@@ -87,6 +87,7 @@ def _build_review_prompt(story: dict, pexels_queries: list[str], pillar: str) ->
     scenes_text = "\n".join(f"  Scene {i}: {q}" for i, q in enumerate(pexels_queries))
 
     return f"""You are the Reviewer for BootHop's social media video pipeline. You see the complete content package and score it against 7 dimensions. Threshold for approval is {PASS_THRESHOLD}/100.
+LANGUAGE RULE: All rewritten content must be in British English only — no Yoruba, Pidgin, or any other language.
 
 COMPLETE CONTENT PACKAGE:
   Pillar: {pillar}
