@@ -54,6 +54,7 @@ print('PIXABAY_KEY=' + getattr(m,'PIXABAY_KEY',''))
 print('GEMINI_API_KEY=' + getattr(m,'GEMINI_API_KEY',''))
 print('YOUTUBE_API_KEY=' + getattr(m,'YOUTUBE_API_KEY',''))
 print('OPENAI_API_KEY=' + getattr(m,'OPENAI_API_KEY',''))
+print('PERPLEXITY_KEY=' + getattr(m,'PERPLEXITY_KEY',''))
 "@
 
 $keyLines = & python -c $keysScript 2>&1
