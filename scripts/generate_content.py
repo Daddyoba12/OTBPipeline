@@ -1,15 +1,18 @@
 """
 OTB_Pipeline — AI content generator (Story-First Pipeline v2)
 
-Three-stage architecture:
-  Stage 1 — Story Writer  : Claude or OpenAI writes the narrative (hook, beats, captions)
-  Stage 2 — QA Director   : GPT-4o or Claude reviews the story, scores 0-100, rewrites if < 80
-  Stage 3 — Scene Planner : Claude Haiku converts the approved story into 8 scene-specific queries
+Six-stage architecture:
+  Stage 1 — Story Writer   : Claude / OpenAI / Gemini writes the narrative
+  Stage 2 — QA Director    : Reviews story, scores 0-100, rewrites if < 80
+  Stage 3 — Scene Planner  : Claude Haiku maps story to 8 scene-specific queries
+  Stage 4 — Photographer   : Upgrades queries + generates AI image prompts
+  Stage 5 — Cinematographer: Converts image prompts to video prompts (Kling/Veo/Runway ready)
+  Stage 6 — Reviewer       : Final quality gate, scores 0-100, rewrites if < 90. Saves to memory DB.
 
-Visual query safety — 3 layers applied to Scene Planner output:
-  1. scene_planner.py prompt  — medium/wide shots only, pillar blueprint constraints
-  2. _sanitize_queries()      — post-process banned term check
-  3. _dedup_14day()           — 14-day no-repeat log
+Visual query safety — 3 layers applied after Stage 4:
+  1. scene_planner + photographer prompts — medium/wide shots, pillar blueprint
+  2. _sanitize_queries()                 — banned term check
+  3. _dedup_14day()                      — 14-day no-repeat log
 """
 
 import json, re, sys, random
@@ -24,6 +27,11 @@ from config import (
 from fetch_trending_hashtags import fetch_today as _fetch_trending_tags
 from scene_planner import plan_scenes, plan_scenes_v2
 from qa_director import review_and_improve
+from photographer import generate_image_prompts
+from cinematographer import generate_video_prompts
+from reviewer import final_review
+import memory_db
+from news_editor import find_top_story
 
 import requests
 from query_learner import (
@@ -298,7 +306,21 @@ def _build_story_prompt(
     slot: int, pillar: str, bucket: str,
     pillar_label: str, pillar_angle: str,
     day_name: str, month_name: str,
+    news_context: dict | None = None,
 ) -> str:
+    news_block = ""
+    if news_context:
+        news_block = f"""
+TODAY'S NEWS HOOK (use this as the factual basis for the story — make the video feel timely and real):
+  Headline: {news_context.get('headline', '')}
+  Summary: {news_context.get('summary', '')}
+  Category: {news_context.get('category', '')}
+  Suggested angle: {news_context.get('story_angle', '')}
+  WHY IT MATTERS: {news_context.get('why_relevant', '')}
+
+IMPORTANT: Base the story on this real event. The hook should reflect this specific situation.
+Do not invent fake prices or facts — use the numbers from the news summary if available.
+"""
     return f"""You write viral content for OTB — BootHop's content engine targeting UK/Nigeria diaspora on TikTok, Instagram, and YouTube.
 
 CONTEXT:
@@ -307,6 +329,7 @@ CONTEXT:
 - Day: {day_name}, {month_name}
 - Platform bucket tone: {bucket}
 {f"- CONTENT ANGLE FOR THIS PILLAR: {pillar_angle}" if pillar_angle else ""}
+{news_block}
 
 ABOUT BOOTHOP:
 BootHop is a peer-to-peer parcel delivery app. Travellers already flying between UK and Nigeria carry parcels for senders and earn money. Senders pay less than courier services and get same-day delivery.
@@ -323,26 +346,51 @@ PRICE REALITY — only use figures within these real ranges:
 - BootHop peer-to-peer: £8-25 for a typical parcel on the same route
 - Traveller earnings: £20-85 per trip, depending on parcel size
 
-SCRIPT FORMULA — 5 beats for the video overlay:
-IMPORTANT: beats appear as on-screen text. Keep each beat SHORT so it displays fully.
+STORY ANCHOR — define this FIRST before writing any beat:
+Pick ONE character, ONE specific item, ONE obstacle that links ALL 5 beats.
+Every beat must stay inside this same situation — no jumping to new problems or new characters.
 
-HOOK: 1-2 sentences, max 15 words. Stop the scroll in 2 seconds.
-  Structure: SHORT PUNCH (3-6 words) + short story.
-  Best formats: "She/He [specific moment]..." or "[pound-amount] for [item]?"
-  NEVER start with "BootHop". NEVER be generic. Use specific numbers or items.
+Good anchor example:
+  CHARACTER: Yemi, a student in London
+  ITEM: her mum's blood pressure tablets
+  OBSTACLE: a reputable courier quoted £55 — more than the tablets cost
+  TIME PRESSURE: mum runs out in 4 days
 
-PROBLEM: MAX 12 words. Short punchy lines. The viewer must feel the pain immediately.
-  Good example: "A reputable courier quoted £45 to send a small charger."
-  Bad example: "She went to the post office and they told her it would cost a lot of money and she was shocked."
+Bad anchor example:
+  CHARACTER: "a woman" (too vague)
+  ITEM: "a package" (too vague)
+  OBSTACLE: "courier was expensive AND customs delays AND mum was sick" (too many problems)
 
-STAKES: MAX 10 words. One sharp line. Why does it matter right now?
-  Good example: "Her mum had waited 3 weeks already."
+SCRIPT FORMULA — 5 beats, ONE continuous story:
+IMPORTANT: beats appear as on-screen text at 4 seconds each. SHORT = readable. LONG = cut off.
+Every beat must logically continue from the previous one — same character, same item, same situation.
 
-RESOLUTION: MAX 12 words. Short. Vivid. BootHop appears here for the first time.
-  Good example: "She found a traveller on BootHop who carried it for £8."
+HOOK: max 15 words total. Stop the scroll in 2 seconds.
+  Line 1 (3-6 words): The sharp punch — a specific number, item, or emotion.
+  Line 2 (optional, up to 9 words): The mini-story setup — who, what situation.
+  NEVER start with "BootHop". Use the specific item and character from your anchor.
+  GOOD: "£55 for tablets. Her mum runs out in 4 days."
+  BAD: "This woman had a really difficult situation sending something home."
 
-LESSON: MAX 10 words. One punchy takeaway. Screenshot-worthy.
-  Good example: "The flight was already going. You just needed someone on it."
+PROBLEM: max 12 words. One tight sentence about the EXACT obstacle from your anchor.
+  Must directly continue from the hook. Mention the specific price or obstacle.
+  GOOD: "A reputable courier quoted £55. More than the tablets cost."
+  BAD: "She tried everything. Customs delays made it worse." ← introduces NEW problem not in hook
+
+STAKES: max 10 words. Why it MUST be solved RIGHT NOW. Use the time pressure from your anchor.
+  Must reference the same character and situation — not a general statement.
+  GOOD: "Four days until mum ran out. No time."
+  BAD: "This happens to thousands of diaspora people every day." ← generic, drifted from anchor
+
+RESOLUTION: max 12 words. BootHop appears HERE for the first time. Close the loop on the HOOK.
+  Must directly solve the specific obstacle set up in HOOK and PROBLEM.
+  GOOD: "She found a BootHop traveller flying to Lagos. £12. Done."
+  BAD: "BootHop helps connect senders with travellers across the world." ← too generic, closes nothing
+
+LESSON: max 10 words. One line the viewer will screenshot. Universal truth from THIS story.
+  Must feel like the logical conclusion of this exact story — not a generic travel tip.
+  GOOD: "The flight was going anyway. She just needed someone on it."
+  BAD: "Always plan ahead when sending packages internationally." ← generic, could be from any story
 
 THEN generate platform-specific outputs (these can be longer — they go in captions, not on screen):
 
@@ -360,6 +408,12 @@ ENGAGEMENT: One short question (under 10 words) that invites real comments.
 
 Return ONLY valid JSON (no markdown):
 {{
+  "story_anchor": {{
+    "character": "one specific person",
+    "item": "the exact item being sent or situation",
+    "obstacle": "the single specific obstacle",
+    "time_pressure": "why it must be resolved now"
+  }},
   "hook": "...",
   "problem": "...",
   "stakes": "...",
@@ -412,9 +466,18 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
 
     pillar_angle = _PILLAR_ANGLES.get(pillar, "")
 
+    # ── Stage 0: News Editor — find today's top story ─────────────────────────
+    print("  [NewsEditor] Searching for today's top story...")
+    try:
+        news_context = find_top_story(pillar)
+    except Exception as _ne:
+        print(f"  [NewsEditor] Failed: {_ne} — continuing without news context")
+        news_context = None
+
     # ── Stage 1: Story Writer ─────────────────────────────────────────────────
     story_prompt = _build_story_prompt(
-        slot, pillar, bucket, pillar_label, pillar_angle, day_name, month_name
+        slot, pillar, bucket, pillar_label, pillar_angle, day_name, month_name,
+        news_context=news_context,
     )
     raw = _call_story_ai(story_prompt, v2=False)
     data = _parse_json(raw)
@@ -423,23 +486,32 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     data = review_and_improve(data, pillar)
 
     # ── Stage 3: Scene Planner ────────────────────────────────────────────────
-    queries = plan_scenes(data, pillar)
+    scene_queries = plan_scenes(data, pillar)
 
-    # Pad if short
+    # ── Stage 4: Photographer — upgrade queries + generate image prompts ──────
+    photo_result = generate_image_prompts(data, scene_queries, pillar)
+    queries = photo_result.get("pexels_queries", scene_queries)
+    data["image_prompts"] = photo_result.get("image_prompts", [])
+
+    # ── Stage 5: Cinematographer — generate video prompts for AI video tools ──
+    video_result = generate_video_prompts(data, photo_result)
+    data["video_prompts"] = video_result.get("video_prompts", [])
+
+    # ── Stage 6: Reviewer — final quality gate ────────────────────────────────
+    data = final_review(data, photo_result, pillar)
+
+    # Apply 3-layer query safety to the Photographer's refined queries
     if len(queries) < 8:
         queries += [random.choice(ALL_TRANSPORT)] * (8 - len(queries))
 
-    # Layer 1: banned-term sanitizer
     queries = _sanitize_queries(queries, _BEAT_ROLES)
-
-    # Register novel queries to the learner bank
     register_novel_queries(queries, _BEAT_ROLES)
-
-    # Layer 2: 14-day dedup
     queries = _dedup_14day(queries, _BEAT_ROLES)
-
     _save_used_queries(queries, slot)
     data["visual_queries"] = queries
+
+    # ── Memory DB — save the complete content package ─────────────────────────
+    memory_db.save_entry(data, slot, version="v1")
 
     # Metadata
     tags_311 = _fetch_trending_tags(pillar=pillar)

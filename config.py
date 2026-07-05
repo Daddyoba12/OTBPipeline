@@ -53,6 +53,7 @@ if _ON_WINDOWS:
         GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
         YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
         OPENAI_API_KEY    = getattr(_bhp, "OPENAI_API_KEY",    "")
+        PERPLEXITY_KEY    = getattr(_bhp, "PERPLEXITY_KEY",    "")
     except Exception as _e:
         print(f"[Config] Warning: could not load BHP keys: {_e}")
         ANTHROPIC_API_KEY = ""
@@ -61,6 +62,7 @@ if _ON_WINDOWS:
         GEMINI_API_KEY    = ""
         YOUTUBE_API_KEY   = ""
         OPENAI_API_KEY    = ""
+        PERPLEXITY_KEY    = ""
 else:
     # On Oracle: load keys from keys.env file (created by fix_oracle.ps1, never in git)
     import os, importlib.util
@@ -78,6 +80,7 @@ else:
         GEMINI_API_KEY    = _env_pairs.get("GEMINI_API_KEY",    os.environ.get("GEMINI_API_KEY",    ""))
         YOUTUBE_API_KEY   = _env_pairs.get("YOUTUBE_API_KEY",   os.environ.get("YOUTUBE_API_KEY",   ""))
         OPENAI_API_KEY    = _env_pairs.get("OPENAI_API_KEY",    os.environ.get("OPENAI_API_KEY",    ""))
+        PERPLEXITY_KEY    = _env_pairs.get("PERPLEXITY_KEY",    os.environ.get("PERPLEXITY_KEY",    ""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -91,6 +94,7 @@ else:
             GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
             YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
             OPENAI_API_KEY    = ""
+            PERPLEXITY_KEY    = ""
         except Exception:
             ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
             PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
@@ -98,6 +102,7 @@ else:
             GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
             YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",   "")
             OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",    "")
+            PERPLEXITY_KEY    = os.environ.get("PERPLEXITY_KEY",    "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"

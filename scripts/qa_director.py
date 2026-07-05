@@ -95,8 +95,18 @@ def _parse_json(raw: str) -> dict:
 
 
 def _build_qa_prompt(story: dict, pillar: str) -> str:
+    anchor = story.get("story_anchor", {})
+    anchor_block = ""
+    if anchor:
+        anchor_block = f"""
+STORY ANCHOR (the single thread ALL beats must follow):
+  Character: {anchor.get('character', 'not defined')}
+  Item/Situation: {anchor.get('item', 'not defined')}
+  Obstacle: {anchor.get('obstacle', 'not defined')}
+  Time pressure: {anchor.get('time_pressure', 'not defined')}
+"""
     return f"""You are the QA Director for BootHop's social media video pipeline.
-Your job: review this story, score it on 7 dimensions, and rewrite any weak beats.
+Your job: review this story, score it on 8 dimensions, and rewrite any weak beats.
 
 STORY TO REVIEW:
   Pillar: {pillar}
@@ -105,7 +115,7 @@ STORY TO REVIEW:
   Stakes: {story.get('stakes', '')}
   Resolution: {story.get('resolution', '')}
   Lesson: {story.get('lesson', '')}
-
+{anchor_block}
 ABOUT BOOTHOP (context for scoring):
 BootHop is a peer-to-peer parcel delivery app. Travellers already flying between UK and Nigeria carry parcels for senders and earn money. BootHop should appear ONLY in the Resolution beat — never earlier.
 
@@ -116,54 +126,66 @@ SCORE EACH DIMENSION 0-10:
    - 5: OK but generic or too long.
    - 0: Vague, starts with "BootHop", or over 15 words.
 
-2. story_coherence
+2. anchor_consistency  ← THIS IS THE MOST IMPORTANT CHECK
+   Ask: Does every single beat stay inside the SAME character/item/obstacle story?
+   - 10: Hook introduces the character and item. Problem names the exact obstacle. Stakes gives the time pressure. Resolution solves that exact obstacle. Lesson flows from that exact resolution. ZERO drift.
+   - 5: Most beats connect but one beat introduces a new unrelated element (e.g., stakes suddenly mention customs when hook was about price).
+   - 0: Beats drift to different problems or different characters. Hook talks about one situation, Problem talks about another. Viewer is confused.
+   FAIL EXAMPLES (score 0):
+     Hook: "£60 for a charger. She nearly cried."
+     Stakes: "Customs can hold parcels for weeks." ← WRONG — hook was about PRICE, not customs
+     Hook: "Her mum's medicine was running low."
+     Resolution: "BootHop connects travellers and senders." ← WRONG — doesn't close the medicine story
+
+3. story_coherence
    - 10: One clear character. One logical arc. Scenes connect naturally. No contradictions.
    - 5: Minor gaps or slightly unclear character.
    - 0: Random scenes, two different stories mixed, or character changes mid-story.
 
-3. beat_length
+4. beat_length
    - 10: Every beat is 12 words or fewer (these appear as on-screen video text).
    - 5: One or two beats are slightly over.
    - 0: Multiple beats are long sentences that will be cut off on screen.
 
-4. brand_safety
+5. brand_safety
    - 10: No courier company named anywhere (no DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS).
    - 0: Any courier brand name appears anywhere in the story.
 
-5. emotional_impact
+6. emotional_impact
    - 10: Viewer feels the frustration in problem, relief in resolution, and inspired by lesson.
    - 5: Story is logical but flat — no emotional pull.
    - 0: Cold, factual, no emotion.
 
-6. boothop_fit
+7. boothop_fit
    - 10: BootHop appears only in Resolution, positioned as the clever peer-to-peer solution.
    - 5: BootHop mentioned but not clearly explained as the solution.
    - 0: BootHop appears in Hook or Problem, or doesn't appear at all.
 
-7. lesson_quality
+8. lesson_quality
    - 10: One punchy line under 10 words. Screenshot-worthy. Viewer will share it.
    - 5: OK but could be sharper.
    - 0: Too long, preachy, or doesn't land.
 
-OVERALL SCORE = (sum of all 7 scores / 7) × 10. Round to nearest integer.
+OVERALL SCORE = (sum of all 8 scores / 8) × 10. Round to nearest integer.
 
-IF OVERALL < 80: Rewrite the full story. Fix every weak beat.
+IF OVERALL < 80: Rewrite the full story. Fix EVERY weak beat.
 IF OVERALL >= 80: Pass through as-is (set rewritten to false).
 
-REWRITE RULES (if rewriting):
+REWRITE RULES (when rewriting, MUST follow all of these):
+- Pick ONE anchor: one character, one specific item, one obstacle. ALL beats must reference it.
+- Hook → Problem → Stakes → Resolution → Lesson must be ONE continuous story, not 5 separate ideas.
 - Courier brand rule: NEVER name DHL, FedEx, Royal Mail, Hermes — always "a reputable courier"
-- Beat length rule: EVERY beat max 12 words (it appears on screen as video text)
-- Hook: must be specific, emotional, under 15 words, never start with "BootHop"
-- Problem: max 12 words — short punchy lines, viewer must feel the pain
-- Stakes: max 10 words — one sharp line about why it matters
-- Resolution: max 12 words — BootHop appears here for the first time
-- Lesson: max 10 words — punchy, screenshot-worthy takeaway
-- Keep the SAME character and SAME story — just improve the writing quality
+- Hook: specific, emotional, under 15 words, never start with "BootHop"
+- Problem: max 12 words — names the EXACT obstacle from the hook
+- Stakes: max 10 words — the time pressure, references same character and item
+- Resolution: max 12 words — BootHop appears here, directly solves the hook's obstacle
+- Lesson: max 10 words — flows from this specific resolution, not generic travel advice
 
 Return ONLY valid JSON, no markdown:
 {{
   "scores": {{
     "hook_strength": 0,
+    "anchor_consistency": 0,
     "story_coherence": 0,
     "beat_length": 0,
     "brand_safety": 0,
@@ -172,7 +194,7 @@ Return ONLY valid JSON, no markdown:
     "lesson_quality": 0,
     "overall": 0
   }},
-  "issues": ["list of specific problems found"],
+  "issues": ["list of specific anchor drift or coherence problems found"],
   "rewritten": true,
   "hook": "...",
   "problem": "...",
