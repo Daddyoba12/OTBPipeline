@@ -102,6 +102,20 @@ else:
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
 
+# ── AI model selection ─────────────────────────────────────────────────────────
+# STORY_MODEL: which AI writes the narrative (Stage 1 — Story Writer)
+#   "claude"  → Claude Sonnet 4.6 (V1) / Claude Haiku 4.5 (V2)
+#   "openai"  → GPT-4o (V1) / GPT-4o-mini (V2)
+#   "gemini"  → Gemini 2.0 Flash (V1 and V2)
+# Scene planning (Stage 3) always uses Claude Haiku regardless of this setting.
+STORY_MODEL = "claude"
+
+# QA_MODEL: which AI reviews and improves the story (Stage 2 — QA Director)
+#   "openai"  → GPT-4o  (recommended — strong at structured critique)
+#   "claude"  → Claude Sonnet 4.6
+#   "gemini"  → Gemini 2.0 Flash (good secondary opinion)
+QA_MODEL = "openai"
+
 # ── Slot schedule ──────────────────────────────────────────────────────────────
 # Task Scheduler calls: python pipeline.py --slot 1|2|3|4
 # Times chosen so the video lands on platform DURING the peak window,
