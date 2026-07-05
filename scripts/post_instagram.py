@@ -27,11 +27,33 @@ def _log(msg: str):
     print(f"[{datetime.utcnow():%H:%M:%S}] [Instagram] {msg}")
 
 
+def _refresh_token(token: str) -> str:
+    """Silently refresh the Instagram long-lived token and save the new one."""
+    try:
+        r = requests.get(
+            "https://graph.instagram.com/refresh_access_token",
+            params={"grant_type": "ig_refresh_token", "access_token": token},
+            timeout=15,
+        )
+        new_token = r.json().get("access_token", "")
+        if new_token and new_token != token:
+            c = json.loads(Path(CREDS_PATH).read_text())
+            c["instagram"]["access_token"] = new_token
+            Path(CREDS_PATH).write_text(json.dumps(c, indent=2, ensure_ascii=False))
+            _log("Token auto-refreshed (60-day window reset)")
+            return new_token
+    except Exception as e:
+        _log(f"Token refresh failed (non-fatal): {e}")
+    return token
+
+
 def _creds() -> tuple[str, str]:
     try:
         c = json.loads(Path(CREDS_PATH).read_text())
         ig = c.get("instagram", {})
-        return ig.get("access_token", "").strip(), ig.get("ig_user_id", "").strip()
+        token = ig.get("access_token", "").strip()
+        token = _refresh_token(token)  # refresh on every run — idempotent, keeps it valid
+        return token, ig.get("ig_user_id", "").strip()
     except Exception as e:
         _log(f"Creds error: {e}"); return "", ""
 
