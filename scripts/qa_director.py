@@ -107,6 +107,7 @@ STORY ANCHOR (the single thread ALL beats must follow):
 """
     return f"""You are the QA Director for BootHop's social media video pipeline.
 Your job: review this story, score it on 8 dimensions, and rewrite any weak beats.
+LANGUAGE RULE: All output must be in British English only — no Yoruba, Pidgin, or any other language.
 
 STORY TO REVIEW:
   Pillar: {pillar}

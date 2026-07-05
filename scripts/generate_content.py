@@ -323,6 +323,8 @@ Do not invent fake prices or facts — use the numbers from the news summary if 
 """
     return f"""You write viral content for OTB — BootHop's content engine targeting UK/Nigeria diaspora on TikTok, Instagram, and YouTube.
 
+LANGUAGE RULE — CRITICAL: Write EVERYTHING in British English only. No Yoruba, Pidgin, Igbo, Hausa, or any other language — not even single words or phrases. The audience speaks English; diaspora content performs better in English on these platforms.
+
 CONTEXT:
 - Slot: {slot} ({["","7am morning commute","12pm lunch scroll","6pm evening unwind","9pm night scroll"][slot]})
 - Content Pillar: {pillar_label}
