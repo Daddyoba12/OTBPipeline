@@ -50,15 +50,16 @@ _BANNED_FETCH_TERMS = {
 }
 
 # Transport-focused fallbacks organised by clip index (beat order)
+# Medium/wide shots only — no close-ups, no extreme face shots
 _TRANSPORT_FALLBACKS = [
-    "airplane takeoff runway sunrise",        # 0 hook
-    "london black cab night city",            # 1 hook
-    "airport queue waiting customs",          # 2 problem
-    "stressed traveller missed flight gate",  # 3 problem
-    "woman phone call airport emotional",     # 4 stakes
-    "parcel package handover smiling",        # 5 resolution
-    "plane landing runway arrival",           # 6 resolution
-    "professional business person london",    # 7 lesson
+    "woman london apartment worried medium shot",   # 0 hook
+    "airport departures hall travellers wide shot", # 1 hook
+    "person post office counter medium shot",       # 2 problem
+    "traveller train station luggage medium shot",  # 3 problem
+    "woman sitting phone call worried medium shot", # 4 stakes
+    "parcel handover train station wide shot",      # 5 resolution
+    "plane window seat flight medium shot",         # 6 resolution
+    "london city street wide establishing shot",    # 7 lesson
 ]
 
 
@@ -103,39 +104,40 @@ BEAT_STYLE = {
     },
     "problem": {
         "size": 52, "color": "FFFFFF",
-        "y_start": 880,
+        "y_start": 820,
         "line_gap": 70,
         "max_chars": 26,
-        "max_lines": 2,
+        "max_lines": 3,
         "title_font": False,
     },
     "stakes": {
         "size": 58, "color": "FF8C00",
-        "y_start": 840,
+        "y_start": 780,
         "line_gap": 78,
         "max_chars": 22,
-        "max_lines": 2,
+        "max_lines": 3,
         "title_font": True,
     },
     "resolution": {
         "size": 52, "color": "FFFFFF",
-        "y_start": 880,
+        "y_start": 820,
         "line_gap": 70,
         "max_chars": 26,
-        "max_lines": 2,
+        "max_lines": 3,
         "title_font": False,
     },
     "lesson_pre": {
         "size": 48, "color": "FFFFFF",
-        "y_start": 900,
+        "y_start": 820,
         "line_gap": 65,
         "max_chars": 28,
-        "max_lines": 2,
+        "max_lines": 3,
         "title_font": False,
     },
 }
 
-# V2 uses a different colour palette so the two versions are visually distinct
+# V2 uses a different colour palette so the two versions are visually distinct.
+# Inherits the updated max_lines=3 and y_start values from BEAT_STYLE automatically.
 BEAT_STYLE_V2 = {
     "hook":       {**BEAT_STYLE["hook"],       "color": "00CFFF"},  # electric cyan
     "problem":    {**BEAT_STYLE["problem"],    "color": "FFB300"},  # amber
@@ -389,12 +391,12 @@ def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP
         return False
     # Craft a cinematic prompt from the beat type and query
     beat_mood = {
-        "hook":       "dramatic cinematic wide shot, golden hour lighting",
-        "problem":    "tense close-up, moody blue tones, documentary style",
-        "stakes":     "emotional portrait, shallow depth of field, orange accent light",
-        "resolution": "warm joyful scene, soft natural light, hopeful mood",
-        "lesson_pre": "clean professional setting, bright neutral tones",
-    }.get(beat, "cinematic wide shot")
+        "hook":       "dramatic cinematic medium-wide shot, golden hour lighting",
+        "problem":    "tense medium shot, moody blue tones, documentary style",
+        "stakes":     "emotional medium shot, shallow depth of field, orange accent light",
+        "resolution": "warm joyful medium-wide scene, soft natural light, hopeful mood",
+        "lesson_pre": "clean professional wide shot, bright neutral tones",
+    }.get(beat, "cinematic medium wide shot")
     prompt = (
         f"Photorealistic {beat_mood}. Scene: {query}. "
         f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
