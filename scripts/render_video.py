@@ -499,7 +499,6 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
         "-t", str(LESSON_DUR),
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(plain),
-        timeout=30,
     )
     if not ok or not plain.exists():
         return False
@@ -618,7 +617,7 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
 
 def _concat_clips(clip_paths: list, dest: Path) -> bool:
     """Concatenate processed clips using FFmpeg concat demuxer."""
-    list_path = dest.parent / "concat_list.txt"
+    list_path = dest.parent / f"concat_{dest.stem}.txt"
     list_path.write_text(
         "\n".join(f"file '{p}'" for p in clip_paths),
         encoding="utf-8",
@@ -726,7 +725,7 @@ def render_video(content: dict, slot: int, output_path: str,
             _ff("-f", "lavfi", "-i",
                 f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
                 "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                str(proc), timeout=30)
+                str(proc))
 
         proc_clips.append(str(proc))
 
@@ -751,7 +750,7 @@ def render_video(content: dict, slot: int, output_path: str,
         _plain = TEMP / f"{prefix}_brand_plain.mp4"
         _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS}",
             "-t", str(BRAND_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-            str(_plain), timeout=30)
+            str(_plain))
         if _plain.exists():
             _ff("-i", str(_plain),
                 "-vf", (f"drawtext=fontfile='{_font('title')}':text='BootHop':fontsize=90:"
@@ -759,7 +758,7 @@ def render_video(content: dict, slot: int, output_path: str,
                         f"drawtext=fontfile='{_font('body')}':text='boothop.com':fontsize=42:"
                         f"fontcolor=0xFFFFFF:x=(w-text_w)/2:y=(h-th)/2+70"),
                 "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-                "-pix_fmt", "yuv420p", "-an", str(brand_card), timeout=30)
+                "-pix_fmt", "yuv420p", "-an", str(brand_card))
             _plain.unlink(missing_ok=True)
 
     proc_clips.append(str(brand_card))
@@ -865,7 +864,6 @@ def _make_linkedin_intro(content: dict, dest: Path) -> bool:
         "-t", "5",
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(plain),
-        timeout=30,
     )
     if not ok or not plain.exists():
         return False
