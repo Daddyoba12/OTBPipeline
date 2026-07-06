@@ -1043,6 +1043,37 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
             except Exception:
                 web_approval.unlink(missing_ok=True)
 
+        # Supabase cloud command — from web dashboard or Commander portal
+        try:
+            from push_pipeline_state import poll_pending_commands, mark_command_done, clear_slot_pending
+            cmds = poll_pending_commands(slot)
+            for cmd in cmds:
+                decision = cmd.get("command", "")
+                cmd_id   = cmd.get("id")
+                if decision in ("post", "skip", "regen", "edit"):
+                    if decision == "edit":
+                        edit_fields = cmd.get("edit_fields") or {}
+                        if edit_fields:
+                            p = DATA / f"pending_edit_{slot}.json"
+                            existing: dict = {}
+                            if p.exists():
+                                try:
+                                    existing = json.loads(p.read_text(encoding="utf-8"))
+                                except Exception:
+                                    pass
+                            existing.update(edit_fields)
+                            p.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+                    mark_command_done(cmd_id)
+                    clear_slot_pending(slot)
+                    _pa.unlink(missing_ok=True)
+                    print(f"[Cmdr] Supabase command: {decision} (Slot {slot}, id={cmd_id})")
+                    _send(f"🌐 Slot {slot} — web commander: {decision}")
+                    return decision
+        except ImportError:
+            pass
+        except Exception as _se:
+            print(f"[Cmdr] Supabase poll error: {_se}")
+
         try:
             r = requests.get(
                 f"{BASE_URL}/getUpdates",

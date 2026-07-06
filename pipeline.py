@@ -305,6 +305,8 @@ def run_slot(slot: int, force: bool = False):
                 "pillar":             content.get("pillar", ""),
                 "slot":               slot,
                 "caption":            content.get("caption_tiktok", ""),
+                "caption_tiktok":     content.get("caption_tiktok", ""),
+                "caption_instagram":  content.get("caption_instagram", ""),
                 "hashtags_311":       content.get("hashtags_311", []),
                 "hashtags_tiktok":    content.get("hashtags_tiktok", ""),
                 "hashtags_instagram": content.get("hashtags_instagram", ""),
@@ -312,6 +314,17 @@ def run_slot(slot: int, force: bool = False):
             }, indent=2), encoding="utf-8")
         except Exception:
             pass
+
+        # ── 5b. Push slot state + videos to Supabase (cloud sync) ───────────────
+        try:
+            from push_pipeline_state import push_slot_state
+            content["rendered_at"] = datetime.now().isoformat()
+            push_slot_state(slot, content,
+                            v1_path=str(v1_file),
+                            v2_path=str(v2_file) if v2_file else "")
+            _log("Slot state synced to Supabase")
+        except Exception as _pe:
+            _log(f"Supabase push skipped: {_pe}")
 
         # ── 6. Platform variants for V1 + V2 ──────────────────────────────────
         _step(f"slot{slot}: platform variants")
