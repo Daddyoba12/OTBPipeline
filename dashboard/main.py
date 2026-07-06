@@ -20,11 +20,13 @@ from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
-BASE_DIR   = Path(__file__).parent
-PIPELINE   = Path(os.environ.get("PIPELINE_ROOT", str(Path(__file__).parent.parent)))
-MUSIC_DIR  = PIPELINE / "music"
-CO_DIR     = BASE_DIR / "companies"
-DB_PATH    = BASE_DIR / "otb.db"
+BASE_DIR    = Path(__file__).parent
+PIPELINE    = Path(os.environ.get("PIPELINE_ROOT", str(Path(__file__).parent.parent)))
+MUSIC_DIR   = PIPELINE / "music"
+DATA        = PIPELINE / "data"
+OUTPUT_DIR  = PIPELINE / "output"
+CO_DIR      = BASE_DIR / "companies"
+DB_PATH     = BASE_DIR / "otb.db"
 CO_DIR.mkdir(exist_ok=True)
 
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
@@ -632,6 +634,288 @@ async def admin_delete(company_id: int, session_token: str | None = Cookie(None)
     with _db() as c:
         c.execute("UPDATE companies SET active=0 WHERE id=?", (company_id,))
     return RedirectResponse(f"{ADMIN_PREFIX}", status_code=303)
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+#  PIPELINE CONTROL
+# ══════════════════════════════════════════════════════════════════════════════
+
+_pipeline_jobs: dict = {}
+_pjlock = threading.Lock()
+
+
+def _load_json(path: Path, default=None):
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
+    except Exception:
+        return default
+
+
+def _today_str() -> str:
+    return datetime.now().strftime("%Y-%m-%d")
+
+
+def _list_slot_videos() -> dict:
+    result = {}
+    for slot in (1, 2, 3, 4):
+        v1 = v2 = None
+        data: dict = {}
+        for f in sorted(OUTPUT_DIR.glob(f"otb_slot{slot}_v1_*.mp4"),
+                        key=lambda f: f.stat().st_mtime, reverse=True):
+            sidecar = f.with_suffix(".json")
+            if sidecar.exists():
+                v1 = f
+                try:
+                    data = json.loads(sidecar.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+                break
+        if v1:
+            ts = "_".join(v1.stem.split("_")[-2:])
+            v2c = OUTPUT_DIR / f"otb_slot{slot}_v2_{ts}.mp4"
+            if v2c.exists():
+                v2 = v2c
+        pa_file = DATA / f"pending_approval_{slot}.json"
+        is_pending = False
+        if pa_file.exists():
+            try:
+                age = time.time() - pa_file.stat().st_mtime
+                if age < 35 * 60:
+                    is_pending = True
+                else:
+                    pa_file.unlink(missing_ok=True)
+            except Exception:
+                pass
+        result[str(slot)] = {
+            "v1":                str(v1) if v1 else None,
+            "v2":                str(v2) if v2 else None,
+            "hook":              data.get("hook", ""),
+            "hook_v2":           data.get("hook_v2", ""),
+            "lesson":            data.get("lesson", ""),
+            "lesson_v2":         data.get("lesson_v2", ""),
+            "problem":           data.get("problem", ""),
+            "stakes":            data.get("stakes", ""),
+            "resolution":        data.get("resolution", ""),
+            "rendered_at":       data.get("rendered_at", ""),
+            "caption_tiktok":    data.get("caption_tiktok", ""),
+            "caption_instagram": data.get("caption_instagram", ""),
+            "pending_approval":  is_pending,
+        }
+    return result
+
+
+def _run_slot_bg(slot: int, job_id: str):
+    with _pjlock:
+        _pipeline_jobs[job_id] = {"status": "running", "slot": slot, "output": ""}
+    try:
+        proc = subprocess.Popen(
+            [sys.executable, str(PIPELINE / "pipeline.py"), "--slot", str(slot), "--force"],
+            cwd=str(PIPELINE),
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, encoding="utf-8", errors="replace",
+        )
+        buf: list[str] = []
+        for line in proc.stdout:
+            buf.append(line.rstrip())
+            if len(buf) > 80:
+                buf = buf[-80:]
+            with _pjlock:
+                _pipeline_jobs[job_id]["output"] = "\n".join(buf)
+        proc.wait()
+        ok = proc.returncode == 0
+        with _pjlock:
+            _pipeline_jobs[job_id]["status"] = "done" if ok else "failed"
+            _pipeline_jobs[job_id]["returncode"] = proc.returncode
+    except Exception as e:
+        with _pjlock:
+            _pipeline_jobs[job_id] = {"status": "failed", "error": str(e), "slot": slot}
+
+
+@app.get("/api/pipeline/status")
+async def pipeline_status(session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    if not OUTPUT_DIR.exists():
+        return {"available": False}
+    today         = _today_str()
+    post_log      = _load_json(DATA / "post_log.json", [])
+    ran_today_raw = _load_json(DATA / "pipeline_ran_today.json", {})
+    step_file     = DATA / "pipeline_step.txt"
+    crash_file    = DATA / "pipeline_crash.log"
+    ran_slots = ran_today_raw.get(today, [])
+    if isinstance(ran_slots, int):
+        ran_slots = [ran_slots]
+    today_posts = [e for e in post_log if e.get("posted_at", "").startswith(today)]
+    step  = step_file.read_text(encoding="utf-8").strip() if step_file.exists() else ""
+    crash = ("\n".join(crash_file.read_text(encoding="utf-8").splitlines()[-20:])
+             if crash_file.exists() else "")
+    pending = []
+    for f in DATA.glob("pending_approval_*.json"):
+        try:
+            n = int(f.stem.split("_")[-1])
+            if time.time() - f.stat().st_mtime < 35 * 60:
+                pending.append(n)
+        except Exception:
+            pass
+    with _pjlock:
+        active = len([v for v in _pipeline_jobs.values() if v.get("status") == "running"])
+    return {
+        "available":     True,
+        "today":         today,
+        "posts_today":   len(today_posts),
+        "ran_slots":     ran_slots,
+        "current_step":  step,
+        "crash_log":     crash,
+        "pending_slots": pending,
+        "active_jobs":   active,
+        "recent_posts":  today_posts[-12:],
+    }
+
+
+@app.get("/api/pipeline/slots")
+async def pipeline_slots(session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    if not OUTPUT_DIR.exists():
+        raise HTTPException(503, "Pipeline output directory not found")
+    return _list_slot_videos()
+
+
+@app.get("/api/pipeline/video")
+async def serve_pipeline_video(path: str, session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    p = Path(path)
+    if not p.exists() or not p.is_file():
+        raise HTTPException(404)
+    try:
+        p.relative_to(OUTPUT_DIR)
+    except ValueError:
+        raise HTTPException(403)
+    return FileResponse(str(p), media_type="video/mp4",
+                        headers={"Accept-Ranges": "bytes"})
+
+
+@app.post("/api/pipeline/run-slot")
+async def run_slot_api(
+    background:    BackgroundTasks,
+    slot:          int = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    if slot not in (1, 2, 3, 4):
+        raise HTTPException(400, "slot must be 1-4")
+    job_id = f"pipe_{slot}_{int(time.time())}"
+    background.add_task(_run_slot_bg, slot, job_id)
+    return {"job_id": job_id, "slot": slot}
+
+
+@app.get("/api/pipeline/job/{job_id}")
+async def pipeline_job_status(job_id: str, session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    with _pjlock:
+        return _pipeline_jobs.get(job_id, {"status": "unknown"})
+
+
+@app.post("/api/pipeline/approve")
+async def approve_slot(
+    slot:          int = Form(...),
+    decision:      str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    if decision not in ("post", "skip", "regen"):
+        raise HTTPException(400, "decision must be post/skip/regen")
+    (DATA / f"web_approval_{slot}.json").write_text(
+        json.dumps({"decision": decision, "slot": slot,
+                    "ts": datetime.now().isoformat()}),
+        encoding="utf-8",
+    )
+    return {"ok": True}
+
+
+@app.post("/api/pipeline/edit-field")
+async def edit_field_api(
+    slot:          int = Form(...),
+    field:         str = Form(...),
+    value:         str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    valid = {"hook", "problem", "stakes", "resolution", "lesson",
+             "caption_tiktok", "caption_instagram"}
+    if field not in valid:
+        raise HTTPException(400, f"field must be one of {valid}")
+    p = DATA / f"pending_edit_{slot}.json"
+    existing: dict = {}
+    if p.exists():
+        try:
+            existing = json.loads(p.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    existing[field] = value.strip()
+    p.write_text(json.dumps(existing, indent=2), encoding="utf-8")
+    return {"ok": True}
+
+
+@app.post("/api/pipeline/submit-edit")
+async def submit_edit_api(
+    slot:          int = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    (DATA / f"web_approval_{slot}.json").write_text(
+        json.dumps({"decision": "edit", "slot": slot,
+                    "ts": datetime.now().isoformat()}),
+        encoding="utf-8",
+    )
+    return {"ok": True}
+
+
+@app.post("/api/pipeline/block-media")
+async def block_media_api(
+    media_id:      int = Form(...),
+    media_type:    str = Form("video"),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    bl_path = DATA / "media_blocklist.json"
+    bl = _load_json(bl_path, {"videos": [], "photos": []})
+    key = "videos" if media_type != "photo" else "photos"
+    if media_id not in bl.get(key, []):
+        bl.setdefault(key, []).append(media_id)
+        bl_path.write_text(json.dumps(bl, indent=2), encoding="utf-8")
+    return {"ok": True, "blocked": media_id}
+
+
+@app.get("/api/pipeline/report")
+async def weekly_report_api(session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    post_log      = _load_json(DATA / "post_log.json", [])
+    newsflash_log = _load_json(DATA / "newsflash_log.json", [])
+    cutoff = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+    week = [e for e in post_log if e.get("posted_at", "") >= cutoff]
+    by_platform: dict[str, int] = {}
+    by_slot:     dict[str, int] = {}
+    for e in week:
+        pl = e.get("platform", "unknown")
+        sl = str(e.get("slot", 0))
+        by_platform[pl] = by_platform.get(pl, 0) + 1
+        by_slot[sl]     = by_slot.get(sl, 0) + 1
+    nf_week = [n for n in newsflash_log if n.get("posted_at", "") >= cutoff]
+    return {
+        "week_total":     len(week),
+        "by_platform":    by_platform,
+        "by_slot":        by_slot,
+        "newsflash_week": len(nf_week),
+    }
 
 
 if __name__ == "__main__":

@@ -2,21 +2,102 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dashboard — BootHop Pipeline</title>
+<title>OTB Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--pu:#c080ff;--r:14px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
 nav{padding:14px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
 .logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .co-name{font-size:.82rem;color:var(--muted)}
 .logout{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid #ffffff15;border-radius:6px}
-.wrap{max-width:620px;margin:0 auto;padding:0 16px}
-h2{font-size:1.1rem;font-weight:800;margin:24px 0 12px}
-.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:20px;margin-bottom:16px}
-.card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
 
-/* Video section */
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:20px 0 0;border-bottom:1px solid #ffffff10;margin-bottom:20px}
+.tab-btn{background:none;border:none;color:var(--muted);font-size:.88rem;font-weight:700;padding:10px 18px;border-radius:8px 8px 0 0;cursor:pointer;transition:.15s}
+.tab-btn:hover{color:var(--text);background:#ffffff08}
+.tab-btn.active{color:var(--or);background:#ff6b0012;border-bottom:2px solid var(--or);margin-bottom:-1px}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* Cards */
+.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card-title{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+h2{font-size:1rem;font-weight:800;margin:20px 0 10px}
+
+/* Status pills */
+.status-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.stat-pill{background:var(--card);border:1px solid #ffffff10;border-radius:20px;padding:7px 14px;font-size:.8rem;display:flex;align-items:center;gap:6px}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.sdot-green{background:var(--green)}
+.sdot-or{background:var(--or);animation:blink 1.5s infinite}
+.sdot-blue{background:var(--blue)}
+.sdot-muted{background:#444}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Slot cards */
+.slot-card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);margin-bottom:16px;overflow:hidden;transition:border-color .3s,box-shadow .3s}
+.slot-card.pending{border-color:var(--or);box-shadow:0 0 0 1px #ff6b0030}
+.slot-card.running{border-color:var(--blue);box-shadow:0 0 0 1px #5ba4e630}
+.slot-card.posted{border-color:#00e67640}
+.slot-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid #ffffff08}
+.slot-label{font-weight:800;font-size:.9rem}
+.slot-time{font-size:.76rem;color:var(--muted);margin-left:6px}
+.badge{padding:3px 9px;border-radius:10px;font-size:.68rem;font-weight:700;text-transform:uppercase}
+.badge-pending{background:#ff6b0022;color:var(--or);border:1px solid #ff6b0040}
+.badge-posted{background:#00e67616;color:var(--green);border:1px solid #00e67630}
+.badge-running{background:#5ba4e616;color:var(--blue);border:1px solid #5ba4e630}
+.slot-body{display:grid;grid-template-columns:auto 1fr;gap:16px;padding:14px 18px}
+.slot-videos{display:flex;gap:8px}
+.vid-box{width:100px;border-radius:8px;overflow:hidden;background:#000;flex-shrink:0}
+.vid-box video{width:100%;height:178px;object-fit:cover;display:block}
+.vid-lbl{font-size:.6rem;color:var(--muted);text-align:center;padding:3px 0;background:#000}
+.no-vid{width:100px;height:190px;border-radius:8px;background:var(--card2);border:2px dashed #ffffff12;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--muted);font-size:.68rem;text-align:center}
+.slot-info{display:flex;flex-direction:column;gap:6px;min-width:0}
+.beat-row{font-size:.8rem}
+.beat-row strong{color:var(--muted);font-weight:700;margin-right:4px;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em}
+.beat-text{color:var(--text);line-height:1.4}
+.rendered-at{font-size:.68rem;color:var(--muted);margin-top:2px}
+
+/* Buttons */
+.action-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.btn{border:none;border-radius:7px;font-weight:700;font-size:.74rem;padding:7px 12px;cursor:pointer;transition:.15s}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-run{background:var(--blue);color:#000}.btn-run:hover:not(:disabled){filter:brightness(1.2)}
+.btn-post{background:var(--green);color:#000}.btn-post:hover:not(:disabled){filter:brightness(1.1)}
+.btn-skip{background:var(--card2);color:var(--muted);border:1px solid #ffffff15}.btn-skip:hover:not(:disabled){color:var(--text)}
+.btn-regen{background:#ff40001a;color:var(--red);border:1px solid #ff400030}.btn-regen:hover:not(:disabled){background:#ff400030}
+.btn-edit{background:#c080ff1a;color:var(--pu);border:1px solid #c080ff30}.btn-edit:hover:not(:disabled){background:#c080ff30}
+.slot-msg{font-size:.74rem;min-height:16px;margin-top:4px}
+
+/* Edit panel */
+.edit-panel{display:none;border-top:1px solid #ffffff08;padding:16px 18px;background:#0e0e1e}
+.edit-panel.open{display:block}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.edit-field label{display:block;font-size:.7rem;color:var(--muted);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.edit-field textarea{width:100%;background:var(--card2);border:1px solid #ffffff15;border-radius:8px;padding:8px 10px;color:var(--text);font-size:.82rem;outline:none;resize:vertical;font-family:inherit;min-height:56px}
+.edit-field textarea:focus{border-color:var(--or)}
+.edit-field.full{grid-column:1/-1}
+.edit-actions{display:flex;align-items:center;gap:10px}
+.btn-save{background:var(--gr);color:#000;border:none;border-radius:8px;padding:10px 20px;font-weight:800;cursor:pointer;font-size:.85rem}
+.btn-cancel{background:none;border:1px solid #ffffff15;color:var(--muted);border-radius:8px;padding:10px 16px;cursor:pointer;font-size:.85rem}
+
+/* Log */
+.log-box{background:#0a0a14;border-radius:8px;padding:12px;font-family:'Courier New',monospace;font-size:.7rem;color:#7878a0;max-height:150px;overflow-y:auto;white-space:pre-wrap;word-break:break-all}
+
+/* Report */
+.report-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.report-stat{background:var(--card2);border-radius:10px;padding:12px;text-align:center}
+.report-num{font-size:1.5rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.report-lbl{font-size:.7rem;color:var(--muted);margin-top:2px}
+
+/* Block */
+.block-row{display:flex;gap:8px;margin-bottom:8px}
+.block-input{flex:1;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:9px 12px;color:var(--text);font-size:.85rem;outline:none}
+.block-input:focus{border-color:var(--or)}
+.btn-block{padding:9px 14px;background:var(--red);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.8rem;cursor:pointer}
+
+/* Revoice */
 .vid-picker{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
 .vid-btn{padding:10px 8px;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;color:var(--text);font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;transition:.15s;line-height:1.3}
 .vid-btn:hover{border-color:var(--or)}
@@ -27,17 +108,12 @@ h2{font-size:1.1rem;font-weight:800;margin:24px 0 12px}
 .upload-area:hover{border-color:var(--or)}
 .upload-area p{color:var(--muted);font-size:.85rem;margin-top:8px}
 #video-name{font-size:.78rem;color:var(--muted);margin-top:8px}
-
-/* Voice section */
 .rec-btn{width:100%;padding:14px;border:none;border-radius:10px;font-weight:800;font-size:.95rem;cursor:pointer;background:#dc2626;color:#fff;transition:.2s;margin-bottom:10px}
-.rec-btn.recording{background:#7f1d1d;animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.rec-btn.recording{background:#7f1d1d;animation:blink 1s infinite}
 .rec-status{font-size:.8rem;color:var(--muted);text-align:center;margin-bottom:10px;min-height:18px}
 .or-divider{text-align:center;color:var(--muted);font-size:.75rem;margin:10px 0}
 .file-input-btn{width:100%;padding:10px;background:var(--card2);color:var(--text);border:1px solid #ffffff18;border-radius:8px;font-size:.85rem;cursor:pointer;text-align:center;display:block}
 #voice-name{font-size:.78rem;color:var(--green);margin-top:6px;text-align:center}
-
-/* Music section */
 select{width:100%;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:10px 12px;color:var(--text);font-size:.85rem;margin-bottom:10px;outline:none}
 select:focus{border-color:var(--or)}
 .yt-row{display:flex;gap:8px}
@@ -45,136 +121,447 @@ select:focus{border-color:var(--or)}
 .yt-input:focus{border-color:var(--or)}
 .yt-btn{padding:10px 16px;background:var(--or);color:#000;border:none;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;white-space:nowrap}
 .yt-status{font-size:.78rem;color:var(--muted);margin-top:6px;min-height:16px}
-
-/* Bake button */
 .bake-btn{width:100%;padding:16px;background:var(--gr);color:#000;font-weight:900;font-size:1rem;border:none;border-radius:10px;cursor:pointer;transition:.2s}
 .bake-btn:disabled{background:#333;color:#666;cursor:not-allowed}
 .bake-status{text-align:center;padding:14px;font-size:.85rem;color:var(--muted);min-height:20px}
-
-/* Bake result */
 .bake-result{background:#00e67610;border:1px solid #00e67630;border-radius:10px;padding:16px;text-align:center;display:none}
 .bake-result p{color:var(--green);font-weight:700;margin-bottom:10px}
-.dl-btn{display:inline-block;padding:10px 20px;background:var(--green);color:#000;font-weight:800;border-radius:8px;text-decoration:none;font-size:.85rem;margin-right:8px}
-
-/* History */
+.dl-btn{display:inline-block;padding:10px 20px;background:var(--green);color:#000;font-weight:800;border-radius:8px;text-decoration:none;font-size:.85rem}
 .bake-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #ffffff08;font-size:.82rem}
 .bake-item:last-child{border-bottom:none}
 .bake-dot{width:8px;height:8px;border-radius:50%;margin-right:10px;flex-shrink:0}
-.dot-done{background:var(--green)}
-.dot-fail{background:var(--red)}
-.dot-proc{background:var(--or)}
+.dot-done{background:var(--green)}.dot-fail{background:var(--red)}.dot-proc{background:var(--or)}
 .bake-info{flex:1;color:var(--muted)}
 .bake-dl{color:var(--blue);font-size:.78rem;text-decoration:none}
+
+@media(max-width:600px){
+  .slot-body{grid-template-columns:1fr}
+  .slot-videos{justify-content:center}
+  .edit-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <nav>
   <div>
-    <div class="logo">⚡ BootHop Pipeline</div>
+    <div class="logo">OTB Pipeline</div>
     <div class="co-name">{{ company.name }}</div>
   </div>
   <a href="/logout" class="logout">Sign out</a>
 </nav>
 
 <div class="wrap">
-
-  <!-- 1. Video -->
-  <h2>1. Your Video</h2>
-  <div class="card">
-    <div class="card-title">Choose a pipeline slot or upload your own</div>
-    {% if videos %}
-    <div class="vid-picker">
-      {% for v in videos %}
-      <button class="vid-btn" onclick="selectSlotVideo('{{ v.path }}', '{{ v.label }}', this)">{{ v.label }}</button>
-      {% endfor %}
-    </div>
-    {% else %}
-    <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">No pipeline videos yet — upload your own below.</p>
-    {% endif %}
-    <div class="video-wrap" id="vid-wrap" style="display:none">
-      <video id="vid-preview" controls playsinline></video>
-    </div>
-    <div class="upload-area" id="upload-area" onclick="document.getElementById('vid-file').click()" {% if videos %}style="display:none"{% endif %}>
-      <div style="font-size:2rem">🎬</div>
-      <p>Tap to upload a video file</p>
-    </div>
-    <div id="video-name"></div>
-    <input type="hidden" id="video-path" value="">
-    <input type="file" id="vid-file" accept="video/*" style="display:none" onchange="uploadVideo(this)">
-    <div style="margin-top:10px">
-      <label style="font-size:.78rem;color:var(--muted);cursor:pointer" onclick="document.getElementById('vid-file').click()">📂 Upload different video</label>
-    </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('control',this)">Pipeline Control</button>
+    <button class="tab-btn" onclick="switchTab('revoice',this)">Revoice Studio</button>
   </div>
 
-  <!-- 2. Voice -->
-  <h2>2. Your Voice</h2>
-  <div class="card">
-    <div class="card-title">Record or upload your voice</div>
-    <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">⏺ Start Recording</button>
-    <div class="rec-status" id="rec-status">Tap to start — read the script while recording</div>
-    <div class="or-divider">— or upload a file —</div>
-    <label class="file-input-btn" for="voice-file">📁 Choose audio file</label>
-    <input type="file" id="voice-file" accept="audio/*" style="display:none" onchange="loadVoiceFile(this)">
-    <div id="voice-name"></div>
-  </div>
+  <!-- ═══════════ PIPELINE CONTROL ═══════════ -->
+  <div class="tab-pane active" id="tab-control">
 
-  <!-- 3. Music -->
-  <h2>3. Music</h2>
-  <div class="card">
-    <div class="card-title">Pick from library or search YouTube</div>
-    <select id="music-sel" onchange="selectMusic(this)">
-      <option value="">— No music (voice only) —</option>
-      {% for t in music_tracks %}
-      <option value="{{ t.path }}">{{ t.label }}</option>
-      {% endfor %}
-    </select>
-    <div class="yt-row">
-      <input class="yt-input" id="yt-query" placeholder="Search YouTube (e.g. afrobeats chill)" onkeydown="if(event.key==='Enter')ytDownload()">
-      <button class="yt-btn" onclick="ytDownload()">⬇ Get</button>
+    <div class="status-bar" id="status-bar">
+      <div class="stat-pill"><div class="sdot sdot-muted"></div>Loading…</div>
     </div>
-    <div class="yt-status" id="yt-status"></div>
-  </div>
 
-  <!-- 4. Bake -->
-  <h2>4. Bake &amp; Send</h2>
-  <div class="card">
-    <button class="bake-btn" id="bake-btn" onclick="doBake()">✅ Bake Video</button>
-    <div class="bake-status" id="bake-status">Upload a video and record/upload voice first</div>
-    <div class="bake-result" id="bake-result">
-      <p>✅ Done! Video sent to your Telegram.</p>
-      <span id="dl-link"></span>
+    <div id="slots-container"></div>
+
+    <div class="card">
+      <div class="card-title">Block Pexels Media ID</div>
+      <div class="block-row">
+        <input class="block-input" id="block-id" type="number" placeholder="Pexels video or photo ID">
+        <select id="block-type" style="width:auto;margin:0;flex-shrink:0;padding:9px 10px">
+          <option value="video">Video</option>
+          <option value="photo">Photo</option>
+        </select>
+        <button class="btn-block" onclick="doBlock()">Block</button>
+      </div>
+      <div id="block-msg" style="font-size:.76rem;min-height:16px"></div>
     </div>
+
+    <div class="card">
+      <div class="card-title">Weekly Report
+        <button onclick="loadReport()" style="background:none;border:1px solid #ffffff15;color:var(--muted);border-radius:6px;padding:3px 10px;font-size:.7rem;cursor:pointer;margin-left:8px">Refresh</button>
+      </div>
+      <div id="report-container"><span style="color:var(--muted);font-size:.82rem">Click Refresh to load</span></div>
+    </div>
+
+    <div class="card" id="crash-card" style="display:none;border-color:#ff404030">
+      <div class="card-title" style="color:var(--red)">Crash Log</div>
+      <div class="log-box" id="crash-log"></div>
+    </div>
+
   </div>
 
-  <!-- History -->
-  {% if bakes %}
-  <h2>Recent Bakes</h2>
-  <div class="card">
-    {% for b in bakes %}
-    <div class="bake-item">
-      <div class="bake-dot {% if b.status=='done' %}dot-done{% elif b.status=='failed' %}dot-fail{% else %}dot-proc{% endif %}"></div>
-      <div class="bake-info">{{ b.created_at[:16] }} · {{ b.status }}</div>
-      {% if b.status=='done' and b.output_path %}
-      <a class="bake-dl" href="/api/download-bake/{{ b.id }}">⬇ Download</a>
+  <!-- ═══════════ REVOICE STUDIO ═══════════ -->
+  <div class="tab-pane" id="tab-revoice">
+
+    <h2>1. Your Video</h2>
+    <div class="card">
+      <div class="card-title">Choose a pipeline slot or upload your own</div>
+      {% if videos %}
+      <div class="vid-picker">
+        {% for v in videos %}
+        <button class="vid-btn" onclick="selectSlotVideo('{{ v.path }}','{{ v.label }}',this)">{{ v.label }}</button>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">No pipeline videos yet — upload your own below.</p>
       {% endif %}
+      <div class="video-wrap" id="vid-wrap" style="display:none">
+        <video id="vid-preview" controls playsinline></video>
+      </div>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('vid-file').click()" {% if videos %}style="display:none"{% endif %}>
+        <div style="font-size:2rem">&#127917;</div>
+        <p>Tap to upload a video file</p>
+      </div>
+      <div id="video-name"></div>
+      <input type="hidden" id="video-path" value="">
+      <input type="file" id="vid-file" accept="video/*" style="display:none" onchange="uploadVideo(this)">
+      <div style="margin-top:10px">
+        <label style="font-size:.78rem;color:var(--muted);cursor:pointer" onclick="document.getElementById('vid-file').click()">Upload different video</label>
+      </div>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
+    <h2>2. Your Voice</h2>
+    <div class="card">
+      <div class="card-title">Record or upload your voice</div>
+      <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">Start Recording</button>
+      <div class="rec-status" id="rec-status">Tap to start — read the script while recording</div>
+      <div class="or-divider">— or upload a file —</div>
+      <label class="file-input-btn" for="voice-file">Choose audio file</label>
+      <input type="file" id="voice-file" accept="audio/*" style="display:none" onchange="loadVoiceFile(this)">
+      <div id="voice-name"></div>
+    </div>
+
+    <h2>3. Music</h2>
+    <div class="card">
+      <div class="card-title">Pick from library or search YouTube</div>
+      <select id="music-sel" onchange="selectMusic(this)">
+        <option value="">— No music (voice only) —</option>
+        {% for t in music_tracks %}
+        <option value="{{ t.path }}">{{ t.label }}</option>
+        {% endfor %}
+      </select>
+      <div class="yt-row">
+        <input class="yt-input" id="yt-query" placeholder="Search YouTube (e.g. afrobeats chill)" onkeydown="if(event.key==='Enter')ytDownload()">
+        <button class="yt-btn" onclick="ytDownload()">Get</button>
+      </div>
+      <div class="yt-status" id="yt-status"></div>
+    </div>
+
+    <h2>4. Bake &amp; Send</h2>
+    <div class="card">
+      <button class="bake-btn" id="bake-btn" onclick="doBake()">Bake Video</button>
+      <div class="bake-status" id="bake-status">Upload a video and record/upload voice first</div>
+      <div class="bake-result" id="bake-result">
+        <p>Done! Video sent to your Telegram.</p>
+        <span id="dl-link"></span>
+      </div>
+    </div>
+
+    {% if bakes %}
+    <h2>Recent Bakes</h2>
+    <div class="card">
+      {% for b in bakes %}
+      <div class="bake-item">
+        <div class="bake-dot {% if b.status=='done' %}dot-done{% elif b.status=='failed' %}dot-fail{% else %}dot-proc{% endif %}"></div>
+        <div class="bake-info">{{ b.created_at[:16] }} · {{ b.status }}</div>
+        {% if b.status=='done' and b.output_path %}
+        <a class="bake-dl" href="/api/download-bake/{{ b.id }}">Download</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
 </div>
 
 <script>
-let mediaRec = null, audioChunks = [], isRecording = false, voiceBlob = null;
-let videoPath = document.getElementById('video-path').value;
-let musicPath = '';
+// ── Tabs ────────────────────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// ── Slot labels ─────────────────────────────────────────────────
+const SLOT_LABELS = {
+  1: {name:'Slot 1', time:'7am',  desc:'Blog / LinkedIn / Story'},
+  2: {name:'Slot 2', time:'9am',  desc:'TikTok V1+V2 / Instagram V1+V2'},
+  3: {name:'Slot 3', time:'6pm',  desc:'TikTok V1+V2 / Instagram V1+V2'},
+  4: {name:'Slot 4', time:'9pm',  desc:'TikTok / YouTube'},
+};
+
+// ── State ───────────────────────────────────────────────────────
+let _pendingSlots = new Set();
+let _postedSlots  = new Set();
+let _runningJobs  = {};
+let _editOpen     = new Set();
+let _slotsData    = {};
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Status ──────────────────────────────────────────────────────
+async function loadStatus() {
+  try {
+    const s = await fetch('/api/pipeline/status').then(r => r.json());
+    if (!s.available) {
+      document.getElementById('status-bar').innerHTML =
+        '<div class="stat-pill"><div class="sdot sdot-muted"></div>Pipeline output not found on this machine</div>';
+      return;
+    }
+    _pendingSlots = new Set((s.pending_slots||[]).map(Number));
+    _postedSlots  = new Set((s.ran_slots||[]).map(Number));
+
+    const pills = [];
+    pills.push(`<div class="stat-pill"><div class="sdot ${s.posts_today>0?'sdot-green':'sdot-muted'}"></div>${s.posts_today} post${s.posts_today!==1?'s':''} today</div>`);
+    if (_pendingSlots.size)
+      pills.push(`<div class="stat-pill"><div class="sdot sdot-or"></div>Awaiting approval: Slot ${[..._pendingSlots].join(', ')}</div>`);
+    if (s.active_jobs)
+      pills.push(`<div class="stat-pill"><div class="sdot sdot-blue"></div>${s.active_jobs} job${s.active_jobs!==1?'s':''} running</div>`);
+    if (s.current_step)
+      pills.push(`<div class="stat-pill"><div class="sdot sdot-muted"></div>${esc(s.current_step)}</div>`);
+    document.getElementById('status-bar').innerHTML = pills.join('');
+
+    const cc = document.getElementById('crash-card');
+    if (s.crash_log) {
+      cc.style.display = '';
+      document.getElementById('crash-log').textContent = s.crash_log;
+    } else {
+      cc.style.display = 'none';
+    }
+    refreshBadges();
+  } catch(e) { console.error(e); }
+}
+
+// ── Slots ───────────────────────────────────────────────────────
+async function loadSlots() {
+  try {
+    const data = await fetch('/api/pipeline/slots').then(r => r.json());
+    _slotsData = data;
+    renderSlots(data);
+  } catch(e) {
+    document.getElementById('slots-container').innerHTML =
+      '<div class="card" style="color:var(--muted);font-size:.85rem">Pipeline output not accessible — run this dashboard on the same machine as the pipeline.</div>';
+  }
+}
+
+function vidUrl(p) { return '/api/pipeline/video?path=' + encodeURIComponent(p); }
+
+function renderSlots(data) {
+  const c = document.getElementById('slots-container');
+  c.innerHTML = '';
+  for (let n = 1; n <= 4; n++) {
+    const s    = data[String(n)] || {};
+    const lbl  = SLOT_LABELS[n];
+    const pend = _pendingSlots.has(n) || s.pending_approval;
+    const post = _postedSlots.has(n);
+    const run  = !!_runningJobs[n];
+    const has  = !!(s.v1 || s.v2);
+
+    const cls = 'slot-card' + (run?' running':pend?' pending':post?' posted':'');
+    const badge = run  ? '<span class="badge badge-running">Running</span>'
+                : pend ? '<span class="badge badge-pending">Awaiting Approval</span>'
+                : post ? '<span class="badge badge-posted">Posted</span>'
+                : '';
+
+    const v1h = s.v1
+      ? `<div class="vid-box"><video src="${vidUrl(s.v1)}" playsinline muted loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video><div class="vid-lbl">V1</div></div>`
+      : `<div class="no-vid">V1<br>not rendered</div>`;
+    const v2h = s.v2
+      ? `<div class="vid-box"><video src="${vidUrl(s.v2)}" playsinline muted loop preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video><div class="vid-lbl">V2</div></div>`
+      : `<div class="no-vid">V2<br>not rendered</div>`;
+
+    const hook    = s.hook    ? `<div class="beat-row"><strong>Hook</strong><span class="beat-text">${esc(s.hook)}</span></div>` : '';
+    const hookV2  = s.hook_v2 ? `<div class="beat-row"><strong>Hook V2</strong><span class="beat-text">${esc(s.hook_v2)}</span></div>` : '';
+    const lesson  = s.lesson  ? `<div class="beat-row"><strong>Lesson</strong><span class="beat-text">${esc(s.lesson)}</span></div>` : '';
+    const rAt     = s.rendered_at ? `<div class="rendered-at">Rendered ${s.rendered_at.replace('T',' ').slice(0,16)}</div>` : '';
+
+    const dis = !has;
+    c.insertAdjacentHTML('beforeend', `
+<div class="${cls}" id="sc-${n}">
+  <div class="slot-header">
+    <div><span class="slot-label">${lbl.name}</span><span class="slot-time">${lbl.time} — ${lbl.desc}</span></div>
+    <div id="badge-${n}">${badge}</div>
+  </div>
+  <div class="slot-body">
+    <div class="slot-videos">${v1h}${v2h}</div>
+    <div class="slot-info">
+      ${hook}${hookV2}${lesson}${rAt}
+      <div class="action-row">
+        <button class="btn btn-run"  id="btn-run-${n}" onclick="runSlot(${n})" ${run?'disabled':''}>Run Slot ${n}</button>
+        <button class="btn btn-post" onclick="approve(${n},'post')" ${dis?'disabled':''}>Post Now</button>
+        <button class="btn btn-skip" onclick="approve(${n},'skip')" ${dis?'disabled':''}>Skip</button>
+        <button class="btn btn-regen" onclick="approve(${n},'regen')" ${dis?'disabled':''}>Regen</button>
+        <button class="btn btn-edit" onclick="toggleEdit(${n})" ${dis?'disabled':''}>Edit Text</button>
+      </div>
+      <div class="slot-msg" id="sm-${n}"></div>
+    </div>
+  </div>
+  <div class="edit-panel ${_editOpen.has(n)?'open':''}" id="ep-${n}">
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Fill only the fields you want to change — blank fields are left as-is.</div>
+    <div class="edit-grid">
+      <div class="edit-field"><label>Hook (V1)</label><textarea id="ef-${n}-hook" rows="2">${esc(s.hook||'')}</textarea></div>
+      <div class="edit-field"><label>Problem</label><textarea id="ef-${n}-problem" rows="2">${esc(s.problem||'')}</textarea></div>
+      <div class="edit-field"><label>Stakes</label><textarea id="ef-${n}-stakes" rows="2">${esc(s.stakes||'')}</textarea></div>
+      <div class="edit-field"><label>Resolution</label><textarea id="ef-${n}-resolution" rows="2">${esc(s.resolution||'')}</textarea></div>
+      <div class="edit-field full"><label>Lesson (closing line)</label><textarea id="ef-${n}-lesson" rows="2">${esc(s.lesson||'')}</textarea></div>
+      <div class="edit-field"><label>Caption — TikTok</label><textarea id="ef-${n}-caption_tiktok" rows="2">${esc(s.caption_tiktok||'')}</textarea></div>
+      <div class="edit-field"><label>Caption — Instagram</label><textarea id="ef-${n}-caption_instagram" rows="2">${esc(s.caption_instagram||'')}</textarea></div>
+    </div>
+    <div class="edit-actions">
+      <button class="btn-save" onclick="submitEdit(${n})">Save &amp; Re-render</button>
+      <button class="btn-cancel" onclick="toggleEdit(${n})">Cancel</button>
+      <span id="edit-msg-${n}" style="font-size:.76rem;margin-left:8px"></span>
+    </div>
+  </div>
+</div>`);
+  }
+}
+
+function refreshBadges() {
+  for (let n = 1; n <= 4; n++) {
+    const card = document.getElementById('sc-' + n);
+    if (!card) continue;
+    const run  = !!_runningJobs[n];
+    const pend = _pendingSlots.has(n);
+    const post = _postedSlots.has(n);
+    card.className = 'slot-card' + (run?' running':pend?' pending':post?' posted':'');
+    document.getElementById('badge-' + n).innerHTML =
+      run  ? '<span class="badge badge-running">Running</span>' :
+      pend ? '<span class="badge badge-pending">Awaiting Approval</span>' :
+      post ? '<span class="badge badge-posted">Posted</span>' : '';
+  }
+}
+
+// ── Actions ─────────────────────────────────────────────────────
+async function runSlot(n) {
+  const btn = document.getElementById('btn-run-' + n);
+  const msg = document.getElementById('sm-' + n);
+  btn.disabled = true;
+  setMsg(msg, 'Launching pipeline…', 'var(--blue)');
+  try {
+    const fd = new FormData(); fd.append('slot', n);
+    const d = await fetch('/api/pipeline/run-slot', {method:'POST', body:fd}).then(r => r.json());
+    _runningJobs[n] = d.job_id;
+    refreshBadges();
+    setMsg(msg, 'Running — slots take ~10 min. Page updates every 30s.', 'var(--blue)');
+    pollJob(n, d.job_id);
+  } catch(e) {
+    setMsg(msg, 'Error: ' + e, 'var(--red)');
+    btn.disabled = false;
+  }
+}
+
+function pollJob(n, jobId) {
+  const iv = setInterval(async () => {
+    try {
+      const d = await fetch('/api/pipeline/job/' + jobId).then(r => r.json());
+      const msg = document.getElementById('sm-' + n);
+      if (d.status === 'running') {
+        const last = (d.output||'').split('\n').filter(l=>l.trim()).slice(-1)[0]||'';
+        if (last && msg) setMsg(msg, last, 'var(--blue)');
+      } else {
+        clearInterval(iv);
+        delete _runningJobs[n];
+        document.getElementById('btn-run-' + n).disabled = false;
+        refreshBadges();
+        if (msg) setMsg(msg, d.status==='done'?'Done! Refreshing…':'Pipeline error — check crash log.', d.status==='done'?'var(--green)':'var(--red)');
+        await loadSlots(); await loadStatus();
+      }
+    } catch(e) {}
+  }, 8000);
+}
+
+async function approve(n, decision) {
+  const msg = document.getElementById('sm-' + n);
+  setMsg(msg, {post:'Posting…', skip:'Skipping…', regen:'Regenerating…'}[decision]||'…', 'var(--or)');
+  try {
+    const fd = new FormData(); fd.append('slot', n); fd.append('decision', decision);
+    await fetch('/api/pipeline/approve', {method:'POST', body:fd});
+    setMsg(msg, {post:'Post signal sent — pipeline will post shortly.', skip:'Skip signal sent.', regen:'Regen signal sent.'}[decision], 'var(--green)');
+  } catch(e) { setMsg(msg, 'Error: '+e, 'var(--red)'); }
+}
+
+function toggleEdit(n) {
+  const p = document.getElementById('ep-' + n);
+  if (_editOpen.has(n)) { _editOpen.delete(n); p.classList.remove('open'); }
+  else                  { _editOpen.add(n);    p.classList.add('open');    }
+}
+
+async function submitEdit(n) {
+  const msg = document.getElementById('edit-msg-' + n);
+  msg.textContent = 'Saving…'; msg.style.color = 'var(--or)';
+  const fields = ['hook','problem','stakes','resolution','lesson','caption_tiktok','caption_instagram'];
+  try {
+    for (const f of fields) {
+      const el = document.getElementById(`ef-${n}-${f}`);
+      if (!el || !el.value.trim()) continue;
+      const fd = new FormData(); fd.append('slot',n); fd.append('field',f); fd.append('value',el.value.trim());
+      await fetch('/api/pipeline/edit-field', {method:'POST', body:fd});
+    }
+    const fd = new FormData(); fd.append('slot', n);
+    await fetch('/api/pipeline/submit-edit', {method:'POST', body:fd});
+    msg.textContent = 'Queued for re-render — pipeline will pick this up within seconds.';
+    msg.style.color = 'var(--green)';
+  } catch(e) { msg.textContent = 'Error: '+e; msg.style.color='var(--red)'; }
+}
+
+// ── Block ────────────────────────────────────────────────────────
+async function doBlock() {
+  const id   = parseInt(document.getElementById('block-id').value);
+  const type = document.getElementById('block-type').value;
+  const msg  = document.getElementById('block-msg');
+  if (!id) { msg.textContent='Enter a Pexels ID'; return; }
+  try {
+    const fd = new FormData(); fd.append('media_id',id); fd.append('media_type',type);
+    await fetch('/api/pipeline/block-media', {method:'POST', body:fd});
+    msg.textContent = `Blocked ${type} ID ${id}.`;
+    msg.style.color = 'var(--green)';
+    document.getElementById('block-id').value = '';
+  } catch(e) { msg.textContent='Error: '+e; msg.style.color='var(--red)'; }
+}
+
+// ── Report ───────────────────────────────────────────────────────
+async function loadReport() {
+  const c = document.getElementById('report-container');
+  c.innerHTML = '<span style="color:var(--muted);font-size:.82rem">Loading…</span>';
+  try {
+    const d = await fetch('/api/pipeline/report').then(r => r.json());
+    const plats = Object.entries(d.by_platform||{}).sort((a,b)=>b[1]-a[1])
+      .map(([pl,n])=>`<div class="report-stat"><div class="report-num">${n}</div><div class="report-lbl">${pl}</div></div>`).join('');
+    c.innerHTML = `<div class="report-grid">
+      <div class="report-stat"><div class="report-num">${d.week_total}</div><div class="report-lbl">Posts (7d)</div></div>
+      <div class="report-stat"><div class="report-num">${d.newsflash_week||0}</div><div class="report-lbl">News flashes</div></div>
+      ${plats}</div>`;
+  } catch(e) { c.innerHTML = `<span style="color:var(--red);font-size:.82rem">Failed: ${e}</span>`; }
+}
+
+function setMsg(el, text, color) { if(el){el.textContent=text; el.style.color=color||'';} }
+
+// ── Init ─────────────────────────────────────────────────────────
+(async function(){
+  await loadStatus();
+  await loadSlots();
+  setInterval(loadStatus, 10000);
+  setInterval(loadSlots,  30000);
+})();
+
+// ── Revoice Studio ───────────────────────────────────────────────
+let mediaRec=null, audioChunks=[], isRecording=false, voiceBlob=null;
+let videoPath=document.getElementById('video-path')?document.getElementById('video-path').value:'';
+let musicPath='';
 
 function selectSlotVideo(path, label, btn) {
   document.querySelectorAll('.vid-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   videoPath = path;
   document.getElementById('video-path').value = path;
-  document.getElementById('video-name').textContent = '▶ ' + label;
+  document.getElementById('video-name').textContent = label;
   document.getElementById('video-name').style.color = 'var(--or)';
   const vid = document.getElementById('vid-preview');
   vid.src = '/api/video-file?path=' + encodeURIComponent(path);
@@ -189,112 +576,81 @@ function uploadVideo(inp) {
   document.getElementById('video-name').textContent = 'Uploading…';
   fetch('/api/upload-video', {method:'POST', body:fd})
     .then(r=>r.json()).then(d=>{
-      videoPath = d.path;
-      document.getElementById('video-path').value = d.path;
-      document.getElementById('video-name').textContent = '✓ ' + d.name;
-      document.getElementById('video-name').style.color = 'var(--green)';
-    }).catch(e=>{ document.getElementById('video-name').textContent = 'Upload failed: '+e; });
+      videoPath=d.path;
+      document.getElementById('video-path').value=d.path;
+      document.getElementById('video-name').textContent=d.name;
+      document.getElementById('video-name').style.color='var(--green)';
+    }).catch(e=>{document.getElementById('video-name').textContent='Upload failed: '+e;});
 }
 
 async function toggleRecord() {
-  if(!isRecording) {
+  if (!isRecording) {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({audio:true});
-      audioChunks = [];
-      mediaRec = new MediaRecorder(stream);
-      mediaRec.ondataavailable = e => { if(e.data.size>0) audioChunks.push(e.data); };
-      mediaRec.onstop = () => {
-        voiceBlob = new Blob(audioChunks, {type:'audio/webm'});
-        document.getElementById('voice-name').textContent = '✓ Recording saved (' + (voiceBlob.size/1024).toFixed(0) + ' KB)';
-        document.getElementById('voice-name').style.color = 'var(--green)';
+      audioChunks=[];
+      mediaRec=new MediaRecorder(stream);
+      mediaRec.ondataavailable=e=>{if(e.data.size>0)audioChunks.push(e.data);};
+      mediaRec.onstop=()=>{
+        voiceBlob=new Blob(audioChunks,{type:'audio/webm'});
+        document.getElementById('voice-name').textContent='Recording saved ('+( voiceBlob.size/1024).toFixed(0)+' KB)';
+        document.getElementById('voice-name').style.color='var(--green)';
         stream.getTracks().forEach(t=>t.stop());
       };
-      mediaRec.start();
-      isRecording = true;
-      document.getElementById('rec-btn').textContent = '⏹ Stop Recording';
+      mediaRec.start(); isRecording=true;
+      document.getElementById('rec-btn').textContent='Stop Recording';
       document.getElementById('rec-btn').classList.add('recording');
-      document.getElementById('rec-status').textContent = '● Recording… tap Stop when done';
+      document.getElementById('rec-status').textContent='Recording… tap Stop when done';
       _startTimer();
-    } catch(e) {
-      document.getElementById('rec-status').textContent = 'Mic access denied — check browser permissions';
-    }
+    } catch(e) { document.getElementById('rec-status').textContent='Mic access denied'; }
   } else {
-    mediaRec.stop(); isRecording = false;
-    document.getElementById('rec-btn').textContent = '⏺ Record Again';
+    mediaRec.stop(); isRecording=false;
+    document.getElementById('rec-btn').textContent='Record Again';
     document.getElementById('rec-btn').classList.remove('recording');
-    document.getElementById('rec-status').textContent = 'Saved! Tap Bake to use this recording.';
+    document.getElementById('rec-status').textContent='Saved — tap Bake when ready.';
     clearInterval(_timerInt);
   }
 }
 let _timerInt, _secs=0;
-function _startTimer(){_secs=0;_timerInt=setInterval(()=>{_secs++;document.getElementById('rec-status').textContent='● Recording… '+_secs+'s — tap Stop when done';},1000);}
+function _startTimer(){_secs=0;_timerInt=setInterval(()=>{_secs++;document.getElementById('rec-status').textContent='Recording… '+_secs+'s';},1000);}
 
-function loadVoiceFile(inp) {
-  const f = inp.files[0]; if(!f) return;
-  voiceBlob = f;
-  document.getElementById('voice-name').textContent = '✓ ' + f.name;
-  document.getElementById('voice-name').style.color = 'var(--green)';
+function loadVoiceFile(inp){const f=inp.files[0];if(!f)return;voiceBlob=f;document.getElementById('voice-name').textContent=f.name;document.getElementById('voice-name').style.color='var(--green)';}
+function selectMusic(sel){musicPath=sel.value;}
+
+function ytDownload(){
+  const q=document.getElementById('yt-query').value.trim(); if(!q)return;
+  document.getElementById('yt-status').textContent='Downloading… (~20 seconds)';
+  const fd=new FormData(); fd.append('query',q);
+  fetch('/api/youtube-music',{method:'POST',body:fd})
+    .then(r=>{if(!r.ok)return r.text().then(t=>{throw t;});return r.json();})
+    .then(d=>{musicPath=d.path;document.getElementById('music-sel').add(new Option(d.label,d.path,true,true));document.getElementById('yt-status').textContent='Added: '+d.label;document.getElementById('yt-status').style.color='var(--green)';})
+    .catch(e=>{document.getElementById('yt-status').textContent='Failed: '+e;document.getElementById('yt-status').style.color='var(--red)';});
 }
 
-function selectMusic(sel) { musicPath = sel.value; }
-
-function ytDownload() {
-  const q = document.getElementById('yt-query').value.trim();
-  if(!q) return;
-  document.getElementById('yt-status').textContent = '⬇ Downloading… (~20 seconds)';
-  const fd = new FormData(); fd.append('query', q);
-  fetch('/api/youtube-music', {method:'POST', body:fd})
-    .then(r=>{ if(!r.ok) return r.text().then(t=>{throw t;}); return r.json(); })
-    .then(d=>{
-      musicPath = d.path;
-      const opt = new Option(d.label, d.path, true, true);
-      document.getElementById('music-sel').add(opt);
-      document.getElementById('yt-status').textContent = '✓ Added: ' + d.label;
-      document.getElementById('yt-status').style.color = 'var(--green)';
-    }).catch(e=>{ document.getElementById('yt-status').textContent = 'Failed: '+e; document.getElementById('yt-status').style.color='var(--red)'; });
+async function doBake(){
+  if(!videoPath){alert('Please select or upload a video first.');return;}
+  if(!voiceBlob){alert('Please record or upload a voice first.');return;}
+  const fd=new FormData();
+  fd.append('video_path',videoPath); fd.append('music_path',musicPath||'');
+  const ext=voiceBlob instanceof File?voiceBlob.name.split('.').pop():'webm';
+  fd.append('voice',voiceBlob,'voice.'+ext);
+  document.getElementById('bake-btn').disabled=true;
+  document.getElementById('bake-status').textContent='Baking your video…';
+  document.getElementById('bake-result').style.display='none';
+  try{
+    const r=await fetch('/api/bake',{method:'POST',body:fd});
+    if(!r.ok)throw await r.text();
+    const d=await r.json();
+    pollBakeJob(d.job_id,d.bake_id);
+  }catch(e){document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='Error: '+e;document.getElementById('bake-status').style.color='var(--red)';}
 }
 
-async function doBake() {
-  if(!videoPath){ alert('Please upload a video first.'); return; }
-  if(!voiceBlob){ alert('Please record or upload a voice first.'); return; }
-  const fd = new FormData();
-  fd.append('video_path', videoPath);
-  fd.append('music_path', musicPath || '');
-  const ext = voiceBlob instanceof File ? voiceBlob.name.split('.').pop() : 'webm';
-  fd.append('voice', voiceBlob, 'voice.'+ext);
-  document.getElementById('bake-btn').disabled = true;
-  document.getElementById('bake-status').textContent = '⏳ Baking your video…';
-  document.getElementById('bake-result').style.display = 'none';
-  try {
-    const r = await fetch('/api/bake', {method:'POST', body:fd});
-    if(!r.ok) throw await r.text();
-    const d = await r.json();
-    pollJob(d.job_id, d.bake_id);
-  } catch(e) {
-    document.getElementById('bake-btn').disabled = false;
-    document.getElementById('bake-status').textContent = 'Error: '+e;
-    document.getElementById('bake-status').style.color = 'var(--red)';
-  }
-}
-
-function pollJob(jobId, bakeId) {
-  document.getElementById('bake-status').textContent = '⏳ Processing… (this takes ~30 seconds)';
-  const iv = setInterval(async()=>{
-    const r = await fetch('/api/job/'+jobId);
-    const d = await r.json();
-    if(d.status==='done'){
-      clearInterval(iv);
-      document.getElementById('bake-btn').disabled = false;
-      document.getElementById('bake-status').textContent = '';
-      document.getElementById('bake-result').style.display = 'block';
-      document.getElementById('dl-link').innerHTML = '<a class="dl-btn" href="/api/download-bake/'+bakeId+'">⬇ Download</a>';
-    } else if(d.status==='failed'){
-      clearInterval(iv);
-      document.getElementById('bake-btn').disabled = false;
-      document.getElementById('bake-status').textContent = 'Failed: '+(d.error||'unknown error');
-      document.getElementById('bake-status').style.color = 'var(--red)';
-    }
-  }, 3000);
+function pollBakeJob(jobId,bakeId){
+  document.getElementById('bake-status').textContent='Processing… (~30 seconds)';
+  const iv=setInterval(async()=>{
+    const d=await fetch('/api/job/'+jobId).then(r=>r.json());
+    if(d.status==='done'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='';document.getElementById('bake-result').style.display='block';document.getElementById('dl-link').innerHTML='<a class="dl-btn" href="/api/download-bake/'+bakeId+'">Download</a>';}
+    else if(d.status==='failed'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='Failed: '+(d.error||'unknown error');document.getElementById('bake-status').style.color='var(--red)';}
+  },3000);
 }
 </script>
 </body>
