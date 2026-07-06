@@ -31,6 +31,7 @@ PENDING_NEWSPAPER = DATA / "pending_newspaper.json"
 PENDING_STORY     = DATA / "pending_story.json"
 PENDING_LINKEDIN  = DATA / "pending_linkedin.json"
 REVOICE_STUDIO    = DATA / "revoice_studio.json"
+EDIT_SESSION_FILE = DATA / "edit_session.json"
 
 PYTHON    = sys.executable
 FFMPEG    = "ffmpeg"
@@ -825,6 +826,96 @@ def do_music(query: str):
         _send(f"❌ Music download error: {e}")
 
 
+def _load_edit_session() -> dict:
+    try:
+        if EDIT_SESSION_FILE.exists():
+            d = json.loads(EDIT_SESSION_FILE.read_text(encoding="utf-8"))
+            if time.time() < d.get("expires", 0):
+                return d
+            EDIT_SESSION_FILE.unlink(missing_ok=True)
+    except Exception:
+        pass
+    return {}
+
+
+def _save_edit_session(session: dict):
+    session.setdefault("expires", time.time() + 1800)
+    EDIT_SESSION_FILE.write_text(json.dumps(session, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def do_edit(slot: int):
+    """Show current beats for this slot and open an edit session."""
+    _, data = _find_latest_video(slot)
+    if not data:
+        _send(f"⚠️ No rendered content found for Slot {slot}. Run /rerun {slot} first.")
+        return
+
+    hook       = data.get("hook",       "(not available)")
+    problem    = data.get("problem",    "(not available)")
+    stakes     = data.get("stakes",     "(not available)")
+    resolution = data.get("resolution", "(not available)")
+    lesson     = data.get("lesson",     "(not available)")
+
+    _save_edit_session({"slot": slot, "content": data, "expires": time.time() + 1800})
+
+    _send(
+        f"✏️ <b>Edit Slot {slot} — current beats</b>\n\n"
+        f"<b>HOOK</b>\n<i>{hook}</i>\n\n"
+        f"<b>PROBLEM</b>\n<i>{problem}</i>\n\n"
+        f"<b>STAKES</b>\n<i>{stakes}</i>\n\n"
+        f"<b>RESOLUTION</b>\n<i>{resolution}</i>\n\n"
+        f"<b>LESSON</b>\n<i>{lesson}</i>\n\n"
+        f"Reply with the field name and your text:\n"
+        f"<code>hook: The wedding was on Saturday. The dress was still in Birmingham.</code>\n"
+        f"<code>lesson: The flight was already going. The parcel just needed a seat.</code>\n\n"
+        f"One field at a time. Tap <b>Done — Re-render</b> when finished.",
+        reply_markup={"inline_keyboard": [[
+            {"text": "✅ Done — Re-render", "callback_data": f"edit_done_{slot}"},
+            {"text": "❌ Cancel",           "callback_data": f"edit_cancel_{slot}"},
+        ]]},
+    )
+
+
+def _apply_edit_field(field: str, value: str, slot: int, session: dict):
+    """Apply one field edit to the active session and confirm."""
+    _FIELD_LABELS = {
+        "hook": "HOOK", "problem": "PROBLEM", "stakes": "STAKES",
+        "resolution": "RESOLUTION", "lesson": "LESSON",
+        "caption_tiktok": "TIKTOK CAPTION", "caption_instagram": "IG CAPTION",
+    }
+    session.setdefault("content", {})[field] = value
+    session["expires"] = time.time() + 1800
+    _save_edit_session(session)
+    label = _FIELD_LABELS.get(field, field.upper())
+    _send(
+        f"✅ <b>{label}</b> updated:\n<i>{value}</i>\n\n"
+        f"Edit another field or tap <b>Done — Re-render</b>."
+    )
+
+
+def _edit_done(slot: int):
+    """Write pending_edit file so poll_for_decision picks it up and triggers re-render."""
+    session = _load_edit_session()
+    if not session or session.get("slot") != slot:
+        _send(f"⚠️ No active edit session for Slot {slot}. Tap ✏️ Edit from the preview first.")
+        return
+
+    content = session.get("content", {})
+    pending = DATA / f"pending_edit_{slot}.json"
+    pending.write_text(json.dumps(content, indent=2, ensure_ascii=False), encoding="utf-8")
+    EDIT_SESSION_FILE.unlink(missing_ok=True)
+    _send(
+        f"✏️ <b>Slot {slot} — edits saved.</b>\n\n"
+        f"Re-rendering now — skip the AI stages so this takes ~5 minutes.\n"
+        f"Watch for the updated preview."
+    )
+
+
+def _edit_cancel(slot: int):
+    EDIT_SESSION_FILE.unlink(missing_ok=True)
+    _send(f"❌ Edit cancelled — original content unchanged.")
+
+
 def _check_and_rerun():
     today   = datetime.now().strftime("%Y-%m-%d")
     ran_log = DATA / "pipeline_ran_today.json"
@@ -902,11 +993,16 @@ def send_video_preview(video_path: str, caption: str, slot: int, content: dict,
         f"<i>Auto-posts in 30 min — tap Post Now to go live immediately, or Skip/Regen.</i>"
     )
     keyboard = {
-        "inline_keyboard": [[
-            {"text": "✅ Post Now",  "callback_data": f"post_{slot}"},
-            {"text": "⏭ Skip",      "callback_data": f"skip_{slot}"},
-            {"text": "🔄 Regen",    "callback_data": f"regen_{slot}"},
-        ]]
+        "inline_keyboard": [
+            [
+                {"text": "✅ Post Now",  "callback_data": f"post_{slot}"},
+                {"text": "⏭ Skip",      "callback_data": f"skip_{slot}"},
+            ],
+            [
+                {"text": "🔄 Regen",    "callback_data": f"regen_{slot}"},
+                {"text": "✏️ Edit text", "callback_data": f"edit_pick_{slot}"},
+            ],
+        ]
     }
     msg = _send(approval_text, keyboard)
     return msg.get("result", {}).get("message_id")
@@ -922,6 +1018,12 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
     print(f"[Cmdr] Polling for Slot {slot} decision ({timeout_sec//60}min window)…")
 
     while time.time() - start < timeout_sec:
+        # File-based edit signal — set by _edit_done() when operator finishes editing
+        pending_edit = DATA / f"pending_edit_{slot}.json"
+        if pending_edit.exists():
+            print(f"[Cmdr] Edit file detected for Slot {slot} — triggering re-render")
+            return "edit"
+
         try:
             r = requests.get(
                 f"{BASE_URL}/getUpdates",
@@ -1200,6 +1302,20 @@ def _poll_once(offset: int) -> int:
                 plat  = parts[3] if len(parts) > 3 else "tiktok"
                 _post_revoiced(slot, plat)
 
+            # Dynamic: edit_pick_2, edit_done_2, edit_cancel_2
+            elif data.startswith("edit_pick_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    do_edit(int(part))
+            elif data.startswith("edit_done_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _edit_done(int(part))
+            elif data.startswith("edit_cancel_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _edit_cancel(int(part))
+
             continue
 
         # Text or voice message
@@ -1214,6 +1330,22 @@ def _poll_once(offset: int) -> int:
         if text:
             low = text.lower()
             print(f"[Cmdr] Message: {low[:60]}")
+
+            # Check for active edit session — "field: new value" format
+            _edit_fields = ("hook", "problem", "stakes", "resolution", "lesson",
+                            "caption_tiktok", "caption_instagram")
+            _edit_session = _load_edit_session()
+            if _edit_session:
+                _matched = False
+                for _field in _edit_fields:
+                    if low.startswith(f"{_field}:"):
+                        _value = text[len(_field) + 1:].strip()
+                        if _value:
+                            _apply_edit_field(_field, _value, _edit_session.get("slot", 0), _edit_session)
+                            _matched = True
+                            break
+                if _matched:
+                    continue  # handled — don't run dispatch
 
             # Approval flow callbacks piggyback on text format from poll_for_decision
             # — those are handled via callback_query, not text. Just dispatch.

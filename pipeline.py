@@ -237,17 +237,22 @@ def run_slot(slot: int, force: bool = False):
 
     content = None
     regen_count = 0
+    skip_generate = False   # set True after an edit so we reuse existing content
     v1_path = v2_path = None
     platform_videos_v1 = platform_videos_v2 = {}
 
     while regen_count <= 2:
-        _log(f"Generating content (attempt {regen_count + 1})...")
-        try:
-            content = generate_content(slot, pillar, bucket)
-        except Exception as e:
-            _crash(f"Content gen failed: {e}")
-            _tg_send(f"❌ OTB Slot {slot} — content generation failed: {e}")
-            return
+        if skip_generate:
+            skip_generate = False
+            _log("Re-rendering with edited content (skipping AI stages)...")
+        else:
+            _log(f"Generating content (attempt {regen_count + 1})...")
+            try:
+                content = generate_content(slot, pillar, bucket)
+            except Exception as e:
+                _crash(f"Content gen failed: {e}")
+                _tg_send(f"❌ OTB Slot {slot} — content generation failed: {e}")
+                return
 
         _log(f"Hook: {content.get('hook','')[:80]}")
         _log(f"Lesson: {content.get('lesson','')[:80]}")
@@ -292,6 +297,9 @@ def run_slot(slot: int, force: bool = False):
             sidecar.write_text(json.dumps({
                 "hook":               content.get("hook", ""),
                 "hook_v2":            content.get("hook_v2", ""),
+                "problem":            content.get("problem", ""),
+                "stakes":             content.get("stakes", ""),
+                "resolution":         content.get("resolution", ""),
                 "lesson":             content.get("lesson", ""),
                 "lesson_v2":          content.get("lesson_v2", ""),
                 "pillar":             content.get("pillar", ""),
@@ -350,6 +358,26 @@ def run_slot(slot: int, force: bool = False):
         if decision == "regen":
             regen_count += 1
             _log(f"Regenerating... (attempt {regen_count + 1})")
+            v1_file.unlink(missing_ok=True)
+            if v2_file:
+                v2_file.unlink(missing_ok=True)
+            continue
+
+        if decision == "edit":
+            # Load operator's text edits and re-render without touching AI stages
+            edit_path = DATA / f"pending_edit_{slot}.json"
+            try:
+                edit_data = json.loads(edit_path.read_text(encoding="utf-8"))
+                for field in ("hook", "problem", "stakes", "resolution", "lesson",
+                              "caption_tiktok", "caption_instagram"):
+                    if field in edit_data and edit_data[field].strip():
+                        content[field] = edit_data[field].strip()
+                edit_path.unlink(missing_ok=True)
+                _log(f"Edits applied: {[f for f in edit_data if f in content]}")
+            except Exception as e:
+                _log(f"Edit file load failed ({e}) — treating as regen")
+                regen_count += 1
+            skip_generate = True
             v1_file.unlink(missing_ok=True)
             if v2_file:
                 v2_file.unlink(missing_ok=True)
