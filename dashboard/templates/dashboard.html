@@ -163,6 +163,11 @@ select:focus{border-color:var(--or)}
       <div class="stat-pill"><div class="sdot sdot-muted"></div>Loading…</div>
     </div>
 
+    <div class="card" id="today-card" style="display:none">
+      <div class="card-title">Today's Posts</div>
+      <div id="today-posts"></div>
+    </div>
+
     <div id="slots-container"></div>
 
     <div class="card">
@@ -326,6 +331,30 @@ async function loadStatus() {
     if (s.current_step)
       pills.push(`<div class="stat-pill"><div class="sdot sdot-muted"></div>${esc(s.current_step)}</div>`);
     document.getElementById('status-bar').innerHTML = pills.join('');
+
+    // Today's posts panel
+    const posts = s.recent_posts || [];
+    const todayCard = document.getElementById('today-card');
+    if (posts.length) {
+      todayCard.style.display = '';
+      const _PL = {tiktok:'TikTok', instagram:'Instagram', instagram_story:'IG Story',
+                   youtube:'YouTube', linkedin:'LinkedIn', newspaper:'Newspaper', blog:'Blog'};
+      const rows = posts.map(p => {
+        const pl  = _PL[p.platform] || p.platform;
+        const t   = (p.posted_at||'').slice(11,16);
+        const sl  = p.slot ? `Slot ${p.slot}` : '';
+        const dot = p.platform==='tiktok'?'#ff0050':p.platform==='instagram'?'#c080ff':p.platform==='youtube'?'#ff4040':p.platform==='linkedin'?'#5ba4e6':'var(--muted)';
+        return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #ffffff08;font-size:.82rem">
+          <div style="width:8px;height:8px;border-radius:50%;background:${dot};flex-shrink:0"></div>
+          <span style="color:var(--muted);width:52px;flex-shrink:0">${t}</span>
+          <span style="color:var(--muted);width:48px;flex-shrink:0;font-size:.72rem">${sl}</span>
+          <span style="color:var(--text);font-weight:700">${pl}</span>
+        </div>`;
+      }).join('');
+      document.getElementById('today-posts').innerHTML = `<div style="padding-bottom:4px">${rows}</div>`;
+    } else {
+      todayCard.style.display = 'none';
+    }
 
     const cc = document.getElementById('crash-card');
     if (s.crash_log) {
