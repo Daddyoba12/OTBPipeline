@@ -490,7 +490,7 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
     font_b = _font("body")
 
     # Split lesson into at most 2 lines (28 chars each) â€” separate drawtext per line
-    lesson_lines = _split_lines(_esc(lesson), 28, 2)
+    lesson_lines = _split_lines(_esc(lesson), 28, 3)
 
     # Pass 1 â€” plain colour card
     plain = dest.parent / (dest.stem + "_plain.mp4")
@@ -608,7 +608,7 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
     _ff(
         "-i", str(src), "-i", str(track),
         "-filter_complex",
-        f"[1:a]atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
+        f"[1:a]aloop=loop=-1:size=2000000000,atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
         "-map", "0:v", "-map", "[aout]",
         "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", str(dest),
     )

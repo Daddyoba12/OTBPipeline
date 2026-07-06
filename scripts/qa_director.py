@@ -170,9 +170,11 @@ SCORE EACH DIMENSION 0-10:
 OVERALL SCORE = (sum of all 8 scores / 8) × 10. Round to nearest integer.
 
 IF OVERALL < 80: Rewrite the full story. Fix EVERY weak beat.
-IF OVERALL >= 80: Pass through as-is (set rewritten to false).
+IF OVERALL >= 80: Pass through as-is. Set rewritten=false and set ALL beat fields to empty string "".
 
 REWRITE RULES (when rewriting, MUST follow all of these):
+- For ANY beat you are happy with, return it as empty string "" — NEVER write "unchanged" or copy the original text back.
+- Only write a non-empty value for a beat you have actively rewritten.
 - Pick ONE anchor: one character, one specific item, one obstacle. ALL beats must reference it.
 - Hook → Problem → Stakes → Resolution → Lesson must be ONE continuous story, not 5 separate ideas.
 - Courier brand rule: NEVER name DHL, FedEx, Royal Mail, Hermes — always "a reputable courier"
@@ -231,12 +233,13 @@ def review_and_improve(story: dict, pillar: str) -> dict:
             for issue in issues:
                 print(f"    Issue: {issue}")
 
+        _SENTINEL = {"unchanged", "...", "same", "no change", "keep", "keep as-is", "n/a", ""}
         if rewritten:
             print("  [QADirector] Story rewritten — improvements applied")
-            # Replace weak beats with improved versions
             for field in ("hook", "problem", "stakes", "resolution", "lesson"):
-                if result.get(field):
-                    story[field] = result[field]
+                new_val = str(result.get(field, "")).strip()
+                if new_val and new_val.lower() not in _SENTINEL:
+                    story[field] = new_val
         else:
             print("  [QADirector] Story passed QA — no rewrite needed")
 
