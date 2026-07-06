@@ -311,110 +311,126 @@ def _build_story_prompt(
     news_block = ""
     if news_context:
         news_block = f"""
-TODAY'S NEWS HOOK (use this as the factual basis for the story — make the video feel timely and real):
+TODAY'S REAL-WORLD CONTEXT (weave in naturally if it fits — never force it):
   Headline: {news_context.get('headline', '')}
-  Summary: {news_context.get('summary', '')}
-  Category: {news_context.get('category', '')}
-  Suggested angle: {news_context.get('story_angle', '')}
-  WHY IT MATTERS: {news_context.get('why_relevant', '')}
-
-IMPORTANT: Base the story on this real event. The hook should reflect this specific situation.
-Do not invent fake prices or facts — use the numbers from the news summary if available.
+  Angle: {news_context.get('story_angle', '')}
 """
-    return f"""You write viral content for OTB — BootHop's content engine targeting UK/Nigeria diaspora on TikTok, Instagram, and YouTube.
 
-LANGUAGE RULE — CRITICAL: Write EVERYTHING in British English only. No Yoruba, Pidgin, Igbo, Hausa, or any other language — not even single words or phrases. The audience speaks English; diaspora content performs better in English on these platforms.
+    return f"""You write viral short-form content for BootHop — a peer-to-peer delivery platform connecting UK and Nigeria through travellers already making the journey.
 
-CONTEXT:
-- Slot: {slot} ({["","7am morning commute","12pm lunch scroll","6pm evening unwind","9pm night scroll"][slot]})
-- Content Pillar: {pillar_label}
-- Day: {day_name}, {month_name}
-- Platform bucket tone: {bucket}
-{f"- CONTENT ANGLE FOR THIS PILLAR: {pillar_angle}" if pillar_angle else ""}
+LANGUAGE RULE — CRITICAL: British English only. No Yoruba, Pidgin, Igbo, Hausa, or any other language — not even single words or phrases.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BRAND PHILOSOPHY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BootHop doesn't sell delivery. BootHop unlocks unused human movement.
+Every day, millions of people are already travelling between UK and Nigeria.
+BootHop gives those journeys a second purpose.
+
+Signature line: "Movement already exists. BootHop makes it useful."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STORY CONTEXT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Slot: {slot} ({["","7am","12pm","6pm","9pm"][slot]})
+Pillar: {pillar_label}
+Day: {day_name}, {month_name}
+Tone: {bucket}
+{f"Pillar direction: {pillar_angle}" if pillar_angle else ""}
 {news_block}
 
-ABOUT BOOTHOP:
-BootHop is a peer-to-peer parcel delivery app. Travellers already flying between UK and Nigeria carry parcels for senders and earn money. Senders pay less than courier services and get same-day delivery.
-- TRAVELLER = earns money carrying a stranger's parcel on a trip they were already making
-- SENDER = pays a traveller to carry their parcel
-These are ALWAYS two different people.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NARRATIVE FORMULA — follow this structure exactly
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. PERSON     A specific named person with real context (not "a woman" — "Sade, a nurse in Wolverhampton")
+2. MOMENT     A deadline, event, or celebration that makes this urgent NOW
+3. PROBLEM    Why a reputable courier fails — too expensive, too slow, or both
+4. MOVEMENT   Someone was ALREADY flying this route — the journey existed before BootHop
+5. CONNECTION BootHop matched the sender with that traveller
+6. EMOTION    The relief, gratitude, or joy when it arrived
+7. PHILOSOPHY A short closing line from the brand language bank
 
-COURIER BRAND RULE — CRITICAL:
-NEVER name specific courier companies (DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS) anywhere in the script.
-ALWAYS write "a reputable courier" or "a traditional courier service" instead.
+INTERNAL CHECKLIST — before writing any beat, answer these 6:
+  WHO?    Named person + context (job, city, relationship)
+  WHAT?   Specific item and why it matters emotionally
+  WHY?    The event, deadline, or person at risk if it doesn't arrive
+  WHO WAS MOVING?  The traveller — already going, not hired for this
+  HOW?    BootHop connected them
+  FEELING? How did everyone feel when it arrived?
 
-PRICE REALITY — only use figures within these real ranges:
-- A reputable courier UK to Nigeria: £35-75 for a small parcel (0.5-2kg)
-- BootHop peer-to-peer: £8-25 for a typical parcel on the same route
-- Traveller earnings: £20-85 per trip, depending on parcel size
+If your story can't answer all 6, rewrite it before returning.
 
-STORY ANCHOR — define this FIRST before writing any beat:
-Pick ONE character, ONE specific item, ONE obstacle that links ALL 5 beats.
-Every beat must stay inside this same situation — no jumping to new problems or new characters.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOOK STARTERS — start with person, moment, or consequence (NEVER a price)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✓ "Her mum's retirement ceremony was on Friday."
+✓ "His cousin's portfolio deadline was in six days."
+✓ "The wedding was already set. The dress was still in Birmingham."
+✓ "Sade hadn't been home in two years. She wanted to send something real."
+✗ NEVER start with a price, courier quote, or BootHop name
 
-Good anchor example:
-  CHARACTER: Yemi, a student in London
-  ITEM: her mum's blood pressure tablets
-  OBSTACLE: a reputable courier quoted £55 — more than the tablets cost
-  TIME PRESSURE: mum runs out in 4 days
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ITEMS — use variety, NEVER default to tablets or medication
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Gifts:        birthday gift, graduation gift, wedding present, baby shower hamper
+Clothing:     aso-oke fabric, agbada, jordans/trainers, nursing scrubs, school uniform, used clothes
+Electronics:  laptop, phone charger, tablet, headphones, smart watch, gaming controller
+Professional: medical stethoscope, exam certificate, portfolio prints, visa documents
+School:       textbooks, school shoes, stationery pack, school uniform
+Keepsakes:    framed family photo, handmade jewellery, signed sports shirt, handwritten letter
+Baby items:   baby clothes, baby shoes, toys, formula tin
+Food (sealed only): Nigerian spices, stockfish, Indomie noodles, shea butter
 
-Bad anchor example:
-  CHARACTER: "a woman" (too vague)
-  ITEM: "a package" (too vague)
-  OBSTACLE: "courier was expensive AND customs delays AND mum was sick" (too many problems)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ABOUT BOOTHOP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TRAVELLER = earns money carrying a parcel on a trip they were ALREADY making
+SENDER    = pays a traveller — far cheaper than couriers, often next-day
+Always two different people. BootHop connects them. The traveller was going ANYWAY.
 
-SCRIPT FORMULA — 5 beats, ONE continuous story:
-IMPORTANT: beats appear as on-screen text at 4 seconds each. SHORT = readable. LONG = cut off.
-Every beat must logically continue from the previous one — same character, same item, same situation.
+COURIER RULE: NEVER name DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS.
+Write "a reputable courier" or "a traditional courier service".
 
-HOOK: max 15 words total. Stop the scroll in 2 seconds.
-  Line 1 (3-6 words): The sharp punch — a specific number, item, or emotion.
-  Line 2 (optional, up to 9 words): The mini-story setup — who, what situation.
-  NEVER start with "BootHop". Use the specific item and character from your anchor.
-  GOOD: "£55 for tablets. Her mum runs out in 4 days."
-  BAD: "This woman had a really difficult situation sending something home."
+PRICE RANGES:
+- Reputable courier UK → Nigeria: £35–75 small parcel
+- BootHop peer-to-peer: £8–25 same route
+- Traveller earnings: £20–85 per trip
 
-PROBLEM: max 12 words. One tight sentence about the EXACT obstacle from your anchor.
-  Must directly continue from the hook. Mention the specific price or obstacle.
-  GOOD: "A reputable courier quoted £55. More than the tablets cost."
-  BAD: "She tried everything. Customs delays made it worse." ← introduces NEW problem not in hook
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BRAND CLOSING LINES — lesson MUST use one of these EXACTLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. "The flight was already going. The parcel just needed a seat."
+2. "Movement already exists. BootHop makes it useful."
+3. "Someone was already flying. BootHop connected the dots."
+4. "The journey already existed. The parcel just joined it."
+5. "Every journey has value."
 
-STAKES: max 10 words. Why it MUST be solved RIGHT NOW. Use the time pressure from your anchor.
-  Must reference the same character and situation — not a general statement.
-  GOOD: "Four days until mum ran out. No time."
-  BAD: "This happens to thousands of diaspora people every day." ← generic, drifted from anchor
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BEAT RULES (on-screen video text — SHORT is essential, text gets cut off if too long)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HOOK:       max 15 words. Start with person or moment — NEVER a price or courier quote.
+PROBLEM:    max 12 words. The courier failure. One sentence.
+STAKES:     max 10 words. Consequence if it doesn't arrive. Same character and item.
+RESOLUTION: max 12 words. BootHop appears HERE. Traveller was ALREADY going. Close the loop.
+LESSON:     max 10 words. Use ONE closing line from the brand language bank above, EXACTLY.
 
-RESOLUTION: max 12 words. BootHop appears HERE for the first time. Close the loop on the HOOK.
-  Must directly solve the specific obstacle set up in HOOK and PROBLEM.
-  GOOD: "She found a BootHop traveller flying to Lagos. £12. Done."
-  BAD: "BootHop helps connect senders with travellers across the world." ← too generic, closes nothing
-
-LESSON: max 10 words. One line the viewer will screenshot. Universal truth from THIS story.
-  Must feel like the logical conclusion of this exact story — not a generic travel tip.
-  GOOD: "The flight was going anyway. She just needed someone on it."
-  BAD: "Always plan ahead when sending packages internationally." ← generic, could be from any story
-
-THEN generate platform-specific outputs (these can be longer — they go in captions, not on screen):
-
-TIKTOK:
-- caption_tiktok: First 90 chars = hook reworded. Then 2 line breaks. Then 2-3 sentences. Then engagement question. Max 300 chars.
-
-INSTAGRAM:
-- caption_instagram: First 125 chars = strong hook. Full story 3-4 sentences. CTA. Max 400 chars.
-
-YOUTUBE:
-- youtube_title: Max 60 chars. Question or number format. Keyword-first. No "BootHop" in title.
-- youtube_description: 2-3 sentences, first 100 chars keyword-rich. Include "BootHop.com" at end.
-
-ENGAGEMENT: One short question (under 10 words) that invites real comments.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PLATFORM CAPTIONS (go in caption, not on screen — can be longer)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+caption_tiktok  (max 300 chars): Open with human moment. 2 line breaks. 2–3 story sentences. Engagement question at end.
+caption_instagram (max 400 chars): First 125 chars = emotional hook + stakes. Full arc 3–4 sentences. Include "someone was already making that journey." CTA + engagement question.
+youtube_title   (max 60 chars): Human story or question format. NOT "BootHop does X". No BootHop in title.
+youtube_description: 2–3 sentences, keyword-rich first 100 chars. Include "boothop.com" at end.
+engagement      (max 10 words): One question that opens a real conversation.
 
 Return ONLY valid JSON (no markdown):
 {{
   "story_anchor": {{
-    "character": "one specific person",
-    "item": "the exact item being sent or situation",
-    "obstacle": "the single specific obstacle",
-    "time_pressure": "why it must be resolved now"
+    "character": "named person with specific context",
+    "item": "exact item being sent",
+    "moment": "event or deadline creating urgency",
+    "obstacle": "specific courier failure",
+    "movement": "who was already travelling, how BootHop connected them"
   }},
   "hook": "...",
   "problem": "...",
@@ -429,22 +445,48 @@ Return ONLY valid JSON (no markdown):
 }}"""
 
 
-# Pillar-specific content angle (for educational/documentary pillars)
+# Pillar-specific direction (human movement framing — never supply chain jargon)
 _PILLAR_ANGLES = {
     "supply_chain": (
-        "Write this as a mini-documentary about how global supply chains work — "
-        "a realistic story about a UK-Nigeria logistics gap. Hook with a surprising fact or price. "
-        "BootHop appears in RESOLUTION only — as the smart peer-to-peer alternative."
+        "Tell a mini-documentary about how global logistics fails real people — a UK-Nigeria gap "
+        "story with a specific person at the centre. Hook with the HUMAN MOMENT (deadline, event, "
+        "relationship), not a supply chain fact or price. BootHop appears in RESOLUTION as the "
+        "human-movement alternative — someone was already going there."
     ),
     "logistics_stories": (
-        "Write this as an interesting logistics story — a surprising fact about how parcels move "
-        "around the world, a customs challenge, or a last-mile delivery gap in Nigeria. "
-        "Make it genuinely educational. BootHop appears in RESOLUTION only."
+        "Tell a logistics rescue story — a parcel race against time, a customs near-miss, or a "
+        "last-mile gap solved by a traveller already making the journey. Open with a person and "
+        "the stakes, not logistics terminology. Make the viewer feel the tension."
     ),
     "airport_deliveries": (
-        "Write a dramatic realistic airport/customs story — a seized parcel, a last-minute save, "
-        "or a traveller who carried something important like medication. "
-        "Make the viewer feel the tension. BootHop appears in RESOLUTION as the smarter way."
+        "Tell a dramatic airport story with human stakes — a traveller who carried something "
+        "important on an existing trip, a last-minute handoff, or an emotional arrival. Open with "
+        "the person and the moment. Make the viewer feel the relief at the end."
+    ),
+    "travel_hacks": (
+        "Tell a story about the CLEVER HACK of using a traveller already going to Nigeria. "
+        "The 'hack' is that someone was ALREADY flying — BootHop found them. "
+        "NEVER write about hotel booking, flight reservations, packing tips, or general travel. "
+        "This pillar is about the smart sender who discovered peer-to-peer delivery."
+    ),
+    "family": (
+        "Tell a care story — someone sending something meaningful to a family member they miss. "
+        "The item should carry emotional weight: a gift, clothing, a keepsake. "
+        "Open with the relationship and what's at stake, not the price."
+    ),
+    "community": (
+        "Tell a community connection story — BootHop as the thread that keeps diaspora families "
+        "and friends connected across miles. The traveller is part of the same community. "
+        "Warm, human, and specific. Open with a person and a meaningful moment."
+    ),
+    "airport": (
+        "Tell a story set around the moment of travel — the handoff, the arrival, the relief. "
+        "Show the human side of movement: a traveller who became someone's hero on an ordinary trip."
+    ),
+    "smart": (
+        "Tell a cleverness story — the elegant solution the sender didn't expect. "
+        "Someone was already going. BootHop connected them. The smart move cost a fraction of the courier. "
+        "Open with the problem, let the solution feel like a revelation."
     ),
 }
 
@@ -538,21 +580,33 @@ def generate_v2_content(slot: int, pillar: str, bucket: str, v1_content: dict) -
     v1_hook   = v1_content.get("hook", "")
     v1_lesson = v1_content.get("lesson", "")
 
-    prompt = f"""You write a SECOND VERSION of a viral BootHop video for the same content pillar.
+    prompt = f"""You write a SECOND VERSION of a BootHop video for the same content pillar.
 
-V1 already uses this hook: "{v1_hook}"
-V1 lesson: "{v1_lesson}"
+BootHop = peer-to-peer parcel delivery. Travellers ALREADY flying between UK and Nigeria carry parcels for senders. The traveller was going anyway — BootHop connected them. NEVER write about hotels, flights, restaurants, packing tips, or general travel advice.
 
-Your job: write V2 — a COMPLETELY DIFFERENT angle on the same pillar ({pillar_label}).
-Different story. Different hook format. Different emotion. Different lesson.
-Same quality, same punch — just a fresh take.
+LANGUAGE RULE: British English only — no Yoruba, Pidgin, or any other language.
 
-COURIER BRAND RULE: NEVER name DHL, FedEx, Royal Mail, Hermes, or any courier brand.
-Always write "a reputable courier" or "a traditional courier service" instead.
+V1 already uses:
+  Hook: "{v1_hook}"
+  Lesson: "{v1_lesson}"
 
-BEAT LENGTH RULES (text appears on screen — keep it short):
-- hook_v2: 1-2 sentences, max 15 words, completely different from V1 hook
-- lesson_v2: max 10 words, fresh insight (not a rewording of V1 lesson)
+Your job: write V2 — a COMPLETELY DIFFERENT person, item, and emotion on the same pillar ({pillar_label}).
+
+RULES FOR V2:
+- Different character (new name, different job/city from V1)
+- Different item — pick from: laptop, stethoscope, aso-oke, trainers, baby shoes, scrubs, framed photo, birthday gift, school uniform, signed sports shirt, tablet, wedding dress fabric, handmade jewellery
+- Different emotional angle — if V1 was urgent/stressful, make V2 warm/celebratory (or vice versa)
+- Hook: max 15 words. Start with person or moment — NOT a price or "BootHop"
+- Lesson: max 10 words. Must use EXACTLY one of these closing lines:
+    "The flight was already going. The parcel just needed a seat."
+    "Movement already exists. BootHop makes it useful."
+    "Someone was already flying. BootHop connected the dots."
+    "The journey already existed. The parcel just joined it."
+    "Every journey has value."
+- NEVER use "unchanged", "same", or copy V1 text
+
+COURIER RULE: NEVER name DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS.
+Write "a reputable courier" or "a traditional courier service" instead.
 
 Return ONLY valid JSON:
 {{
@@ -564,8 +618,11 @@ Return ONLY valid JSON:
         raw = _call_story_ai(prompt, v2=True)
         v2_data = _parse_json(raw)
 
-        v1_content["hook_v2"]   = v2_data.get("hook_v2", v1_hook)
-        v1_content["lesson_v2"] = v2_data.get("lesson_v2", v1_lesson)
+        _SENTINEL = {"unchanged", "...", "same", "no change", "keep", "n/a", ""}
+        hook_v2   = str(v2_data.get("hook_v2", "")).strip()
+        lesson_v2 = str(v2_data.get("lesson_v2", "")).strip()
+        v1_content["hook_v2"]   = hook_v2   if hook_v2   and hook_v2.lower()   not in _SENTINEL else v1_hook
+        v1_content["lesson_v2"] = lesson_v2 if lesson_v2 and lesson_v2.lower() not in _SENTINEL else v1_lesson
         print(f"  [V2] Hook: {v1_content['hook_v2'][:80]}")
 
         # Stage 2-V2: Scene Planner generates fresh queries

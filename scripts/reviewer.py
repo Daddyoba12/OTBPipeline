@@ -141,12 +141,11 @@ OVERALL = (sum of all 7 scores / 7) × 10. Round to nearest integer.
 
 IF OVERALL < {PASS_THRESHOLD}:
   - Identify every weak dimension (score < 8)
-  - Rewrite only the weak beats — keep strong beats unchanged
-  - The new story must fix ALL identified issues
+  - Rewrite ONLY the weak beats. For beats you keep unchanged, set their field to "" (empty string).
+  - NEVER write "unchanged" — only write the new text or "".
 
 IF OVERALL >= {PASS_THRESHOLD}:
-  - Set rewritten to false
-  - Do not change any beats
+  - Set rewritten=false. Set ALL beat fields to "" (empty string). Do not copy the original text back.
 
 Return ONLY valid JSON, no markdown:
 {{
@@ -163,11 +162,11 @@ Return ONLY valid JSON, no markdown:
   "verdict": "APPROVED or REWRITTEN",
   "issues": ["list of specific problems"],
   "rewritten": false,
-  "hook": "unchanged or improved",
-  "problem": "unchanged or improved",
-  "stakes": "unchanged or improved",
-  "resolution": "unchanged or improved",
-  "lesson": "unchanged or improved"
+  "hook": "",
+  "problem": "",
+  "stakes": "",
+  "resolution": "",
+  "lesson": ""
 }}"""
 
 
@@ -200,11 +199,13 @@ def final_review(story: dict, photo_result: dict, pillar: str) -> dict:
             for issue in issues:
                 print(f"    Issue: {issue}")
 
+        _SENTINEL = {"unchanged", "unchanged or improved", "...", "same", "no change", "keep", "n/a", ""}
         if rewritten:
             print(f"  [Reviewer] Score {overall} < {PASS_THRESHOLD} — improvements applied")
             for field in ("hook", "problem", "stakes", "resolution", "lesson"):
-                if result.get(field):
-                    story[field] = result[field]
+                new_val = str(result.get(field, "")).strip()
+                if new_val and new_val.lower() not in _SENTINEL:
+                    story[field] = new_val
         else:
             print(f"  [Reviewer] Score {overall} >= {PASS_THRESHOLD} — content approved")
 
