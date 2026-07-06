@@ -1016,13 +1016,32 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
     start  = time.time()
     offset = _load_offset()
     print(f"[Cmdr] Polling for Slot {slot} decision ({timeout_sec//60}min window)…")
+    _pa = DATA / f"pending_approval_{slot}.json"
+    _pa.write_text(json.dumps({"slot": slot, "since": datetime.now().isoformat()}),
+                   encoding="utf-8")
 
     while time.time() - start < timeout_sec:
-        # File-based edit signal — set by _edit_done() when operator finishes editing
+        # File-based edit signal — set by _edit_done() or web dashboard
         pending_edit = DATA / f"pending_edit_{slot}.json"
         if pending_edit.exists():
+            _pa.unlink(missing_ok=True)
             print(f"[Cmdr] Edit file detected for Slot {slot} — triggering re-render")
             return "edit"
+
+        # Web dashboard approval signal — written by /api/pipeline/approve
+        web_approval = DATA / f"web_approval_{slot}.json"
+        if web_approval.exists():
+            try:
+                d = json.loads(web_approval.read_text(encoding="utf-8"))
+                decision = d.get("decision", "")
+                web_approval.unlink(missing_ok=True)
+                if decision in ("post", "skip", "regen", "edit"):
+                    _pa.unlink(missing_ok=True)
+                    print(f"[Cmdr] Web dashboard decision: {decision} (Slot {slot})")
+                    _send(f"🌐 Slot {slot} — web dashboard: {decision}")
+                    return decision
+            except Exception:
+                web_approval.unlink(missing_ok=True)
 
         try:
             r = requests.get(
@@ -1048,15 +1067,19 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
                 pass
 
             if data == f"post_{slot}":
+                _pa.unlink(missing_ok=True)
                 _send(f"✅ Slot {slot} — posting now!")
                 return "post"
             elif data == f"skip_{slot}":
+                _pa.unlink(missing_ok=True)
                 _send(f"⏭ Slot {slot} — skipped.")
                 return "skip"
             elif data == f"regen_{slot}":
+                _pa.unlink(missing_ok=True)
                 _send(f"🔄 Slot {slot} — regenerating…")
                 return "regen"
 
+    _pa.unlink(missing_ok=True)
     print(f"[Cmdr] Slot {slot} — 30 min elapsed, auto-posting.")
     _send(f"⏱ Slot {slot} — 30 min window passed, posting V1 + V2 now.")
     return "timeout"
