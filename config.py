@@ -28,7 +28,7 @@ YOUTUBE_TOKEN = MAIN_BASE / "scripts" / "youtube_token.json"
 YOUTUBE_CREDS = MAIN_BASE / "scripts" / "youtube_credentials.json"
 
 # FFmpeg / font paths
-FONT_TITLE    = str(ASSETS / "fonts" / "Oswald-Bold.ttf")
+FONT_TITLE    = str(ASSETS / "fonts" / "BebasNeue-Regular.ttf")
 FONT_BODY     = str(ASSETS / "fonts" / "Montserrat-ExtraBold.ttf")
 FONT_TITLE_FB = r"C\:/Windows/Fonts/impact.ttf" if _ON_WINDOWS else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 FONT_BODY_FB  = r"C\:/Windows/Fonts/arialbd.ttf" if _ON_WINDOWS else "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"

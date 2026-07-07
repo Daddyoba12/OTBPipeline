@@ -32,6 +32,20 @@ CO_DIR.mkdir(exist_ok=True)
 ADMIN_PASSWORD  = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
 PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")  # shared secret for server-to-server calls from web commander
 
+# ── Supabase constants ─────────────────────────────────────────────────────────
+_SB_URL = "https://zwgngbzbdvnrdnanjded.supabase.co"
+_SB_KEY = (
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+    ".eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3Z25nYnpiZHZucmRuYW5qZGVkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTI5NTA0NSwiZXhwIjoyMDkwODcxMDQ1fQ"
+    ".jP_Ukh4Dwlxfiei5tyHblJ0psgCXntDwnnZBRQch9zw"
+)
+_SB_HDR = {
+    "apikey":        _SB_KEY,
+    "Authorization": f"Bearer {_SB_KEY}",
+    "Content-Type":  "application/json",
+    "Prefer":        "resolution=merge-duplicates",
+}
+
 # Maps file stem → human-readable label shown in the Revoice Studio video picker
 _VIDEO_LABELS = {
     "tiktok_v1":    "TikTok v1 — 12pm",
@@ -174,6 +188,78 @@ def _auth_or_secret(session_token: str | None, request: Request) -> dict | None:
         slug = request.headers.get("x-commander-slug", "boothop")
         return {"slug": slug, "company_id": -1, "tg_chat_id": "", "is_admin": 0}
     return None
+
+
+# ── Supabase helpers ───────────────────────────────────────────────────────────
+
+def _sb(method: str, path: str, **kwargs):
+    import requests as _r
+    try:
+        r = _r.request(method, f"{_SB_URL}/rest/v1/{path}", headers=_SB_HDR, timeout=15, **kwargs)
+        return r
+    except Exception as e:
+        print(f"[SB] {e}")
+        return None
+
+
+def _sb_pipeline_slots(slug: str = "boothop") -> dict:
+    r = _sb("GET", "otb_pipeline_state",
+            params={"company_slug": f"eq.{slug}", "slot": "gte.1", "order": "slot.asc"})
+    if not r or not r.ok:
+        return {}
+    rows = r.json()
+    result = {}
+    for row in rows:
+        s = str(row.get("slot", 0))
+        result[s] = {
+            "v1":                row.get("v1_url") or None,
+            "v2":                row.get("v2_url") or None,
+            "hook":              row.get("hook", ""),
+            "hook_v2":           row.get("hook_v2", ""),
+            "lesson":            row.get("lesson", ""),
+            "lesson_v2":         row.get("lesson_v2", ""),
+            "problem":           row.get("problem", ""),
+            "stakes":            row.get("stakes", ""),
+            "resolution":        row.get("resolution", ""),
+            "rendered_at":       row.get("rendered_at", ""),
+            "caption_tiktok":    row.get("caption_tiktok", ""),
+            "caption_instagram": row.get("caption_instagram", ""),
+            "pending_approval":  row.get("pending_approval", False),
+        }
+    return result
+
+
+def _sb_pipeline_status(slug: str = "boothop") -> dict | None:
+    r = _sb("GET", "otb_pipeline_state",
+            params={"company_slug": f"eq.{slug}", "slot": "eq.0", "limit": "1"})
+    if not r or not r.ok:
+        return None
+    rows = r.json()
+    if not rows:
+        return None
+    row = rows[0]
+    return {
+        "available":     True,
+        "today":         _today_str(),
+        "posts_today":   0,
+        "ran_slots":     json.loads(row.get("ran_slots_json", "[]") or "[]"),
+        "current_step":  row.get("current_step", ""),
+        "crash_log":     "",
+        "pending_slots": json.loads(row.get("pending_slots_json", "[]") or "[]"),
+        "active_jobs":   0,
+        "recent_posts":  [],
+    }
+
+
+def _sb_push_command(slug: str, slot: int, command: str, params: dict = None):
+    _sb("POST", "otb_pipeline_commands", json={
+        "company_slug": slug,
+        "slot":         slot,
+        "command":      command,
+        "params_json":  json.dumps(params or {}),
+        "status":       "pending",
+        "created_at":   datetime.now().isoformat(),
+    })
 
 # ── FFmpeg helpers ─────────────────────────────────────────────────────────────
 
@@ -760,11 +846,13 @@ def _run_slot_bg(slot: int, job_id: str):
 
 
 @app.get("/api/pipeline/status")
-async def pipeline_status(session_token: str | None = Cookie(None)):
-    if not _get_sess(session_token):
+async def pipeline_status(request: Request, session_token: str | None = Cookie(None)):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
         raise HTTPException(401)
     if not OUTPUT_DIR.exists():
-        return {"available": False}
+        sb_status = _sb_pipeline_status(sess.get("slug", "boothop"))
+        return sb_status if sb_status else {"available": False}
     today         = _today_str()
     post_log      = _load_json(DATA / "post_log.json", [])
     ran_today_raw = _load_json(DATA / "pipeline_ran_today.json", {})
@@ -801,18 +889,28 @@ async def pipeline_status(session_token: str | None = Cookie(None)):
 
 
 @app.get("/api/pipeline/slots")
-async def pipeline_slots(session_token: str | None = Cookie(None)):
-    if not _get_sess(session_token):
+async def pipeline_slots(request: Request, session_token: str | None = Cookie(None)):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
         raise HTTPException(401)
+    if OUTPUT_DIR.exists():
+        local = _list_slot_videos()
+        if any(v.get("v1") or v.get("hook") for v in local.values()):
+            return local
+    sb_slots = _sb_pipeline_slots(sess.get("slug", "boothop"))
+    if sb_slots:
+        return sb_slots
     if not OUTPUT_DIR.exists():
-        raise HTTPException(503, "Pipeline output directory not found")
+        raise HTTPException(503, "Pipeline output not available")
     return _list_slot_videos()
 
 
 @app.get("/api/pipeline/video")
-async def serve_pipeline_video(path: str, session_token: str | None = Cookie(None)):
-    if not _get_sess(session_token):
+async def serve_pipeline_video(request: Request, path: str, session_token: str | None = Cookie(None)):
+    if not _auth_or_secret(session_token, request):
         raise HTTPException(401)
+    if path.startswith("http://") or path.startswith("https://"):
+        return RedirectResponse(path)
     p = Path(path)
     if not p.exists() or not p.is_file():
         raise HTTPException(404)
@@ -849,19 +947,23 @@ async def pipeline_job_status(job_id: str, session_token: str | None = Cookie(No
 
 @app.post("/api/pipeline/approve")
 async def approve_slot(
+    request:       Request,
     slot:          int = Form(...),
     decision:      str = Form(...),
     session_token: str | None = Cookie(None),
 ):
-    if not _get_sess(session_token):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
         raise HTTPException(401)
     if decision not in ("post", "skip", "regen"):
         raise HTTPException(400, "decision must be post/skip/regen")
+    DATA.mkdir(parents=True, exist_ok=True)
     (DATA / f"web_approval_{slot}.json").write_text(
         json.dumps({"decision": decision, "slot": slot,
                     "ts": datetime.now().isoformat()}),
         encoding="utf-8",
     )
+    _sb_push_command(sess.get("slug", "boothop"), slot, decision)
     return {"ok": True}
 
 
@@ -983,18 +1085,32 @@ async def cmdr_bake_alias(
     with open(vp, "wb") as fh:
         while chunk := await voice.read(1 << 20):
             fh.write(chunk)
+    # Download HTTP video URLs to a local temp file
+    video_local = video
+    if video.startswith("http://") or video.startswith("https://"):
+        import requests as _r
+        tmp_vid = co / f"video_{int(time.time())}.mp4"
+        try:
+            resp = _r.get(video, stream=True, timeout=120)
+            resp.raise_for_status()
+            with open(tmp_vid, "wb") as fh:
+                for chunk in resp.iter_content(1 << 20):
+                    fh.write(chunk)
+            video_local = str(tmp_vid)
+        except Exception as e:
+            raise HTTPException(400, f"Failed to download video: {e}")
     music_resolved = _resolve_music(music) if music else None
     with _db() as c:
         cur = c.execute(
             "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
             "VALUES (?,?,?,?,'pending')",
-            (-1, video, str(vp), music_resolved or ""),
+            (-1, video_local, str(vp), music_resolved or ""),
         )
         bake_id = cur.lastrowid
     job_id = f"cbake_{bake_id}_{int(time.time())}"
     with _jlock:
         _jobs[job_id] = {"status": "pending", "bake_id": bake_id}
-    background.add_task(_bake_worker, job_id, bake_id, video, str(vp),
+    background.add_task(_bake_worker, job_id, bake_id, video_local, str(vp),
                         music_resolved, "", co)
     return {"job_id": job_id, "bake_id": bake_id}
 
