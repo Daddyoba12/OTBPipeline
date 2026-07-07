@@ -176,12 +176,13 @@ def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
         return True
 
     except ImportError:
-        # ffmpeg fallback — trim from 30s into track
+        # ffmpeg fallback — trim from 30s into track with dynamic fade
         try:
+            fade_out_st = max(0, duration_s - 1.5)
             res = subprocess.run(
                 ["ffmpeg", "-y", "-i", str(src_path),
                  "-ss", "30", "-t", str(duration_s),
-                 "-af", "afade=t=in:st=0:d=0.5,afade=t=out:st=29:d=1.2",
+                 "-af", f"afade=t=in:st=0:d=0.5,afade=t=out:st={fade_out_st}:d=1.5",
                  "-b:a", "192k", str(out_path)],
                 capture_output=True, timeout=60,
             )
@@ -261,7 +262,7 @@ def _try_track(item: dict, source_label: str, slot_out: Path, used_titles: set):
     ok = _download_soundcloud(query, raw) or _download_youtube(vid, raw)
     if not ok:
         return None
-    hooked = _extract_hook(raw, slot_out, duration_s=30)
+    hooked = _extract_hook(raw, slot_out, duration_s=60)
     raw.unlink(missing_ok=True)
     if hooked or slot_out.exists():
         return {"title": title, "artist": item.get("channel", "?"),

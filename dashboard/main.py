@@ -29,7 +29,8 @@ CO_DIR      = BASE_DIR / "companies"
 DB_PATH     = BASE_DIR / "otb.db"
 CO_DIR.mkdir(exist_ok=True)
 
-ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
+ADMIN_PASSWORD  = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
+PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")  # shared secret for server-to-server calls from web commander
 
 # Maps file stem → human-readable label shown in the Revoice Studio video picker
 _VIDEO_LABELS = {
@@ -154,6 +155,26 @@ def _co_dir(slug: str) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     return d
 
+def _resolve_music(music: str | None) -> str | None:
+    """Resolve a music path — accepts absolute paths or relative like 'archive/track.mp3'."""
+    if not music:
+        return None
+    p = Path(music)
+    if p.is_absolute():
+        return str(p) if p.exists() else None
+    abs_p = MUSIC_DIR / music
+    return str(abs_p) if abs_p.exists() else None
+
+def _auth_or_secret(session_token: str | None, request: Request) -> dict | None:
+    """Accept local session cookie OR x-pipeline-secret header (server-to-server)."""
+    sess = _get_sess(session_token)
+    if sess:
+        return sess
+    if PIPELINE_SECRET and request.headers.get("x-pipeline-secret") == PIPELINE_SECRET:
+        slug = request.headers.get("x-commander-slug", "boothop")
+        return {"slug": slug, "company_id": -1, "tg_chat_id": "", "is_admin": 0}
+    return None
+
 # ── FFmpeg helpers ─────────────────────────────────────────────────────────────
 
 def _duration(path: str) -> float:
@@ -201,9 +222,10 @@ def _bake_worker(job_id: str, bake_id: int, video: str, voice: str,
         subprocess.run([FFMPEG, "-y", "-i", video, "-c:v", "copy", "-an", ts],
                        check=True, capture_output=True)
 
-        if music and Path(music).exists():
+        music_abs = _resolve_music(music)
+        if music_abs:
             subprocess.run([
-                FFMPEG, "-y", "-i", voice, "-i", music,
+                FFMPEG, "-y", "-i", voice, "-stream_loop", "-1", "-i", music_abs,
                 "-filter_complex",
                 f"[1:a]volume=0.18[m];[0:a][m]amix=inputs=2:duration=longest:normalize=0[mx];"
                 f"[mx]afade=t=out:st={fade}:d=2[out]",
@@ -428,10 +450,11 @@ async def serve_video_file(path: str, session_token: str | None = Cookie(None)):
 
 @app.post("/api/upload-video")
 async def upload_video(
+    request:       Request,
     file:          UploadFile = File(...),
     session_token: str | None = Cookie(None),
 ):
-    sess = _get_sess(session_token)
+    sess = _auth_or_secret(session_token, request)
     if not sess:
         raise HTTPException(401)
     cdir = _co_dir(sess["slug"])
@@ -442,13 +465,14 @@ async def upload_video(
 
 @app.post("/api/bake")
 async def bake(
+    request:       Request,
     background:    BackgroundTasks,
     voice:         UploadFile = File(...),
     video_path:    str = Form(...),
     music_path:    str = Form(""),
     session_token: str | None = Cookie(None),
 ):
-    sess = _get_sess(session_token)
+    sess = _auth_or_secret(session_token, request)
     if not sess:
         raise HTTPException(401)
     if not Path(video_path).exists():
@@ -478,8 +502,8 @@ async def bake(
 
 
 @app.get("/api/job/{job_id}")
-async def job_status(job_id: str, session_token: str | None = Cookie(None)):
-    if not _get_sess(session_token):
+async def job_status(request: Request, job_id: str, session_token: str | None = Cookie(None)):
+    if not _auth_or_secret(session_token, request):
         raise HTTPException(401)
     with _jlock:
         return _jobs.get(job_id, {"status": "unknown"})
@@ -487,10 +511,11 @@ async def job_status(job_id: str, session_token: str | None = Cookie(None)):
 
 @app.post("/api/youtube-music")
 async def yt_music(
+    request:       Request,
     query:         str = Form(...),
     session_token: str | None = Cookie(None),
 ):
-    sess = _get_sess(session_token)
+    sess = _auth_or_secret(session_token, request)
     if not sess:
         raise HTTPException(401)
     dl_dir = MUSIC_DIR / "yt_downloads"
@@ -522,15 +547,18 @@ async def yt_music(
 
 
 @app.get("/api/download-bake/{bake_id}")
-async def download_bake(bake_id: int, session_token: str | None = Cookie(None)):
-    sess = _get_sess(session_token)
+async def download_bake(request: Request, bake_id: int, session_token: str | None = Cookie(None)):
+    sess = _auth_or_secret(session_token, request)
     if not sess:
         raise HTTPException(401)
     with _db() as c:
-        row = c.execute(
-            "SELECT * FROM bakes WHERE id=? AND company_id=?",
-            (bake_id, sess["company_id"])
-        ).fetchone()
+        if sess["company_id"] == -1:
+            row = c.execute("SELECT * FROM bakes WHERE id=?", (bake_id,)).fetchone()
+        else:
+            row = c.execute(
+                "SELECT * FROM bakes WHERE id=? AND company_id=?",
+                (bake_id, sess["company_id"])
+            ).fetchone()
     if not row or not row["output_path"] or not Path(row["output_path"]).exists():
         raise HTTPException(404)
     return FileResponse(row["output_path"], media_type="video/mp4",
@@ -916,6 +944,122 @@ async def weekly_report_api(session_token: str | None = Cookie(None)):
         "by_slot":        by_slot,
         "newsflash_week": len(nf_week),
     }
+
+
+@app.get("/api/post-log")
+async def api_post_log(request: Request, days: int = 14):
+    """Server-to-server endpoint for web Commander to read post history."""
+    if PIPELINE_SECRET:
+        if request.headers.get("x-pipeline-secret") != PIPELINE_SECRET:
+            raise HTTPException(401)
+    log_path = DATA / "post_log.json"
+    if not log_path.exists():
+        return []
+    all_entries = _load_json(log_path, [])
+    cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+    recent = [e for e in all_entries if e.get("posted_at", "") >= cutoff]
+    recent.sort(key=lambda e: e.get("posted_at", ""), reverse=True)
+    return recent[:100]
+
+
+# ── Commander alias routes (used by web Commander portal via PIPELINE_BASE_URL) ──
+
+@app.post("/commander/api/bake")
+async def cmdr_bake_alias(
+    request:    Request,
+    background: BackgroundTasks,
+    video:      str = Form(...),
+    voice:      UploadFile = File(None),
+    music:      str = Form(""),
+    session_token: str | None = Cookie(None),
+):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
+        raise HTTPException(401)
+    if not voice or not voice.filename:
+        raise HTTPException(400, "voice file required")
+    co = _co_dir(sess["slug"])
+    vp = co / f"voice_{int(time.time())}.webm"
+    with open(vp, "wb") as fh:
+        while chunk := await voice.read(1 << 20):
+            fh.write(chunk)
+    music_resolved = _resolve_music(music) if music else None
+    with _db() as c:
+        cur = c.execute(
+            "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
+            "VALUES (?,?,?,?,'pending')",
+            (-1, video, str(vp), music_resolved or ""),
+        )
+        bake_id = cur.lastrowid
+    job_id = f"cbake_{bake_id}_{int(time.time())}"
+    with _jlock:
+        _jobs[job_id] = {"status": "pending", "bake_id": bake_id}
+    background.add_task(_bake_worker, job_id, bake_id, video, str(vp),
+                        music_resolved, "", co)
+    return {"job_id": job_id, "bake_id": bake_id}
+
+
+@app.get("/commander/api/job/{job_id}")
+async def cmdr_job_alias(request: Request, job_id: str, session_token: str | None = Cookie(None)):
+    if not _auth_or_secret(session_token, request):
+        raise HTTPException(401)
+    with _jlock:
+        return _jobs.get(job_id, {"status": "unknown"})
+
+
+@app.get("/commander/api/download-bake/{bake_id}")
+async def cmdr_download_alias(request: Request, bake_id: int, session_token: str | None = Cookie(None)):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
+        raise HTTPException(401)
+    with _db() as c:
+        row = c.execute("SELECT * FROM bakes WHERE id=?", (bake_id,)).fetchone()
+    if not row or not row["output_path"] or not Path(row["output_path"]).exists():
+        raise HTTPException(404)
+    return FileResponse(row["output_path"], media_type="video/mp4",
+                        filename=f"revoiced_{bake_id}.mp4")
+
+
+@app.post("/commander/api/upload-video")
+async def cmdr_upload_alias(
+    request: Request,
+    file: UploadFile = File(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
+        raise HTTPException(401)
+    co = _co_dir(sess["slug"])
+    dest = co / f"video_{int(time.time())}.mp4"
+    dest.write_bytes(await file.read())
+    return {"path": str(dest), "name": dest.name}
+
+
+@app.post("/commander/api/youtube-music")
+async def cmdr_yt_music_alias(
+    request: Request,
+    query: str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
+        raise HTTPException(401)
+    dl_dir = MUSIC_DIR / "yt_downloads"
+    dl_dir.mkdir(parents=True, exist_ok=True)
+    safe   = re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
+    target = query if query.startswith("http") else f"ytsearch1:{query}"
+    final  = dl_dir / f"{safe}.mp3"
+    try:
+        subprocess.run(
+            ["yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "192K",
+             "-o", str(final), target],
+            check=True, capture_output=True, timeout=60,
+        )
+    except Exception as e:
+        raise HTTPException(500, f"yt-dlp error: {e}")
+    if not final.exists():
+        raise HTTPException(500, "Download failed")
+    return {"label": f"[YouTube] {final.name}", "path": str(final)}
 
 
 if __name__ == "__main__":
