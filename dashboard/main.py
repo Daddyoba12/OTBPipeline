@@ -170,9 +170,26 @@ def _co_dir(slug: str) -> Path:
     return d
 
 def _resolve_music(music: str | None) -> str | None:
-    """Resolve a music path — accepts absolute paths or relative like 'archive/track.mp3'."""
+    """Resolve a music path — accepts absolute, relative, or https:// Supabase Storage URLs."""
     if not music:
         return None
+    # Supabase Storage URL — download to local cache
+    if music.startswith("http://") or music.startswith("https://"):
+        fname = music.split("/")[-1].split("?")[0]
+        cache = MUSIC_DIR / "_cache"
+        cache.mkdir(parents=True, exist_ok=True)
+        dest = cache / fname
+        if not dest.exists():
+            try:
+                import requests as _r
+                r = _r.get(music, timeout=60)
+                if r.ok:
+                    dest.write_bytes(r.content)
+                else:
+                    return None
+            except Exception:
+                return None
+        return str(dest)
     p = Path(music)
     if p.is_absolute():
         return str(p) if p.exists() else None
@@ -1151,22 +1168,38 @@ async def cmdr_upload_alias(
     return {"path": str(dest), "name": dest.name}
 
 
+_SB_MUSIC_BASE = "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/music-files"
+
 @app.get("/commander/api/music-list")
 async def cmdr_music_list(request: Request, session_token: str | None = Cookie(None)):
-    """Return all local music files for the Revoice studio music picker."""
+    """Return all music files — local if present, else Supabase Storage URL."""
     if not _auth_or_secret(session_token, request):
         raise HTTPException(401)
     tracks = []
     for folder, label in [
-        (MUSIC_DIR / "archive",      "Archive"),
-        (MUSIC_DIR / "daily",        "Daily"),
-        (MUSIC_DIR / "yt_downloads", "YouTube"),
-        (MUSIC_DIR / "clips",        "Clips"),
+        ("archive",      "Archive"),
+        ("daily",        "Daily"),
+        ("yt_downloads", "YouTube"),
+        ("clips",        "Clips"),
     ]:
-        if folder.exists():
-            for f in sorted(folder.glob("*.mp3")):
-                rel = f"{folder.name}/{f.name}"
-                tracks.append({"label": f"[{label}] {f.stem}", "path": rel})
+        d = MUSIC_DIR / folder
+        if d.exists():
+            for f in sorted(d.glob("*.mp3")):
+                tracks.append({"label": f"[{label}] {f.stem}", "path": f"{folder}/{f.name}"})
+        else:
+            # Folder not local — advertise Supabase Storage URLs so bake can download
+            import requests as _r
+            try:
+                r = _sb("GET", "", params={})  # can't list bucket via REST easily
+            except Exception:
+                pass
+    # If no local archive, add well-known tracks from Supabase storage
+    if not (MUSIC_DIR / "archive").exists():
+        for i in range(1, 68):
+            n = f"track_{i:02d}"
+            tracks.append({"label": f"[Archive] {n}", "path": f"{_SB_MUSIC_BASE}/archive/{n}.mp3"})
+        for n in ["Rora", "WHY_LOVE"]:
+            tracks.append({"label": f"[Archive] {n}", "path": f"{_SB_MUSIC_BASE}/archive/{n}.mp3"})
     return tracks
 
 
