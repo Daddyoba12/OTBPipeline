@@ -343,13 +343,8 @@ def _rs_bake(st: dict):
 
         if has_music:
             subprocess.run(
-                [FFMPEG, "-y", "-i", music_path, "-ss", "0", "-t", str(trim_sec),
-                 "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", str(tmp_music)],
-                check=True, capture_output=True,
-            )
-            subprocess.run(
                 [FFMPEG, "-y",
-                 "-i", str(recorded_path), "-i", str(tmp_music),
+                 "-i", str(recorded_path), "-stream_loop", "-1", "-i", music_path,
                  "-filter_complex",
                  f"[1:a]volume=0.18[m];[0:a][m]amix=inputs=2:duration=longest:normalize=0[mx];"
                  f"[mx]afade=t=out:st={fade_st}:d=2[out]",
