@@ -94,44 +94,44 @@ BEATS = [
 # color     : hex string, no '#'
 BEAT_STYLE = {
     "hook": {
-        "size": 72, "size_cont": 56,
+        "size": 78, "size_cont": 60,
         "color": "FFE600",
-        "y_start": 160,
-        "line_gap": 90,
+        "y_start": 100,   # shifted up to give room for 4th line
+        "line_gap": 96,
         "max_chars": 20,
-        "max_lines": 3,
+        "max_lines": 4,
         "title_font": True,
     },
     "problem": {
         "size": 52, "color": "FFFFFF",
-        "y_start": 820,
+        "y_start": 780,   # shifted up 40px to fit 4th line
         "line_gap": 70,
         "max_chars": 26,
-        "max_lines": 3,
+        "max_lines": 4,
         "title_font": False,
     },
     "stakes": {
         "size": 58, "color": "FF8C00",
-        "y_start": 780,
+        "y_start": 730,   # shifted up 50px to fit 4th line
         "line_gap": 78,
         "max_chars": 22,
-        "max_lines": 3,
+        "max_lines": 4,
         "title_font": True,
     },
     "resolution": {
         "size": 52, "color": "FFFFFF",
-        "y_start": 820,
+        "y_start": 780,   # shifted up 40px to fit 4th line
         "line_gap": 70,
         "max_chars": 26,
-        "max_lines": 3,
+        "max_lines": 4,
         "title_font": False,
     },
     "lesson_pre": {
         "size": 48, "color": "FFFFFF",
-        "y_start": 820,
+        "y_start": 780,   # shifted up 40px to fit 4th line
         "line_gap": 65,
         "max_chars": 28,
-        "max_lines": 3,
+        "max_lines": 4,
         "title_font": False,
     },
 }
@@ -220,16 +220,20 @@ def _split_lines(text: str, max_chars: int, max_lines: int) -> list[str]:
 
 def _split_hook(text: str) -> list[str]:
     """BHP-style hook split: first sentence (<=8 words) = punch line.
-    Rest wraps at 22 chars into up to 2 continuation lines.
+    Punch line is also word-wrapped at 20 chars so it never renders as one
+    overlong line at size=72 (which overflows the 1080px frame or looks cramped).
+    Continuation wraps at 22 chars into up to 2 extra lines.
     """
     import re as _re
     clean = _esc(text)
     m = _re.search(r"[.!?]", clean[:80])
     if m and len(clean[: m.start()].split()) <= 8:
-        punch = clean[: m.start()].strip()
-        rest  = clean[m.end() :].strip()
-        return [punch] + _split_lines(rest, 22, 2)
-    return _split_lines(clean, 24, 3)
+        punch       = clean[: m.start()].strip()
+        rest        = clean[m.end() :].strip()
+        punch_lines = _split_lines(punch, 20, 2)
+        rest_lines  = _split_lines(rest, 22, max(1, 4 - len(punch_lines)))
+        return (punch_lines + rest_lines)[:4]
+    return _split_lines(clean, 24, 4)
 
 
 _BEAT_LABELS = {
@@ -285,8 +289,8 @@ def _drawtext_filters(text: str, beat: str, style_override: dict | None = None) 
             f"fontcolor=0x{color}:"
             f"x=(w-text_w)/2:"
             f"y={y}:"
-            f"box=1:boxcolor=0x000000@0.55:boxborderw=14:"
-            f"shadowx=2:shadowy=2:shadowcolor=0x000000@0.8"
+            f"box=1:boxcolor=0x000000@0.72:boxborderw=18:"
+            f"shadowx=3:shadowy=3:shadowcolor=0x000000"
         )
     return ",".join(parts)
 
@@ -605,12 +609,18 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
 
     total = float(TOTAL_DUR)
     print(f"    [Music] Using: {track.name}")
+    # -stream_loop -1 loops the audio file at the demuxer level (reliable across all
+    # FFmpeg versions). The old aloop filter approach stopped at the track's natural
+    # length (~22s for short tracks) because the filter isn't guaranteed to loop.
     _ff(
-        "-i", str(src), "-i", str(track),
+        "-i", str(src),
+        "-stream_loop", "-1", "-i", str(track),
         "-filter_complex",
-        f"[1:a]aloop=loop=-1:size=2000000000,atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
+        f"[1:a]atrim=0:{total},afade=t=out:st={total-3}:d=3,volume=0.85[aout]",
         "-map", "0:v", "-map", "[aout]",
-        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", str(dest),
+        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+        "-t", str(total),
+        str(dest),
     )
     return track
 
@@ -652,10 +662,9 @@ def render_video(content: dict, slot: int, output_path: str,
     if len(queries) < N_CLIPS:
         queries += ["diaspora delivery uk"] * (N_CLIPS - len(queries))
 
-    # V2: rotate query order so footage is drawn from a completely different search pool
-    if is_v2:
-        mid = len(queries) // 2
-        queries = queries[mid:] + queries[:mid]
+    # V2 uses the same visual queries as V1 — exclude_ids ensures V2 gets different
+    # footage. The old half-rotation shifted resolution/stakes queries into hook/problem
+    # positions (beat mismatch), causing more Pexels failures and blank placeholder clips.
 
     beat_style = BEAT_STYLE_V2 if is_v2 else None   # None = use default BEAT_STYLE
 
