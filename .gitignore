@@ -13,6 +13,9 @@ env/
 output/
 temp/
 music/daily/
+music/archive/
+music/clips/
+music/yt_downloads/
 music/_tmp/
 
 # Runtime data — sync separately, not via git
