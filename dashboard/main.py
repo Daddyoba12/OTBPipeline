@@ -1151,6 +1151,25 @@ async def cmdr_upload_alias(
     return {"path": str(dest), "name": dest.name}
 
 
+@app.get("/commander/api/music-list")
+async def cmdr_music_list(request: Request, session_token: str | None = Cookie(None)):
+    """Return all local music files for the Revoice studio music picker."""
+    if not _auth_or_secret(session_token, request):
+        raise HTTPException(401)
+    tracks = []
+    for folder, label in [
+        (MUSIC_DIR / "archive",      "Archive"),
+        (MUSIC_DIR / "daily",        "Daily"),
+        (MUSIC_DIR / "yt_downloads", "YouTube"),
+        (MUSIC_DIR / "clips",        "Clips"),
+    ]:
+        if folder.exists():
+            for f in sorted(folder.glob("*.mp3")):
+                rel = f"{folder.name}/{f.name}"
+                tracks.append({"label": f"[{label}] {f.stem}", "path": rel})
+    return tracks
+
+
 @app.post("/commander/api/youtube-music")
 async def cmdr_yt_music_alias(
     request: Request,
@@ -1175,7 +1194,8 @@ async def cmdr_yt_music_alias(
         raise HTTPException(500, f"yt-dlp error: {e}")
     if not final.exists():
         raise HTTPException(500, "Download failed")
-    return {"label": f"[YouTube] {final.name}", "path": str(final)}
+    rel_path = f"yt_downloads/{final.name}"
+    return {"label": f"[YouTube] {final.stem}", "path": rel_path}
 
 
 if __name__ == "__main__":
