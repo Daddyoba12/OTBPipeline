@@ -23,6 +23,13 @@ SUPABASE_KEY = (
 )
 BUCKET = "promo-videos"
 
+# Default company slug — overridden by config if available
+try:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from config import PIPELINE_SLUG as _DEFAULT_SLUG
+except Exception:
+    _DEFAULT_SLUG = "boothop"
+
 _HDR = {
     "apikey":        SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -78,17 +85,20 @@ def push_slot_state(
     v1_path: str = "",
     v2_path: str = "",
     pending_approval: bool = True,
+    company_slug: str = "",
 ) -> bool:
     """Upsert slot row. Uploads V1/V2 videos to Supabase storage first."""
+    slug = company_slug or _DEFAULT_SLUG
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     v1_url = v2_url = ""
 
     if v1_path:
-        v1_url = _upload_video(v1_path, f"pipeline/slot{slot}_v1_{ts}.mp4")
+        v1_url = _upload_video(v1_path, f"pipeline/{slug}/slot{slot}_v1_{ts}.mp4")
     if v2_path:
-        v2_url = _upload_video(v2_path, f"pipeline/slot{slot}_v2_{ts}.mp4")
+        v2_url = _upload_video(v2_path, f"pipeline/{slug}/slot{slot}_v2_{ts}.mp4")
 
     row = {
+        "company_slug":       slug,
         "slot":               slot,
         "hook":               content.get("hook",               ""),
         "hook_v2":            content.get("hook_v2",            ""),
@@ -114,10 +124,14 @@ def push_slot_state(
     return False
 
 
-def clear_slot_pending(slot: int):
+def clear_slot_pending(slot: int, company_slug: str = ""):
     """Clear pending_approval flag after decision (post/skip/regen/edit)."""
-    _rest("PATCH", f"otb_pipeline_state?slot=eq.{slot}",
-          json={"pending_approval": False, "updated_at": datetime.now().isoformat()})
+    slug = company_slug or _DEFAULT_SLUG
+    _rest(
+        "PATCH",
+        f"otb_pipeline_state?company_slug=eq.{slug}&slot=eq.{slot}",
+        json={"pending_approval": False, "updated_at": datetime.now().isoformat()},
+    )
 
 
 def push_global_status(
@@ -125,9 +139,12 @@ def push_global_status(
     posts_today: int = 0,
     ran_slots: list = None,
     pending_slots: list = None,
+    company_slug: str = "",
 ):
     """Upsert slot=0 row with global pipeline status."""
+    slug = company_slug or _DEFAULT_SLUG
     row = {
+        "company_slug":       slug,
         "slot":               0,
         "current_step":       current_step,
         "posts_today":        posts_today,
@@ -138,17 +155,19 @@ def push_global_status(
     _rest("POST", "otb_pipeline_state", json=row)
 
 
-def poll_pending_commands(slot: int) -> list[dict]:
+def poll_pending_commands(slot: int, company_slug: str = "") -> list[dict]:
     """Return list of pending commands for this slot (oldest first)."""
+    slug = company_slug or _DEFAULT_SLUG
     try:
         r = requests.get(
             f"{SUPABASE_URL}/rest/v1/otb_pipeline_commands",
             headers=_HDR,
             params={
-                "slot":   f"eq.{slot}",
-                "status": "eq.pending",
-                "order":  "created_at.asc",
-                "limit":  "5",
+                "company_slug": f"eq.{slug}",
+                "slot":         f"eq.{slot}",
+                "status":       "eq.pending",
+                "order":        "created_at.asc",
+                "limit":        "5",
             },
             timeout=15,
         )
@@ -161,5 +180,8 @@ def poll_pending_commands(slot: int) -> list[dict]:
 
 def mark_command_done(cmd_id: int, status: str = "done"):
     """Mark a command as done or failed."""
-    _rest("PATCH", f"otb_pipeline_commands?id=eq.{cmd_id}",
-          json={"status": status, "done_at": datetime.now().isoformat()})
+    _rest(
+        "PATCH",
+        f"otb_pipeline_commands?id=eq.{cmd_id}",
+        json={"status": status, "done_at": datetime.now().isoformat()},
+    )
