@@ -19,8 +19,33 @@ from config import (
     PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
     VIDEO_W, VIDEO_H, VIDEO_FPS,
     CLIP_DUR, N_CLIPS, LESSON_DUR, BRAND_DUR, TOTAL_DUR,
-    PROGRESS_COLOR, PROGRESS_H,
+    PROGRESS_COLOR, PROGRESS_H, DATA,
 )
+
+# ── 14-day video clip dedup ───────────────────────────────────────────────────
+_VIDEO_LOG = DATA / "video_clip_log.json"
+_VIDEO_COOLDOWN_DAYS = 14
+
+def _load_video_log() -> list:
+    if _VIDEO_LOG.exists():
+        try: return json.loads(_VIDEO_LOG.read_text(encoding="utf-8"))
+        except Exception: return []
+    return []
+
+def _save_video_log(clip_ids: set):
+    from datetime import datetime
+    log = _load_video_log()
+    now = datetime.now().isoformat()
+    for cid in clip_ids:
+        log.append({"id": str(cid), "logged_at": now})
+    # Keep 90 days rolling
+    _VIDEO_LOG.write_text(json.dumps(log[-500:], indent=2), encoding="utf-8")
+
+def _recently_used_video_ids() -> set:
+    from datetime import datetime, timedelta
+    log    = _load_video_log()
+    cutoff = (datetime.now() - timedelta(days=_VIDEO_COOLDOWN_DAYS)).isoformat()
+    return {e["id"] for e in log if e.get("logged_at", "") > cutoff}
 
 import requests
 from query_learner import report_hit
@@ -679,7 +704,8 @@ def render_video(content: dict, slot: int, output_path: str,
     TEMP.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)
     prefix = f"otb_slot{slot}_{version}"
-    used_ids: set = set(exclude_ids or [])
+    # Seed used_ids with 14-day history so we never repeat clips across days
+    used_ids: set = _recently_used_video_ids() | set(exclude_ids or [])
     own_ids: set  = set()   # IDs found by THIS render (returned to caller)
     proc_clips: list = []
 
@@ -806,9 +832,12 @@ def render_video(content: dict, slot: int, output_path: str,
     ok = Path(output_path).exists() and Path(output_path).stat().st_size > 500_000
     if ok:
         size_mb = Path(output_path).stat().st_size // 1_048_576
-        print(f"  [Render-{version.upper()}] Done â€” {size_mb}MB -> {output_path}")
+        print(f”  [Render-{version.upper()}] Done â€” {size_mb}MB -> {output_path}”)
+        if own_ids:
+            _save_video_log(own_ids)
+            print(f”  [Render-{version.upper()}] Logged {len(own_ids)} clip IDs (14-day cooldown)”)
     else:
-        print(f"  [Render-{version.upper()}] Output missing or too small")
+        print(f”  [Render-{version.upper()}] Output missing or too small”)
     return ok, own_ids
 
 
