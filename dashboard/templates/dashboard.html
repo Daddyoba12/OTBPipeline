@@ -147,7 +147,7 @@ select:focus{border-color:var(--or)}
     <div class="logo">OTB Pipeline</div>
     <div class="co-name">{{ company.name }}</div>
   </div>
-  <a href="/logout" class="logout">Sign out</a>
+  <a href="{{ bp }}/logout" class="logout">Sign out</a>
 </nav>
 
 <div class="wrap">
@@ -283,6 +283,8 @@ select:focus{border-color:var(--or)}
 </div>
 
 <script>
+const BASE = '{{ bp }}';  // empty locally, "/videoEditor" when proxied via Next.js
+
 // ── Tabs ────────────────────────────────────────────────────────
 function switchTab(id, btn) {
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -313,7 +315,7 @@ function esc(s) {
 // ── Status ──────────────────────────────────────────────────────
 async function loadStatus() {
   try {
-    const s = await fetch('/api/pipeline/status').then(r => r.json());
+    const s = await fetch(BASE + '/api/pipeline/status').then(r => r.json());
     if (!s.available) {
       document.getElementById('status-bar').innerHTML =
         '<div class="stat-pill"><div class="sdot sdot-muted"></div>Pipeline output not found on this machine</div>';
@@ -370,7 +372,7 @@ async function loadStatus() {
 // ── Slots ───────────────────────────────────────────────────────
 async function loadSlots() {
   try {
-    const data = await fetch('/api/pipeline/slots').then(r => r.json());
+    const data = await fetch(BASE + '/api/pipeline/slots').then(r => r.json());
     _slotsData = data;
     renderSlots(data);
   } catch(e) {
@@ -379,7 +381,7 @@ async function loadSlots() {
   }
 }
 
-function vidUrl(p) { return '/api/pipeline/video?path=' + encodeURIComponent(p); }
+function vidUrl(p) { return BASE + '/api/pipeline/video?path=' + encodeURIComponent(p); }
 
 function renderSlots(data) {
   const c = document.getElementById('slots-container');
@@ -434,13 +436,13 @@ function renderSlots(data) {
   <div class="edit-panel ${_editOpen.has(n)?'open':''}" id="ep-${n}">
     <div style="font-size:.78rem;color:var(--muted);margin-bottom:10px">Fill only the fields you want to change — blank fields are left as-is.</div>
     <div class="edit-grid">
-      <div class="edit-field"><label>Hook (V1)</label><textarea id="ef-${n}-hook" rows="2">${esc(s.hook||'')}</textarea></div>
-      <div class="edit-field"><label>Problem</label><textarea id="ef-${n}-problem" rows="2">${esc(s.problem||'')}</textarea></div>
-      <div class="edit-field"><label>Stakes</label><textarea id="ef-${n}-stakes" rows="2">${esc(s.stakes||'')}</textarea></div>
-      <div class="edit-field"><label>Resolution</label><textarea id="ef-${n}-resolution" rows="2">${esc(s.resolution||'')}</textarea></div>
-      <div class="edit-field full"><label>Lesson (closing line)</label><textarea id="ef-${n}-lesson" rows="2">${esc(s.lesson||'')}</textarea></div>
-      <div class="edit-field"><label>Caption — TikTok</label><textarea id="ef-${n}-caption_tiktok" rows="2">${esc(s.caption_tiktok||'')}</textarea></div>
-      <div class="edit-field"><label>Caption — Instagram</label><textarea id="ef-${n}-caption_instagram" rows="2">${esc(s.caption_instagram||'')}</textarea></div>
+      <div class="edit-field"><label>Hook (V1)</label><textarea id="ef-${n}-hook" rows="2"></textarea></div>
+      <div class="edit-field"><label>Problem</label><textarea id="ef-${n}-problem" rows="2"></textarea></div>
+      <div class="edit-field"><label>Stakes</label><textarea id="ef-${n}-stakes" rows="2"></textarea></div>
+      <div class="edit-field"><label>Resolution</label><textarea id="ef-${n}-resolution" rows="2"></textarea></div>
+      <div class="edit-field full"><label>Lesson (closing line)</label><textarea id="ef-${n}-lesson" rows="2"></textarea></div>
+      <div class="edit-field"><label>Caption — TikTok</label><textarea id="ef-${n}-caption_tiktok" rows="4"></textarea></div>
+      <div class="edit-field"><label>Caption — Instagram</label><textarea id="ef-${n}-caption_instagram" rows="4"></textarea></div>
     </div>
     <div class="edit-actions">
       <button class="btn-save" onclick="submitEdit(${n})">Save &amp; Re-render</button>
@@ -449,6 +451,12 @@ function renderSlots(data) {
     </div>
   </div>
 </div>`);
+  // Set textarea values safely after DOM insertion (avoids backtick/special-char injection)
+  const fields7 = ['hook','problem','stakes','resolution','lesson','caption_tiktok','caption_instagram'];
+  fields7.forEach(f => {
+    const el = document.getElementById(`ef-${n}-${f}`);
+    if (el) el.value = s[f] || '';
+  });
   }
 }
 
@@ -475,7 +483,7 @@ async function runSlot(n) {
   setMsg(msg, 'Launching pipeline…', 'var(--blue)');
   try {
     const fd = new FormData(); fd.append('slot', n);
-    const d = await fetch('/api/pipeline/run-slot', {method:'POST', body:fd}).then(r => r.json());
+    const d = await fetch(BASE + '/api/pipeline/run-slot', {method:'POST', body:fd}).then(r => r.json());
     _runningJobs[n] = d.job_id;
     refreshBadges();
     setMsg(msg, 'Running — slots take ~10 min. Page updates every 30s.', 'var(--blue)');
@@ -489,7 +497,7 @@ async function runSlot(n) {
 function pollJob(n, jobId) {
   const iv = setInterval(async () => {
     try {
-      const d = await fetch('/api/pipeline/job/' + jobId).then(r => r.json());
+      const d = await fetch(BASE + '/api/pipeline/job/' + jobId).then(r => r.json());
       const msg = document.getElementById('sm-' + n);
       if (d.status === 'running') {
         const last = (d.output||'').split('\n').filter(l=>l.trim()).slice(-1)[0]||'';
@@ -511,7 +519,7 @@ async function approve(n, decision) {
   setMsg(msg, {post:'Posting…', skip:'Skipping…', regen:'Regenerating…'}[decision]||'…', 'var(--or)');
   try {
     const fd = new FormData(); fd.append('slot', n); fd.append('decision', decision);
-    await fetch('/api/pipeline/approve', {method:'POST', body:fd});
+    await fetch(BASE + '/api/pipeline/approve', {method:'POST', body:fd});
     setMsg(msg, {post:'Post signal sent — pipeline will post shortly.', skip:'Skip signal sent.', regen:'Regen signal sent.'}[decision], 'var(--green)');
   } catch(e) { setMsg(msg, 'Error: '+e, 'var(--red)'); }
 }
@@ -531,10 +539,10 @@ async function submitEdit(n) {
       const el = document.getElementById(`ef-${n}-${f}`);
       if (!el || !el.value.trim()) continue;
       const fd = new FormData(); fd.append('slot',n); fd.append('field',f); fd.append('value',el.value.trim());
-      await fetch('/api/pipeline/edit-field', {method:'POST', body:fd});
+      await fetch(BASE + '/api/pipeline/edit-field', {method:'POST', body:fd});
     }
     const fd = new FormData(); fd.append('slot', n);
-    await fetch('/api/pipeline/submit-edit', {method:'POST', body:fd});
+    await fetch(BASE + '/api/pipeline/submit-edit', {method:'POST', body:fd});
     msg.textContent = 'Queued for re-render — pipeline will pick this up within seconds.';
     msg.style.color = 'var(--green)';
   } catch(e) { msg.textContent = 'Error: '+e; msg.style.color='var(--red)'; }
@@ -548,7 +556,7 @@ async function doBlock() {
   if (!id) { msg.textContent='Enter a Pexels ID'; return; }
   try {
     const fd = new FormData(); fd.append('media_id',id); fd.append('media_type',type);
-    await fetch('/api/pipeline/block-media', {method:'POST', body:fd});
+    await fetch(BASE + '/api/pipeline/block-media', {method:'POST', body:fd});
     msg.textContent = `Blocked ${type} ID ${id}.`;
     msg.style.color = 'var(--green)';
     document.getElementById('block-id').value = '';
@@ -560,7 +568,7 @@ async function loadReport() {
   const c = document.getElementById('report-container');
   c.innerHTML = '<span style="color:var(--muted);font-size:.82rem">Loading…</span>';
   try {
-    const d = await fetch('/api/pipeline/report').then(r => r.json());
+    const d = await fetch(BASE + '/api/pipeline/report').then(r => r.json());
     const plats = Object.entries(d.by_platform||{}).sort((a,b)=>b[1]-a[1])
       .map(([pl,n])=>`<div class="report-stat"><div class="report-num">${n}</div><div class="report-lbl">${pl}</div></div>`).join('');
     c.innerHTML = `<div class="report-grid">
@@ -593,7 +601,7 @@ function selectSlotVideo(path, label, btn) {
   document.getElementById('video-name').textContent = label;
   document.getElementById('video-name').style.color = 'var(--or)';
   const vid = document.getElementById('vid-preview');
-  vid.src = '/api/video-file?path=' + encodeURIComponent(path);
+  vid.src = BASE + '/api/video-file?path=' + encodeURIComponent(path);
   document.getElementById('vid-wrap').style.display = 'block';
   const ua = document.getElementById('upload-area');
   if (ua) ua.style.display = 'none';
@@ -603,7 +611,7 @@ function uploadVideo(inp) {
   const f = inp.files[0]; if(!f) return;
   const fd = new FormData(); fd.append('file', f);
   document.getElementById('video-name').textContent = 'Uploading…';
-  fetch('/api/upload-video', {method:'POST', body:fd})
+  fetch(BASE + '/api/upload-video', {method:'POST', body:fd})
     .then(r=>r.json()).then(d=>{
       videoPath=d.path;
       document.getElementById('video-path').value=d.path;
@@ -649,7 +657,7 @@ function ytDownload(){
   const q=document.getElementById('yt-query').value.trim(); if(!q)return;
   document.getElementById('yt-status').textContent='Downloading… (~20 seconds)';
   const fd=new FormData(); fd.append('query',q);
-  fetch('/api/youtube-music',{method:'POST',body:fd})
+  fetch(BASE + '/api/youtube-music',{method:'POST',body:fd})
     .then(r=>{if(!r.ok)return r.text().then(t=>{throw t;});return r.json();})
     .then(d=>{musicPath=d.path;document.getElementById('music-sel').add(new Option(d.label,d.path,true,true));document.getElementById('yt-status').textContent='Added: '+d.label;document.getElementById('yt-status').style.color='var(--green)';})
     .catch(e=>{document.getElementById('yt-status').textContent='Failed: '+e;document.getElementById('yt-status').style.color='var(--red)';});
@@ -666,7 +674,7 @@ async function doBake(){
   document.getElementById('bake-status').textContent='Baking your video…';
   document.getElementById('bake-result').style.display='none';
   try{
-    const r=await fetch('/api/bake',{method:'POST',body:fd});
+    const r=await fetch(BASE + '/api/bake',{method:'POST',body:fd});
     if(!r.ok)throw await r.text();
     const d=await r.json();
     pollBakeJob(d.job_id,d.bake_id);
@@ -676,7 +684,7 @@ async function doBake(){
 function pollBakeJob(jobId,bakeId){
   document.getElementById('bake-status').textContent='Processing… (~30 seconds)';
   const iv=setInterval(async()=>{
-    const d=await fetch('/api/job/'+jobId).then(r=>r.json());
+    const d=await fetch(BASE + '/api/job/'+jobId).then(r=>r.json());
     if(d.status==='done'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='';document.getElementById('bake-result').style.display='block';document.getElementById('dl-link').innerHTML='<a class="dl-btn" href="/api/download-bake/'+bakeId+'">Download</a>';}
     else if(d.status==='failed'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='Failed: '+(d.error||'unknown error');document.getElementById('bake-status').style.color='var(--red)';}
   },3000);

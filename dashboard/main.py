@@ -31,6 +31,7 @@ CO_DIR.mkdir(exist_ok=True)
 
 ADMIN_PASSWORD  = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
 PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")  # shared secret for server-to-server calls from web commander
+BASE_PATH       = os.environ.get("BASE_PATH", "")  # e.g. "/videoEditor" when proxied through Next.js
 
 # ── Supabase constants ─────────────────────────────────────────────────────────
 _SB_URL = "https://zwgngbzbdvnrdnanjded.supabase.co"
@@ -73,6 +74,7 @@ ADMIN_PREFIX   = os.environ.get("ADMIN_PREFIX", "/admin")   # /onboard/admin whe
 
 app       = FastAPI(title="OTB Pipeline")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
+templates.env.globals["bp"] = BASE_PATH   # prefix for all internal links when behind proxy
 
 # ── Database ───────────────────────────────────────────────────────────────────
 

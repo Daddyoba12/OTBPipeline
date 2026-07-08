@@ -755,6 +755,28 @@ def render_video(content: dict, slot: int, output_path: str,
                 dalle_raw.unlink(missing_ok=True)
 
         if not got_video:
+            # Final safety net before black placeholder — use guaranteed transport query
+            transport_q = _TRANSPORT_FALLBACKS[i % len(_TRANSPORT_FALLBACKS)]
+            print(f"    Clip {i}: transport safety fallback -> {transport_q}")
+            clip_info = _pexels_video(transport_q, used_ids) or _pixabay_video(transport_q, used_ids)
+            if clip_info:
+                used_ids.add(clip_info["id"])
+                if _download_clip(clip_info["url"], raw):
+                    if _process_clip(raw, proc, beat, text, beat_style):
+                        got_video = True
+                        try: report_hit(transport_q, "transport_fallback")
+                        except Exception: pass
+                    raw.unlink(missing_ok=True)
+            if not got_video:
+                photo_raw = TEMP / f"{prefix}_photo_fb_{i}.mp4"
+                if _pexels_photo_as_clip(transport_q, photo_raw):
+                    if _process_clip(photo_raw, proc, beat, text, beat_style):
+                        got_video = True
+                        try: report_hit(transport_q, "transport_photo_fallback")
+                        except Exception: pass
+                    photo_raw.unlink(missing_ok=True)
+
+        if not got_video:
             try: report_hit(query, "placeholder")
             except Exception: pass
             _ff("-f", "lavfi", "-i",
