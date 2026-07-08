@@ -34,7 +34,7 @@ from config import ANTHROPIC_API_KEY, DATA
 
 import anthropic
 
-BLOG_BASE   = Path(r"C:\Users\babso\Desktop\BootHopPipeline\blog")
+BLOG_BASE   = Path(__file__).resolve().parent.parent / "blog"
 PENDING_DIR = BLOG_BASE / "pending"
 POSTER_PY   = BLOG_BASE / "post_to_blogger.py"
 PYTHON      = sys.executable
