@@ -29,16 +29,13 @@ from pathlib import Path
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-BASE = Path(r"C:\Users\babso\Desktop\OTB_Pipeline")
-BHP  = Path(r"C:\Users\babso\Desktop\BootHopPipeline")
+BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
-sys.path.insert(0, str(BHP))
 
 from config import DATA
 try:
     from config import YOUTUBE_API_KEY
 except ImportError:
-    from BootHopPipeline_config_shim import YOUTUBE_API_KEY  # fallback
     YOUTUBE_API_KEY = ""
 
 # Try importing YOUTUBE_API_KEY from BHP config if OTB config doesn't export it

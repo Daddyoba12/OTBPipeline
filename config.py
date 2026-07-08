@@ -15,17 +15,15 @@ OUTPUT      = BASE / "output"
 TEMP        = BASE / "temp"
 SCRIPTS     = BASE / "scripts"
 
-# BootHopPipeline — only exists on Windows laptop (assets, credentials, music archive)
 _ON_WINDOWS = platform.system() == "Windows"
-MAIN_BASE   = (Path(r"C:\Users\babso\Desktop\BootHopPipeline")
-               if _ON_WINDOWS else BASE)
+MAIN_BASE   = BASE   # everything now lives in OTB_Pipeline
 
-ASSETS        = MAIN_BASE / "assets"
-MUSIC_DIR     = BASE / "music" / "daily"          # OTB slot-specific tracks (fetch_trending_music.py)
-MUSIC_ARCHIVE = MAIN_BASE / "music" / "archive"   # shared royalty-free fallback library
-CREDS_PATH    = MAIN_BASE / "scripts" / "social_credentials.json"
-YOUTUBE_TOKEN = MAIN_BASE / "scripts" / "youtube_token.json"
-YOUTUBE_CREDS = MAIN_BASE / "scripts" / "youtube_credentials.json"
+ASSETS        = BASE / "assets"
+MUSIC_DIR     = BASE / "music" / "daily"
+MUSIC_ARCHIVE = BASE / "music" / "archive"
+CREDS_PATH    = BASE / "scripts" / "social_credentials.json"
+YOUTUBE_TOKEN = BASE / "scripts" / "youtube_token.json"
+YOUTUBE_CREDS = BASE / "scripts" / "youtube_credentials.json"
 
 # FFmpeg / font paths
 FONT_TITLE    = str(ASSETS / "fonts" / "BebasNeue-Regular.ttf")
@@ -36,34 +34,9 @@ FONT_BODY_FB  = r"C\:/Windows/Fonts/arialbd.ttf" if _ON_WINDOWS else "/usr/share
 LOGO_PATH   = ASSETS / "mainlogo.png"
 FIG_END     = ASSETS / "FIG4End.png"
 
-# ── API Keys ───────────────────────────────────────────────────────────────────
-# On Windows: inherit from BootHopPipeline config.py
-# On Oracle:  read from environment variables (set in /etc/environment or systemd service)
-if _ON_WINDOWS:
-    # Load by file path to avoid circular import (importing by name re-imports this file)
-    import importlib.util as _ilu
-    _bhp_cfg = MAIN_BASE / "config.py"
-    try:
-        _spec = _ilu.spec_from_file_location("bhp_config", str(_bhp_cfg))
-        _bhp  = _ilu.module_from_spec(_spec)
-        _spec.loader.exec_module(_bhp)
-        ANTHROPIC_API_KEY = getattr(_bhp, "ANTHROPIC_API_KEY", "")
-        PEXELS_KEY        = getattr(_bhp, "PEXELS_API_KEY",    "") or getattr(_bhp, "PEXELS_KEY", "")
-        PIXABAY_KEY       = getattr(_bhp, "PIXABAY_KEY",       "")
-        GEMINI_API_KEY    = getattr(_bhp, "GEMINI_API_KEY",    "")
-        YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
-        OPENAI_API_KEY    = getattr(_bhp, "OPENAI_API_KEY",    "")
-        PERPLEXITY_KEY    = getattr(_bhp, "PERPLEXITY_KEY",    "")
-    except Exception as _e:
-        print(f"[Config] Warning: could not load BHP keys: {_e}")
-        ANTHROPIC_API_KEY = ""
-        PEXELS_KEY        = ""
-        PIXABAY_KEY       = ""
-        GEMINI_API_KEY    = ""
-        YOUTUBE_API_KEY   = ""
-        OPENAI_API_KEY    = ""
-        PERPLEXITY_KEY    = ""
-else:
+# ── API Keys — loaded from keys.env on both Windows and Oracle ────────────────
+import os as _os
+if True:
     # On Oracle: load keys from keys.env file (created by fix_oracle.ps1, never in git)
     import os, importlib.util
     _keys_env = BASE / "keys.env"
