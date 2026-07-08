@@ -18,7 +18,7 @@ Output (4 slot-specific files):
 Hook extraction: librosa finds the highest-energy 30-second window (the drop/chorus).
 Falls back to ffmpeg trim from 30s if librosa unavailable.
 
-7-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
+14-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
 Scheduled: daily at 06:00 via Task Scheduler (OTB-MusicRefresh), before Slot 1.
 """
 
@@ -91,7 +91,7 @@ def _save_log(entry):
     log.append(entry)
     MUSIC_LOG.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
 
-def _used_recently(title, days=7):
+def _used_recently(title, days=14):
     log    = _load_log()
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     return any(
