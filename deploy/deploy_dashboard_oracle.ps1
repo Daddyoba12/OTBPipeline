@@ -46,6 +46,7 @@ Environment=PORT=8080
 Environment=PIPELINE_ROOT=BASEPATH
 Environment=TELEGRAM_TOKEN=TGTOKEN
 Environment=ADMIN_PASSWORD=ADMINPW
+Environment=BASE_PATH=/videoEditor
 
 [Install]
 WantedBy=multi-user.target
