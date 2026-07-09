@@ -32,27 +32,16 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
 BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 
-from config import DATA
+from config import DATA, MUSIC_ARCHIVE
 try:
     from config import YOUTUBE_API_KEY
 except ImportError:
     YOUTUBE_API_KEY = ""
 
-# Try importing YOUTUBE_API_KEY from BHP config if OTB config doesn't export it
-if not YOUTUBE_API_KEY:
-    try:
-        import importlib.util, sys as _sys
-        spec = importlib.util.spec_from_file_location("bhp_config", str(BHP / "config.py"))
-        bhp_cfg = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(bhp_cfg)
-        YOUTUBE_API_KEY = getattr(bhp_cfg, "YOUTUBE_API_KEY", "")
-    except Exception:
-        pass
-
 import requests as _req
 
 DAILY_DIR = BASE / "music" / "daily"
-ARCHIVE   = BHP  / "music" / "archive"   # shared royalty-free library
+ARCHIVE   = MUSIC_ARCHIVE
 TMP_DIR   = DAILY_DIR / "_tmp"
 MUSIC_LOG = DATA / "music_log.json"
 INFO_FILE = DAILY_DIR / "daily_info.json"
