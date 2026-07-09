@@ -182,7 +182,11 @@ CLIP_BEAT = [
 
 def _ff(*args, timeout=600):
     cmd = ["ffmpeg", "-y"] + list(args)
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    env = os.environ.copy()
+    # Suppress fontconfig "Cannot load default config" warning on Windows — without
+    # this, FFmpeg sometimes fails drawtext entirely instead of just warning.
+    env.setdefault("FONTCONFIG_FILE", "NUL")
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
     if r.returncode != 0:
         print(f"  [FFmpeg] {' '.join(cmd[-6:])}")
         print(f"  [FFmpeg] stderr: {r.stderr[-400:]}")
@@ -478,18 +482,15 @@ def _download_clip(url: str, dest: Path) -> bool:
 
 def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_override: dict | None = None) -> bool:
     """Resize, crop to 9:16, sharpen, add beat text overlay, trim to CLIP_DUR."""
-    text_f = _drawtext_filters(beat_text, beat, style_override)
-    vf_parts = [
+    base_vf = ",".join([
         f"scale={W}:{H}:force_original_aspect_ratio=increase",
         f"crop={W}:{H}",
         "setsar=1",
-        # Counteract upscaling blur (BHP premium mode approach)
         "unsharp=luma_msize_x=3:luma_msize_y=3:luma_amount=0.8",
-    ]
-    if text_f:
-        vf_parts.append(text_f)
-    vf = ",".join(vf_parts)
-    return _ff(
+    ])
+    text_f = _drawtext_filters(beat_text, beat, style_override)
+    vf = f"{base_vf},{text_f}" if text_f else base_vf
+    ok = _ff(
         "-ss", "0", "-i", str(src),
         "-t", str(CLIP_DUR),
         "-vf", vf,
@@ -497,6 +498,19 @@ def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_overri
         "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an",
         str(dest),
     )
+    if not ok and text_f:
+        # drawtext failed (Windows fontconfig issue) — retry without text overlay
+        # so we get real video instead of a black placeholder
+        dest.unlink(missing_ok=True)
+        ok = _ff(
+            "-ss", "0", "-i", str(src),
+            "-t", str(CLIP_DUR),
+            "-vf", base_vf,
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an",
+            str(dest),
+        )
+    return ok
 
 
 def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> bool:
