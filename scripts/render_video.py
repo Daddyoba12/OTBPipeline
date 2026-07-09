@@ -343,8 +343,14 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
                 print(f"    [Pexels] Skipped banned metadata: {page_slug.split('/')[-2]}")
                 continue
             files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0), reverse=True)
-            # Only accept FHD portrait (width=1080) " 720p upscales 1.5x and looks blurry
-            hd = next((f for f in files if f.get("width", 0) >= 1080 and "portrait" in f.get("quality", "").lower()), None)
+            # Accept portrait files (height > width) at 720p+; orientation=portrait in
+            # the API call already filters, so quality field never says "portrait".
+            hd = next((f for f in files
+                       if f.get("width", 0) >= 720
+                       and f.get("height", 0) > f.get("width", 0)), None)
+            if not hd:
+                # fallback: take any file ≥720px wide (will be cropped to portrait in _process_clip)
+                hd = next((f for f in files if f.get("width", 0) >= 720), None)
             if hd:
                 return {"id": v["id"], "url": hd["link"], "source": "pexels"}
     except Exception as e:
@@ -367,10 +373,11 @@ def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
             vid_id = f"pb_{v['id']}"
             if vid_id in exclude_ids:
                 continue
-            # Check Pixabay tags string for animal/banned terms (e.g. "airport, dog, travel")
+            # Check Pixabay tags for banned terms using whole-word match so "pig" doesn't
+            # block "pigeon", "cat" doesn't block "aircraft", etc.
             tags = v.get("tags", "").lower()
-            if any(term in tags for term in _BANNED_FETCH_TERMS):
-                print(f"    [Pixabay] Skipped banned tags: {tags[:80]}")
+            tag_set = {t.strip() for t in tags.split(",")}
+            if tag_set & _BANNED_FETCH_TERMS:
                 continue
             sizes = v.get("videos", {})
             url = (sizes.get("large", {}).get("url") or
@@ -443,6 +450,9 @@ def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP
                   "size": "1024x1792", "quality": "standard"},
         )
         data = resp.json()
+        if "error" in data:
+            print(f"    [DALL-E] API error: {data['error'].get('message', data['error'])[:80]}")
+            return False
         img_url = data["data"][0]["url"]
         img_bytes = requests.get(img_url, timeout=30).content
         img_path = dest.with_suffix(".jpg")
