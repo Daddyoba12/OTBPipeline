@@ -729,8 +729,15 @@ def do_rerun(slot: int = None):
         return
     _send(f"🔄 Rerunning Slot {slot}…\nThis takes ~10 minutes. Watch for the preview.")
     try:
-        subprocess.Popen(
+        proc = subprocess.Popen(
             [PYTHON, str(BASE / "pipeline.py"), "--slot", str(slot), "--force"],
+            cwd=str(BASE),
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+        )
+        # Launch Claude Code monitor in background — watches for errors and auto-fixes
+        monitor = Path(__file__).parent / "_rerun_monitor.py"
+        subprocess.Popen(
+            [PYTHON, str(monitor), str(slot), str(proc.pid)],
             cwd=str(BASE),
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )

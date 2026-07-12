@@ -588,5 +588,55 @@
     "query": "london cityscape skyline professional wide shot",
     "hit_type": "video",
     "date": "2026-06-29"
+  },
+  {
+    "query": "two nigerian women parcel handover smiling abuja outdoor medium shot",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "international airport exterior london wide street travellers departing wide shot",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "woman london apartment worried medium shot",
+    "hit_type": "transport_fallback",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "nigeria flight information display board terminal window wide angle",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "person reviewing delivery service options on mobile device satisfied expression",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "train platform busy station parcel exchange between two travellers",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "airplane window seat view passenger looking out during flight",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "woman walking through airport customs hall luggage confident stride",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "two women greeting outdoors exchanging package smiling lagos",
+    "hit_type": "video",
+    "date": "2026-07-12"
+  },
+  {
+    "query": "london city street wide establishing shot",
+    "hit_type": "transport_fallback",
+    "date": "2026-07-12"
   }
 ]
