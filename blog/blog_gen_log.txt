@@ -1,0 +1,128 @@
+[2026-05-24 22:30:47] Selected topic: customs_01 — What Can You Send to Nigeria Through BootHop? The Customs Guide
+[2026-05-24 22:30:47] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-24_what-can-you-send-to-nigeria-through-boothop-the-customs-gui.html
+[2026-05-24 22:30:47] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-25 00:42:22] Selected topic: uk_nga_03 — The Diaspora Suitcase Problem — and How BootHop Solved It
+[2026-05-25 00:42:22] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-25_the-diaspora-suitcase-problem-and-how-boothop-solved-it.html
+[2026-05-25 00:42:22] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-25 00:42:32] Selected topic: b2b_09 — The Real Cost of Shipping Delays: Why Speed Matters More Than Price for B2B Logistics
+[2026-05-25 00:42:32] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-25_the-real-cost-of-shipping-delays-why-speed-matters-more-than.html
+[2026-05-25 00:42:32] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-25 08:00:01] Selected topic: b2b_08 — Partnership Opportunities: How to Become a BootHop Business Partner
+[2026-05-25 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-25_partnership-opportunities-how-to-become-a-boothop-business-p.html
+[2026-05-25 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-26 18:31:38] Selected topic: b2b_05 — Corporate Gifting Across Borders: How UK Companies Are Using BootHop for Their African Clients
+[2026-05-26 18:31:38] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-26_corporate-gifting-across-borders-how-uk-companies-are-using-.html
+[2026-05-26 18:31:38] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-27 16:11:51] Selected topic: how_01 — How BootHop Works: The Complete Guide for Senders
+[2026-05-27 16:11:51] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-27_how-boothop-works-the-complete-guide-for-senders.html
+[2026-05-27 16:11:51] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-30 08:00:01] Selected topic: tips_02 — 5 Ways to Maximise Your Earnings as a BootHop Traveller
+[2026-05-30 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-30_5-ways-to-maximise-your-earnings-as-a-boothop-traveller.html
+[2026-05-30 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-05-31 08:00:01] Selected topic: b2b_06 — How Import Agents Are Using BootHop for Product Sampling Before Committing to Freight
+[2026-05-31 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-05-31_how-import-agents-are-using-boothop-for-product-sampling-bef.html
+[2026-05-31 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-01 11:59:08] Selected topic: customs_01 — What Can You Send to Nigeria Through BootHop? The Customs Guide
+[2026-06-01 11:59:08] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-01_what-can-you-send-to-nigeria-through-boothop-the-customs-gui.html
+[2026-06-01 11:59:08] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-02 08:00:01] Selected topic: how_02 — KYC on BootHop: Why We Verify Everyone (and Why That Protects You)
+[2026-06-02 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-02_kyc-on-boothop-why-we-verify-everyone-and-why-that-protects-.html
+[2026-06-02 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-03 11:42:19] Selected topic: b2b_09 — The Real Cost of Shipping Delays: Why Speed Matters More Than Price for B2B Logistics
+[2026-06-03 11:42:19] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-03_the-real-cost-of-shipping-delays-why-speed-matters-more-than.html
+[2026-06-03 11:42:19] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-04 08:00:01] Selected topic: uk_nga_02 — Earn £85–£320 on Your Next Flight to Nigeria
+[2026-06-04 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-04_earn-85320-on-your-next-flight-to-nigeria.html
+[2026-06-04 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-04 08:00:01] Selected topic: money_01 — Stop Paying £400 to Send a Parcel. There Is a Better Way.
+[2026-06-04 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-04_stop-paying-400-to-send-a-parcel-there-is-a-better-way.html
+[2026-06-04 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-05 08:00:01] Selected topic: b2b_07 — BootHop for E-Commerce: How Online Sellers Are Fulfilling UK-to-Nigeria Orders Same Week
+[2026-06-05 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-05_boothop-for-e-commerce-how-online-sellers-are-fulfilling-uk-.html
+[2026-06-05 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-06 08:05:46] Selected topic: customs_02 — Sending to Ghana, Kenya and South Africa via BootHop: What You Need to Know
+[2026-06-06 08:05:46] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-06_sending-to-ghana-kenya-and-south-africa-via-boothop-what-you.html
+[2026-06-06 08:05:48] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-07 08:00:02] Selected topic: how_01 — How BootHop Works: The Complete Guide for Senders
+[2026-06-07 08:00:02] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-07_how-boothop-works-the-complete-guide-for-senders.html
+[2026-06-07 08:00:02] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-08 08:00:02] Selected topic: b2b_05 — Corporate Gifting Across Borders: How UK Companies Are Using BootHop for Their African Clients
+[2026-06-08 08:00:02] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-08_corporate-gifting-across-borders-how-uk-companies-are-using-.html
+[2026-06-08 08:00:02] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-09 08:00:02] Selected topic: b2b_03 — Sourcing from the UK for Your Nigerian Business: A Practical Guide
+[2026-06-09 08:00:02] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-09_sourcing-from-the-uk-for-your-nigerian-business-a-practical-.html
+[2026-06-09 08:00:02] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-10 08:00:00] Selected topic: tips_01 — How to Pack a BootHop Parcel: 7 Tips for Stress-Free Delivery
+[2026-06-10 08:00:00] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-10_how-to-pack-a-boothop-parcel-7-tips-for-stress-free-delivery.html
+[2026-06-10 08:00:00] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-10 08:00:01] Selected topic: uk_nga_02 — Earn £85–£320 on Your Next Flight to Nigeria
+[2026-06-10 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-10_earn-85320-on-your-next-flight-to-nigeria.html
+[2026-06-10 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-11 08:00:01] Selected topic: b2b_02 — Medical and Pharmaceutical Logistics: How BootHop Moves Critical Supplies Across Borders
+[2026-06-11 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-11_medical-and-pharmaceutical-logistics-how-boothop-moves-criti.html
+[2026-06-11 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-12 08:00:01] Selected topic: intl_01 — BootHop Beyond Nigeria: Frankfurt, Amsterdam, New York and More
+[2026-06-12 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-12_boothop-beyond-nigeria-frankfurt-amsterdam-new-york-and-more.html
+[2026-06-12 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-13 13:12:54] Selected topic: uk_nga_03 — The Diaspora Suitcase Problem — and How BootHop Solved It
+[2026-06-13 13:12:54] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-13_the-diaspora-suitcase-problem-and-how-boothop-solved-it.html
+[2026-06-13 13:12:54] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-14 13:07:17] Selected topic: money_01 — Stop Paying £400 to Send a Parcel. There Is a Better Way.
+[2026-06-14 13:07:17] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-14_stop-paying-400-to-send-a-parcel-there-is-a-better-way.html
+[2026-06-14 13:07:17] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-15 08:00:01] Selected topic: b2b_09 — The Real Cost of Shipping Delays: Why Speed Matters More Than Price for B2B Logistics
+[2026-06-15 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-15_the-real-cost-of-shipping-delays-why-speed-matters-more-than.html
+[2026-06-15 08:00:01] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-16 10:16:08] Selected topic: how_02 — KYC on BootHop: Why We Verify Everyone (and Why That Protects You)
+[2026-06-16 10:16:08] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-16_kyc-on-boothop-why-we-verify-everyone-and-why-that-protects-.html
+[2026-06-16 10:16:08] Done. post_to_blogger.py will pick this up on its next run.
+[2026-06-17 08:00:01] Selected topic: how_01 — How BootHop Works: The Complete Guide for Senders
+[2026-06-17 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-17_how-boothop-works-the-complete-guide-for-senders.html
+[2026-06-17 08:00:01] Triggering post_to_blogger.py...
+[2026-06-17 08:00:02] Selected topic: b2b_04 — Africa's Logistics Gap: The £80bn Opportunity and What It Means for Your Business
+[2026-06-17 08:00:02] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-17_africas-logistics-gap-the-80bn-opportunity-and-what-it-means.html
+[2026-06-17 08:00:02] Triggering post_to_blogger.py...
+[2026-06-17 08:02:02] post_to_blogger.py error: Command '['C:\\Python314\\python.exe', 'C:\\Users\\babso\\Desktop\\BootHopPipeline\\blog\\post_to_blogger.py']' timed out after 120 seconds
+[2026-06-17 08:02:02] Done.
+[2026-06-17 08:02:02] post_to_blogger.py error: Command '['C:\\Python314\\python.exe', 'C:\\Users\\babso\\Desktop\\BootHopPipeline\\blog\\post_to_blogger.py']' timed out after 120 seconds
+[2026-06-17 08:02:02] Done.
+[2026-06-18 08:00:01] Selected topic: uk_nga_01 — London to Lagos: Why BootHop is Cheaper Than Every Courier You Know
+[2026-06-18 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-18_london-to-lagos-why-boothop-is-cheaper-than-every-courier-yo.html
+[2026-06-18 08:00:01] Triggering post_to_blogger.py...
+[2026-06-18 08:00:06] Done.
+[2026-06-19 08:00:01] Selected topic: uk_nga_02 — Earn £85–£320 on Your Next Flight to Nigeria
+[2026-06-19 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-19_earn-85320-on-your-next-flight-to-nigeria.html
+[2026-06-19 08:00:01] Triggering post_to_blogger.py...
+[2026-06-19 08:00:04] Done.
+[2026-06-20 10:50:11] Selected topic: tips_01 — How to Pack a BootHop Parcel: 7 Tips for Stress-Free Delivery
+[2026-06-20 10:50:11] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-20_how-to-pack-a-boothop-parcel-7-tips-for-stress-free-delivery.html
+[2026-06-20 10:50:12] Triggering post_to_blogger.py...
+[2026-06-20 10:50:15] Done.
+[2026-06-21 08:00:01] Selected topic: b2b_01 — How Small Businesses Are Using BootHop to Cut Cross-Border Shipping Costs by 70%
+[2026-06-21 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-21_how-small-businesses-are-using-boothop-to-cut-cross-border-s.html
+[2026-06-21 08:00:01] Triggering post_to_blogger.py...
+[2026-06-21 08:00:09] Done.
+[2026-06-22 08:00:01] Selected topic: intl_01 — BootHop Beyond Nigeria: Frankfurt, Amsterdam, New York and More
+[2026-06-22 08:00:01] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-22_boothop-beyond-nigeria-frankfurt-amsterdam-new-york-and-more.html
+[2026-06-22 08:00:01] Triggering post_to_blogger.py...
+[2026-06-22 08:00:02] Done.
+[2026-06-23 15:24:15] Selected topic: b2b_09 — The Real Cost of Shipping Delays: Why Speed Matters More Than Price for B2B Logistics
+[2026-06-23 15:24:15] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-23_the-real-cost-of-shipping-delays-why-speed-matters-more-than.html
+[2026-06-23 15:24:15] Triggering post_to_blogger.py...
+[2026-06-23 15:24:17] Done.
+[2026-06-24 10:50:21] Selected topic: b2b_08 — Partnership Opportunities: How to Become a BootHop Business Partner
+[2026-06-24 10:50:21] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-24_partnership-opportunities-how-to-become-a-boothop-business-p.html
+[2026-06-24 10:50:22] Triggering post_to_blogger.py...
+[2026-06-24 10:50:22] Selected topic: b2b_05 — Corporate Gifting Across Borders: How UK Companies Are Using BootHop for Their African Clients
+[2026-06-24 10:50:22] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-24_corporate-gifting-across-borders-how-uk-companies-are-using-.html
+[2026-06-24 10:50:22] Triggering post_to_blogger.py...
+[2026-06-24 10:50:26] Done.
+[2026-06-24 10:50:31] Done.
+[2026-06-25 08:00:02] Selected topic: customs_01 — What Can You Send to Nigeria Through BootHop? The Customs Guide
+[2026-06-25 08:00:02] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-25_what-can-you-send-to-nigeria-through-boothop-the-customs-gui.html
+[2026-06-25 08:00:02] Triggering post_to_blogger.py...
+[2026-06-25 08:00:02] Done.
+[2026-06-26 20:46:22] Selected topic: uk_nga_03 — The Diaspora Suitcase Problem — and How BootHop Solved It
+[2026-06-26 20:46:22] Blog post written: C:\Users\babso\Desktop\BootHopPipeline\blog\pending\2026-06-26_the-diaspora-suitcase-problem-and-how-boothop-solved-it.html
+[2026-06-26 20:46:22] Triggering post_to_blogger.py...
+[2026-06-26 20:46:25] Done.

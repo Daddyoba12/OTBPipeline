@@ -582,6 +582,10 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(dest),
     )
+    if not result:
+        import shutil
+        shutil.copy2(plain, dest)
+        result = dest.exists()
     plain.unlink(missing_ok=True)
     return result
 
@@ -973,6 +977,10 @@ def _make_linkedin_intro(content: dict, dest: Path) -> bool:
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-pix_fmt", "yuv420p", "-an", str(dest),
     )
+    if not result:
+        import shutil
+        shutil.copy2(plain, dest)
+        result = dest.exists()
     plain.unlink(missing_ok=True)
     return result
 

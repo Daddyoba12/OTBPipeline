@@ -78,5 +78,45 @@
     "query": "london cityscape skyline professional wide shot",
     "date": "2026-06-29",
     "slot": 3
+  },
+  {
+    "query": "woman carefully arranging clothes in luggage organized travel preparation",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "nigeria flight information display board terminal window wide angle",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "person reviewing delivery service options on mobile device satisfied expression",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "train platform busy station parcel exchange between two travellers",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "airplane window seat view passenger looking out during flight",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "woman walking through airport customs hall luggage confident stride",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "two women greeting outdoors exchanging package smiling lagos",
+    "date": "2026-07-12",
+    "slot": 1
+  },
+  {
+    "query": "heathrow airport exterior entrance travellers with luggage wide shot",
+    "date": "2026-07-12",
+    "slot": 1
   }
 ]
