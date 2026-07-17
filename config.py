@@ -54,6 +54,8 @@ if True:
         YOUTUBE_API_KEY   = _env_pairs.get("YOUTUBE_API_KEY",   os.environ.get("YOUTUBE_API_KEY",   ""))
         OPENAI_API_KEY    = _env_pairs.get("OPENAI_API_KEY",    os.environ.get("OPENAI_API_KEY",    ""))
         PERPLEXITY_KEY    = _env_pairs.get("PERPLEXITY_KEY",    os.environ.get("PERPLEXITY_KEY",    ""))
+        ZERNIO_API_KEY    = _env_pairs.get("ZERNIO_API_KEY",    os.environ.get("ZERNIO_API_KEY",    ""))
+        ZERNIO_ACCOUNT_ID = _env_pairs.get("ZERNIO_ACCOUNT_ID", os.environ.get("ZERNIO_ACCOUNT_ID",""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -68,6 +70,8 @@ if True:
             YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
             OPENAI_API_KEY    = ""
             PERPLEXITY_KEY    = ""
+            ZERNIO_API_KEY    = os.environ.get("ZERNIO_API_KEY",    "")
+            ZERNIO_ACCOUNT_ID = os.environ.get("ZERNIO_ACCOUNT_ID", "")
         except Exception:
             ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
             PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
@@ -76,9 +80,15 @@ if True:
             YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",   "")
             OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",    "")
             PERPLEXITY_KEY    = os.environ.get("PERPLEXITY_KEY",    "")
+            ZERNIO_API_KEY    = os.environ.get("ZERNIO_API_KEY",    "")
+            ZERNIO_ACCOUNT_ID = os.environ.get("ZERNIO_ACCOUNT_ID", "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
+
+# "zernio" = managed OAuth via Zernio API (current)
+# "direct" = TikTok Content Posting API v2 (legacy, kept in post_tiktok.py)
+TIKTOK_POSTER = "zernio"
 
 # ── AI model selection ─────────────────────────────────────────────────────────
 # STORY_MODEL: which AI writes the narrative (Stage 1 — Story Writer)
@@ -96,49 +106,27 @@ QA_MODEL = "openai"
 
 # ── Slot schedule ──────────────────────────────────────────────────────────────
 # Task Scheduler calls: python pipeline.py --slot 1|2|3|4
-# Times chosen so the video lands on platform DURING the peak window,
-# accounting for ~10min generation+render before the actual post goes live.
-# Slot 1: starts 7:00am  -> posts ~7:10am  (TikTok/IG morning commute peak: 7-9am)
-# Slot 2: starts 12:00pm -> posts ~12:10pm (TikTok/IG lunch scroll peak: 12-2pm)
-# Slot 3: starts 17:30   -> posts ~17:40pm (TikTok/IG evening peak: 6-8pm UK — 17:40 arrives early in window)
-# Slot 4: starts 20:30   -> posts ~20:40pm (TikTok/IG night scroll: 8-10pm UK, 9-11pm WAT Nigeria)
-SLOT_TIMES = {1: "07:00", 2: "12:00", 3: "17:30", 4: "20:30"}
+# Slot 1: 09:00 UK → posts ~10:00  morning peak (UK commute / Nigeria late morning / 4am EST)
+# Slot 2: 15:00 UK → posts ~15:30  afternoon (UK / 10am EST / Nigeria evening)
+# Slot 3: 22:00 UK → posts ~22:30  US prime time (5-6pm EST / Nigeria night / UK late)
+# Slot 4: 09:00 Tue+Fri → LinkedIn + Blog  (Telegram-reviewed, not fully auto)
+SLOT_TIMES = {1: "09:00", 2: "15:00", 3: "22:00", 4: "09:00"}
 
-# Platform targets per slot — every platform has its own algorithm logic
-#
-# Slot 1  7am  — TikTok + Instagram Reel + YouTube + LinkedIn + Blog + Newspaper + IG Story
-# Redesigned to match timing grid (timing.docx):
-#
-# Slot 1  07:00 — IG Story + Blog + Newspaper + LinkedIn (Mon/Wed/Fri)
-#           Morning "soft" content: story, blog, newspaper land at 7am
-#           LinkedIn B2B post fires early for morning inbox
-#
-# Slot 2  09:00 — TikTok V1 + Instagram Reel
-#           Premium morning slot — best hook of the day
-#           No LinkedIn (already fired), no YouTube (too early)
-#
-# Slot 3  18:00 — TikTok V2 + Instagram Reel + IG Story
-#           Evening peak slot — diaspora scroll window
-#           Second IG Story for double-tap algo boost
-#
-# Slot 4  20:30 — TikTok + YouTube
-#           Night TikTok + late YouTube (21:30 in doc — 20:30 fire lands ~20:40)
-#           YouTube late watch-time window (Nigeria prime time)
 SLOT_PLATFORMS = {
-    1: ["instagram_story", "blog", "newspaper", "linkedin"],
-    2: ["tiktok", "instagram"],
-    3: ["tiktok", "instagram", "instagram_story"],
-    4: ["tiktok", "youtube"],
+    1: ["tiktok", "instagram", "youtube", "newspaper"],  # 09:00 — video + newspaper image
+    2: ["tiktok", "instagram", "youtube"],               # 15:00 — video only
+    3: ["tiktok", "instagram", "youtube"],               # 22:00 — video only
+    4: ["linkedin", "blog"],                             # Tue+Fri 09:00 — Telegram-gated
 }
 
-# ── Content pillars per slot — rotating by day ─────────────────────────────────
-# 4-day rotation so each slot gets each pillar once every 4 days
-# and no two slots on same day share the same pillar
+# ── Content pillars per slot — 7-day rotation (indexed by weekday: 0=Mon … 6=Sun)
+# No pillar appears twice on the same day. Each angle repeats once per week per slot.
 SLOT_PILLARS = {
-    1: ["community",    "travel_hacks",        "logistics_stories",  "supply_chain"],
-    2: ["family",       "airport_deliveries",  "community",          "travel_hacks"],
-    3: ["airport",      "logistics_stories",   "supply_chain",       "community"],
-    4: ["smart",        "community",           "travel_hacks",       "airport_deliveries"],
+    #              Mon                Tue          Wed               Thu                  Fri                  Sat               Sun
+    1: ["cost_pain",     "community",   "travel_hacks",   "family",         "logistics_stories", "cultural_earn",  "urgent_medical"],
+    2: ["cultural_earn", "airport",     "supply_chain",   "cost_pain",      "community",         "urgent_medical", "travel_hacks"],
+    3: ["urgent_medical","travel_hacks","cultural_earn",  "airport_deliveries","smart",           "cost_pain",      "family"],
+    4: ["brand_authority"],  # LinkedIn/blog — consistent thought-leadership angle
 }
 
 PILLAR_LABELS = {
@@ -150,6 +138,10 @@ PILLAR_LABELS = {
     "logistics_stories":  "Logistics Stories",
     "airport_deliveries": "Airport Deliveries",
     "supply_chain":       "Supply Chain",
+    "cost_pain":          "Cost Pain",
+    "cultural_earn":      "Cultural & Earn",
+    "urgent_medical":     "Urgent & Medical",
+    "brand_authority":    "Brand Authority",
 }
 
 # Day-of-week content bucket (affects hook tone and visual style)
@@ -178,7 +170,9 @@ PROGRESS_COLOR = "0x4F46E5"   # indigo
 PROGRESS_H     = 12            # px height
 
 # ── Telegram approval window ───────────────────────────────────────────────────
-APPROVAL_TIMEOUT = 30 * 60    # 30 minutes approval window before auto-post
+# Per-slot Telegram review window (seconds). Slot 1 is longer — more likely you're free.
+TELEGRAM_BUFFER_MINUTES = {1: 60, 2: 30, 3: 30, 4: 60}
+APPROVAL_TIMEOUT = 30 * 60   # fallback only — pipeline uses TELEGRAM_BUFFER_MINUTES[slot]
 
 # ── Oracle dashboard routing ───────────────────────────────────────────────────
 # After each slot, platform videos are copied/SCP'd to companies/{slug}/ so the
@@ -193,8 +187,8 @@ PIPELINE_SLUG    = "boothop"   # company slug used in Revoice Studio (set at /on
 # Maps (slot, platform) → dashboard filename stem (becomes {stem}.mp4 in companies/{slug}/)
 # Also used by send_result() in telegram_commander.py for human-readable labels
 SLOT_PLATFORM_LABELS = {
-    1: {"linkedin": "linkedin", "instagram_story": "story_am"},
-    2: {"tiktok": "tiktok_v1", "instagram": "instagram_v1"},
-    3: {"tiktok": "tiktok_v2", "instagram": "instagram_v2", "instagram_story": "story_pm"},
-    4: {"tiktok": "tiktok_v3", "youtube": "youtube"},
+    1: {"tiktok": "tiktok_am",   "instagram": "instagram_am",  "youtube": "youtube_am",  "newspaper": "newspaper"},
+    2: {"tiktok": "tiktok_pm",   "instagram": "instagram_pm",  "youtube": "youtube_pm"},
+    3: {"tiktok": "tiktok_night","instagram": "instagram_night","youtube": "youtube_night"},
+    4: {"linkedin": "linkedin",  "blog": "blog"},
 }

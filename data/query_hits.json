@@ -590,53 +590,43 @@
     "date": "2026-06-29"
   },
   {
-    "query": "two nigerian women parcel handover smiling abuja outdoor medium shot",
+    "query": "large cargo containers stacked busy port wide shot",
     "hit_type": "video",
-    "date": "2026-07-12"
+    "date": "2026-07-17"
   },
   {
-    "query": "international airport exterior london wide street travellers departing wide shot",
+    "query": "black british woman courier counter shocked expensive price medium shot",
     "hit_type": "video",
-    "date": "2026-07-12"
+    "date": "2026-07-17"
   },
   {
-    "query": "woman london apartment worried medium shot",
+    "query": "african man on phone frustrated logistics problem indoors medium shot",
+    "hit_type": "video",
+    "date": "2026-07-17"
+  },
+  {
+    "query": "black traveller train station luggage medium shot",
     "hit_type": "transport_fallback",
-    "date": "2026-07-12"
+    "date": "2026-07-17"
   },
   {
-    "query": "nigeria flight information display board terminal window wide angle",
+    "query": "african male traveller airplane seat parcel bag secure medium shot",
     "hit_type": "video",
-    "date": "2026-07-12"
+    "date": "2026-07-17"
   },
   {
-    "query": "person reviewing delivery service options on mobile device satisfied expression",
-    "hit_type": "video",
-    "date": "2026-07-12"
-  },
-  {
-    "query": "train platform busy station parcel exchange between two travellers",
-    "hit_type": "video",
-    "date": "2026-07-12"
-  },
-  {
-    "query": "airplane window seat view passenger looking out during flight",
-    "hit_type": "video",
-    "date": "2026-07-12"
-  },
-  {
-    "query": "woman walking through airport customs hall luggage confident stride",
-    "hit_type": "video",
-    "date": "2026-07-12"
-  },
-  {
-    "query": "two women greeting outdoors exchanging package smiling lagos",
-    "hit_type": "video",
-    "date": "2026-07-12"
-  },
-  {
-    "query": "london city street wide establishing shot",
+    "query": "black man handing parcel station traveller wide shot",
     "hit_type": "transport_fallback",
-    "date": "2026-07-12"
+    "date": "2026-07-17"
+  },
+  {
+    "query": "nigerian woman front door receiving parcel smiling relieved medium shot",
+    "hit_type": "video",
+    "date": "2026-07-17"
+  },
+  {
+    "query": "black woman door receiving parcel smiling medium shot",
+    "hit_type": "transport_fallback",
+    "date": "2026-07-17"
   }
 ]

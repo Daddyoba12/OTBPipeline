@@ -3,9 +3,9 @@
     "LGW-LOS": "2026-07-08",
     "LHR-LOS": "2026-07-10"
   },
-  "next_story_index": 4,
-  "next_closing_index": 4,
-  "next_engagement_index": 4,
+  "next_story_index": 7,
+  "next_closing_index": 2,
+  "next_engagement_index": 2,
   "posts": [
     {
       "date": "2026-07-07",
@@ -41,6 +41,33 @@
       "price_gbp": 312,
       "airline": "Air France",
       "hook": "£312 Manchester to Lagos. Someone is already making this journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-07-13",
+      "platform": "linkedin",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. Someone is already making this journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-07-14",
+      "platform": "tiktok",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-07-16",
+      "platform": "tiktok",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
       "status": "failed"
     }
   ]

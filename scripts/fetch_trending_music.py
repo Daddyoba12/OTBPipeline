@@ -321,19 +321,18 @@ def fetch_trending_music() -> dict:
     Download 4 daily tracks (one per slot) to music/daily/.
     Returns summary dict.
     """
-    print("\n[Music] Selecting today's tracks — 4 slots...")
+    print("\n[Music] Selecting today's tracks — 3 slots...")
 
     SLOT_LABELS = {
-        1: "Morning  07:00 (commute)",
-        2: "Midday   12:00 (lunch)",
-        3: "Evening  17:30 (peak)",
-        4: "Night    20:30 (scroll)",
+        1: "Morning  09:00",
+        2: "Afternoon 15:00",
+        3: "Night    22:00 (US prime time)",
     }
 
     info = {"date": datetime.now().strftime("%Y-%m-%d"), "tracks": []}
     used_titles: set = set()
 
-    for slot_num in (1, 2, 3, 4):
+    for slot_num in (1, 2, 3):
         slot_out = DAILY_DIR / f"track_{slot_num}.mp3"
         print(f"\n  [Slot {slot_num}] {SLOT_LABELS[slot_num]}")
 

@@ -49,6 +49,7 @@ from config import (
     TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
     SLOT_PLATFORM_LABELS, PIPELINE_SLUG,
     ORACLE_IP, ORACLE_USER, ORACLE_KEY, ORACLE_COMPANIES,
+    TIKTOK_POSTER, TELEGRAM_BUFFER_MINUTES,
 )
 
 CRASH_LOG  = DATA / "pipeline_crash.log"
@@ -232,14 +233,14 @@ def run_slot(slot: int, force: bool = False):
 
     # ── 2. Generate content (with regen loop) ─────────────────────────────────
     _step(f"slot{slot}: content generation")
-    from generate_content import generate_content, generate_v2_content
+    from generate_content import generate_content
     from telegram_commander import send_video_preview, poll_for_decision, send_result
 
     content = None
     regen_count = 0
     skip_generate = False   # set True after an edit so we reuse existing content
-    v1_path = v2_path = None
-    platform_videos_v1 = platform_videos_v2 = {}
+    video_path = None
+    platform_videos = {}
 
     while regen_count <= 2:
         if skip_generate:
@@ -257,57 +258,35 @@ def run_slot(slot: int, force: bool = False):
         _log(f"Hook: {content.get('hook','')[:80]}")
         _log(f"Lesson: {content.get('lesson','')[:80]}")
 
-        # ── 3. Render V1 ──────────────────────────────────────────────────────
-        _step(f"slot{slot}: render V1")
+        # ── 3. Render ─────────────────────────────────────────────────────────
+        _step(f"slot{slot}: render")
         ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-        v1_file = OUTPUT / f"otb_slot{slot}_v1_{ts}.mp4"
-        _log("Rendering V1 (gold palette — Pexels/Pixabay primary)...")
+        video_file = OUTPUT / f"otb_slot{slot}_{ts}.mp4"
+        _log("Rendering (gold palette — Pexels/Pixabay primary)...")
 
         from render_video import render_video, render_for_platforms
-        ok_v1, v1_used_ids = render_video(content, slot, str(v1_file), version="v1")
+        ok, used_ids = render_video(content, slot, str(video_file), version="v1")
 
-        if not ok_v1 or not v1_file.exists():
-            _crash(f"V1 render failed for slot {slot}")
-            _tg_send(f"❌ OTB Slot {slot} — V1 render failed")
+        if not ok or not video_file.exists():
+            _crash(f"Render failed for slot {slot}")
+            _tg_send(f"❌ OTB Slot {slot} — render failed")
             return
 
-        _log(f"V1 done: {v1_file.stat().st_size // 1024}KB  ({len(v1_used_ids)} clips)")
+        _log(f"Render done: {video_file.stat().st_size // 1024}KB  ({len(used_ids)} clips)")
 
-        # ── 4. Generate V2 content (alt hook + rotated queries) ───────────────
-        _step(f"slot{slot}: generate V2 content")
-        _log("Generating V2 hook + alt visual queries via Claude Haiku...")
-        content = generate_v2_content(slot, pillar, bucket, content)
-
-        # ── 5. Render V2 (cyan palette, different clips + music) ──────────────
-        _step(f"slot{slot}: render V2")
-        v2_file = OUTPUT / f"otb_slot{slot}_v2_{ts}.mp4"
-        _log("Rendering V2 (cyan palette — alt queries, different music)...")
-        ok_v2, _ = render_video(content, slot, str(v2_file), version="v2", exclude_ids=v1_used_ids)
-
-        if not ok_v2 or not v2_file.exists():
-            _log("V2 render failed — continuing with V1 only")
-            v2_file = None
-
-        if v2_file:
-            _log(f"V2 done: {v2_file.stat().st_size // 1024}KB")
-
-        # Save sidecar (V1 anchor, includes V2 hooks for reference)
+        # Save sidecar
         try:
-            sidecar = v1_file.with_suffix(".json")
+            sidecar = video_file.with_suffix(".json")
             sidecar.write_text(json.dumps({
                 "hook":               content.get("hook", ""),
-                "hook_v2":            content.get("hook_v2", ""),
                 "problem":            content.get("problem", ""),
                 "stakes":             content.get("stakes", ""),
                 "resolution":         content.get("resolution", ""),
                 "lesson":             content.get("lesson", ""),
-                "lesson_v2":          content.get("lesson_v2", ""),
                 "pillar":             content.get("pillar", ""),
                 "slot":               slot,
-                "caption":            content.get("caption_tiktok", ""),
                 "caption_tiktok":     content.get("caption_tiktok", ""),
                 "caption_instagram":  content.get("caption_instagram", ""),
-                "hashtags_311":       content.get("hashtags_311", []),
                 "hashtags_tiktok":    content.get("hashtags_tiktok", ""),
                 "hashtags_instagram": content.get("hashtags_instagram", ""),
                 "rendered_at":        datetime.now().isoformat(),
@@ -315,33 +294,27 @@ def run_slot(slot: int, force: bool = False):
         except Exception:
             pass
 
-        # ── 5b. Push slot state + videos to Supabase (cloud sync) ───────────────
+        # ── Push slot state to Supabase ───────────────────────────────────────
         try:
             from push_pipeline_state import push_slot_state
             content["rendered_at"] = datetime.now().isoformat()
-            push_slot_state(slot, content,
-                            v1_path=str(v1_file),
-                            v2_path=str(v2_file) if v2_file else "")
+            push_slot_state(slot, content, v1_path=str(video_file), v2_path="")
             _log("Slot state synced to Supabase")
         except Exception as _pe:
             _log(f"Supabase push skipped: {_pe}")
 
-        # ── 6. Platform variants for V1 + V2 ──────────────────────────────────
+        # ── Platform variants (IG warm grade, YouTube base) ───────────────────
         _step(f"slot{slot}: platform variants")
-        _log("Creating platform variants (IG warm grade) for V1 + V2...")
-        platform_videos_v1 = render_for_platforms(content, slot, str(v1_file))
-        platform_videos_v2 = render_for_platforms(content, slot, str(v2_file), tiktok_ig_only=True) if v2_file else {}
+        _log("Creating platform variants (IG warm grade)...")
+        platform_videos = render_for_platforms(content, slot, str(video_file), tiktok_ig_only=True)
+        _log(f"Variants: {list(platform_videos.keys())}")
 
-        _log(f"V1 variants: {list(platform_videos_v1.keys())}")
-        if platform_videos_v2:
-            _log(f"V2 variants: {list(platform_videos_v2.keys())}")
-
-        # ── 6b. Voice-over — generate TTS narration + mix into V1 ─────────────
+        # ── Voice-over ────────────────────────────────────────────────────────
         _step(f"slot{slot}: voiceover")
         try:
             from voiceover import add_voiceover_to_video
             _log("Generating voice-over narration (OpenAI TTS)...")
-            voiced = add_voiceover_to_video(content, str(v1_file), mix_into_video=True)
+            voiced = add_voiceover_to_video(content, str(video_file), mix_into_video=True)
             if voiced:
                 _log(f"Voice-over ready: {voiced}")
                 content["voiced_video"] = voiced
@@ -350,16 +323,15 @@ def run_slot(slot: int, force: bool = False):
         except Exception as _ve:
             _log(f"Voice-over failed: {_ve} — continuing without narration")
 
-        v1_path = str(v1_file)
-        v2_path = str(v2_file) if v2_file else None
+        video_path = str(video_file)
 
-        # ── 7. Telegram preview — both V1 + V2 clearly labelled ───────────────
+        # ── Telegram preview ──────────────────────────────────────────────────
         _step(f"slot{slot}: telegram preview")
-        _log("Sending Telegram preview (V1 + V2)...")
-        send_video_preview(v1_path, content.get("caption_tiktok", ""), slot, content,
-                           v2_path=v2_path)
+        _log("Sending Telegram preview...")
+        send_video_preview(video_path, content.get("caption_tiktok", ""), slot, content)
 
-        decision = poll_for_decision(slot, APPROVAL_TIMEOUT)
+        timeout_secs = TELEGRAM_BUFFER_MINUTES.get(slot, 30) * 60
+        decision = poll_for_decision(slot, timeout_secs)
         _log(f"Decision: {decision}")
 
         if decision == "skip":
@@ -371,13 +343,10 @@ def run_slot(slot: int, force: bool = False):
         if decision == "regen":
             regen_count += 1
             _log(f"Regenerating... (attempt {regen_count + 1})")
-            v1_file.unlink(missing_ok=True)
-            if v2_file:
-                v2_file.unlink(missing_ok=True)
+            video_file.unlink(missing_ok=True)
             continue
 
         if decision == "edit":
-            # Load operator's text edits and re-render without touching AI stages
             edit_path = DATA / f"pending_edit_{slot}.json"
             try:
                 edit_data = json.loads(edit_path.read_text(encoding="utf-8"))
@@ -391,14 +360,12 @@ def run_slot(slot: int, force: bool = False):
                 _log(f"Edit file load failed ({e}) — treating as regen")
                 regen_count += 1
             skip_generate = True
-            v1_file.unlink(missing_ok=True)
-            if v2_file:
-                v2_file.unlink(missing_ok=True)
+            video_file.unlink(missing_ok=True)
             continue
 
         break
 
-    if not v1_path or not content:
+    if not video_path or not content:
         _tg_send(f"❌ OTB Slot {slot} — no content after {regen_count} attempts")
         return
 
@@ -407,104 +374,48 @@ def run_slot(slot: int, force: bool = False):
     _log(f"Posting to: {platforms}")
     results = {}
 
-    # content_v2: swap in V2 hook/lesson so captions reflect the right video
-    content_v2 = {**content,
-                  "hook":   content.get("hook_v2",   content.get("hook", "")),
-                  "lesson": content.get("lesson_v2", content.get("lesson", ""))}
-
-    # TikTok V1
+    # TikTok
     if "tiktok" in platforms:
-        _step(f"slot{slot}: posting tiktok V1")
-        _log("Posting TikTok V1 (gold)...")
+        _step(f"slot{slot}: posting tiktok")
+        _tiktok_mod = "post_tiktok_zernio" if TIKTOK_POSTER == "zernio" else "post_tiktok"
+        _log(f"Posting TikTok via {_tiktok_mod}...")
         try:
-            from post_tiktok import post_video as tiktok_post
-            pub_id = tiktok_post(platform_videos_v1.get("tiktok", v1_path), content, slot)
-            results["tiktok_v1"] = pub_id
-            _log(f"TikTok V1: {'OK ' + pub_id if pub_id else 'FAILED'}")
+            import importlib
+            _tk = importlib.import_module(_tiktok_mod)
+            pub_id = _tk.post_video(platform_videos.get("tiktok", video_path), content, slot)
+            results["tiktok"] = pub_id
+            _log(f"TikTok: {'OK ' + pub_id if pub_id else 'FAILED'}")
         except Exception as e:
-            _crash(f"TikTok V1 error: {e}")
-            results["tiktok_v1"] = None
+            _crash(f"TikTok error: {e}")
+            results["tiktok"] = None
 
-    # TikTok V2 — 30s gap to avoid rate-limit
-    if "tiktok" in platforms and v2_path:
-        time.sleep(30)
-        _step(f"slot{slot}: posting tiktok V2")
-        _log("Posting TikTok V2 (cyan)...")
-        try:
-            from post_tiktok import post_video as tiktok_post
-            pub_id2 = tiktok_post(platform_videos_v2.get("tiktok", v2_path), content_v2, slot)
-            results["tiktok_v2"] = pub_id2
-            _log(f"TikTok V2: {'OK ' + pub_id2 if pub_id2 else 'FAILED'}")
-        except Exception as e:
-            _crash(f"TikTok V2 error: {e}")
-            results["tiktok_v2"] = None
-
-    # Instagram V1
+    # Instagram Reel (warm-graded)
     if "instagram" in platforms:
-        _step(f"slot{slot}: posting instagram V1")
-        _log("Posting Instagram Reel V1 (warm-graded)...")
+        _step(f"slot{slot}: posting instagram")
+        _log("Posting Instagram Reel (warm-graded)...")
         try:
             from post_instagram import post_video as ig_post
-            media_id = ig_post(platform_videos_v1.get("instagram", v1_path), content, slot)
-            results["instagram_v1"] = media_id
-            _log(f"Instagram V1: {'OK ' + media_id if media_id else 'FAILED'}")
+            media_id = ig_post(platform_videos.get("instagram", video_path), content, slot)
+            results["instagram"] = media_id
+            _log(f"Instagram: {'OK ' + media_id if media_id else 'FAILED'}")
         except Exception as e:
-            _crash(f"Instagram V1 error: {e}")
-            results["instagram_v1"] = None
+            _crash(f"Instagram error: {e}")
+            results["instagram"] = None
 
-    # Instagram V2
-    if "instagram" in platforms and v2_path:
-        _step(f"slot{slot}: posting instagram V2")
-        _log("Posting Instagram Reel V2 (warm-graded)...")
-        try:
-            from post_instagram import post_video as ig_post
-            media_id2 = ig_post(platform_videos_v2.get("instagram", v2_path), content_v2, slot)
-            results["instagram_v2"] = media_id2
-            _log(f"Instagram V2: {'OK ' + media_id2 if media_id2 else 'FAILED'}")
-        except Exception as e:
-            _crash(f"Instagram V2 error: {e}")
-            results["instagram_v2"] = None
-
-    # YouTube Shorts — V1 only (single upload per slot)
+    # YouTube Shorts
     if "youtube" in platforms:
         _step(f"slot{slot}: posting youtube")
-        _log("Posting to YouTube Shorts (V1)...")
+        _log("Posting to YouTube Shorts...")
         try:
             from post_youtube import post_video as yt_post
-            vid_id = yt_post(platform_videos_v1.get("youtube", v1_path), content, slot)
+            vid_id = yt_post(platform_videos.get("youtube", video_path), content, slot)
             results["youtube"] = vid_id
             _log(f"YouTube: {'OK https://youtube.com/shorts/' + vid_id if vid_id else 'FAILED'}")
         except Exception as e:
             _crash(f"YouTube post error: {e}")
             results["youtube"] = None
 
-    # LinkedIn — V1 only, professional graded, weekdays only, first-comment link
-    if "linkedin" in platforms:
-        _step(f"slot{slot}: posting linkedin")
-        _log("Posting to LinkedIn (V1 professional variant)...")
-        try:
-            from post_linkedin import post_video as li_post
-            li_urn = li_post(platform_videos_v1.get("linkedin", v1_path), content, slot)
-            results["linkedin"] = li_urn
-            _log(f"LinkedIn: {'OK' if li_urn else 'SKIPPED (weekend or no creds)'}")
-        except Exception as e:
-            _crash(f"LinkedIn post error: {e}")
-            results["linkedin"] = None
-
-    # IG Story — uses Instagram-graded video for consistency; visual poll baked in
-    if "instagram_story" in platforms:
-        _step(f"slot{slot}: posting instagram story")
-        _log("Posting Instagram Story...")
-        try:
-            from post_stories import post_story
-            story_id = post_story(content, slot)
-            results["instagram_story"] = story_id
-            _log(f"IG Story: {'OK ' + story_id if story_id else 'FAILED'}")
-        except Exception as e:
-            _crash(f"IG Story error: {e}")
-            results["instagram_story"] = None
-
-    # Newspaper — Pillow-rendered 1080x1350, rotating masthead, posted as IG feed IMAGE
+    # Newspaper — Pillow-rendered 1080x1350, rotating masthead, posted as IG feed image
     if "newspaper" in platforms:
         _step(f"slot{slot}: posting newspaper")
         _log("Rendering + posting newspaper image...")
@@ -517,7 +428,20 @@ def run_slot(slot: int, force: bool = False):
             _crash(f"Newspaper post error: {e}")
             results["newspaper"] = None
 
-    # Blog — Claude SEO post, H2+FAQ, longtail keywords, Blogger API (Slot 1 daily)
+    # LinkedIn — weekdays only, professional grade, first-comment link
+    if "linkedin" in platforms:
+        _step(f"slot{slot}: posting linkedin")
+        _log("Posting to LinkedIn...")
+        try:
+            from post_linkedin import post_video as li_post
+            li_urn = li_post(platform_videos.get("linkedin", video_path), content, slot)
+            results["linkedin"] = li_urn
+            _log(f"LinkedIn: {'OK' if li_urn else 'SKIPPED (weekend or no creds)'}")
+        except Exception as e:
+            _crash(f"LinkedIn post error: {e}")
+            results["linkedin"] = None
+
+    # Blog
     if "blog" in platforms:
         _step(f"slot{slot}: posting blog")
         _log("Generating + posting blog article...")
@@ -530,7 +454,7 @@ def run_slot(slot: int, force: bool = False):
             _crash(f"Blog post error: {e}")
             results["blog"] = None
 
-    # ── 6. Log + notify ────────────────────────────────────────────────────────
+    # ── Log + notify ───────────────────────────────────────────────────────────
     _mark_ran_today(slot)
     send_result(slot, results, content=content)
 
@@ -539,10 +463,9 @@ def run_slot(slot: int, force: bool = False):
     _crash(f"[{datetime.now().isoformat()}] Slot {slot} DONE — {results}")
     _clear_step()
 
-    # ── 7. Route platform videos → Revoice Studio dashboard ──────────────────
-    # Must happen BEFORE cleanup so the files still exist when we copy/SCP them
+    # ── Route platform videos → Revoice Studio dashboard ──────────────────────
     try:
-        _route_to_dashboard(platform_videos_v1, slot, v1_file)
+        _route_to_dashboard(platform_videos, slot, video_file)
     except Exception as _re:
         _log(f"Dashboard routing error: {_re}")
 
@@ -560,10 +483,10 @@ def run_slot(slot: int, force: bool = False):
     except Exception as _e:
         _log(f"Data sync warning: {_e}")
 
-    # ── 9. Clean up platform variant files (copies are now in dashboard, safe to remove)
+    # ── Clean up platform variant files (copies now in dashboard, safe to remove)
     try:
-        for path in list(platform_videos_v1.values()) + list(platform_videos_v2.values()):
-            if path not in (v1_path, v2_path) and Path(path).exists():
+        for path in list(platform_videos.values()):
+            if path != video_path and Path(path).exists():
                 Path(path).unlink()
     except Exception:
         pass
@@ -572,7 +495,7 @@ def run_slot(slot: int, force: bool = False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OTB_Pipeline slot runner")
     parser.add_argument("--slot",  type=int, required=True, choices=[1, 2, 3, 4],
-                        help="Slot to run (1=7am, 2=12pm, 3=6pm, 4=9pm)")
+                        help="1=09:00 TikTok/IG/YT  2=15:00 TikTok/IG/YT  3=22:00 TikTok/IG/YT  4=LinkedIn/Blog (Tue/Fri)")
     parser.add_argument("--force", action="store_true",
                         help="Force run even if slot already ran today")
     args = parser.parse_args()

@@ -1,5 +1,5 @@
-# OTB_Pipeline - Register Task Scheduler tasks
-# Run as Administrator once
+# OTB_Pipeline — Register Task Scheduler tasks
+# Run as Administrator once to activate the 3-slot + LinkedIn/Blog schedule.
 
 $Python   = "C:\Python314\python.exe"
 $Pipeline = "C:\Users\babso\Desktop\OTB_Pipeline\pipeline.py"
@@ -11,38 +11,56 @@ New-Item -ItemType Directory -Force "$WorkDir\data" | Out-Null
 
 $Principal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
 
-function Register-OTBTask {
-    param($Name, $Hour, $Minute, $Slot)
+# Remove any existing OTB tasks (clean slate)
+$oldTasks = @("OTB-Slot1","OTB-Slot2","OTB-Slot3","OTB-Slot4","OTB_Slot1","OTB_Slot2","OTB_Slot3","OTB_Slot4")
+foreach ($t in $oldTasks) {
+    Unregister-ScheduledTask -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue
+}
+Write-Output "Old slot tasks cleared."
+
+function Register-OTBSlot {
+    param($Name, $Hour, $Minute, $Slot, $DaysOfWeek = $null)
     $action   = New-ScheduledTaskAction -Execute $Python -Argument "$Pipeline --slot $Slot" -WorkingDirectory $WorkDir
-    $trigger  = New-ScheduledTaskTrigger -Daily -At ('{0}:{1:D2}' -f $Hour, $Minute)
     $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Hours 2) -RestartCount 1 -RestartInterval (New-TimeSpan -Minutes 5) -RunOnlyIfNetworkAvailable -StartWhenAvailable
-    Unregister-ScheduledTask -TaskName $Name -Confirm:$false -ErrorAction SilentlyContinue
+
+    if ($DaysOfWeek) {
+        $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek $DaysOfWeek -At ('{0}:{1:D2}' -f $Hour, $Minute)
+    } else {
+        $trigger = New-ScheduledTaskTrigger -Daily -At ('{0}:{1:D2}' -f $Hour, $Minute)
+    }
+
     Register-ScheduledTask -TaskName $Name -Action $action -Trigger $trigger -Settings $settings -Principal $Principal -Description "OTB slot $Slot" | Out-Null
-    $minStr = "{0:D2}" -f $Minute
-    Write-Output "Registered: $Name at ${Hour}:$minStr"
+    $dayStr = if ($DaysOfWeek) { " ($DaysOfWeek)" } else { " (daily)" }
+    Write-Output "Registered: $Name at ${Hour}:$("{0:D2}" -f $Minute)$dayStr"
 }
 
-# Music refresh at 6:00am — downloads 4 trending tracks (one per slot) before Slot 1 fires.
-# Uses YouTube API: Nigeria trending -> UK Grime -> US R&B -> Amapiano -> archive fallback.
-# 7-day no-repeat. If already fresh today, skips automatically (--skip-if-fresh).
+# Music refresh at 06:00 — downloads trending tracks before first slot fires
 $musicAction   = New-ScheduledTaskAction -Execute $Python -Argument "$Music --skip-if-fresh" -WorkingDirectory $WorkDir
 $musicTrigger  = New-ScheduledTaskTrigger -Daily -At "06:00"
 $musicSettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 30) -RunOnlyIfNetworkAvailable
 Unregister-ScheduledTask -TaskName "OTB-MusicRefresh" -Confirm:$false -ErrorAction SilentlyContinue
 Register-ScheduledTask -TaskName "OTB-MusicRefresh" -Action $musicAction -Trigger $musicTrigger -Settings $musicSettings -Principal $Principal -Description "OTB daily trending music download" | Out-Null
-Write-Output "Registered: OTB-MusicRefresh at 06:00"
+Write-Output "Registered: OTB-MusicRefresh at 06:00 (daily)"
 
-# Slot times aligned to timing.docx grid (accounts for ~10min render before post lands):
-# Slot 1: 07:00 -> posts ~07:10  IG Story + Blog + Newspaper + LinkedIn
-# Slot 2: 08:50 -> posts ~09:00  TikTok V1 + IG Reel  (premium 9am slot)
-# Slot 3: 17:50 -> posts ~18:00  TikTok V2 + IG Reel + IG Story  (evening peak)
-# Slot 4: 20:20 -> posts ~20:30  TikTok + YouTube  (night scroll / Nigeria prime time)
-Register-OTBTask -Name "OTB-Slot1" -Hour 7  -Minute 0  -Slot 1
-Register-OTBTask -Name "OTB-Slot2" -Hour 8  -Minute 50 -Slot 2
-Register-OTBTask -Name "OTB-Slot3" -Hour 17 -Minute 50 -Slot 3
-Register-OTBTask -Name "OTB-Slot4" -Hour 20 -Minute 20 -Slot 4
+# ── Slot 1 — 09:00 daily — TikTok + Instagram + YouTube
+# UK morning commute / Nigeria late morning / 4am EST
+# 60-min Telegram review window (configured in TELEGRAM_BUFFER_MINUTES)
+Register-OTBSlot -Name "OTB-Slot1" -Hour 9  -Minute 0  -Slot 1
 
-# Commander - runs at startup, restarts on failure
+# ── Slot 2 — 15:00 daily — TikTok + Instagram + YouTube
+# UK afternoon / US morning (10am EST) / Nigeria evening
+# 30-min Telegram review window
+Register-OTBSlot -Name "OTB-Slot2" -Hour 15 -Minute 0  -Slot 2
+
+# ── Slot 3 — 22:00 daily — TikTok + Instagram + YouTube
+# US prime time (5-6pm EST) / Nigeria night / UK late
+# 30-min Telegram review window — highest-stakes slot
+Register-OTBSlot -Name "OTB-Slot3" -Hour 22 -Minute 0  -Slot 3
+
+# ── Slot 4 — 09:00 Tue+Fri — LinkedIn + Blog (Telegram-gated, not --force)
+Register-OTBSlot -Name "OTB-Slot4" -Hour 9  -Minute 0  -Slot 4 -DaysOfWeek "Tuesday","Friday"
+
+# ── Commander — runs at startup, keeps the Telegram bot alive
 $cmdAction   = New-ScheduledTaskAction -Execute $Python -Argument $Cmdr -WorkingDirectory $WorkDir
 $cmdTrigger  = New-ScheduledTaskTrigger -AtStartup
 $cmdSettings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Days 365) -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 5) -RunOnlyIfNetworkAvailable
@@ -51,5 +69,5 @@ Register-ScheduledTask -TaskName "OTB-Commander" -Action $cmdAction -Trigger $cm
 Write-Output "Registered: OTB-Commander (at startup)"
 
 Write-Output ""
-Write-Output "All OTB tasks:"
+Write-Output "Active OTB tasks:"
 Get-ScheduledTask | Where-Object { $_.TaskName -like "OTB-*" } | Select-Object TaskName, State | Format-Table -AutoSize
