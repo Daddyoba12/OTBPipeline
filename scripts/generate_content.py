@@ -226,6 +226,7 @@ def _youtube_tags(pillar: str, hook: str) -> list:
 # ── AI caller helpers ─────────────────────────────────────────────────────────
 
 def _call_claude(prompt: str, model: str = "claude-sonnet-4-6", max_tokens: int = 1200) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         "https://api.anthropic.com/v1/messages",
         headers={
@@ -240,11 +241,14 @@ def _call_claude(prompt: str, model: str = "claude-sonnet-4-6", max_tokens: int 
         },
         timeout=30,
     )
+    if resp.status_code in (429, 402, 529):
+        _qa("Claude", resp.status_code, model)
     resp.raise_for_status()
     return resp.json()["content"][0]["text"].strip()
 
 
 def _call_openai(prompt: str, model: str = "gpt-4o", max_tokens: int = 1200) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
@@ -259,11 +263,14 @@ def _call_openai(prompt: str, model: str = "gpt-4o", max_tokens: int = 1200) -> 
         },
         timeout=30,
     )
+    if resp.status_code in (429, 402):
+        _qa("OpenAI", resp.status_code, model)
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _call_gemini(prompt: str, model: str = "gemini-2.0-flash", max_tokens: int = 1200) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         params={"key": GEMINI_API_KEY},
@@ -273,6 +280,8 @@ def _call_gemini(prompt: str, model: str = "gemini-2.0-flash", max_tokens: int =
         },
         timeout=30,
     )
+    if resp.status_code in (429, 402, 403):
+        _qa("Gemini", resp.status_code, model)
     resp.raise_for_status()
     return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
 
@@ -648,9 +657,11 @@ Return ONLY valid JSON:
 
 
 def get_pillar_for_slot(slot: int) -> str:
-    from datetime import date as _date
-    day_idx = _date.today().timetuple().tm_yday % 4
-    return SLOT_PILLARS[slot][day_idx]
+    val = SLOT_PILLARS[slot]
+    if isinstance(val, list):
+        from datetime import date as _date
+        return val[_date.today().weekday()]  # 0=Mon … 6=Sun
+    return val
 
 
 def get_bucket() -> str:

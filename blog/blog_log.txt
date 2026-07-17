@@ -1174,3 +1174,26 @@ Blog published successfully.
 }
 [2026-07-09 19:14:43] Run: python blog/setup_blogger.py  to re-authenticate
 [2026-07-09 19:14:43] =======================================================
+[2026-07-14 07:53:14] =======================================================
+[2026-07-14 07:53:14] BootHop Blog Auto-Poster starting
+[2026-07-14 07:53:14] Archived: 2026-06-28_uk-nigeria-supply-chain-how-travellers-are-fixing-it-2026.html
+[2026-07-14 07:53:14] Archived: 2026-06-28_uk-nigeria-supply-chain-send-smarter-in-2026.html
+[2026-07-14 07:53:14] Archived: 2026-06-28_uk-nigeria-supply-chain-skip-the-couriers-in-2026.html
+[2026-07-14 07:53:14] Archived: 2026-07-03_diaspora-community-uk-nigeria-smarter-parcel-sending-2026.html
+[2026-07-14 07:53:14] Archived 4 old post(s)
+[2026-07-14 07:53:14] Found 5 pending post(s)
+[2026-07-14 07:53:15] ERROR: Could not get access token — Failed to get access token: {
+  "error": "invalid_grant",
+  "error_description": "Token has been expired or revoked."
+}
+[2026-07-14 07:53:15] Run: python blog/setup_blogger.py  to re-authenticate
+[2026-07-14 07:53:15] =======================================================
+[2026-07-16 11:41:34] =======================================================
+[2026-07-16 11:41:34] BootHop Blog Auto-Poster starting
+[2026-07-16 11:41:34] Found 6 pending post(s)
+[2026-07-16 11:41:35] ERROR: Could not get access token — Failed to get access token: {
+  "error": "invalid_grant",
+  "error_description": "Token has been expired or revoked."
+}
+[2026-07-16 11:41:35] Run: python blog/setup_blogger.py  to re-authenticate
+[2026-07-16 11:41:35] =======================================================

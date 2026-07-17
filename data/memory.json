@@ -4116,5 +4116,2277 @@
         "watch_time_sec": 0
       }
     }
+  },
+  {
+    "id": "04e4cc9c",
+    "date": "2026-07-12",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Her dad's retirement plaque is stuck in Coventry.",
+    "problem": "Courier takes 10 days, costs £58.",
+    "stakes": "He'd retire without her gift.",
+    "resolution": "BootHop matched a Coventry-to-Nigeria traveller.",
+    "lesson": "Every journey holds opportunities.",
+    "visual_queries": [
+      "large cargo ship shipping containers port wide shot",
+      "young nigerian woman courier counter price shocked wide shot",
+      "young nigerian woman phone frustrated logistics problem medium shot",
+      "traveller coventry train station handing parcel nigerian woman wide shot",
+      "male traveller airplane seat parcel bag medium shot",
+      "male traveller nigeria airport arrivals hall walking wide shot",
+      "elderly nigerian man receiving parcel door smiling medium shot",
+      "wide busy lagos nigeria cityscape port cargo facility aerial shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. Vast industrial port with towering stacks of colourful shipping containers under overcast grey sky. A large cargo vessel docked in the background. Dramatic moody lighting suggesting scale and distance. No people. Wide establishing shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman standing at a plain shipping counter in a UK post office. She holds a small framed wooden retirement plaque and stares wide-eyed at a printed price quote of £58. Bright fluorescent overhead lighting. Expression of disbelief. Medium shot. No text on quote visible. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman sitting at a kitchen table in a modest UK apartment, holding a smartphone to her ear with a frustrated expression. A small wrapped parcel sits on the table in front of her. Warm natural window light from the left. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot inside a busy UK train station concourse. A 28-year-old Nigerian woman hands a small brown-wrapped parcel to a 35-year-old Black male traveller holding a roller suitcase. Destination board visible in background. Natural ambient station lighting. Warm hopeful mood. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Black male traveller seated in an economy airplane cabin window seat. A small brown-wrapped parcel rests securely on his lap or in the overhead bag visible above him. Cabin lighting, slight blue window glow. Calm and responsible expression. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a bright modern airport arrivals hall. A 35-year-old Black male traveller walks confidently through sliding glass doors pulling a roller suitcase, a small brown parcel tucked under his arm. Warm natural light flooding the hall. Busy background of waiting families. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 60-year-old Nigerian man standing at the front door of a modest Lagos home, beaming with joy as he receives a small brown-wrapped parcel. He wears a neat casual shirt. Warm golden afternoon sunlight from the side. The retirement plaque shape is visible through the wrapping. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide aerial-style shot of the Lagos waterfront or Apapa port at golden hour. Busy cargo facility in the foreground with distant city skyline glowing under warm orange sunset light. Sense of movement, opportunity, and connection. No people visible. Wide establishing shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic wide establishing shot of a vast industrial port. Towering stacks of colorful shipping containers dominate the frame under an overcast grey sky. A large cargo vessel is docked in the background. Dramatic moody lighting emphasizes scale and distance. No people visible. Camera slowly pushes in over 4 seconds, building tension. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "disbelief",
+        "full_prompt": "Photorealistic medium shot of a 28-year-old Nigerian woman standing at a plain shipping counter in a UK post office. She holds a small framed wooden retirement plaque in her hands and stares wide-eyed down at a printed price quote showing £58. Bright fluorescent overhead lighting. Her expression conveys shocked disbelief. Camera remains static. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic medium shot of the same 28-year-old Nigerian woman sitting at a kitchen table in a modest UK apartment. She holds a smartphone to her ear with a frustrated, concerned expression on her face. A small wrapped parcel sits on the table in front of her. Warm natural window light streams in from the left side. Camera remains static. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "hope",
+        "full_prompt": "Photorealistic wide shot inside a busy UK train station concourse. The 28-year-old Nigerian woman hands a small brown-wrapped parcel to a 35-year-old Black male traveller who is holding a roller suitcase. A destination board is visible in the background. Natural ambient station lighting. The mood is warm and hopeful despite the circumstance. Camera gently pans left across the action over 4 seconds. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "responsibility",
+        "full_prompt": "Photorealistic medium shot of the 35-year-old Black male traveller seated in an economy airplane cabin window seat. A small brown-wrapped parcel rests securely on his lap or in the overhead bag visible above him. Cabin lighting with a slight blue glow from the window. He has a calm, responsible, focused expression. Camera slowly pulls back over 4 seconds to reveal emotional context. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic wide shot of a bright modern airport arrivals hall. The 35-year-old Black male traveller walks confidently through sliding glass doors pulling his roller suitcase, the small brown parcel tucked securely under his arm. Warm natural light floods the hall. Busy background shows waiting families. Camera performs a smooth slow dolly forward over 4 seconds, creating optimistic energy. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic medium shot of a 60-year-old Nigerian man standing at the front door of a modest Lagos home, beaming with genuine joy as he receives the small brown-wrapped parcel from the traveller. He wears a neat casual shirt. Warm golden afternoon sunlight hits from the side, illuminating his face. The retirement plaque shape is visible through the wrapping. Camera slowly zooms out over 4 seconds to show the full moment. No text or logos visible. Vertical 9:16 portrait orientation."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic wide aerial-style shot of the Lagos waterfront or Apapa port at golden hour. A busy cargo facility occupies the foreground with a distant city skyline glowing under warm orange sunset light. The scene conveys movement, opportunity, and connection across continents. No people visible. Camera slowly pans right over 4 seconds with confident, aspirational energy. No text or logos visible. Vertical 9:16 portrait orientation."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 69
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 5,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 93
+    },
+    "caption_tiktok": "Her dad was retiring on Saturday.\n\nChiamaka had his certificate framed in Coventry — but a courier quoted 10 days and £58. She was out of time. Then BootHop matched her with a nurse already flying to Enugu on Thursday. The frame arrived Friday evening. Her dad carried it into his ceremony the next morning.\n\nHave you ever nearly missed a moment like this? 👇",
+    "caption_instagram": "Her father's retirement ceremony was on Saturday. His framed certificate was still sitting in Coventry.\n\nChiamaka checked a reputable courier — 10 days minimum, £58, no guarantees. She was out of options. Then she found BootHop. Someone was already making that journey — a nurse flying to Enugu on Thursday evening. The frame was matched, collected, and delivered by Friday night. Her dad walked into his ceremony holding it the next morning.\n\nThis is what peer-to-peer delivery was built for. Have you ever sent something just in time? Tell us below. 🔗 boothop.com",
+    "youtube_title": "She almost missed her dad's retirement ceremony",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "c8d1bbfb",
+    "date": "2026-07-12",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Blessing's father's ceremony neared; she was trapped in Coventry.",
+    "problem": "Courier wanted £60 and seven days.",
+    "stakes": "Ceremony happens without the parcel.",
+    "resolution": "BootHop linked Blessing to Tunde flying Thursday.",
+    "lesson": "Travellers carry more than just luggage.",
+    "visual_queries": [
+      "nigerian woman uk pharmacy counter prescription collection wide shot",
+      "nigerian woman holding medicine prescription box uk pharmacy medium shot",
+      "nigerian woman coventry flat phone call worried stressed medium shot",
+      "nigerian man traveller airport departure hall receiving small parcel wide shot",
+      "nigerian male traveller airplane window seat flight clouds medium shot",
+      "nigerian male traveller lagos airport arrivals hall walking confident medium shot",
+      "elderly nigerian man doorway receiving parcel smiling lagos home medium shot",
+      "lagos nigeria city street golden hour people walking positive wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman in a British pharmacy, standing at a white dispensary counter collecting a small prescription bag from a pharmacist. Fluorescent overhead lighting. Shelves of medicine visible in background. Wide shot. Neutral expression, purposeful. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing inside a UK pharmacy holding a small white prescription medicine box in both hands, looking down at it with quiet concern. Soft fluorescent lighting. Clean pharmacy interior background. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting on a sofa in a modest Coventry flat, pressing a smartphone to her ear, brow furrowed, eyes anxious, free hand pressed to her forehead. Warm natural window light from the left. Medium shot. She holds the small medicine box on her lap. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man traveller in a bright UK airport departure hall, standing near check-in desks, receiving a small wrapped parcel from a 30-year-old Nigerian woman. Rolling suitcase beside him. Overhead terminal lighting. Wide shot. Both look relieved and purposeful. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man seated in an economy window seat aboard a commercial aircraft in flight. Clouds visible through oval window. He rests a small wrapped parcel on the tray table, gazing out thoughtfully. Soft cabin ambient light. Medium shot. Calm, focused expression. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man walking confidently through a busy Lagos Murtala Muhammed Airport arrivals hall, carry-on bag over shoulder, small parcel tucked under arm. Warm terminal lighting, signage in background softly blurred. Medium shot. Relaxed, purposeful expression. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 65-year-old Nigerian man standing in the open doorway of a Lagos family home, smiling warmly as he receives a small medicine parcel from the 35-year-old male traveller. Soft golden afternoon sunlight. Traditional fabric clothing. Medium shot. Joyful, emotional expression. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide establishing shot of a vibrant Lagos street at golden hour. Busy pedestrians in colourful everyday clothing walking along a tree-lined road, market stalls softly visible in the background. Warm orange sunlight casting long shadows. Optimistic, lively atmosphere. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman in a British pharmacy, standing at a white dispensary counter collecting a small prescription bag from a pharmacist. Fluorescent overhead lighting. Shelves of medicine visible in background. Wide shot. Neutral expression, purposeful. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman standing inside a UK pharmacy holding a small white prescription medicine box in both hands, looking down at it with quiet concern. Soft fluorescent lighting. Clean pharmacy interior background. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman sitting on a sofa in a modest Coventry flat, pressing a smartphone to her ear, brow furrowed, eyes anxious, free hand pressed to her forehead. Warm natural window light from the left. Medium shot. She holds the small medicine box on her lap. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man traveller in a bright UK airport departure hall, standing near check-in desks, receiving a small wrapped parcel from a 30-year-old Nigerian woman. Rolling suitcase beside him. Overhead terminal lighting. Wide shot. Both look relieved and purposeful. No text. No logos. Vertical 9:16 portrait. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man seated in an economy window seat aboard a commercial aircraft in flight. Clouds visible through oval window. He rests a small wrapped parcel on the tray table, gazing out thoughtfully. Soft cabin ambient light. Medium shot. Calm, focused expression. No text. No logos. Vertical 9:16 portrait. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man walking confidently through a busy Lagos Murtala Muhammed Airport arrivals hall, carry-on bag over shoulder, small parcel tucked under arm. Warm terminal lighting, signage in background softly blurred. Medium shot. Relaxed, purposeful expression. No text. No logos. Vertical 9:16 portrait. Camera: slow dolly forward. Duration: 4 seconds. Emotion: relief."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 65-year-old Nigerian man standing in the open doorway of a Lagos family home, smiling warmly as he receives a small medicine parcel from the 35-year-old male traveller. Soft golden afternoon sunlight. Traditional fabric clothing. Medium shot. Joyful, emotional expression. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom out. Duration: 4 seconds. Emotion: happiness."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. Wide establishing shot of a vibrant Lagos street at golden hour. Busy pedestrians in colourful everyday clothing walking along a tree-lined road, market stalls softly visible in the background. Warm orange sunlight casting long shadows. Optimistic, lively atmosphere. Wide shot. No text. No logos. Vertical 9:16 portrait. Camera: slow pan right. Duration: 4 seconds. Emotion: confidence."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 5,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 63
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her dad was retiring after 35 years.\n\nBlessing wanted him to open something from her at the ceremony — a framed photo and a letter she'd written by hand. A reputable courier wanted £60 and ten days. Tunde was already on a Thursday flight. BootHop made the introduction.\n\nHer dad cried when he opened it. Have you ever sent something that arrived just in time?",
+    "caption_instagram": "Blessing had written the letter three times before she got it right. Her dad was retiring after 35 years — and she couldn't be there in person.\n\nA reputable courier quoted £60 and ten working days. The ceremony was Saturday. But someone was already making that journey. Tunde was flying Lagos on Thursday, and BootHop connected them the same evening the parcel was ready.\n\nHer dad held that framed photo up in front of the whole room. Drop a 🤍 if you know this feeling. What's the most meaningful thing you've ever sent home?",
+    "youtube_title": "She Couldn't Make It Home. Her Gift Did.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "e805ed34",
+    "date": "2026-07-12",
+    "slot": 4,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Chioma's parents' anniversary photo was still in Leicester.",
+    "problem": "Courier quoted £60 and ten days.",
+    "stakes": "Mum's wall would be bare.",
+    "resolution": "BootHop connected Chioma with Tunde flying Thursday.",
+    "lesson": "Existing journeys solve delays.",
+    "visual_queries": [
+      "nigerian woman london apartment worried photo frame medium shot",
+      "airport runway plane taxiing",
+      "nigerian woman phone app london street frustrated courier quote medium shot",
+      "nigerian traveller london train station parcel handover community wide shot",
+      "nigerian male traveller airport gate boarding luggage medium shot",
+      "nigerian woman front door london arriving home parcel relieved medium shot",
+      "nigerian woman smiling front door parcel handover happy london medium shot",
+      "diverse london community street warm welcoming sunny wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 28-year-old Nigerian woman standing in a tidy modern London apartment, holding a framed anniversary photograph and looking at it with a concerned, nostalgic expression. Warm indoor lamp light. Neutral grey walls. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman and a 35-year-old Nigerian man talking warmly at a small table in a bright London community cafe. Both are leaning in, engaged and friendly. Soft natural daylight from window. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman standing on a busy London pavement, staring at her smartphone screen with a frustrated and disbelieving expression. She holds the phone with both hands. Overcast natural daylight. Urban brick background. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a busy London train station concourse. A 28-year-old Nigerian woman hands a small brown-paper wrapped parcel to a 35-year-old Nigerian male traveller with a backpack and rolling suitcase. Both are smiling with relief. Bright station lighting, motion blur of commuters in background. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man at an airport departure gate, rolling suitcase beside him, a small wrapped parcel tucked under his arm, looking purposeful and calm. Bright airport terminal lighting. Gate signage blurred in background. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman arriving at the front door of a terraced London home, receiving a small brown-paper wrapped parcel from a community member. Her face shows visible relief and gratitude. Warm afternoon doorstep light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman standing at her London front door, beaming with joy as she holds an unwrapped anniversary photograph in a frame. The community member who delivered it smiles beside her in the doorway. Warm golden hour light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a warm, sun-lit London street lined with colourful terraced houses. A small diverse group of Black British community members chat and smile outside, conveying neighbourly connection and belonging. Soft golden afternoon light. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "nostalgia",
+        "full_prompt": "Photorealistic video. 28-year-old Nigerian woman standing in a tidy modern London apartment with neutral grey walls, holding a framed anniversary photograph. She gazes at it with a concerned, nostalgic expression. Warm indoor lamp light casts soft shadows. Medium shot, vertical 9:16 portrait. Camera slowly pushes in over 4 seconds, building emotional tension. Her eyes remain fixed on the frame as the lens moves closer. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "warmth",
+        "full_prompt": "Photorealistic video. 28-year-old Nigerian woman and 35-year-old Nigerian man seated at a small table in a bright London community cafe, leaning in toward each other in warm, engaged conversation. Soft natural daylight streams through a window, illuminating their faces and the cafe interior. Medium shot, vertical 9:16 portrait. Camera remains static. Both characters smile and gesture naturally as they talk. Their body language conveys trust and connection. No text, no logos."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video. 28-year-old Nigerian woman standing alone on a busy London pavement with urban brick background. She stares at her smartphone screen with a frustrated and disbelieving expression, holding the phone with both hands. Overcast natural daylight. Medium shot, vertical 9:16 portrait. Camera static. She shifts her weight slightly, jaw tightens, eyes scanning the screen. Blurred city movement in background suggests urban pace and pressure. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "urgency",
+        "full_prompt": "Photorealistic video. Wide shot of busy London train station concourse. 28-year-old Nigerian woman hands a small brown-paper wrapped parcel to a 35-year-old Nigerian male traveller carrying a backpack and rolling suitcase. Both smile with visible relief. Bright station lighting. Motion blur of commuters moving through background. Wide shot, vertical 9:16 portrait. Camera gently pans left across the handoff over 4 seconds. Their hands meet, parcel passes between them. Station energy and movement surrounds them. No text, no logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video. 35-year-old Nigerian man standing at an airport departure gate, rolling suitcase beside him, small brown-paper wrapped parcel tucked securely under his arm. His expression is purposeful and calm. Bright airport terminal lighting. Gate signage blurred in background. Medium shot, vertical 9:16 portrait. Camera slowly pulls back over 4 seconds, revealing the full departure context around him. He stands poised, ready to move, the parcel held with care. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video. 28-year-old Nigerian woman arriving at the front door of a terraced London home, receiving a small brown-paper wrapped parcel from a community member. Her face shows visible relief and gratitude. Warm afternoon doorstep light illuminates the moment. Medium shot, vertical 9:16 portrait. Camera smoothly dollies forward over 4 seconds as she extends her hands to receive the parcel. Her shoulders relax, her smile grows. The community member's expression mirrors her joy. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. 28-year-old Nigerian woman beaming with joy at her London front door, holding an unwrapped anniversary photograph in a frame. A community member who delivered it smiles warmly beside her in the doorway. Warm golden hour light bathes the scene. Medium shot, vertical 9:16 portrait. Camera slowly zooms out over 4 seconds, revealing the full embrace of the moment. Her eyes shine as she looks at the photograph, then at the community member. Pure happiness radiates from both. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "belonging",
+        "full_prompt": "Photorealistic video. Wide shot of a warm, sun-lit London street lined with colourful terraced houses. A small diverse group of Black British community members chat and smile outside, conveying neighbourly connection and belonging. Soft golden afternoon light casts long shadows. Wide shot, vertical 9:16 portrait. Camera slowly pans right across the street scene over 4 seconds, taking in multiple neighbours in conversation, laughter, natural movement. The streetscape feels inclusive, safe, and aspirational. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 5,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 63
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her parents were celebrating 40 years together.\n\nChioma had the framed photo ready in Leicester — but a reputable courier wanted £60 and ten days she didn't have. Then BootHop matched her with Tunde, her church neighbour, already flying to Lagos that Thursday. It arrived Saturday. Her mum cried.\n\nHave you ever sent something home just in time? 👇",
+    "caption_instagram": "The anniversary was Sunday. The framed photo was still in Leicester. Chioma couldn't get it there in time — until she found out someone from her own church was already on that flight.\n\nBootHop matched her with Tunde, who was already making the journey. The photo landed Saturday evening. Her parents hung it before the guests arrived. Someone was already making that journey.\n\nHave you ever sent something home at the last minute? Drop your story below 👇 | link in bio to send with BootHop",
+    "youtube_title": "She nearly missed her parents' 40th anniversary",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "604fb68c",
+    "date": "2026-07-13",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Her father's retirement ceremony was Saturday. His gift was still in Coventry.",
+    "problem": "A reputable courier quoted £58 — no delivery guarantee.",
+    "stakes": "The framed photo would miss the ceremony entirely.",
+    "resolution": "A colleague was already flying to Lagos. BootHop connected them.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "nigerian woman london apartment holding framed photo medium shot",
+      "train departing station platform",
+      "man woman stressing airport phone",
+      "nigerian woman london train station handing parcel traveller wide shot",
+      "nigerian male traveller airport departure gate luggage wide shot London",
+      "nigerian man arriving front door Lagos residential street parcel medium",
+      "older nigerian man doorway receiving framed parcel smiling joyful medium",
+      "multicultural london community street warm diverse neighbours wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman standing in a modern London apartment, holding a wrapped framed photograph with both hands, looking thoughtful and slightly anxious. Warm indoor lamp light. Neutral grey walls, minimal decor. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting across from a male colleague at a small wooden table in a warm London community cafe. Both leaning in slightly, smiling, engaged in friendly conversation. Soft ambient cafe lighting, blurred background of other patrons. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting alone at a cafe table in London, frowning at her smartphone screen displaying a delivery price. She looks frustrated, one hand pressed to her forehead. Natural window daylight. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing on a busy London train station concourse, handing a brown-paper-wrapped rectangular parcel to a tall Nigerian male traveller with a rolling suitcase. Both smiling with relief. Bright station overhead lighting, commuters in background. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man standing at a London airport departure gate, carry-on luggage beside him, holding a brown-paper parcel securely under one arm. Expression calm and purposeful. Large glass windows with planes visible outside. Bright airport lighting. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man arriving at a Lagos residential front door in evening light, carrying a brown-paper-wrapped rectangular parcel. He rings the doorbell, expression warm and satisfied. Warm porch light glowing, lush greenery beside doorway. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 60-year-old Nigerian man standing in an open residential doorway in Lagos, receiving a brown-paper-wrapped framed parcel from a younger man. Face lit with a wide, joyful smile, one hand over his chest in gratitude. Warm evening porch light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a warm, tree-lined London community street on a sunny afternoon. Diverse group of residents — including Nigerian and British men and women of various ages — walking, greeting each other, and chatting on the pavement. Golden hour sunlight, Georgian terraced houses in background. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman standing in a modern London apartment, holding a wrapped framed photograph with both hands, looking thoughtful and slightly anxious. Warm indoor lamp light. Neutral grey walls, minimal decor. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman sitting across from a male colleague at a small wooden table in a warm London community cafe. Both leaning in slightly, smiling, engaged in friendly conversation. Soft ambient cafe lighting, blurred background of other patrons. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman sitting alone at a cafe table in London, frowning at her smartphone screen displaying a delivery price. She looks frustrated, one hand pressed to her forehead. Natural window daylight. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman standing on a busy London train station concourse, handing a brown-paper-wrapped rectangular parcel to a tall Nigerian male traveller with a rolling suitcase. Both smiling with relief. Bright station overhead lighting, commuters in background. Wide shot. No text. No logos. Vertical 9:16 portrait. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man standing at a London airport departure gate, carry-on luggage beside him, holding a brown-paper parcel securely under one arm. Expression calm and purposeful. Large glass windows with planes visible outside. Bright airport lighting. Wide shot. No text. No logos. Vertical 9:16 portrait. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man arriving at a Lagos residential front door in evening light, carrying a brown-paper-wrapped rectangular parcel. He rings the doorbell, expression warm and satisfied. Warm porch light glowing, lush greenery beside doorway. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: slow dolly forward. Duration: 4 seconds. Emotion: relief."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 60-year-old Nigerian man standing in an open residential doorway in Lagos, receiving a brown-paper-wrapped framed parcel from a younger man. Face lit with a wide, joyful smile, one hand over his chest in gratitude. Warm evening porch light. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom out. Duration: 4 seconds. Emotion: happiness."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. Wide shot of a warm, tree-lined London community street on a sunny afternoon. Diverse group of residents — including Nigerian and British men and women of various ages — walking, greeting each other, and chatting on the pavement. Golden hour sunlight, Georgian terraced houses in background. Wide shot. No text. No logos. Vertical 9:16 portrait. Camera: slow pan right. Duration: 4 seconds. Emotion: confidence."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 100
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her dad spent 35 years in the classroom. She wanted him to open something real on his last day.\n\nA reputable courier quoted £58 with no guarantee it would arrive before Saturday's ceremony. Then Folake found BootHop — and a colleague already flying to Lagos carried it for her.\n\nHe opened the frame mid-speech. The room went quiet. Have you ever sent something home just in time?",
+    "caption_instagram": "She'd been planning this moment for months. A framed family photo. A handwritten letter. Her father's retirement ceremony was Saturday — and the gift was still sitting in Coventry.\n\nA reputable courier quoted £58 and couldn't promise it would arrive in time. Then Folake found BootHop. A colleague from her own school was already flying to Lagos for the summer. Someone was already making that journey. BootHop simply connected the dots.\n\nThe parcel arrived Friday evening. Her father held the frame during his speech.\n\nVisit boothop.com — what would you send home if the cost wasn't the barrier?",
+    "youtube_title": "She nearly missed her father's retirement with a gift",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "3a733123",
+    "date": "2026-07-13",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "His brother's entire degree rested on prints still in Manchester.",
+    "problem": "A reputable courier quoted nine days. The deadline was six.",
+    "stakes": "Miss it and Chidi loses his final submission window.",
+    "resolution": "BootHop matched Emeka with a traveller already flying to Lagos Tuesday.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "large cargo shipping containers stacked port wide shot",
+      "nigerian man courier counter reading price quote surprised medium shot",
+      "nigerian man phone frustrated logistics deadline stressed medium shot",
+      "nigerian man airport departure hall handing parcel traveller wide shot",
+      "female traveller economy seat airplane parcel overhead locker wide shot",
+      "female traveller lagos airport arrivals hall walking luggage wide shot",
+      "young nigerian man office lobby receiving parcel smiling relieved medium shot",
+      "lagos apapa port cargo facility aerial wide establishing shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. Vast industrial port at dusk with towering stacks of multicoloured shipping containers stretching to the horizon. A large cargo ship sits docked under amber port floodlights. No people visible. Cinematic wide establishing shot. Cool blue and orange tones. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian man standing at a plain courier service counter in a Manchester post office. He holds a printed shipping quote and stares at it with wide-eyed disbelief. Fluorescent overhead lighting. Light grey counter. Medium shot. Surprised expression. No brand logos. No text visible. Vertical 9:16 portrait.",
+      "Photorealistic. Same 30-year-old Nigerian man standing in a modern Manchester flat, pressing a smartphone to his ear with a tense, frustrated expression. He pinches the bridge of his nose with his free hand. Soft natural daylight from a window. Neutral beige wall behind him. Medium shot. Stressed emotion. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Same 30-year-old Nigerian man standing in a busy Manchester Airport departure hall handing a medium-sized brown cardboard parcel to a 40-year-old Nigerian female traveller with carry-on luggage. Bright airport terminal lighting. Departure boards visible in background. Wide shot. Relief and gratitude on both faces. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 40-year-old Nigerian woman seated in an economy class aircraft seat, a securely taped brown parcel resting on her lap with her hands placed carefully on top. Cabin windows show dark sky outside. Warm cabin overhead lighting. Wide shot capturing two rows of seats. Calm, responsible expression. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Same 40-year-old Nigerian woman walking confidently through a bright Lagos Murtala Muhammed Airport international arrivals hall. She pulls a rolling suitcase with the brown parcel tucked under her arm. Warm tropical daylight floods the terminal. Crowd of arrivals in the background. Wide shot. Purposeful stride. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 24-year-old Nigerian male student standing in a modern Lagos office lobby, both hands outstretched receiving the brown cardboard parcel from the female traveller. Bright smile of pure relief on his face. Clean white lobby walls. Natural afternoon light. Medium shot. Joyful, emotional moment. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Sweeping aerial wide shot of Lagos Apapa cargo port at golden hour. Cranes, shipping containers, and a network of roads connecting the port to the city skyline stretch into the distance. Warm amber and orange sunset light. Cinematic and expansive. No people. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic video. Vast industrial port at dusk with towering stacks of multicoloured shipping containers stretching to the horizon. A large cargo ship sits docked under amber port floodlights. Cool blue and orange tones dominate. No people visible. Wide establishing shot. Camera slowly zooms in over 4 seconds, building tension. Cinematic, vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "disbelief",
+        "full_prompt": "Photorealistic video. 30-year-old Nigerian man standing at a plain courier service counter in a Manchester post office, holding a printed shipping quote. He stares at it with wide-eyed disbelief and shock. Fluorescent overhead lighting casts bright, clinical light across a light grey counter. Medium shot, static camera. His expression registers surprise and concern for 4 seconds. Vertical 9:16 portrait. No brand logos, no text visible."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video. Same 30-year-old Nigerian man in a modern Manchester flat, pressing a smartphone to his ear with a tense, frustrated expression. He pinches the bridge of his nose with his free hand, showing stress and worry. Soft natural daylight streams from a window. Neutral beige wall behind him. Medium shot, static camera. His facial expression and body language convey deep frustration for 4 seconds. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "urgency",
+        "full_prompt": "Photorealistic video. Same 30-year-old Nigerian man in a busy Manchester Airport departure hall handing a medium-sized brown cardboard parcel to a 40-year-old Nigerian female traveller with carry-on luggage. Bright airport terminal lighting. Departure boards visible in the background. Wide shot. Both figures show relief and gratitude on their faces. Camera gently pans left over 4 seconds. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "responsibility",
+        "full_prompt": "Photorealistic video. 40-year-old Nigerian woman seated in an economy class aircraft seat, a securely taped brown cardboard parcel resting on her lap with her hands placed carefully on top. Cabin windows show dark sky outside. Warm cabin overhead lighting illuminates the space. Wide shot capturing two rows of seats. Her calm, responsible expression shows she understands the weight of this moment. Camera slowly pulls back over 4 seconds. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video. 40-year-old Nigerian woman walking confidently through a bright Lagos Murtala Muhammed Airport international arrivals hall. She pulls a rolling suitcase with the brown parcel tucked securely under her arm. Warm tropical daylight floods the terminal. A crowd of other arrivals moves in the background. Wide shot. Her purposeful stride and confident movement convey triumph. Camera executes a smooth dolly forward over 4 seconds. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. 24-year-old Nigerian male student standing in a modern Lagos office lobby, both hands outstretched receiving the brown cardboard parcel from the female traveller. A bright smile of pure relief and joy spreads across his face. Clean white lobby walls surround them. Natural afternoon light bathes the space warmly. Medium shot. This is an emotional, triumphant moment of reunion. Camera slowly zooms out over 4 seconds. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "aspiration",
+        "full_prompt": "Photorealistic video. Sweeping aerial wide shot of Lagos Apapa cargo port at golden hour. Cranes, shipping containers, and a network of roads connecting the port to the city skyline stretch into the distance. Warm amber and orange sunset light bathes the entire landscape. Cinematic and expansive atmosphere. No people visible. Camera slowly pans right over 4 seconds, revealing the interconnected journey. Vertical 9:16 portrait. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 100
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His brother's degree portfolio was due in six days.\n\nThe courier said nine. Emeka found a traveller already flying to Lagos on Tuesday through BootHop — prints delivered with two days to spare. Chidi submitted on time.\n\nHas a tight deadline ever forced you to think differently about delivery?",
+    "caption_instagram": "Six days. A degree portfolio still in Manchester. A courier that couldn't move fast enough.\n\nEmeka didn't need a miracle — he needed someone already on their way. Someone was already making that journey. BootHop connected them before Monday night, and Chidi's prints landed in Lagos with two full days to spare.\n\nFollow BootHop for more stories like this. Would you have known where to turn in Emeka's position?",
+    "youtube_title": "His brother's degree deadline was six days away",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "ddf352ee",
+    "date": "2026-07-14",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Her dad was turning 70. The gift was still in Coventry.",
+    "problem": "A reputable courier quoted eleven days. The party was in six.",
+    "stakes": "Her father would celebrate without a single thing from her.",
+    "resolution": "Her colleague Temi was already flying Thursday. BootHop connected them.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "nigerian british woman bedroom holding small gift box worried medium shot",
+      "laptop screen expensive courier price quote eleven days wide shot",
+      "black british woman phone call shocked frustrated high price medium shot",
+      "woman handing small parcel nigerian man airport departure terminal medium shot",
+      "nigerian male traveller airplane seat relaxed small parcel overhead bin medium shot",
+      "nigerian man arriving lagos airport arrivals hall luggage wide shot",
+      "elderly nigerian man doorway receiving gift parcel smiling medium shot",
+      "lagos nigeria city skyline confident aspirational daytime wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Black British woman of Nigerian heritage sitting on the edge of a neatly made bed in a modest Coventry bedroom. She holds a small wrapped gift box and stares into the distance with a worried, conflicted expression. Soft natural daylight from a side window. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. A silver laptop open on a wooden desk in a modest UK home office. The screen displays a courier booking website showing a delivery estimate of eleven days and a high price in British pounds. Soft warm desk lamp light. Wide shot showing desk context. No brand logos. No text beyond on-screen quote details. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British woman of Nigerian heritage standing in a small UK kitchen, holding her smartphone to her ear with a shocked and frustrated expression. Her free hand is raised slightly in disbelief. Bright natural window light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British woman handing a small padded parcel to a 35-year-old Nigerian man with carry-on luggage at a busy UK airport departure concourse. Both are smiling with relief and trust. Bright overhead airport lighting. Medium shot capturing both figures and the parcel exchange. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man seated comfortably in an economy airplane seat, relaxed and calm. A small padded parcel is visible tucked securely in the overhead compartment above him, door slightly open. Warm cabin lighting. Medium shot showing seat row and overhead bin context. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man walking through a busy Lagos Murtala Muhammed Airport arrivals hall, carry-on bag rolling beside him, small parcel tucked under his arm. Bright fluorescent airport lighting, other travellers visible in background. Wide shot capturing the arrivals hall energy and signage context. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 70-year-old Nigerian man standing in the open doorway of a warm Lagos home, smiling broadly as he receives a small wrapped gift parcel from an outstretched hand. Golden late-afternoon sunlight spills through the door. Medium shot framing the doorway, the man's expression of joy, and the parcel handover. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Sweeping wide shot of the Lagos skyline on a clear sunny day — Victoria Island high-rises visible against a vivid blue sky, the lagoon reflecting the city below. The scene feels confident, modern, and aspirational. Golden hour sunlight. Wide establishing shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 30-year-old Black British woman of Nigerian heritage sitting on the edge of a neatly made bed in a modest Coventry bedroom. She holds a small wrapped gift box and stares into the distance with a worried, conflicted expression. Soft natural daylight from a side window. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. A silver laptop open on a wooden desk in a modest UK home office. The screen displays a courier booking website showing a delivery estimate of eleven days and a high price in British pounds. Soft warm desk lamp light. Wide shot showing desk context. No brand logos. No text beyond on-screen quote details. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 30-year-old Black British woman of Nigerian heritage standing in a small UK kitchen, holding her smartphone to her ear with a shocked and frustrated expression. Her free hand is raised slightly in disbelief. Bright natural window light. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 30-year-old Black British woman handing a small padded parcel to a 35-year-old Nigerian man with carry-on luggage at a busy UK airport departure concourse. Both are smiling with relief and trust. Bright overhead airport lighting. Medium shot capturing both figures and the parcel exchange. No text. No logos. Vertical 9:16 portrait. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man seated comfortably in an economy airplane seat, relaxed and calm. A small padded parcel is visible tucked securely in the overhead compartment above him, door slightly open. Warm cabin lighting. Medium shot showing seat row and overhead bin context. No text. No logos. Vertical 9:16 portrait. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian man walking through a busy Lagos Murtala Muhammed Airport arrivals hall, carry-on bag rolling beside him, small parcel tucked under his arm. Bright fluorescent airport lighting, other travellers visible in background. Wide shot capturing the arrivals hall energy and signage context. No text. No logos. Vertical 9:16 portrait. Camera: slow dolly forward. Duration: 4 seconds. Emotion: relief."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 70-year-old Nigerian man standing in the open doorway of a warm Lagos home, smiling broadly as he receives a small wrapped gift parcel from an outstretched hand. Golden late-afternoon sunlight spills through the door. Medium shot framing the doorway, the man's expression of joy, and the parcel handover. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom out. Duration: 4 seconds. Emotion: happiness."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. Sweeping wide shot of the Lagos skyline on a clear sunny day — Victoria Island high-rises visible against a vivid blue sky, the lagoon reflecting the city below. The scene feels confident, modern, and aspirational. Golden hour sunlight. Wide establishing shot. No text. No logos. Vertical 9:16 portrait. Camera: slow pan right. Duration: 4 seconds. Emotion: confidence."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 90
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her dad's 70th birthday was in six days.\n\nFunke had the framed photo and the letter ready — but every courier quoted longer than the wait. Then she realised her colleague Temi was already flying to Lagos that Thursday. BootHop made the match in under an hour. Her dad held that photo before the cake was even cut. What would YOU send if the journey was already sorted? 👇",
+    "caption_instagram": "Her father was turning 70. The framed photo and the letter she'd written by hand were sitting on her kitchen table in Coventry — and every courier she tried was quoting eleven working days.\n\nFunke's colleague Temi was already flying to Lagos that Thursday for the very same celebration. Someone was already making that journey. BootHop connected them, and the gift arrived the night before the party. Her dad unwrapped it in front of the whole family.\n\nThat's what peer-to-peer movement looks like. 💛 Link in bio to send with BootHop. What's the one thing you've been meaning to send home?",
+    "youtube_title": "Her Dad's 70th Birthday Gift Almost Didn't Make It",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "2e87ac56",
+    "date": "2026-07-14",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Framed family photo stuck in Coventry, ceremony soon!",
+    "problem": "£58 and eleven days delivery quote",
+    "stakes": "Her mum gets no gift",
+    "resolution": "BootHop found Blessing a traveller to Lagos",
+    "lesson": "Your journey can deliver",
+    "visual_queries": [
+      "nigerian woman coventry bedroom packing suitcase organised wide shot",
+      "airport departures board Lagos Nigeria destination wide shot UK",
+      "nigerian woman phone comparing shipping prices shocked medium shot",
+      "woman train station platform handing parcel traveller wide shot UK",
+      "traveller plane window seat flight relaxed Nigeria medium shot",
+      "nigerian woman arrivals hall airport Lagos customs exit confident wide shot",
+      "nigerian woman parcel handover Lagos family smiling doorstep medium shot",
+      "international airport exterior london street traveller suitcase confident wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman neatly folding clothes into an open suitcase on a bed in a modest Coventry bedroom. A framed family portrait rests visibly beside the suitcase. Warm indoor lamp light. Organised, purposeful expression. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Large digital departures board in a busy UK airport terminal displaying flight destinations including Lagos, Nigeria. Travellers with luggage visible in background. Bright artificial terminal lighting. Wide shot capturing full board and bustling concourse. No text overlays. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting at a kitchen table in a Coventry flat, holding her smartphone and staring at the screen with a shocked, frustrated expression. Screen reflects price figures. Soft daylight from a nearby window. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing on a wide UK train station platform handing a neatly wrapped parcel to a traveller with a rolling suitcase. Both figures visible in full. Natural daylight, overhead station lighting. Hopeful, slightly anxious expression. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman seated by an aeroplane window at cruising altitude, a neatly wrapped parcel on the seat beside her. She gazes calmly out at clouds below with a relaxed, thoughtful expression. Soft cabin ambient light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman walking confidently through a bright international arrivals hall, rolling suitcase in hand and parcel tucked under her arm. Warm overhead terminal lighting, signage blurred in background. Relieved, proud expression. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman smiling warmly as she hands a neatly wrapped parcel to an older Nigerian woman at a Lagos residential doorstep. Both women beaming with joy. Bright tropical natural daylight. Medium shot capturing both figures clearly. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing confidently outside a large international airport terminal or busy London street, rolling suitcase beside her, looking purposefully ahead. Golden hour natural sunlight. Busy urban backdrop slightly defocused. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman neatly folds clothes into an open suitcase on a bed in a modest Coventry bedroom. A framed family portrait sits visibly beside the suitcase. Warm indoor lamp light casts soft shadows. Her expression is organised and purposeful. Wide shot framing the full scene. Camera slowly pushes in over 4 seconds, building focus on her deliberate actions. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "urgency",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A large digital departures board in a busy UK airport terminal displays flight destinations including Lagos, Nigeria. Travellers with luggage move through the bustling concourse in the background. Bright artificial terminal lighting floods the scene. Wide shot captures the full board and the energy of the terminal. Camera remains static. Travellers pass by naturally. No text overlays, no logos."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman sits at a kitchen table in a Coventry flat, holding her smartphone and staring at the screen with a shocked, frustrated expression. The screen reflects price figures and costs. Soft daylight streams from a nearby window, creating gentle shadows. Medium shot captures her upper body and face. Camera remains static. Her expression shifts subtly as she absorbs the information. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman stands on a wide UK train station platform handing a neatly wrapped parcel to a traveller with a rolling suitcase. Both figures visible in full frame. Natural daylight mixed with overhead station lighting. Her expression is hopeful yet slightly anxious. Wide shot of the platform. Camera gently pans left over 4 seconds, following the exchange and revealing the station environment. No text, no logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "contemplation",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman is seated by an aeroplane window at cruising altitude, a neatly wrapped parcel on the seat beside her. She gazes calmly out at the clouds below with a relaxed, thoughtful expression. Soft cabin ambient light illuminates her face. Medium shot framing her seated by the window. Camera slowly pulls back over 4 seconds, revealing the parcel and the vast sky beyond. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman walks confidently through a bright international arrivals hall, rolling suitcase in hand and parcel tucked under her arm. Warm overhead terminal lighting bathes the scene. Signage blurred in the background. Her expression is relieved and proud. Wide shot capturing her full figure. Camera smoothly dollies forward over 4 seconds, moving with her confident stride. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman smiles warmly as she hands a neatly wrapped parcel to an older Nigerian woman at a Lagos residential doorstep. Both women beam with genuine joy and emotion. Bright tropical natural daylight bathes the scene with warm golden tones. Medium shot capturing both figures clearly and their connection. Camera slowly zooms out over 4 seconds, revealing the doorstep and home environment. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video, vertical 9:16 portrait. A 30-year-old Nigerian woman stands confidently outside a large international airport terminal, rolling suitcase beside her, looking purposefully ahead. Golden hour natural sunlight illuminates her with warm, aspirational light. A busy urban backdrop is softly defocused behind her. Wide establishing shot capturing her full presence and the terminal environment. Camera remains static. No movement needed. Her confident posture conveys mastery of the journey. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 69
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her mum was retiring after 30 years of nursing.\n\nBlessing had the perfect gift — a framed photo from their last family reunion. But a courier wanted £58 and eleven days. The ceremony was in six.\n\nBootHop found a traveller already flying to Lagos that Thursday. The photo arrived in time.\n\nHave you ever had a gift arrive just in time for the moment that mattered?",
+    "caption_instagram": "Blessing spent weeks choosing the perfect gift for her mum's retirement ceremony in Lagos. Then a courier quoted her £58 and eleven working days — the ceremony would already be over.\n\nShe found BootHop. Someone was already making that journey — flying to Lagos that Thursday from Coventry. The framed family photo arrived two days before the celebration.\n\nHer mum cried when she unwrapped it. That's the only delivery that mattered.\n\nHave you ever nearly missed a moment like this? Tell us below 👇",
+    "youtube_title": "She Almost Missed Her Mum's Retirement With This Gift",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "b45d5c53",
+    "date": "2026-07-15",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Ngozi's mum turned 70 on Saturday. The photo was still in Leicester.",
+    "problem": "A reputable courier quoted £58 and ten working days.",
+    "stakes": "The party would be over. Her mum would never see it.",
+    "resolution": "A colleague was already flying Thursday. BootHop connected them.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "nigerian woman london apartment holding photo frame medium shot",
+      "london black cab night city",
+      "nigerian woman frustrated phone app london street medium shot",
+      "black woman handing parcel traveller london train station wide shot",
+      "black male traveller airport departure gate suitcase parcel medium shot",
+      "black man arriving terraced house front door parcel medium shot",
+      "elderly nigerian woman receiving parcel front door smiling medium shot",
+      "diverse community london street warm sunny welcoming wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman standing in a tidy modern London apartment, holding a framed family photograph and looking at it with quiet emotion. Warm evening interior light. Casual clothes. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Two Nigerian-British women in their late 20s and early 30s sitting across from each other at a small table in a bright community cafe in London, talking animatedly and smiling. Natural daylight. Casual clothes. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing on a busy London pavement, scrolling through a delivery app on her smartphone with a worried and frustrated expression. Overcast daylight. Coat and bag. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a busy London train station concourse. A 30-year-old Nigerian woman hands a neatly wrapped brown parcel to a smiling male traveller with a rolling suitcase. Warm ambient station lighting. Both look relaxed and friendly. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Black British man standing at an airport departure gate, rolling suitcase beside him, a brown parcel tucked under his arm, looking calm and purposeful. Bright airport gate lighting. Smart casual clothes. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Black British man arriving at the front door of a red-brick Leicester terraced house, holding a brown parcel, pressing the doorbell with a warm smile. Late afternoon golden light. Smart casual clothes. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 70-year-old Nigerian woman standing at her open front door in Leicester, receiving a brown parcel from a man's outstretched hands, her face lit up with a wide joyful smile. Warm golden doorstep light. Colourful traditional fabric top. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a warm, tree-lined London street on a sunny afternoon. A diverse mix of people — Black, South Asian, and White — walk, chat, and smile outside a community space. Soft golden hour light. Relaxed and welcoming atmosphere. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "quiet contemplation",
+        "full_prompt": "Photorealistic vertical video. A 30-year-old Nigerian woman stands in a modern London apartment holding a framed family photograph. She gazes at it with quiet emotion and tenderness. Warm golden evening interior light bathes the space. She wears casual clothes. Camera slowly zooms in over 4 seconds, building emotional connection. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "warmth and connection",
+        "full_prompt": "Photorealistic vertical video. Two Nigerian-British women in their late 20s and early 30s sit across from each other at a small table in a bright London community cafe. They talk animatedly and smile broadly, leaning towards each other. Natural daylight streams through windows. Both wear casual clothes. Camera remains static, capturing the energy of their conversation. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration and worry",
+        "full_prompt": "Photorealistic vertical video. A 30-year-old Nigerian woman stands on a busy London pavement scrolling through a delivery app on her smartphone. Her expression shows worry and frustration. Overcast daylight. She wears a coat and carries a bag. Background shows urban foot traffic slightly blurred. Camera remains static. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "decisive action",
+        "full_prompt": "Photorealistic vertical video. Wide shot of a busy London train station concourse. A 30-year-old Nigerian woman hands a neatly wrapped brown parcel to a smiling male traveller carrying a rolling suitcase. Both appear relaxed and friendly. Warm ambient station lighting. Camera gently pans left across the scene over 4 seconds. No text or logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "purpose and responsibility",
+        "full_prompt": "Photorealistic vertical video. A 35-year-old Black British man stands at an airport departure gate with a rolling suitcase beside him and a brown parcel tucked under his arm. He looks calm and purposeful. Bright airport gate lighting illuminates him. He wears smart casual clothes. Camera slowly pulls back over 4 seconds, revealing the emotional weight of the moment. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "anticipation and warmth",
+        "full_prompt": "Photorealistic vertical video. A 35-year-old Black British man arrives at the front door of a red-brick Leicester terraced house, holding a brown parcel and pressing the doorbell with a warm smile. Late afternoon golden light bathes the doorstep. He wears smart casual clothes. Camera slowly dollies forward over 4 seconds with optimistic energy. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy and reunion",
+        "full_prompt": "Photorealistic vertical video. A 70-year-old Nigerian woman stands at her open front door receiving a brown parcel from a man's outstretched hands. Her face is lit with a wide, joyful smile. Warm golden doorstep light. She wears a colourful traditional fabric top. Camera slowly zooms out over 4 seconds, expanding the moment. Medium shot framing. No text or logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence and community",
+        "full_prompt": "Photorealistic vertical video. Wide shot of a warm, tree-lined London street on a sunny afternoon. A diverse mix of people — Black, South Asian, and White — walk, chat, and smile outside a community space. Soft golden hour light creates a welcoming atmosphere. Camera slowly pans right across the scene over 4 seconds with confident, aspirational energy. No text or logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 100
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Ngozi's mum was turning 70 on Saturday.\n\nThe framed graduation photo sat wrapped on her kitchen counter in Leicester. A courier wanted £58 and ten days. Then she found BootHop — her colleague was already flying to Lagos on Thursday. It arrived in time to sit on the table at the party.\n\nHave you ever sent something home just in time? 👇",
+    "caption_instagram": "The frame was wrapped. The flight was Thursday. The birthday was Saturday.\n\nNgozi, a teacher in Leicester, wanted her mum to hold a framed family photo at her 70th birthday celebration in Lagos. A traditional courier wanted £58 and ten working days — the party would already be a memory. Someone was already making that journey. BootHop connected Ngozi with her colleague, who carried it straight to the door. Her mum cried when she opened it.\n\nShare this with someone who knows exactly what it means to send something home. What's the most meaningful thing you've ever sent back? 💛",
+    "youtube_title": "She wanted her mum to have it at the party",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "4e80e1b7",
+    "date": "2026-07-15",
+    "slot": 4,
+    "version": "v1",
+    "pillar": "",
+    "hook": "His father's retirement ceremony was six days away.",
+    "problem": "Courier cost £58 and takes 11 days.",
+    "stakes": "Father won't see photo.",
+    "resolution": "A colleague was already flying Lagos. BootHop connected them for £12.",
+    "lesson": "The parcel joined an existing journey.",
+    "visual_queries": [
+      "nigerian woman london heathrow check-in desk professional wide shot",
+      "nigerian woman airport lounge laptop app earnings pleased medium shot",
+      "confident nigerian woman airport departure gate cabin luggage wide shot",
+      "nigerian woman receiving small parcel london train station wide shot",
+      "nigerian woman airplane window seat flight relaxed medium shot",
+      "nigerian woman exiting lagos airport arrivals confident wide shot",
+      "two nigerian people parcel handover payment smiling mutual benefit medium shot",
+      "lagos nigeria modern skyline golden hour aspirational wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer standing at a busy London Heathrow airport check-in desk, holding a boarding pass and small carry-on bag, looking calm and organised. Bright overhead terminal lighting. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer seated in a modern airport departure lounge, laptop open on her lap showing an earnings dashboard app, smiling with quiet satisfaction. Warm ambient lounge lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer striding confidently through a wide airport departure gate, pulling a compact cabin-sized suitcase, gate number signs visible above. Bright natural terminal light. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer standing on the concourse of a busy London train station, receiving a small neatly wrapped parcel from a younger British man. Both looking purposeful. High-ceilinged station architecture, natural light streaming in. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer seated by an airplane window, small parcel tucked safely in the overhead-bin area implied, gazing out at clouds with a calm, thoughtful expression. Soft cabin lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman in a smart blazer walking out through bright Lagos Murtala Muhammed International Airport arrivals doors, cabin suitcase in hand, looking confident and purposeful. Warm West African sunlight flooding the exit. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman handing a small neatly wrapped parcel to a smiling 60-year-old Nigerian man in a bright Lagos residential courtyard. Both beaming, a phone screen between them showing a completed payment. Warm golden afternoon light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide panoramic view of the Lagos Victoria Island skyline at golden hour, modern glass towers reflecting warm amber light over the lagoon, conveying ambition, connection and progress. No people. No text. No logos. Cinematic wide shot. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer stands at a busy London Heathrow airport check-in desk, holding a boarding pass and small carry-on bag with calm, organised composure. Bright overhead terminal lighting illuminates the scene. Wide shot framing. Camera slowly zooms in over 4 seconds, building tension and focus. The woman's expression remains steady and purposeful. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "quiet satisfaction",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer is seated in a modern airport departure lounge, laptop open on her lap displaying an earnings dashboard app. She smiles with quiet satisfaction and subtle confidence. Warm ambient lounge lighting bathes the scene. Medium shot framing. Camera remains static for 4 seconds, capturing her composed demeanor. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "purposeful urgency",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer strides confidently through a wide airport departure gate, pulling a compact cabin-sized suitcase. Gate number signs are visible above. Bright natural terminal lighting floods the scene. Wide shot framing. Camera remains static for 4 seconds, showing her forward momentum and determination. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "meaningful exchange",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer stands on the concourse of a busy London train station, receiving a small neatly wrapped parcel from a younger British man. Both figures display purposeful, focused expressions. High-ceilinged station architecture frames the scene with natural light streaming through skylights. Wide shot framing. Camera gently pans left over 4 seconds, revealing the exchange and surrounding energy. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "quiet reflection",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer is seated by an airplane window, a small parcel safely tucked in the nearby overhead-bin area. She gazes out at clouds with a calm, thoughtful expression, reflecting on the journey ahead. Soft warm cabin lighting illuminates the intimate scene. Medium shot framing. Camera slowly pulls back over 4 seconds, revealing the emotional context and isolation of the moment. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "triumphant arrival",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer walks out through bright Lagos Murtala Muhammed International Airport arrivals doors, cabin suitcase in hand, displaying confident and purposeful bearing. Warm West African sunlight floods the exit in golden tones. Wide shot framing. Camera smoothly dollies forward over 4 seconds, building optimistic energy as she emerges into the light. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joyful connection",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A 30-year-old Nigerian woman in a professional smart blazer hands a small neatly wrapped parcel to a smiling 60-year-old Nigerian man in a bright Lagos residential courtyard. Both beam with genuine happiness and relief. A phone screen between them displays a completed payment confirmation. Warm golden afternoon light bathes the scene in amber tones. Medium shot framing. Camera slowly zooms out over 4 seconds, revealing the full warmth of their connection and the courtyard setting. No text, logos, or identifying markers visible."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "aspirational confidence",
+        "full_prompt": "Photorealistic video, 9:16 vertical format. A panoramic establishing shot of the Lagos Victoria Island skyline at golden hour. Modern glass towers reflect warm amber light over the lagoon, conveying themes of ambition, connection, and progress. No people visible. Cinematic wide shot framing. Camera slowly pans right over 4 seconds, sweeping across the skyline to reinforce a sense of confident, forward momentum and possibility. No text, logos, or identifying markers visible."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 75
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His dad was retiring. The framed photo was still in Leeds.\n\nA traditional courier wanted eleven working days. The ceremony was in six. Tobi found a colleague already flying to Lagos — BootHop connected them for £12. It arrived the day before.\n\nHave you ever sent something home at the last minute? How did you manage it?",
+    "caption_instagram": "His father's retirement ceremony was six days away. The framed family photo and handwritten letter were still sitting on Tobi's kitchen table in Leeds.\n\nA traditional courier quoted eleven working days and £58. The ceremony would have been long over. Then Tobi found BootHop — someone was already making that journey. A colleague flying to Lagos that Thursday carried it over for £12. His father held that photo on the morning of his ceremony.\n\nThat's what BootHop does. Drop the link in bio and tell us — what would you send home if the cost wasn't the barrier?",
+    "youtube_title": "He nearly missed his dad's retirement with a framed photo",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "b0d12aa8",
+    "date": "2026-07-15",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "",
+    "hook": "His father's burial is Friday; photo's in Coventry.",
+    "problem": "Courier needs nine days for delivery.",
+    "stakes": "Mother's farewell lacks the family photo.",
+    "resolution": "BootHop linked a traveller on Wednesday.",
+    "lesson": "The parcel found a way.",
+    "visual_queries": [
+      "busy airport departures hall diverse travellers luggage wide shot",
+      "airport customs security checkpoint officer inspecting luggage bags medium shot",
+      "stressed Black woman airport service counter desk worried medium shot",
+      "traveller departure gate cabin luggage small parcel carry-on medium shot",
+      "commercial airplane dramatic takeoff runway sunset wide shot",
+      "airport arrivals hall travellers walking through exit doors wide shot",
+      "smiling Black woman parcel handover airport arrivals greeting recipient medium shot",
+      "international airport terminal exterior wide aerial skyline dusk shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. Busy international airport departures hall filled with diverse travellers pulling suitcases and carry-on bags. Bright overhead terminal lighting with departure boards visible in background. A 30-year-old Black British woman in a dark coat moves purposefully through the crowd. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Airport security checkpoint with a uniformed officer examining a traveller's bag on a conveyor belt. Fluorescent terminal lighting. A 30-year-old Black British woman in a dark coat places a small wrapped parcel into a grey security tray. Focused, slightly tense expression. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. A 30-year-old Black British woman in a dark coat stands at an airport service counter looking stressed and frustrated. She holds a small parcel on the desk while speaking to a counter agent. Bright terminal lighting. Worried expression. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. A 30-year-old Black British woman in a dark coat stands at a departure gate holding a carry-on bag and a small neatly wrapped parcel. Gate signage and boarding bridge visible in background. Warm artificial airport lighting. Determined but anxious expression. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. A large commercial passenger aircraft lifts dramatically off a runway at dusk, engines blazing with heat haze. Golden and deep blue sky on the horizon. Wide establishing shot from ground level. Motion blur on landing gear. Cinematic and dramatic atmosphere. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Bright international airport arrivals hall with several travellers streaming through automatic exit doors carrying luggage. A 30-year-old Black British woman in a dark coat walks forward holding a small parcel, relief visible on her face. Warm overhead lighting. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. A 30-year-old Black British woman in a dark coat smiles warmly as she hands a small neatly wrapped parcel to a relieved 55-year-old Nigerian woman at airport arrivals. Both women look happy and emotional. Bright arrivals hall background. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide aerial or elevated ground-level view of a large international airport terminal at dusk. Aircraft parked at gates, runway lights glowing, city skyline faintly visible on the horizon. Golden hour lighting with deep blue sky. Grand and cinematic scale. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "urgency",
+        "full_prompt": "Photorealistic video. Busy international airport departures hall filled with diverse travellers pulling suitcases and carry-on bags. Bright overhead terminal lighting with departure boards visible in soft focus background. A 30-year-old Black British woman in a dark coat moves purposefully through the crowd, weaving between other passengers. Camera slowly zooms in on her determined figure over 4 seconds. Wide shot, vertical 9:16 portrait format. No text, no logos. Building tension and purpose."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic video. Airport security checkpoint with a uniformed officer examining a traveller's bag on a conveyor belt. Fluorescent terminal lighting casting sharp shadows. A 30-year-old Black British woman in a dark coat places a small wrapped parcel into a grey security tray with careful precision. Her focused, slightly tense expression visible as she watches the parcel move toward the scanner. Camera remains static from medium distance. Vertical 9:16 portrait format. No text, no logos. Moment of controlled anxiety."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video. A 30-year-old Black British woman in a dark coat stands at an airport service counter looking stressed and frustrated. She holds a small parcel on the desk while speaking to a counter agent, her shoulders slightly tense. Bright terminal lighting from overhead panels. Worried expression visible as she explains her situation. Camera remains static, medium shot framing both her and the counter agent. Vertical 9:16 portrait format. No text, no logos. Weight of bureaucratic resistance."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "anxiety",
+        "full_prompt": "Photorealistic video. A 30-year-old Black British woman in a dark coat stands at a departure gate holding a carry-on bag and a small neatly wrapped parcel close to her chest. Gate signage and boarding bridge visible in background. Warm artificial airport lighting. Determined but anxious expression as she clutches the parcel, waiting. Camera gently pans left over 4 seconds, revealing the gate environment. Medium shot. Vertical 9:16 portrait format. No text, no logos. Moment before commitment."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "gravity",
+        "full_prompt": "Photorealistic video. A large commercial passenger aircraft lifts dramatically off a runway at dusk, engines blazing with visible heat haze. Golden and deep blue sky on the horizon. Camera slowly pulls back over 4 seconds to reveal the full scale of the moment—the aircraft rising against the vast sky, landing gear retracting. Motion blur on landing gear emphasizes the power of takeoff. Wide establishing shot. Vertical 9:16 portrait format. No text, no logos. Cinematic, dramatic, irreversible moment."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video. Bright international airport arrivals hall with several travellers streaming through automatic exit doors carrying luggage. A 30-year-old Black British woman in a dark coat walks forward holding a small parcel, visible relief on her face as she moves through the space. Warm overhead lighting bathes the scene. Camera smoothly dollies forward over 4 seconds, moving with her optimistic momentum. Wide shot. Vertical 9:16 portrait format. No text, no logos. Safe passage achieved."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. A 30-year-old Black British woman in a dark coat smiles warmly as she hands a small neatly wrapped parcel to a relieved 55-year-old Nigerian woman at airport arrivals. Both women look happy and visibly emotional—shoulders relaxed, genuine smiles, warmth between them. Bright arrivals hall background with soft warm lighting. Camera slowly zooms out over 4 seconds to frame both figures in the moment of connection. Medium shot. Vertical 9:16 portrait format. No text, no logos. Love transcends distance."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "aspiration",
+        "full_prompt": "Photorealistic video. Wide elevated ground-level view of a large international airport terminal at dusk. Aircraft parked at gates with ground lights illuminated, runway lights glowing golden, city skyline faintly visible on the horizon. Golden hour lighting with deep blue sky creating cinematic atmosphere. Camera slowly pans right over 4 seconds, revealing the scale and complexity of global connection. Wide establishing shot. Vertical 9:16 portrait format. No text, no logos. Grand, confident scale—the world is connected."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 0,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 63
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His father's burial was Friday. The photo was still in Coventry.\n\nA reputable courier wanted nine days. Adaeze was already flying Wednesday night. BootHop connected them before she left for the airport — and the photo arrived in time.\n\nHave you ever carried something important for someone on a trip you were already making?",
+    "caption_instagram": "His father's burial was Friday. A framed family photo sat in Coventry with nowhere to go.\n\nA reputable courier quoted nine days. Emeka's mother would have buried her husband without it. Then BootHop matched him with Adaeze — a nurse from Wolverhampton already flying to Lagos that Wednesday. She carried it across. It arrived Thursday morning. Someone was already making that journey.\n\nThat photo made it to Enugu in time. 💛\n\nHave you ever sent — or carried — something that truly mattered?",
+    "youtube_title": "He needed a photo in Enugu before his father's burial",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "2cf3262b",
+    "date": "2026-07-15",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Adaeze's mum turns 70, still waiting for wedding photo.",
+    "problem": "Courier wants £58 and 15 days.",
+    "stakes": "Birthday will pass without it.",
+    "resolution": "BootHop found a traveller to deliver it.",
+    "lesson": "Your parcel can find a seat.",
+    "visual_queries": [
+      "nigerian woman uk living room birthday card gift medium shot",
+      "black woman courier service counter shocked expensive price medium shot",
+      "nigerian woman home sofa worried phone call stressed medium shot",
+      "black woman handing parcel traveller london train station friendly medium shot",
+      "black male traveller airplane window seat relaxed flying nigeria medium shot",
+      "traveller doorstep lagos nigeria family reunion warm greeting medium shot",
+      "elderly nigerian woman receiving gift parcel home smiling happy medium shot",
+      "wide london residential terraced street sunny neighbourhood wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 35-year-old Nigerian woman standing in a tidy London terraced house living room. She holds a small wrapped gift and a cream birthday card, smiling softly with warmth. Warm indoor lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian woman standing at a plain courier service counter in a UK shop. Her eyes are wide and mouth slightly open in shock, staring at a printed receipt. Bright fluorescent shop lighting. Medium shot. No brand logos. No text. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian woman sitting on a grey sofa in a modest London flat. She holds her phone to her ear, brow furrowed, looking stressed and uncertain. Soft natural window light from the side. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian woman at a busy London train station concourse handing a small brown parcel to a 40-year-old Nigerian male traveller with a carry-on bag. Both are smiling warmly. Natural station ambient light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 40-year-old Nigerian man seated comfortably in an economy window seat on a daytime flight. He looks relaxed, gazing out the oval window at blue sky and clouds. The small parcel rests on his lap. Soft natural cabin light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 40-year-old Nigerian male traveller standing at the open doorstep of a warm Lagos family home. A 70-year-old Nigerian woman greets him with a wide joyful smile, arms slightly open. Late afternoon golden sunlight. Lush green plants visible nearby. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 70-year-old Nigerian woman sitting in a bright Lagos living room, holding a small unwrapped gift and smiling radiantly. Warm afternoon light fills the room. Colourful Ankara fabric cushions visible in the background. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide establishing shot of a quiet, sunny London residential street lined with red-brick terraced houses, parked cars, and leafy pavement trees. Bright natural daylight. Calm and familiar neighbourhood atmosphere. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "warmth",
+        "full_prompt": "Photorealistic video. A 35-year-old Nigerian woman stands in a tidy London terraced house living room, holding a small wrapped gift and cream birthday card. She smiles softly with genuine warmth. Warm indoor lighting bathes the scene. Medium shot, vertical 9:16 portrait. Camera slowly pushes in over 4 seconds, building emotional connection. Woman remains still, her smile steady and tender. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "shock",
+        "full_prompt": "Photorealistic video. A 35-year-old Nigerian woman stands at a plain courier service counter in a UK shop. Her eyes widen and mouth opens slightly in shock as she stares at a printed receipt in her hands. Bright fluorescent shop lighting. Medium shot, vertical 9:16 portrait. Camera remains static for 4 seconds. Woman's gaze fixed on receipt, her expression shifting from calm to surprised realization. No brand logos, no text."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic video. A 35-year-old Nigerian woman sits on a grey sofa in a modest London flat, holding her phone to her ear. Her brow is furrowed, expression stressed and uncertain. Soft natural window light from the side. Medium shot, vertical 9:16 portrait. Camera static for 4 seconds. Woman listens intently to the phone, occasionally glancing down, weight of worry visible in her posture. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video. A 35-year-old Nigerian woman and a 40-year-old Nigerian male traveller stand at a busy London train station concourse. She hands him a small brown parcel, both smiling warmly. Natural station ambient light. Medium shot, vertical 9:16 portrait. Camera gently pans left over 4 seconds, revealing the exchange. Both figures animated with hopeful energy, the parcel passed with care. No text, no logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "contemplation",
+        "full_prompt": "Photorealistic video. A 40-year-old Nigerian man sits comfortably in an economy window seat on a daytime flight. He gazes out the oval window at blue sky and clouds, relaxed and thoughtful. The small brown parcel rests on his lap. Soft natural cabin light. Medium shot, vertical 9:16 portrait. Camera slowly pulls back over 4 seconds, revealing the isolation and significance of the moment. Man's expression peaceful yet purposeful. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. A 40-year-old Nigerian male traveller stands at the open doorstep of a warm Lagos family home. A 70-year-old Nigerian woman greets him with a wide joyful smile, arms slightly open in welcome. Late afternoon golden sunlight illuminates the scene. Lush green plants visible nearby. Medium shot, vertical 9:16 portrait. Camera smoothly dollies forward over 4 seconds, moving toward the embrace. Both figures radiant with emotion, the reunion unfolding warmly. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "fulfillment",
+        "full_prompt": "Photorealistic video. A 70-year-old Nigerian woman sits in a bright Lagos living room, holding a small unwrapped gift and smiling radiantly. Warm afternoon light fills the room. Colourful Ankara fabric cushions visible in the background. Medium shot, vertical 9:16 portrait. Camera slowly zooms out over 4 seconds, revealing the full context of her joy. Woman's expression glowing with deep happiness, the gift treasured in her hands. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video. A quiet, sunny London residential street lined with red-brick terraced houses, parked cars, and leafy pavement trees. Bright natural daylight creates calm, familiar neighbourhood atmosphere. Wide shot, vertical 9:16 portrait. Camera slowly pans right over 4 seconds across the peaceful streetscape. No people visible. The scene projects quiet stability and aspiration, suggesting reliability and trust. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 75
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her mum had never seen a single wedding photo.\n\nAdaeze's been in Nottingham three years. Her mum turns 70 in six days. A courier wanted £58 and fifteen days. Instead, BootHop matched her with a traveller already flying to Enugu on Thursday — the frame arrived the morning of the celebration.\n\nHave you ever sent something home at the last minute? 👇",
+    "caption_instagram": "She kept the framed wedding photo on her bedside table — waiting for the right moment to send it home. Her mum's 70th birthday was that moment.\n\nA reputable courier wanted £58 and fifteen business days. The celebration would have been long over. But someone was already making that journey — a traveller flying to Enugu that Thursday. BootHop connected them for a fraction of the cost. The photo was in her mother's hands the morning of her birthday.\n\nSend something that matters. Link in bio. 💛 What's the one thing you'd send home if you could?",
+    "youtube_title": "She sent her mum a wedding photo three years late",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "bb311358",
+    "date": "2026-07-16",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "",
+    "hook": "His dad's 70th was on Saturday. The gift was still in Coventry.",
+    "problem": "Courier couldn't guarantee delivery by Saturday.",
+    "stakes": "Dad's birthday gift might miss the date.",
+    "resolution": "BootHop found a traveller already flying to Lagos on Thursday.",
+    "lesson": "Your parcel's flight is already booked!",
+    "visual_queries": [
+      "nigerian woman bedroom suitcase packing organised medium shot",
+      "airport departures board Lagos Nigeria flight wide shot",
+      "nigerian woman phone comparing courier prices frustrated medium shot",
+      "woman train station platform handing parcel traveller wide shot",
+      "male traveller plane window seat flight relaxed medium shot",
+      "confident male traveller Lagos airport arrivals hall exiting wide shot",
+      "two nigerian men smiling parcel handover doorstep Lagos medium shot",
+      "london heathrow airport exterior busy international departures wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman carefully folding clothes into an open suitcase on a bed in a tidy modern UK bedroom. She looks focused and organised, passport and travel documents visible nearby. Warm natural daylight from window. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Large illuminated departures board inside a busy UK international airport terminal showing a Lagos, Nigeria flight destination. Travellers with luggage visible in the background, bright terminal lighting overhead. Wide shot capturing the full board and bustling concourse. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting at a kitchen table in a modern UK flat, holding a smartphone and scrolling through delivery pricing options with a frustrated, concerned expression. Soft natural light from nearby window. Medium shot. No courier brand names visible. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman standing on a busy UK train station platform handing a neatly wrapped parcel to a confident male traveller with a carry-on suitcase. Both look relaxed and purposeful. Natural daylight, open platform environment. Wide shot showing platform surroundings. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old male traveller of African descent sitting in an economy class window seat aboard a commercial aircraft, gazing out at clouds below with a calm, relaxed expression. A wrapped parcel rests on the seat beside him. Soft cabin lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old male traveller of African descent walking confidently through a bright international airport arrivals hall, carry-on luggage in hand, parcel tucked under arm, smiling as he exits customs. Other travellers visible in background. Wide shot with open terminal architecture. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old male traveller smiling as he hands a neatly wrapped gift parcel to an older Nigerian man, approximately 70 years old, at the doorstep of a warm Lagos home. Both men look genuinely happy and relieved. Bright natural outdoor light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide exterior shot of a large busy international airport in London, with travellers wheeling luggage toward glass terminal entrance doors under a bright overcast sky. Urban energy, taxis and vehicles visible at the kerb. Wide shot capturing the full terminal facade and forecourt. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "concern",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman carefully folds clothes into an open suitcase on a bed in a modern UK bedroom. She looks focused and organised. Her passport and travel documents are visible on the bedside table. Warm natural daylight streams through the window, illuminating the scene. Medium shot framing the woman and suitcase. Camera slowly zooms in over 4 seconds, building tension. Woman's hands move deliberately as she folds. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic video. A large illuminated departures board inside a busy UK international airport terminal displays a Lagos, Nigeria flight destination prominently. Travellers with luggage move through the bright terminal in the background. Overhead terminal lighting is sharp and clinical. Wide shot capturing the full departures board and bustling concourse activity. Camera remains static for 4 seconds. Travellers walk past with purpose. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman sits at a kitchen table in a modern UK flat, holding a smartphone and scrolling through delivery pricing options. Her expression shows frustration and concern. Soft natural light from a nearby window falls across the table. Medium shot framing her from the waist up. Camera remains static. Her thumb scrolls slowly through options on the phone screen for 4 seconds. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman stands on a busy UK train station platform handing a neatly wrapped parcel to a confident male traveller wearing casual clothes and carrying a carry-on suitcase. Both look relaxed and purposeful. Natural daylight illuminates the open platform. Wide shot showing the platform surroundings, other travellers in the background. Camera gently pans left over 4 seconds, following the parcel exchange. Both figures move with intention. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "vulnerability",
+        "full_prompt": "Photorealistic video. A 35-year-old male traveller of African descent sits in an economy class window seat aboard a commercial aircraft, gazing out at clouds below with a calm, reflective expression. A neatly wrapped parcel rests on the seat beside him. Soft warm cabin lighting illuminates the scene. Medium shot framing the traveller and parcel. Camera slowly pulls back over 4 seconds, revealing the emotional weight of the journey. His gaze remains fixed on the window. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video. A 35-year-old male traveller of African descent walks confidently through a bright international airport arrivals hall, carry-on luggage in hand, parcel tucked under his arm, smiling as he exits customs. Other travellers visible in background. Bright overhead lighting reveals the open terminal architecture. Wide shot capturing the full scene. Camera executes a smooth, warm dolly forward over 4 seconds. His pace is purposeful and energised. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. A 35-year-old male traveller smiles warmly as he hands a neatly wrapped gift parcel to an older Nigerian man, approximately 70 years old, at the doorstep of a warm Lagos home. Both men look genuinely happy and relieved. Bright natural outdoor light bathes the scene in golden warmth. Medium shot framing both men. Camera slowly zooms out over 4 seconds, revealing the embrace of the moment and the home environment. Both figures' faces show authentic emotion. Vertical 9:16 portrait format."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video. Wide exterior shot of a large busy international airport in London. Travellers wheel luggage toward glass terminal entrance doors beneath a bright overcast sky. Taxis and vehicles are visible at the kerb. Urban energy and movement throughout the frame. Wide shot capturing the full terminal facade and forecourt. Camera slowly pans right over 4 seconds in a sweeping motion. Multiple travellers move with purpose. The mood is aspirational and powerful. Vertical 9:16 portrait format."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 75
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His dad was turning 70 on Saturday.\n\nTobi had a framed family photo and a handwritten letter sitting on his kitchen table in Coventry — and a courier quote that made no sense. BootHop matched him with a traveller already flying to Lagos that Thursday. It arrived the morning of the party.\n\nHave you ever sent something home at the last minute? 👇",
+    "caption_instagram": "His dad's 70th birthday was on Saturday. The framed photo and handwritten letter were still on a kitchen table in Coventry.\n\nTobi got a £58 quote from a reputable courier — with no delivery guarantee before the weekend. Then he found BootHop. Someone was already making that journey. A traveller flying from Birmingham to Lagos on Thursday carried it across. His father opened it the morning of his party.\n\nThat's the hack. 📦✈️ Share this with someone who needs to send something home. What would you send if you could? 👇",
+    "youtube_title": "He nearly missed his dad's 70th birthday gift",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "c125a441",
+    "date": "2026-07-16",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Her mum was turning 70. The framed photo was still in Leicester.",
+    "problem": "A traditional courier quoted £58 and fourteen working days.",
+    "stakes": "Saturday's gathering would pass. Her mum would never know.",
+    "resolution": "Folake was already flying Thursday. BootHop put the frame in her bag.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "busy airport departures hall diverse travellers luggage wide shot",
+      "airport security checkpoint officer checking luggage conveyor belt wide shot",
+      "nigerian woman stressed airport service counter parcel quote medium shot",
+      "nigerian woman departure gate cabin bag small wrapped parcel medium shot",
+      "commercial airplane taking off runway golden hour dramatic wide shot",
+      "airport arrivals hall travellers emerging through exit doors wide shot",
+      "nigerian woman handing wrapped parcel elderly mother airport arrivals smiling medium shot",
+      "lagos murtala muhammed international airport aerial skyline wide shot dusk"
+    ],
+    "image_prompts": [
+      "Photorealistic. Busy international airport departures hall, high ceilings with large departure boards overhead. Diverse travellers pulling suitcases and carry-on bags move purposefully across a polished floor. Among them a 30s Nigerian woman in casual travel clothes. Bright overhead terminal lighting. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Airport security checkpoint with grey conveyor belt and scanning arch. Uniformed security officer examines a bag. Travellers queue with carry-on luggage. Clinical white fluorescent lighting. Slightly anxious atmosphere. Wide shot capturing the full checkpoint lane. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30s Nigerian woman standing at an airport courier or service desk counter. She holds a printed quote sheet and looks frustrated, brow furrowed. Behind the counter a uniformed staff member. Bright terminal lighting. Small wrapped rectangular parcel sits on the counter. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30s Nigerian woman standing near an airport departure gate with a carry-on suitcase. She holds a small neatly wrapped rectangular parcel under one arm and checks her boarding pass on her phone. Warm gate lounge lighting. Relieved but focused expression. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Large commercial passenger aircraft lifting off a runway at dusk, engines blazing with heat shimmer. Dramatic golden hour sky with deep orange and purple clouds behind the aircraft. Tarmac stretches wide below. Powerful and emotional atmosphere. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Bright international airport arrivals hall. Automatic sliding doors open as travellers with suitcases walk out into the welcome area. A crowd of waiting family members stands beyond. Warm welcoming overhead lighting. Wide shot capturing the full arrivals exit. Uplifting atmosphere. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30s Nigerian woman smiling as she hands a small neatly wrapped rectangular parcel to an elderly Nigerian woman, 70s, in an airport arrivals hall. Both are beaming with joy. The older woman looks surprised and delighted. Warm ambient terminal lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Aerial wide shot of a large West African international airport at dusk, runways lit with blue and white taxiway lights. City skyline of Lagos glowing in the warm evening distance. Aircraft visible on apron. Epic and cinematic scale. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "purpose",
+        "full_prompt": "Photorealistic video. Busy international airport departures hall with high ceilings and large overhead departure boards. Diverse travellers pull suitcases and carry-on bags across polished flooring. A 30s Nigerian woman in casual travel clothes moves purposefully among the crowd. Bright overhead terminal lighting illuminates the wide shot. Camera slowly zooms in over 4 seconds, building focus on the traveler's determined movement. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic video. Airport security checkpoint with grey conveyor belt and metal scanning arch. A uniformed security officer examines a bag while travellers queue with carry-on luggage. Clinical white fluorescent lighting casts sharp shadows. The 30s Nigerian woman stands in the queue, waiting her turn. Static camera captures the full checkpoint lane in a wide shot over 4 seconds. Slightly anxious atmosphere. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic video. Airport courier service desk counter with bright terminal lighting. A 30s Nigerian woman stands at the counter holding a printed quote sheet, her brow furrowed in frustration. Behind the counter, a uniformed staff member is visible. A small wrapped rectangular parcel sits on the counter between them. Static medium shot capturing the moment of concern over 4 seconds. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video. Airport departure gate lounge with warm gate lighting. A 30s Nigerian woman stands holding a carry-on suitcase in one hand and a small neatly wrapped rectangular parcel under her other arm. She checks her boarding pass on her phone, expression relieved but focused. Camera gently pans left over 4 seconds, following her resolve. Medium shot. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "magnitude",
+        "full_prompt": "Photorealistic video. Large commercial passenger aircraft lifting off a runway at dusk, engines blazing with heat shimmer visible. Dramatic golden hour sky with deep orange and purple clouds illuminating the aircraft's ascent. Wide tarmac stretches below. Camera slowly pulls back over 4 seconds, revealing the epic scale and emotional weight of the journey. Powerful cinematic atmosphere. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic video. Bright international airport arrivals hall. Automatic sliding doors open as travellers with suitcases walk out into the welcome area. A crowd of waiting family members stands beyond the barriers, faces bright with anticipation. Warm welcoming overhead lighting bathes the scene. Camera slowly dollies forward over 4 seconds, moving toward the reunion. Wide shot capturing the full arrivals exit. Uplifting atmosphere. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. Airport arrivals hall with warm ambient terminal lighting. A 30s Nigerian woman smiles brightly as she hands a small neatly wrapped rectangular parcel to an elderly Nigerian woman in her 70s. Both are beaming with genuine joy and emotion. The older woman looks surprised and delighted, her hands receiving the gift. Camera slowly zooms out over 4 seconds, framing both figures in the embrace of the moment. Medium shot. No text, no logos. Vertical 9:16 portrait."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "gentle pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video. Aerial wide shot of a large West African international airport at dusk. Runways are lit with blue and white taxiway lights creating a grid pattern. City skyline of Lagos glows warmly in the evening distance. Aircraft visible on the apron. Camera gently pans right over 4 seconds across the expansive scene. Epic and cinematic scale conveying the connected journey. Confident, aspirational feel. No text, no logos. Vertical 9:16 portrait."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 100
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her mum's 70th was on Saturday.\n\nChamaka had the framed photo ready — a portrait of the two of them, the last one taken with her late father in the middle. A traditional courier wanted £58 and two weeks. Folake from Leicester was already boarding Thursday's flight. BootHop connected them in hours.\n\nHave you ever sent something home just in time? 👇",
+    "caption_instagram": "The frame was wrapped. The birthday was Saturday. The courier wanted two weeks and £58 to get there.\n\nChamaka, a teacher in Leicester, wanted her mum to open something real at her 70th — a portrait of the family, printed and framed with care. Someone was already making that journey. Folake, a nurse flying home for annual leave, carried it to Lagos on Thursday. It arrived the morning of the celebration.\n\nSend something that matters. Link in bio. 💛 What's the most meaningful thing you've ever sent home?",
+    "youtube_title": "She Nearly Missed Her Mum's 70th Birthday Gift",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "129c46e3",
+    "date": "2026-07-16",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "His dad's 70th was Friday. The gift was still in Coventry.",
+    "problem": "A reputable courier quoted £58 and nine days. Too late.",
+    "stakes": "His father would celebrate without a single thing from him.",
+    "resolution": "A colleague was already flying to Lagos. BootHop connected them.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "black man neatly packing suitcase bedroom organised wide shot",
+      "airport departures board Lagos Nigeria destination wide shot terminal",
+      "black man smartphone comparing courier prices shocked stressed medium shot",
+      "two black men train station platform parcel handover wide shot UK",
+      "black man plane window seat flying relaxed thoughtful medium shot",
+      "black man airport arrivals hall Lagos customs exit confident wide shot",
+      "two Nigerian men smiling gift handover Lagos home medium shot",
+      "Heathrow airport exterior London street wide shot golden hour travellers"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Black British man neatly folding clothes into an open suitcase on a bed in a modern London flat. A wrapped gift box sits visibly to the side. Warm bedroom lighting. Wide shot. Organised, purposeful expression. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Busy airport departures hall with a large overhead digital departures board clearly showing Lagos, Nigeria as a listed destination. Bright terminal lighting, travellers in background. Wide shot. No specific faces in focus. Clean modern airport interior. No text overlays. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British man sitting at a kitchen table in a London flat, staring at his smartphone screen with a frustrated, disbelieving expression. Screen glow visible on his face. Natural daylight from a nearby window. Medium shot. No brand names visible on screen. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a UK train station platform. A 30-year-old Black British man receives a medium-sized wrapped parcel from another man in casual clothes. Both look focused and purposeful. Natural overcast daylight. Busy platform background with trains visible. No logos. No text overlays. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British man seated in an economy airline window seat, gazing out at blue sky and clouds. He looks quietly thoughtful, slightly anxious. Soft natural light from the oval window illuminates his face. Medium shot. No airline branding visible. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide shot of a busy international airport arrivals hall. A 30-year-old Black British man walks confidently through sliding customs exit doors, carry-on luggage in hand and a wrapped parcel tucked under his arm. Bright overhead airport lighting. Diverse crowd in background. No logos. No text. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British man smiling warmly as he hands a wrapped gift to a 70-year-old Nigerian man in a bright, homely Lagos living room. Both are beaming with joy. Warm golden afternoon light. Medium shot. Celebratory, emotional atmosphere. No logos. No text. Vertical 9:16 portrait.",
+      "Photorealistic. Wide exterior shot of a large international airport terminal — glass facade, taxis and travellers with luggage on the pavement outside. Golden hour light casting warm tones. Busy, optimistic atmosphere. No specific airline or airport branding visible. No logos. No text overlays. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 30-year-old Black British man neatly folding clothes into an open suitcase on a bed in a modern London flat. A wrapped gift box sits visibly to the side. Warm bedroom lighting. Wide shot. Organised, purposeful expression. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. Busy airport departures hall with a large overhead digital departures board clearly showing Lagos, Nigeria as a listed destination. Bright terminal lighting, travellers in background. Wide shot. No specific faces in focus. Clean modern airport interior. No text overlays. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 30-year-old Black British man sitting at a kitchen table in a London flat, staring at his smartphone screen with a frustrated, disbelieving expression. Screen glow visible on his face. Natural daylight from a nearby window. Medium shot. No brand names visible on screen. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. Wide shot of a UK train station platform. A 30-year-old Black British man receives a medium-sized wrapped parcel from another man in casual clothes. Both look focused and purposeful. Natural overcast daylight. Busy platform background with trains visible. No logos. No text overlays. Vertical 9:16 portrait. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 30-year-old Black British man seated in an economy airline window seat, gazing out at blue sky and clouds. He looks quietly thoughtful, slightly anxious. Soft natural light from the oval window illuminates his face. Medium shot. No airline branding visible. No logos. Vertical 9:16 portrait. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. Wide shot of a busy international airport arrivals hall. A 30-year-old Black British man walks confidently through sliding customs exit doors, carry-on luggage in hand and a wrapped parcel tucked under his arm. Bright overhead airport lighting. Diverse crowd in background. No logos. No text. Vertical 9:16 portrait. Camera: slow dolly forward. Duration: 4 seconds. Emotion: relief."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 30-year-old Black British man smiling warmly as he hands a wrapped gift to a 70-year-old Nigerian man in a bright, homely Lagos living room. Both are beaming with joy. Warm golden afternoon light. Medium shot. Celebratory, emotional atmosphere. No logos. No text. Vertical 9:16 portrait. Camera: slow zoom out. Duration: 4 seconds. Emotion: happiness."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. Wide exterior shot of a large international airport terminal — glass facade, taxis and travellers with luggage on the pavement outside. Golden hour light casting warm tones. Busy, optimistic atmosphere. No specific airline or airport branding visible. No logos. No text overlays. Vertical 9:16 portrait. Camera: slow pan right. Duration: 4 seconds. Emotion: confidence."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 81
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His dad was turning 70 in Lagos. The framed photo was still on Dami's kitchen table.\n\nA reputable courier wanted £58 and nine days — the birthday would be long over. BootHop found a colleague already flying to Lagos that Thursday. The photo arrived the morning of the party.\n\nHave you ever sent something home at the last minute?",
+    "caption_instagram": "Dami's dad was turning 70 in Lagos. The framed family photo and handwritten letter were still sitting on a kitchen table in Coventry.\n\nA reputable courier quoted £58 and a nine-day wait. The celebration would be over. Then Dami found BootHop — and someone was already making that journey. A colleague flying to Lagos that Thursday carried the parcel for a fraction of the price. It arrived the morning of the party, in time for every photograph.\n\nThat's the hack. Link in bio to send something home. Have you ever cut it that close?",
+    "youtube_title": "He almost missed his dad's 70th birthday from Coventry",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "8dad8539",
+    "date": "2026-07-16",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Her sister's wedding loomed; the family photo was in Leicester.",
+    "problem": "Courier: £58, eleven days. Too late.",
+    "stakes": "Sister weds without precious family photo.",
+    "resolution": "BootHop found a traveller to carry it.",
+    "lesson": "Space in the air was all it took.",
+    "visual_queries": [
+      "nigerian woman uk living room holding framed photo medium shot",
+      "black woman courier counter shocked expensive price wide shot",
+      "nigerian woman home sofa worried phone stressed medium shot",
+      "woman handing small parcel traveller train station friendly medium shot",
+      "male traveller airplane window seat relaxed small bag wide shot",
+      "traveller arriving nigerian home doorstep family reunion warm medium shot",
+      "nigerian family woman receiving framed photo smiling home wide shot",
+      "wide london residential street terraced houses neighbourhood wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Nigerian woman standing in a modest but tidy London living room, carefully holding a small framed family photograph with both hands. She looks at it with quiet tenderness. Warm indoor lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman at a plain courier service counter in a UK shipping shop, eyes wide and mouth slightly open in shock, staring at a price quote on a printed slip. Bright fluorescent shop lighting. Wide shot. No brand logos. No text. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman sitting on a grey sofa in a London flat, phone held to her ear, brow furrowed, looking anxious and stressed. She glances at a small framed photo on the side table. Soft natural window light. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Nigerian woman at a busy UK train station concourse, smiling warmly as she hands a small neatly wrapped parcel to a relaxed male traveller with a carry-on bag. Bright station ambient lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old man of West African descent seated in an economy airplane window seat, relaxed and calm, a small parcel resting on his lap. Soft blue sky visible through the oval window. Cabin ambient lighting. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old man of West African descent standing at the doorstep of a colourful Nigerian home in Lagos, smiling and holding a small parcel as a Nigerian woman in her 60s opens the door with joy. Warm golden afternoon sunlight. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Nigerian woman in her 60s standing in a bright Lagos living room, holding a small framed family photograph and beaming with joy, surrounded by two other family members sharing in the moment. Warm natural indoor light. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide establishing shot of a quiet London residential street lined with red-brick terraced houses, parked cars, and a clear overcast sky. A lone figure walks calmly in the distance. Soft natural daylight. Wide shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "tenderness",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman stands in a modest but tidy London living room, carefully holding a small framed family photograph with both hands. She gazes at it with quiet tenderness. Warm indoor lighting from soft sources. Medium shot, vertical 9:16 portrait. Camera slowly zooms in over 4 seconds, building emotional connection. The woman's hands remain still, her expression contemplative and loving. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "shock",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman stands at a plain courier service counter in a UK shipping shop. Her eyes are wide and mouth slightly open in shock as she stares at a price quote on a printed slip in her hands. Bright fluorescent shop lighting overhead. Wide shot, vertical 9:16 portrait. Camera remains static for 4 seconds. Her shoulders shift slightly backward, a visible reaction of disbelief. No brand logos visible, no text overlays."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "anxiety",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman sits on a grey sofa in a London flat, phone held to her ear. Her brow is furrowed with worry and stress etched across her face. She glances toward a small framed photo on the side table. Soft natural window light streams in, casting gentle shadows. Medium shot, vertical 9:16 portrait. Camera remains static for 4 seconds. Her free hand occasionally gestures as she speaks. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "determination",
+        "full_prompt": "Photorealistic video. A 30-year-old Nigerian woman stands at a busy UK train station concourse, smiling warmly as she hands a small neatly wrapped parcel to a relaxed male traveller wearing casual clothes and carrying a carry-on bag. Bright station ambient lighting. Medium shot, vertical 9:16 portrait. Camera gently pans left over 4 seconds, following the exchange. Both figures are calm and composed. No text, no logos visible."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "hopeful",
+        "full_prompt": "Photorealistic video. A 35-year-old man of West African descent is seated in an economy airplane window seat, relaxed and calm. A small parcel rests gently on his lap. Soft blue sky and white clouds are visible through the oval window behind him. Cabin ambient lighting is warm and gentle. Wide shot, vertical 9:16 portrait. Camera slowly pulls back over 4 seconds, revealing the full context of the cabin. The man occasionally glances at the parcel. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic video. A 35-year-old man of West African descent stands at the doorstep of a colourful Nigerian home in Lagos, smiling warmly while holding a small parcel. A Nigerian woman in her 60s opens the door with visible joy and emotion. Warm golden afternoon sunlight bathes the scene. Medium shot, vertical 9:16 portrait. Camera slowly dolls forward over 4 seconds, moving toward the reunion. Both figures are animated and warm. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "celebration",
+        "full_prompt": "Photorealistic video. A Nigerian woman in her 60s stands in a bright Lagos living room, holding a small framed family photograph and beaming with joy. Two other family members stand beside her, all sharing in the moment together. Warm natural indoor light illuminates the scene. Wide shot, vertical 9:16 portrait. Camera slowly zooms out over 4 seconds, revealing the full family gathering. All three figures are smiling and animated. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video. A wide establishing shot of a quiet London residential street lined with red-brick terraced houses and parked cars beneath a clear overcast sky. A lone figure walks calmly in the distance down the middle of the street. Soft natural daylight. Wide shot, vertical 9:16 portrait. Camera remains static for 4 seconds as the figure moves with quiet purpose. The scene conveys calm reflection and forward momentum. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 8,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 72
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Her sister was getting married in Lagos.\nChiamaka had one thing she wanted her to have — a framed photo from their mum's 70th birthday. The courier quote came back at £58 and eleven working days. The wedding would be done by then. A traveller was already flying that Thursday. BootHop connected them in hours. The photo arrived four days before the ceremony. What would you send if distance wasn't the problem?",
+    "caption_instagram": "She didn't want to miss the wedding. She just wanted her sister to feel her there.\n\nChiamaka, a teacher in Leicester, had a framed photo from their mother's 70th — the kind of keepsake that sits on a mantelpiece for decades. A reputable courier wanted £58 and eleven working days. The wedding wouldn't wait. But someone was already making that journey. A traveller flying Lagos from Heathrow on Thursday carried it with her. It arrived four days before the ceremony. BootHop didn't create the flight — it just made it count. What's sitting on your shelf waiting to reach someone? 💛 | boothop.com",
+    "youtube_title": "She sent her sister a wedding gift no courier could deliver",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "157a7ae9",
+    "date": "2026-07-17",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "",
+    "hook": "Dami's brother's interview is in 5 days; portfolio's in Sheffield.",
+    "problem": "Courier needs 8 days, costs £58.",
+    "stakes": "Missed interview. No job.",
+    "resolution": "BootHop linked with a flight to Lagos.",
+    "lesson": "Connections simplify logistics.",
+    "visual_queries": [
+      "large cargo containers stacked busy port wide shot",
+      "Black British woman courier counter shocked expensive price medium shot",
+      "African man on phone frustrated logistics problem indoors medium shot",
+      "Black traveller airport departure handing parcel Nigerian recipient wide shot",
+      "African male traveller airplane seat parcel bag secure medium shot",
+      "Black traveller Lagos airport arrivals hall walking confident wide shot",
+      "Nigerian woman front door receiving parcel smiling relieved medium shot",
+      "London Lagos connected busy international airport cargo facility wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. Towering stacks of colourful steel shipping containers at a busy international port. Massive cargo cranes overhead, overcast industrial sky. No people visible. Conveys scale, delay, and complexity of global freight logistics. Wide establishing shot. Natural daylight. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British woman standing at a plain courier service counter inside a grey UK post office. She holds a small padded envelope and stares at a printed quote slip with visible shock and disbelief. Fluorescent indoor lighting. Medium shot. Emotion: stunned, worried. No brand logos. Vertical 9:16 portrait.",
+      "Photorealistic. 33-year-old Nigerian man sitting at a desk in a modest London flat, pressing a smartphone to his ear with a frustrated, anxious expression. Papers and a laptop open in front of him. Warm lamp light, late afternoon. Medium shot. Emotion: stressed, urgent. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 30-year-old Black British woman standing in a bright UK airport departure hall handing a small padded parcel to a 35-year-old Nigerian male traveller with carry-on luggage. Both look purposeful and relieved. Natural daylight through large windows. Wide shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man seated in an economy airplane cabin, a small padded parcel securely tucked in the overhead compartment above him. He glances up at it with quiet confidence. Warm cabin lighting, mid-flight. Medium shot. Emotion: calm, responsible. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old Nigerian man walking confidently through a busy Lagos airport arrivals hall, carry-on bag over shoulder, small parcel under arm. Bright overhead airport lighting, other travellers visible in background. Wide shot. Emotion: confident, purposeful. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman standing at the front door of a Lagos home, smiling warmly as she receives a small padded envelope from a male visitor. Bright natural daylight, tropical foliage visible in background. Medium shot. Emotion: joyful, relieved. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. Wide aerial-style shot of a busy international airport tarmac at golden hour, planes taxiing with a modern city skyline visible in the distance, suggesting a London-to-Lagos connection. Warm amber light, cinematic depth. No people in foreground. Wide establishing shot. No text. No logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "overwhelm",
+        "full_prompt": "Photorealistic wide establishing shot of towering stacks of colorful steel shipping containers at a busy international port. Massive cargo cranes loom overhead against an overcast industrial sky. No people visible. Camera slowly zooms in over 4 seconds, building tension and emphasizing the scale and complexity of global freight logistics. Natural daylight. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "shock",
+        "full_prompt": "Photorealistic medium shot of a 30-year-old Black British woman standing at a plain courier service counter inside a grey UK post office. She holds a small padded envelope in one hand and stares at a printed quote slip in the other with visible shock and disbelief on her face. Fluorescent indoor lighting illuminates her expression. Camera remains static for 4 seconds, capturing her stunned, worried reaction. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic medium shot of a 33-year-old Nigerian man sitting at a desk in a modest London flat, pressing a smartphone to his ear with a frustrated, anxious expression. Papers and an open laptop are visible on the desk in front of him. Warm lamp light illuminates the late afternoon scene. Camera remains static for 4 seconds, showing the weight and urgency of his situation. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic wide shot of a 30-year-old Black British woman standing in a bright UK airport departure hall, handing a small padded parcel to a 35-year-old Nigerian male traveller who wears carry-on luggage over his shoulder. Both figures look purposeful and relieved. Natural daylight streams through large windows. Camera gently pans left over 4 seconds, capturing the moment of exchange. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "responsibility",
+        "full_prompt": "Photorealistic medium shot of a 35-year-old Nigerian man seated in an economy airplane cabin, a small padded parcel securely tucked in the overhead compartment above him. He glances up at it with quiet confidence and responsibility. Warm cabin lighting surrounds him mid-flight. Camera slowly pulls back over 4 seconds, revealing the emotional context of his careful custody of the package. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic wide shot of a 35-year-old Nigerian man walking confidently through a busy Lagos airport arrivals hall, carry-on bag over his shoulder and small parcel held securely under his arm. Bright overhead airport lighting illuminates the scene with other travellers visible in the background. Camera performs a warm, smooth dolly forward over 4 seconds, conveying optimistic energy and purposeful movement. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "joy",
+        "full_prompt": "Photorealistic medium shot of a 28-year-old Nigerian woman standing at the front door of a Lagos home, smiling warmly as she receives a small padded envelope from a male visitor. Bright natural daylight illuminates her joyful face, with tropical foliage visible in the background. Camera slowly zooms out over 4 seconds, expanding the frame to show the moment of relief and reunion. Vertical 9:16 portrait. No text, no logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "aspiration",
+        "full_prompt": "Photorealistic aerial-style wide establishing shot of a busy international airport tarmac at golden hour, planes taxiing with a modern city skyline visible in the distance, suggesting a London-to-Lagos connection. Warm amber light bathes the scene with cinematic depth. Camera slowly pans right over 4 seconds across the tarmac. No people in foreground. Confident, aspirational feel conveying the power of global connections. Vertical 9:16 portrait. No text, no logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 69
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "His brother had one shot at his dream job.\n\nThe printed portfolio was in Sheffield. The interview was in Lagos. Five days. A reputable courier said eight. Dami found someone already on that flight through BootHop — and it landed with two days to spare.\n\nHas a journey ever saved the day for someone you love?",
+    "caption_instagram": "His brother had one shot. The portfolio was in the wrong country with five days to go.\n\nDami, a graphic designer in Sheffield, couldn't afford to watch his brother walk into that Lagos agency empty-handed. A reputable courier quoted eight days and £58 — both were impossible. Then BootHop matched him with a colleague already flying to Lagos that Thursday. The prints arrived with two days to spare. His brother got the job.\n\nSomeone was already making that journey. BootHop just made it count. Drop a 🖨️ if you've ever sent something against the clock. Link in bio to send yours.",
+    "youtube_title": "The portfolio that had to reach Lagos in five days",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
   }
 ]

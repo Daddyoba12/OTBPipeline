@@ -75,16 +75,16 @@ _BANNED_FETCH_TERMS = {
 }
 
 # Transport-focused fallbacks organised by clip index (beat order)
-# Medium/wide shots only - no close-ups, no extreme face shots
+# Black/African diaspora subjects — medium/wide shots only, no close-ups
 _TRANSPORT_FALLBACKS = [
-    "woman london apartment worried medium shot",   # 0 hook
-    "airport departures hall travellers wide shot", # 1 hook
-    "person post office counter medium shot",       # 2 problem
-    "traveller train station luggage medium shot",  # 3 problem
-    "woman sitting phone call worried medium shot", # 4 stakes
-    "parcel handover train station wide shot",      # 5 resolution
-    "plane window seat flight medium shot",         # 6 resolution
-    "london city street wide establishing shot",    # 7 lesson
+    "Black British woman london flat worried medium shot",     # 0 hook
+    "African travellers airport departures hall wide shot",   # 1 hook
+    "Nigerian woman post office counter shocked medium shot", # 2 problem
+    "Black traveller train station luggage medium shot",      # 3 problem
+    "African woman phone call worried stressed medium shot",  # 4 stakes
+    "Black man handing parcel station traveller wide shot",   # 5 resolution
+    "African man seated plane window relaxed medium shot",    # 6 resolution
+    "Black woman door receiving parcel smiling medium shot",  # 7 lesson
 ]
 
 
@@ -334,7 +334,7 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
             timeout=15,
         )
         videos = r.json().get("videos", [])
-        for v in random.sample(videos, min(len(videos), 8)):
+        for v in random.sample(videos, len(videos)):
             if v["id"] in exclude_ids:
                 continue
             # Check Pexels page URL slug for animal/banned terms (e.g. ".../dog-at-airport-1234/")
@@ -369,7 +369,7 @@ def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
             timeout=15,
         )
         hits = r.json().get("hits", [])
-        for v in random.sample(hits, min(len(hits), 8)):
+        for v in random.sample(hits, len(hits)):
             vid_id = f"pb_{v['id']}"
             if vid_id in exclude_ids:
                 continue
@@ -439,6 +439,7 @@ def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP
     }.get(beat, "cinematic medium wide shot")
     prompt = (
         f"Photorealistic {beat_mood}. Scene: {query}. "
+        f"The main subject must be a Black British woman, Nigerian man, or person of African descent. "
         f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
         f"High quality professional photography."
     )
@@ -537,6 +538,10 @@ def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> 
         "logistics_stories":  "047857",
         "airport_deliveries": "B45309",
         "supply_chain":       "DC2626",
+        "cost_pain":          "7C3AED",
+        "cultural_earn":      "0369A1",
+        "urgent_medical":     "B45309",
+        "brand_authority":    "1D4ED8",
     }
     bg = color_map.get(pillar_color, "4F46E5")
     font_t = _font("title")
@@ -702,6 +707,13 @@ def render_video(content: dict, slot: int, output_path: str,
     exclude_ids: clip IDs to skip (pass V1's used_ids so V2 gets fresh footage)
     Returns (success, used_clip_ids).
     """
+    # Kill any orphaned ffmpeg from a prior crashed run before touching temp files
+    try:
+        subprocess.run(["taskkill", "/F", "/IM", "ffmpeg.exe"],
+                       capture_output=True, timeout=5)
+    except Exception:
+        pass
+
     pillar  = content.get("pillar", "community")
     # V2 uses alternate hook/lesson/queries if Claude generated them; falls back to V1 fields
     is_v2   = (version == "v2")
@@ -783,12 +795,14 @@ def render_video(content: dict, slot: int, output_path: str,
                 dalle_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Final safety net before black placeholder - use guaranteed transport query
+            # Final safety net — use transport query, relax dedup to current-run only
+            # (own_ids) so 14-day history can't exhaust the fallback pool
             transport_q = _TRANSPORT_FALLBACKS[i % len(_TRANSPORT_FALLBACKS)]
             print(f"    Clip {i}: transport safety fallback -> {transport_q}")
-            clip_info = _pexels_video(transport_q, used_ids) or _pixabay_video(transport_q, used_ids)
+            clip_info = _pexels_video(transport_q, own_ids) or _pixabay_video(transport_q, own_ids)
             if clip_info:
                 used_ids.add(clip_info["id"])
+                own_ids.add(clip_info["id"])
                 if _download_clip(clip_info["url"], raw):
                     if _process_clip(raw, proc, beat, text, beat_style):
                         got_video = True
@@ -805,12 +819,22 @@ def render_video(content: dict, slot: int, output_path: str,
                     photo_raw.unlink(missing_ok=True)
 
         if not got_video:
+            # Last resort: dark placeholder WITH beat text so it's not a silent void
             try: report_hit(query, "placeholder")
             except Exception: pass
+            placeholder_src = TEMP / f"{prefix}_ph_src_{i}.mp4"
             _ff("-f", "lavfi", "-i",
                 f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
                 "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                str(proc))
+                str(placeholder_src))
+            if placeholder_src.exists():
+                _process_clip(placeholder_src, proc, beat, text, beat_style)
+                placeholder_src.unlink(missing_ok=True)
+            if not proc.exists():
+                _ff("-f", "lavfi", "-i",
+                    f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
+                    "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                    str(proc))
 
         proc_clips.append(str(proc))
 
@@ -1032,7 +1056,7 @@ def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_onl
         grade_ok = _grade_linkedin(base, li_graded)
 
         if intro_ok and grade_ok and li_intro.exists() and li_graded.exists():
-            list_file = outdir / "li_concat.txt"
+            list_file = outdir / f"{stem}_li_concat.txt"
             list_file.write_text(
                 f"file '{li_intro}'\nfile '{li_graded}'",
                 encoding="utf-8",

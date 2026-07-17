@@ -103,6 +103,9 @@ def _search(query: str) -> str:
         },
         timeout=30,
     )
+    if resp.status_code in (429, 402):
+        from quota_alert import alert as _qa
+        _qa("Perplexity", resp.status_code)
     resp.raise_for_status()
     data = resp.json()
     return data["choices"][0]["message"]["content"]

@@ -25,10 +25,14 @@ from config import OPENAI_API_KEY, OUTPUT, TEMP
 _VOICE_MAP = {
     "family":             "nova",
     "community":          "nova",
+    "cost_pain":          "nova",
+    "urgent_medical":     "nova",
     "airport":            "shimmer",
     "travel_hacks":       "shimmer",
+    "cultural_earn":      "shimmer",
     "smart":              "onyx",
     "supply_chain":       "onyx",
+    "brand_authority":    "onyx",
     "logistics_stories":  "echo",
     "airport_deliveries": "fable",
 }
@@ -93,6 +97,9 @@ def generate_tts(content: dict, output_mp3: str | Path) -> Path | None:
             },
             timeout=60,
         )
+        if resp.status_code in (429, 402):
+            from quota_alert import alert as _qa
+            _qa("OpenAI TTS", resp.status_code)
         resp.raise_for_status()
 
         out = Path(output_mp3)

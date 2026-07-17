@@ -25,6 +25,7 @@ from config import ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, QA_MODEL
 
 
 def _call_claude_qa(prompt: str) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         "https://api.anthropic.com/v1/messages",
         headers={
@@ -39,11 +40,14 @@ def _call_claude_qa(prompt: str) -> str:
         },
         timeout=35,
     )
+    if resp.status_code in (429, 402, 529):
+        _qa("Claude", resp.status_code, "QA Director")
     resp.raise_for_status()
     return resp.json()["content"][0]["text"].strip()
 
 
 def _call_openai_qa(prompt: str) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={
@@ -58,11 +62,14 @@ def _call_openai_qa(prompt: str) -> str:
         },
         timeout=35,
     )
+    if resp.status_code in (429, 402):
+        _qa("OpenAI", resp.status_code, "QA Director")
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _call_gemini_qa(prompt: str) -> str:
+    from quota_alert import alert as _qa
     resp = requests.post(
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
         params={"key": GEMINI_API_KEY},
@@ -72,6 +79,8 @@ def _call_gemini_qa(prompt: str) -> str:
         },
         timeout=35,
     )
+    if resp.status_code in (429, 402, 403):
+        _qa("Gemini", resp.status_code, "QA Director")
     resp.raise_for_status()
     return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
 

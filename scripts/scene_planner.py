@@ -23,97 +23,137 @@ from config import ANTHROPIC_API_KEY
 # The Scene Planner AI uses these as hard constraints when writing search queries.
 PILLAR_BLUEPRINTS = {
     "supply_chain": [
-        "Woman in UK home, kitchen, bedroom, office, bus, or train — looks worried, holds a small item to send",
-        "Phone or laptop screen showing an expensive courier price quote",
-        "Woman on phone call looking frustrated or shocked at a high price",
-        "Person at airport, train station, or bus stop handing small parcel to a traveller",
-        "Traveller seated on a train or flight — relaxed, parcel with them",
-        "Traveller arriving in Lagos — airport arrivals hall or Lagos city street",
-        "Smiling person at door receiving small parcel — friendly handover",
-        "Wide London or Lagos cityscape — confident and aspirational",
+        "Black British woman in UK home or office — looks worried, holds a small item to send",
+        "Phone screen showing an expensive courier price — Nigerian woman reacting shocked",
+        "African woman on phone call looking frustrated at a high delivery price",
+        "Black man at train station handing small parcel to a traveller — wide shot",
+        "African traveller seated on a train or flight — relaxed, parcel with them",
+        "Black traveller arriving in Lagos — airport arrivals hall wide shot",
+        "Nigerian woman smiling at door receiving small parcel — friendly handover",
+        "Wide London or Lagos cityscape — confident aspirational wide shot",
     ],
     "family": [
-        "Woman in UK home or shop — holds small gift, cream, birthday card, or medicine for family in Nigeria",
-        "Person at post office or courier counter reacting to an expensive price — shocked",
-        "Woman upset or worried at home or on the phone",
-        "Person at train station or airport handing small parcel to traveller — friendly exchange",
-        "Traveller on flight or train heading to Nigeria — window seat, relaxed",
-        "Traveller arriving at a home doorstep in Nigeria — warm family reunion",
-        "Family member smiling and receiving a small gift or parcel — warm and happy",
-        "Wide London residential street or Lagos neighbourhood",
+        "Nigerian woman in UK home — holds small gift cream or medicine for family — medium shot",
+        "Black woman at courier counter reacting to expensive price — shocked medium shot",
+        "African woman upset or worried on phone at home — medium shot",
+        "Black man at train station handing small parcel to traveller — friendly wide shot",
+        "African traveller on flight heading to Nigeria — window seat relaxed medium shot",
+        "Nigerian traveller arriving at home doorstep — warm family reunion wide shot",
+        "Black family member smiling receiving a small gift — warm happy medium shot",
+        "Wide London residential street or Lagos neighbourhood — people walking",
     ],
     "airport": [
-        "Wide shot busy airport departures hall — travellers moving through with luggage",
-        "Customs or security checkpoint — bags and luggage being checked by officer",
-        "Person looking stressed at airport counter or service desk",
-        "Departure gate — traveller with cabin luggage and small parcel",
-        "Wide shot airplane taking off from runway — dramatic",
-        "Airport arrivals hall — travellers walking out through doors",
-        "Friendly parcel handover at airport arrivals — smiling recipient",
-        "Wide aerial or ground shot international airport or Lagos skyline",
+        "Busy airport departures hall — African and Black travellers moving with luggage wide shot",
+        "Customs security checkpoint — Black traveller bags being checked wide shot",
+        "Nigerian woman looking stressed at airport counter medium shot",
+        "Black traveller at departure gate with cabin luggage and small parcel medium shot",
+        "Wide airplane taking off from runway — dramatic wide shot",
+        "Airport arrivals hall — Black travellers walking out confidently wide shot",
+        "African woman friendly parcel handover at airport arrivals smiling wide shot",
+        "Wide aerial international airport or Lagos skyline wide shot",
     ],
     "airport_deliveries": [
-        "Pharmacy or chemist shop interior — person collecting prescription at counter",
-        "Person holding small medicine box or prescription packet",
-        "Person on phone call looking worried — explaining a problem",
-        "Traveller at airport or train station receiving small parcel from sender — wide shot",
-        "Traveller on flight — window seat, plane in air, medium shot",
-        "Customs or arrivals hall — traveller walking through confidently",
-        "Person smiling at door receiving medication or parcel",
-        "Wide establishing London or Lagos city street — positive ending",
+        "Black woman at pharmacy counter collecting prescription — medium shot",
+        "Nigerian woman holding small medicine box prescription packet — medium shot",
+        "African man on phone call looking worried — explaining urgent problem medium shot",
+        "Black traveller at train station receiving small medical parcel from sender wide shot",
+        "African traveller on flight window seat plane in air medium shot",
+        "Nigerian traveller walking through customs arrivals confidently medium shot",
+        "Black person smiling at door receiving medication parcel — relief medium shot",
+        "Wide London city street — diverse people walking confident wide shot",
     ],
     "community": [
-        "Nigerian man or woman in London — street, office, or apartment — medium shot",
-        "Two people talking warmly — community meeting or cafe conversation",
-        "Person using phone app in public — cafe, bus, or street",
-        "Wide shot traveller at train station receiving parcel from community member",
-        "Traveller on train or at airport gate heading out",
-        "Person arriving home with parcel — front door",
-        "Happy handover at door — smiling recipient receives parcel",
-        "Wide London street or community space — warm and welcoming",
+        "Nigerian man or woman in London street or apartment — animated talking medium shot",
+        "Two Black people talking warmly — community gathering or cafe wide shot",
+        "African woman using phone app in public — smiling satisfied medium shot",
+        "Black traveller at train station receiving parcel from Nigerian community member wide shot",
+        "African traveller on train or at airport gate heading out medium shot",
+        "Nigerian person arriving home with parcel front door medium shot",
+        "Black family happy handover at door — smiling recipient receives parcel medium shot",
+        "Wide London street or community space — diverse Black people welcoming wide shot",
     ],
     "smart": [
-        "Professional person at London airport check-in or departure lounge",
-        "Person on phone or laptop checking app — looking pleased at earnings",
-        "Wide airport departure gate — traveller with cabin luggage, confident",
-        "Wide shot person handing small parcel to traveller at train station",
-        "Traveller on flight — relaxed, looking out window",
-        "Wide arrival in Lagos — confident traveller exiting airport",
-        "Person receiving parcel payment — mutual benefit — both smiling",
-        "Wide Lagos or London skyline — successful and aspirational",
+        "Black British professional at London airport departure lounge confident medium shot",
+        "African man on phone checking app looking pleased at earnings medium shot",
+        "Wide airport departure gate — Black traveller with cabin luggage confident wide shot",
+        "Nigerian woman handing small parcel to Black traveller at train station wide shot",
+        "African traveller on flight relaxed looking out window medium shot",
+        "Black traveller arriving Lagos airport confidently exiting wide shot",
+        "Two Black people parcel handover both smiling mutual benefit wide shot",
+        "Wide Lagos or London skyline — successful aspirational wide shot",
     ],
     "travel_hacks": [
-        "Person neatly packing suitcase — organised smart traveller",
-        "Airport departures board showing Nigeria destination — wide shot",
-        "Person comparing prices on phone — saving money, looking satisfied",
-        "Wide train station platform — traveller collecting parcel from sender",
-        "Plane window view — traveller in flight, relaxed",
-        "Wide arrivals hall — confident traveller exiting customs",
-        "Friendly parcel handover at destination — both people smiling",
-        "Wide international airport exterior or London street",
+        "Black British woman neatly packing suitcase — organised smart traveller medium shot",
+        "Airport departures board Nigeria destination — African travellers wide shot",
+        "Nigerian woman comparing prices on phone saving money satisfied medium shot",
+        "Wide train station — Black traveller collecting parcel from Nigerian sender wide shot",
+        "African man plane window view in flight relaxed medium shot",
+        "Black traveller walking through customs arrivals confidently wide shot",
+        "Nigerian couple friendly parcel handover destination both smiling wide shot",
+        "Wide international airport exterior or London street diverse people wide shot",
     ],
     "logistics_stories": [
-        "Wide cargo ship at sea or shipping containers stacked at port",
-        "Person at post office or courier counter looking at price — surprised",
-        "Person on phone looking frustrated — logistics problem",
-        "Wide traveller at airport or train station handing parcel to recipient",
-        "Traveller on flight or train — parcel safely with them",
-        "Wide arrivals hall — traveller walking through",
-        "Person smiling receiving parcel at door or office lobby",
-        "Wide busy port cargo facility or London Lagos cityscape",
+        "Wide cargo ship at sea or shipping containers stacked at port wide shot",
+        "Black woman at courier counter reacting to high price surprised medium shot",
+        "African man on phone frustrated logistics problem medium shot",
+        "Wide Black traveller at airport handing parcel to Nigerian recipient wide shot",
+        "African traveller on flight or train — parcel safely with them medium shot",
+        "Black traveller walking through arrivals hall confidently wide shot",
+        "Nigerian woman smiling receiving parcel at door medium shot",
+        "Wide busy port cargo facility or London Lagos cityscape wide shot",
+    ],
+    "cost_pain": [
+        "Nigerian woman in UK home looking shocked holding courier price quote medium shot",
+        "Black woman at laptop or phone — expensive courier website shown on screen medium shot",
+        "African man at courier counter shocked at high delivery price medium shot",
+        "Nigerian woman on phone call upset about delivery cost medium shot",
+        "Black traveller and Nigerian sender at train station parcel handover wide shot",
+        "African traveller on flight with parcel relaxed window seat medium shot",
+        "Black woman on phone smiling — happy with affordable delivery medium shot",
+        "Diverse Black people London street confident celebrating wide shot",
+    ],
+    "cultural_earn": [
+        "Black British traveller at Heathrow airport confident departure lounge medium shot",
+        "African man at airport check-in with cabin luggage earning money on phone medium shot",
+        "Nigerian woman talking animatedly on phone — excited about earning medium shot",
+        "Two Black people shaking hands airport or station — traveller and sender wide shot",
+        "African traveller on flight smiling relaxed window seat medium shot",
+        "Black traveller arriving Lagos airport earning accomplished wide shot",
+        "Two African people mutual parcel handover both smiling satisfied wide shot",
+        "Wide London or Lagos street — successful Black diaspora people wide shot",
+    ],
+    "urgent_medical": [
+        "Nigerian woman at pharmacy looking worried holding prescription medium shot",
+        "Black woman on phone urgently explaining medical situation medium shot",
+        "African man at pharmacy counter medication unavailable worried medium shot",
+        "Nigerian family member on video call worried urgent expression medium shot",
+        "Black traveller at train station receiving small medical parcel from sender wide shot",
+        "African traveller on flight with small parcel window seat relaxed medium shot",
+        "Nigerian woman at door receiving medication parcel — relief smiling medium shot",
+        "Wide London street — diverse Black people community warm wide shot",
+    ],
+    "brand_authority": [
+        "Black British professional confident smiling at London office medium shot",
+        "Wide shot diverse Black diaspora people on London high street wide shot",
+        "Nigerian woman on phone looking confident and satisfied medium shot",
+        "Nigerian man comparing delivery options on phone looking pleased medium shot",
+        "African man and Black woman friendly professional parcel handover wide shot",
+        "Black traveller at airport confident with luggage departure lounge medium shot",
+        "Nigerian couple receiving parcel at door both smiling wide shot",
+        "Diverse group Black people celebrating community London wide shot",
     ],
 }
 
 # Safe fallback queries — used when the API call fails
 _FALLBACK_QUERIES = [
-    "woman london apartment worried medium shot",
-    "airport departures hall travellers walking wide",
-    "person post office counter shocked medium shot",
-    "traveller train station luggage wide shot",
-    "woman sitting phone call worried medium shot",
-    "parcel handover train station smiling wide shot",
-    "plane window seat flight medium shot",
-    "london city street wide establishing shot",
+    "Black British woman london flat worried medium shot",
+    "African travellers airport departures wide shot",
+    "Nigerian woman post office counter shocked medium shot",
+    "Black traveller train station luggage wide shot",
+    "African woman phone call worried medium shot",
+    "Black man parcel handover train station smiling wide shot",
+    "African man plane window seat flight medium shot",
+    "diverse Black people london street wide establishing shot",
 ]
 
 
@@ -147,19 +187,30 @@ RULES FOR EVERY QUERY (non-negotiable):
 - NEVER use Christmas, Halloween, pumpkin, Santa
 - NEVER name courier companies: DHL, FedEx, Royal Mail, Hermes, UPS
 
+DIVERSITY RULE — MANDATORY:
+For all person-focused queries, include ONE of these subject identifiers:
+  "Black British woman", "Nigerian woman", "African man", "Black traveller",
+  "African couple", "Black man", "Nigerian man", "diverse Black people"
+BootHop serves the UK/Nigeria diaspora — all human subjects must reflect this audience.
+
+DYNAMIC CONTENT (prefer for hook scene 0 and lesson scene 7):
+  Use active subjects: "woman dancing celebration", "man talking animated",
+  "people celebrating street", "woman laughing phone" — not static posed shots.
+
 CORRECT examples:
-  "woman london flat worried medium shot"
-  "pharmacy counter prescription wide shot"
-  "traveller train station parcel wide shot"
-  "plane window seat flight medium shot"
-  "person door smiling parcel medium shot"
-  "london city street wide shot"
+  "Black British woman london flat worried medium shot"
+  "Nigerian woman pharmacy counter shocked medium shot"
+  "African man train station parcel handover wide shot"
+  "Black traveller plane window seat medium shot"
+  "Nigerian woman door smiling parcel medium shot"
+  "diverse Black people london street wide shot"
+  "African woman dancing celebration wide shot"
 
 WRONG — never do this:
-  "woman close up face shocked"
-  "DHL courier tracking parcel"
-  "farm green field landscape"
-  "airport crowd far away wide"
+  "woman close up face shocked"   ← no ethnicity, close-up
+  "DHL courier tracking parcel"   ← brand name
+  "farm green field landscape"    ← no people, banned
+  "airport crowd far away wide"   ← vague, no people descriptor
 
 Return ONLY valid JSON with no markdown:
 {{"visual_queries": ["q0","q1","q2","q3","q4","q5","q6","q7"]}}"""
