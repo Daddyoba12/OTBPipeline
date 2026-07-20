@@ -27,7 +27,11 @@ $DataFiles = @(
     "query_refresh.json",
     "music_log.json",
     "daily_info.json",
-    "pipeline_ran_today.json"
+    "pipeline_ran_today.json",
+    "sync_status.json",
+    "memory.json",
+    "trending_hashtags.json",
+    "hashtag_used_log.json"
 )
 
 New-Item -ItemType Directory -Force $BackupDir | Out-Null

@@ -22,7 +22,10 @@ import argparse, json, os, sys, time
 from datetime import datetime, date
 from pathlib import Path
 
-BASE = Path(r"C:\Users\babso\Desktop\OTB_Pipeline")
+import platform as _plat_detect
+BASE = (Path(r"C:\Users\babso\Desktop\OTB_Pipeline")
+        if _plat_detect.system() == "Windows"
+        else Path(__file__).resolve().parent)
 sys.path.insert(0, str(BASE))
 sys.path.insert(0, str(BASE / "scripts"))
 
@@ -472,6 +475,31 @@ def run_slot(slot: int, force: bool = False):
     # ── Log + notify ───────────────────────────────────────────────────────────
     _mark_ran_today(slot)
     send_result(slot, results, content=content)
+
+    # Write run summary so the other machine sees what happened
+    try:
+        import platform as _plat2
+        status_path = DATA / "sync_status.json"
+        existing = {}
+        if status_path.exists():
+            try:
+                existing = json.loads(status_path.read_text())
+            except Exception:
+                existing = {}
+        runs = existing.get("recent_runs", [])
+        runs.append({
+            "timestamp": datetime.now().isoformat(),
+            "slot":      slot,
+            "pillar":    pillar,
+            "bucket":    bucket,
+            "results":   {k: bool(v) for k, v in results.items()},
+            "machine":   "laptop" if _plat2.system() == "Windows" else "oracle",
+        })
+        existing["recent_runs"] = runs[-30:]
+        existing["last_run"]    = runs[-1]
+        status_path.write_text(json.dumps(existing, indent=2))
+    except Exception:
+        pass
 
     success_count = sum(1 for v in results.values() if v)
     _log(f"Slot {slot} done — {success_count}/{len(platforms)} platforms posted")

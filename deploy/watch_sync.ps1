@@ -25,7 +25,6 @@ Write-Host ""
 # ── Git push ──────────────────────────────────────────────────────────────────
 function Do-GitPush {
     param([string]$Label = "bulk sync")
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git: staging + push ($Label)..." -ForegroundColor Cyan
     Push-Location $LocalPath
     try {
         git add -A 2>&1 | Out-Null
@@ -33,13 +32,14 @@ function Do-GitPush {
         if ($dirty) {
             $msg = "auto-sync: $Label [$(Get-Date -Format 'yyyy-MM-dd HH:mm')]"
             git commit -m $msg 2>&1 | Out-Null
-            git push origin main 2>&1 | Out-Null
-            Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git: pushed OK" -ForegroundColor Green
+            # GitHub push skipped — secrets in old history block push protection.
+            # Oracle is the deploy target; SCP handles code delivery below.
+            Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git: committed locally ($Label)" -ForegroundColor Green
         } else {
             Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git: nothing to commit" -ForegroundColor Gray
         }
     } catch {
-        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git error: $_" -ForegroundColor Red
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Git: $_ (non-fatal)" -ForegroundColor Gray
     } finally {
         Pop-Location
     }
