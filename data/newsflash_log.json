@@ -3,9 +3,9 @@
     "LGW-LOS": "2026-07-08",
     "LHR-LOS": "2026-07-10"
   },
-  "next_story_index": 7,
-  "next_closing_index": 2,
-  "next_engagement_index": 2,
+  "next_story_index": 8,
+  "next_closing_index": 3,
+  "next_engagement_index": 3,
   "posts": [
     {
       "date": "2026-07-07",
@@ -63,6 +63,15 @@
     },
     {
       "date": "2026-07-16",
+      "platform": "tiktok",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-07-18",
       "platform": "tiktok",
       "route": "London → Lagos",
       "price_gbp": 289,
