@@ -18,6 +18,303 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import ANTHROPIC_API_KEY
 
+
+# ── Item visual vocabulary ─────────────────────────────────────────────────────
+# Maps item keywords (lowercase) to Pexels/Pixabay-friendly search terms.
+# Longer/more specific keys are checked first (sorted by length desc at lookup).
+_ITEM_VISUAL_TERMS = {
+    # Footwear
+    "jordan":            "Nike Air Jordan sneakers shoe box trainers",
+    "jordans":           "Nike Air Jordan sneakers shoe box trainers",
+    "trainers":          "sneakers trainers shoe box gift",
+    "shoes":             "shoes trainers sneakers gift box",
+    # Nigerian/African fabric & traditional
+    "aso-oke":           "African aso-oke colourful woven fabric material held",
+    "aso oke":           "African aso-oke colourful woven fabric material held",
+    "agbada":            "Nigerian agbada traditional embroidered robe garment",
+    "lace fabric":       "Nigerian lace fabric material colourful sewing",
+    "fabric":            "colourful African textile fabric material",
+    # Medical / health
+    "stethoscope":       "medical stethoscope doctor equipment",
+    "crutches":          "crutches mobility aid walking support",
+    "knee brace":        "knee brace support medical",
+    "breast pump":       "baby feeding mother nursing equipment",
+    "medication":        "medicine prescription pill bottle pharmacy",
+    "prescription":      "medicine prescription pill bottle pharmacy",
+    "cpap":              "CPAP machine sleep therapy medical device",
+    # Electronics
+    "laptop":            "laptop computer modern portable",
+    "phone charger":     "phone USB charger cable tech accessories",
+    "power bank":        "portable power bank charging device",
+    "smart watch":       "smartwatch wrist digital tech",
+    "smartwatch":        "smartwatch wrist digital tech",
+    "headphones":        "wireless over-ear headphones audio",
+    "gaming controller": "gaming controller joystick hands",
+    "phone":             "smartphone mobile screen hands",
+    # Baby / children
+    "baby clothes":      "baby clothes tiny newborn outfit colourful",
+    "baby shoes":        "tiny baby shoes newborn soft",
+    "formula tin":       "baby formula tin feeding powder",
+    "school uniform":    "school uniform blazer shirt child",
+    "school shoes":      "school shoes black polished child",
+    # Clothing
+    "nursing scrubs":    "nurse blue scrubs uniform hospital",
+    "scrubs":            "nurse blue scrubs uniform hospital",
+    "wedding dress":     "white wedding dress bride gown",
+    # Documents & paper
+    "exam certificate":  "certificate diploma document official paper",
+    "certificate":       "certificate diploma document official paper",
+    "acceptance letter":  "university letter envelope official document",
+    "driving licence":   "driving licence ID card document",
+    "documents":         "official documents papers envelope",
+    "invitation":        "wedding invitation card elegant paper",
+    "letter":            "handwritten letter envelope paper writing",
+    # Jewellery
+    "engagement ring":   "engagement ring diamond box proposal jewellery",
+    "ring box":          "ring box jewellery engagement proposal",
+    "jewellery":         "jewellery necklace gold bracelet",
+    # Food / cultural
+    "nigerian spices":   "African spice jars containers colourful kitchen shelf",
+    "spices":            "African spice jars containers colourful",
+    "stockfish":         "dried stockfish packaging seafood",
+    "indomie":           "instant noodles packet stack colourful",
+    "shea butter":       "shea butter cream jar natural beauty",
+    # Keepsakes & gifts
+    "framed photo":      "framed family photo picture frame gift",
+    "family photo":      "framed family photo picture frame gift",
+    "football shirt":    "football jersey signed shirt framed gift",
+    "signed":            "signed jersey shirt framed memorabilia",
+    "perfume":           "luxury perfume bottle fragrance gift box",
+    "gift":              "gift wrapped box ribbon bow",
+    # Generic fallback
+    "parcel":            "small parcel package wrapped box",
+    "package":           "small parcel package wrapped box",
+}
+
+# Maps protagonist role keywords to visual description for search queries
+_ROLE_VISUAL_TERMS = {
+    "nurse":             "Black nurse woman blue scrubs uniform",
+    "doctor":            "Black doctor woman white coat stethoscope",
+    "pharmacist":        "Nigerian pharmacist counter white coat",
+    "midwife":           "Black midwife nurse uniform hospital",
+    "care worker":       "Black care worker uniform compassionate",
+    "nhs":               "Black NHS worker uniform hospital corridor",
+    "teacher":           "Nigerian woman teacher classroom professional",
+    "lecturer":          "Black university lecturer professional smart",
+    "accountant":        "Nigerian woman accountant office professional",
+    "finance":           "Black professional finance office suit",
+    "architect":         "Nigerian woman architect office drawing plans",
+    "software":          "Black software developer laptop coding",
+    "it consultant":     "Black IT consultant laptop office suit",
+    "consultant":        "Black professional consultant office suit jacket",
+    "analyst":           "Black analyst office professional laptop",
+    "manager":           "Nigerian woman manager office professional",
+    "security":          "Black security guard uniform professional",
+    "chef":              "Black chef apron kitchen uniform",
+    "driver":            "Black delivery driver van uniform",
+    "plumber":           "Black tradesman tools work clothes",
+    "market trader":     "Nigerian woman market stall colourful clothes",
+    "photographer":      "Black photographer camera professional",
+    "social worker":     "Black social worker professional compassionate",
+    "student":           "Black student university backpack casual",
+    "corporate":         "Black professional suit jacket office shirt",
+    "businessman":       "Black businessman suit jacket tie",
+    "professional":      "Black professional suit jacket office",
+    "traveller":         "Black traveller cabin luggage airport confident",
+}
+
+
+def _extract_story_visuals(story: dict) -> tuple[str, str, str, str]:
+    """
+    Read story_anchor to extract the item and protagonist context.
+    Returns (item_name, item_visual_term, role_name, role_visual_term).
+    Falls back to empty strings if not found.
+    """
+    anchor   = story.get("story_anchor", {})
+    raw_item = (anchor.get("item", "") or "").lower()
+    raw_char = (anchor.get("character", "") or "").lower()
+
+    # Also scan hook text in case anchor is absent
+    hook_text = (story.get("hook", "") or "").lower()
+
+    # Find item visual: check all keys sorted by length (longest match wins)
+    item_name   = ""
+    item_visual = ""
+    for key in sorted(_ITEM_VISUAL_TERMS.keys(), key=len, reverse=True):
+        if key in raw_item or key in hook_text:
+            item_name   = key
+            item_visual = _ITEM_VISUAL_TERMS[key]
+            break
+
+    # Find role visual
+    role_name   = ""
+    role_visual = ""
+    for key in sorted(_ROLE_VISUAL_TERMS.keys(), key=len, reverse=True):
+        if key in raw_char:
+            role_name   = key
+            role_visual = _ROLE_VISUAL_TERMS[key]
+            break
+
+    return item_name, item_visual, role_name, role_visual
+
+
+# ── Location visual vocabulary ─────────────────────────────────────────────────
+# Maps UK city names to iconic/recognisable landmark search terms for Pexels/Pixabay
+_LOCATION_VISUAL_TERMS = {
+    "manchester":    "Manchester Piccadilly train station street UK city",
+    "birmingham":    "Birmingham Bullring city centre street UK",
+    "leeds":         "Leeds city centre street Yorkshire UK",
+    "bristol":       "Bristol harbour waterfront street UK city",
+    "liverpool":     "Liverpool Lime Street docks waterfront UK",
+    "sheffield":     "Sheffield city centre street South Yorkshire UK",
+    "nottingham":    "Nottingham city centre street UK",
+    "leicester":     "Leicester city street UK",
+    "coventry":      "Coventry city street cathedral UK",
+    "wolverhampton": "Wolverhampton city street West Midlands UK",
+    "edinburgh":     "Edinburgh city centre castle street Scotland UK",
+    "cardiff":       "Cardiff city centre bay street Wales UK",
+    "croydon":       "South London city street busy UK",
+    "peckham":       "South London Peckham street busy UK",
+    "brixton":       "Brixton South London street market UK",
+    "hackney":       "East London street urban UK",
+    "east london":   "East London street urban modern UK",
+    "canary wharf":  "Canary Wharf London financial district glass towers",
+    "cambridge":     "Cambridge city centre UK university street",
+    "exeter":        "Exeter city centre street South West UK",
+    "luton":         "London Luton airport exterior UK",
+    "slough":        "Slough train station commuter UK",
+    "milton keynes": "Milton Keynes city centre modern street UK",
+    "london":        "London city street busy UK",
+}
+
+def _extract_location_visual(story: dict) -> tuple[str, str]:
+    """
+    Read story_anchor character field for a UK city name.
+    Returns (city_name, location_visual_term). Falls back to ("", "").
+    """
+    anchor   = story.get("story_anchor", {})
+    # Check character field, hook text, and full narrative text
+    search_text = " ".join([
+        anchor.get("character", "") or "",
+        story.get("hook", "") or "",
+        story.get("problem", "") or "",
+    ]).lower()
+
+    for city, visual in sorted(_LOCATION_VISUAL_TERMS.items(), key=lambda x: len(x[0]), reverse=True):
+        if city in search_text:
+            return city, visual
+    return "", ""
+
+
+# ── African/Nigerian name detection ───────────────────────────────────────────
+# When the character has a Nigerian/African name the AI must NEVER show white people.
+_AFRICAN_NAMES = {
+    # Yoruba
+    "tunde", "tunji", "kunle", "sola", "bisi", "kemi", "femi", "segun", "wale",
+    "titi", "yemi", "lola", "bola", "dele", "nike", "toyin", "yetunde", "yewande",
+    "funke", "funmi", "tolani", "adunni", "remi", "dayo", "tobi", "tola", "deji", "dotun",
+    "lanre", "taiwo", "kehinde", "shola", "biodun", "olamide", "bukola", "abiodun",
+    "seun", "sade", "ade", "titi", "bola", "yinka", "ronke",
+    # Igbo
+    "emeka", "chukwu", "ngozi", "adaeze", "chidi", "uche", "nneka", "amaka",
+    "nkem", "obiageli", "chioma", "chizoba", "obinna", "ifeanyi", "nonso",
+    "chinwe", "ezinne", "obi", "ifeoma", "adaora", "chisom", "ebuka",
+    "onyeka", "nkechi", "amara",
+    # Hausa / Northern
+    "aisha", "fatima", "musa", "ibrahim", "aminu", "hafsat", "zainab",
+    "halima", "abdullahi", "bello", "sani", "lawal", "yakubu",
+    # Pan-Nigerian / diaspora
+    "blessing", "grace", "precious", "favour", "chukwuemeka", "adebayo",
+    "adeola", "afolabi", "adewale", "adeyemi", "temitayo", "temitope",
+    "oluwatobi", "oluwaseun", "oluwakemi", "oluwafemi", "oluwatosin",
+    "olusegun", "olumide", "oluwaseyi", "oluwatobiloba", "olawale",
+    "ayooluwa", "ayobami", "ayomide", "adekunle", "adekola",
+}
+
+
+def _extract_name_hint(story: dict) -> str:
+    """
+    Detect Nigerian/African character name anywhere in the story.
+    Returns a mandatory diversity block if found, else empty string.
+    """
+    anchor = story.get("story_anchor", {})
+    # Scan every text field — name may appear in hook, problem, or character field
+    search_text = " ".join([
+        anchor.get("character", "") or "",
+        anchor.get("movement", "") or "",
+        story.get("hook", "") or "",
+        story.get("hook_v2", "") or "",
+        story.get("problem", "") or "",
+        story.get("resolution", "") or "",
+    ]).lower()
+
+    # Tokenise to avoid partial matches (e.g. "grace" inside "graceful")
+    tokens = set(re.findall(r"[a-z]+", search_text))
+    matched = tokens & _AFRICAN_NAMES
+    if matched:
+        # Pick the longest (most specific) matched name
+        name = sorted(matched, key=len, reverse=True)[0].capitalize()
+        return (
+            f"\nCHARACTER ETHNICITY — CRITICAL:\n"
+            f"The character's name is \"{name}\" — this is a Nigerian/African person.\n"
+            f"EVERY query that includes a person MUST use one of these subject descriptors:\n"
+            f"  \"Nigerian woman\", \"Nigerian man\", \"African woman\", \"African man\",\n"
+            f"  \"Black British woman\", \"Black traveller\", \"diverse Black people\"\n"
+            f"NEVER generate a query that could match a white actor. No exceptions.\n"
+            f"Example of WRONG query: \"woman worried face holding parcel\" — no ethnicity!\n"
+            f"Example of RIGHT query: \"Nigerian woman worried face holding parcel medium shot\""
+        )
+    return ""
+
+
+def _build_specificity_block(story: dict) -> str:
+    """
+    Build the combined ITEM, CHARACTER, LOCATION, and NAME ETHNICITY block
+    injected into scene planner prompts. Empty string if nothing detected.
+    """
+    item_name, item_visual, role_name, role_visual = _extract_story_visuals(story)
+    city_name, city_visual = _extract_location_visual(story)
+    name_hint = _extract_name_hint(story)
+
+    lines = []
+
+    if item_visual:
+        lines.append(
+            f"\nITEM SPECIFICITY — MANDATORY:\n"
+            f"This story is about: \"{item_name}\"\n"
+            f"Pexels search term for this item: \"{item_visual}\"\n"
+            f"Rules:\n"
+            f"  - Scene 0 (hook): protagonist WITH the item — holding it, showing it, or looking at it\n"
+            f"    Example: \"Nigerian woman holding {item_visual} worried medium shot\"\n"
+            f"  - Scene 2 or 3 (problem): the item visible while protagonist looks stressed or shocked\n"
+            f"    Example: \"Black man {item_visual} looking shocked phone medium shot\"\n"
+            f"  - Scene 7 (lesson): recipient RECEIVING or WEARING the item — happy, relieved\n"
+            f"    Example: \"Nigerian person receiving {item_visual} door smiling medium shot\"\n"
+            f"  Every other scene may use transport/travel visuals as per the blueprint."
+        )
+
+    if role_visual:
+        lines.append(
+            f"\nCHARACTER APPEARANCE — MANDATORY:\n"
+            f"The protagonist is a \"{role_name}\"\n"
+            f"Use this visual for Scene 0 or Scene 1: \"{role_visual}\"\n"
+            f"Example: \"{role_visual} medium shot\""
+        )
+
+    if city_visual:
+        lines.append(
+            f"\nLOCATION SPECIFICITY — MANDATORY:\n"
+            f"The protagonist is based in/from: \"{city_name.title()}\"\n"
+            f"Scene 0 or Scene 1 MUST include a recognisable {city_name.title()} landmark or street scene.\n"
+            f"Use this search term for that scene: \"{city_visual}\"\n"
+            f"Example: \"{city_visual} medium shot\""
+        )
+
+    if name_hint:
+        lines.append(name_hint)
+
+    return "\n".join(lines)
+
 # ── Pillar blueprints — fixed narrative scene order per content pillar ─────────
 # Each list entry describes what the clip at that position MUST show.
 # The Scene Planner AI uses these as hard constraints when writing search queries.
@@ -83,14 +380,14 @@ PILLAR_BLUEPRINTS = {
         "Wide Lagos or London skyline — successful aspirational wide shot",
     ],
     "travel_hacks": [
-        "Black British woman neatly packing suitcase — organised smart traveller medium shot",
-        "Airport departures board Nigeria destination — African travellers wide shot",
-        "Nigerian woman comparing prices on phone saving money satisfied medium shot",
-        "Wide train station — Black traveller collecting parcel from Nigerian sender wide shot",
-        "African man plane window view in flight relaxed medium shot",
-        "Black traveller walking through customs arrivals confidently wide shot",
-        "Nigerian couple friendly parcel handover destination both smiling wide shot",
-        "Wide international airport exterior or London street diverse people wide shot",
+        "Black British traveller at airport departure lounge checking phone — excited realisation medium shot",
+        "African traveller with cabin luggage at airport gate wide shot",
+        "Nigerian woman shocked face looking at expensive courier price on phone medium shot",
+        "Black traveller receiving small parcel from Nigerian sender at train station wide shot",
+        "African man handing parcel to traveller airport departures smiling wide shot",
+        "Airplane taking off runway wide dramatic shot",
+        "Black traveller arrivals hall Lagos airport confident walking medium shot",
+        "Nigerian person at door receiving parcel smiling relief wide shot",
     ],
     "logistics_stories": [
         "Wide cargo ship at sea or shipping containers stacked at port wide shot",
@@ -166,6 +463,12 @@ def plan_scenes(story: dict, pillar: str) -> list[str]:
     blueprint = PILLAR_BLUEPRINTS.get(pillar, PILLAR_BLUEPRINTS["supply_chain"])
     blueprint_lines = "\n".join(f"  Scene {i}: {desc}" for i, desc in enumerate(blueprint))
 
+    airport_rule = ""
+    if pillar in ("airport", "airport_deliveries"):
+        airport_rule = "\nAIRPORT PILLAR RULE — MANDATORY: EVERY one of the 8 queries must contain a specific airport visual: departures hall, runway, airport gate, check-in counter, arrivals hall, airplane taking off, plane landing, or airport exterior. No exceptions.\n"
+
+    specificity_block = _build_specificity_block(story)
+
     prompt = f"""You are a Scene Planner for a short social media video. Convert this story into 8 Pexels video search queries.
 
 STORY:
@@ -177,6 +480,7 @@ STORY:
 
 SCENE BLUEPRINT — follow this order EXACTLY. Each query must visually match its scene:
 {blueprint_lines}
+{airport_rule}{specificity_block}
 
 RULES FOR EVERY QUERY (non-negotiable):
 - Maximum 6 words per query
@@ -187,17 +491,27 @@ RULES FOR EVERY QUERY (non-negotiable):
 - NEVER use Christmas, Halloween, pumpkin, Santa
 - NEVER name courier companies: DHL, FedEx, Royal Mail, Hermes, UPS
 
-DIVERSITY RULE — MANDATORY:
-For all person-focused queries, include ONE of these subject identifiers:
+DIVERSITY PREFERENCE:
+BootHop serves the UK-Nigeria diaspora. Where the story character is Nigerian or African,
+all person-focused queries MUST reflect this. Preferred identifiers:
   "Black British woman", "Nigerian woman", "African man", "Black traveller",
   "African couple", "Black man", "Nigerian man", "diverse Black people"
-BootHop serves the UK/Nigeria diaspora — all human subjects must reflect this audience.
+If the character has an English name, queries may show any appropriate ethnicity.
 
 DYNAMIC CONTENT (prefer for hook scene 0 and lesson scene 7):
   Use active subjects: "woman dancing celebration", "man talking animated",
   "people celebrating street", "woman laughing phone" — not static posed shots.
 
-CORRECT examples:
+AIRPORT PILLAR — MANDATORY (if pillar is airport or airport_deliveries):
+  EVERY query must include a specific airport visual: departures hall, runway, gate,
+  check-in counter, arrivals hall, airplane taking off, plane landing, or airport exterior.
+  Examples:
+    "African travellers busy airport departures hall wide shot"
+    "airplane taking off runway dramatic wide shot"
+    "Black traveller airport departure gate cabin luggage medium shot"
+    "airport arrivals hall Nigerian family reunion smiling wide shot"
+
+CORRECT examples (any pillar):
   "Black British woman london flat worried medium shot"
   "Nigerian woman pharmacy counter shocked medium shot"
   "African man train station parcel handover wide shot"
@@ -257,6 +571,12 @@ def plan_scenes_v2(story: dict, pillar: str, v1_queries: list[str]) -> list[str]
     blueprint_lines = "\n".join(f"  Scene {i}: {desc}" for i, desc in enumerate(blueprint))
     v1_str = "\n".join(f"  - {q}" for q in v1_queries[:8])
 
+    airport_rule = ""
+    if pillar in ("airport", "airport_deliveries"):
+        airport_rule = "\nAIRPORT RULE: EVERY query must include a specific airport visual (departures hall, runway, gate, check-in, arrivals hall, airplane, plane). No exceptions.\n"
+
+    specificity_block = _build_specificity_block(story)
+
     prompt = f"""You are a Scene Planner for a social media video. Generate a SECOND SET of 8 Pexels search queries for the same story.
 
 STORY:
@@ -270,8 +590,8 @@ SCENE BLUEPRINT (same structure as V1 — follow this order):
 
 V1 already used these queries — do NOT repeat them, find fresh alternatives:
 {v1_str}
-
-RULES: same as V1 — medium/wide shots only, no close-ups, no animals, no food, no courier brand names.
+{specificity_block}
+RULES: same as V1 — medium/wide shots only, no close-ups, no animals, no food, no courier brand names.{airport_rule}
 
 Return ONLY valid JSON:
 {{"visual_queries": ["q0","q1","q2","q3","q4","q5","q6","q7"]}}"""

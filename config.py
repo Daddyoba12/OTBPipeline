@@ -122,10 +122,10 @@ SLOT_PLATFORMS = {
 # ── Content pillars per slot — 7-day rotation (indexed by weekday: 0=Mon … 6=Sun)
 # No pillar appears twice on the same day. Each angle repeats once per week per slot.
 SLOT_PILLARS = {
-    #              Mon                Tue          Wed               Thu                  Fri                  Sat               Sun
-    1: ["cost_pain",     "community",   "travel_hacks",   "family",         "logistics_stories", "cultural_earn",  "urgent_medical"],
-    2: ["cultural_earn", "airport",     "supply_chain",   "cost_pain",      "community",         "urgent_medical", "travel_hacks"],
-    3: ["urgent_medical","travel_hacks","cultural_earn",  "airport_deliveries","smart",           "cost_pain",      "family"],
+    #              Mon                   Tue                   Wed                   Thu                   Fri                   Sat                   Sun
+    1: ["cost_pain",        "community",        "travel_hacks",     "family",           "logistics_stories", "cultural_earn",     "urgent_medical"],
+    2: ["airport",          "airport_deliveries","airport",         "airport_deliveries","airport",           "airport_deliveries","airport"],
+    3: ["urgent_medical",   "travel_hacks",     "cultural_earn",    "airport_deliveries","smart",             "cost_pain",         "family"],
     4: "brand_authority",   # LinkedIn/blog — consistent thought-leadership angle
 }
 

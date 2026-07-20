@@ -317,12 +317,26 @@ def _build_story_prompt(
     day_name: str, month_name: str,
     news_context: dict | None = None,
 ) -> str:
+    from datetime import date as _date
     news_block = ""
     if news_context:
         news_block = f"""
 TODAY'S REAL-WORLD CONTEXT (weave in naturally if it fits — never force it):
   Headline: {news_context.get('headline', '')}
   Angle: {news_context.get('story_angle', '')}
+"""
+
+    # POV block — travel_hacks angles embed their own POV in pillar_angle
+    pov_block = ""
+    if pillar != "travel_hacks":
+        pov_label, pov_instructions = _DAILY_POV[_date.today().weekday()]
+        pov_block = f"""
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TODAY'S POINT OF VIEW: {pov_label}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{pov_instructions}
+
+Lock into this POV from hook to lesson — never switch perspectives mid-story.
 """
 
     return f"""You write viral short-form content for BootHop — a peer-to-peer delivery platform connecting UK and Nigeria through travellers already making the journey.
@@ -337,7 +351,7 @@ Every day, millions of people are already travelling between UK and Nigeria.
 BootHop gives those journeys a second purpose.
 
 Signature line: "Movement already exists. BootHop makes it useful."
-
+{pov_block}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 STORY CONTEXT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -370,10 +384,36 @@ INTERNAL CHECKLIST — before writing any beat, answer these 6:
 If your story can't answer all 6, rewrite it before returning.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SHOW DON'T TELL — every beat needs ONE specific detail
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WRONG: "She was stressed about the cost."
+RIGHT: "She'd refreshed the courier site three times. The cheapest: £68, five to seven days. The ceremony was on Friday."
+
+WRONG: "BootHop connected them in time."
+RIGHT: "A notification at 11:47pm. A traveller flying to Lagos at 6am had space. She replied in eight seconds."
+
+WRONG: "He was happy it arrived."
+RIGHT: "His dad sent a 12-second voice note. He played it twice in the car on the way home."
+
+Use a price, a time, a number, a sound, a word someone actually said. Make it feel lived-in.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+THE UNEXPECTED MOMENT — mandatory in RESOLUTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Every compelling story has one beat the viewer didn't see coming. It goes in RESOLUTION.
+Examples of good unexpected moments:
+✓ The traveller had made this trip 22 times. This was the first time the luggage allowance earned anything.
+✓ The parcel arrived before the courier had even sent a confirmation email.
+✓ He was carrying a stranger's parcel. Turned out they lived two streets away in Manchester.
+✓ She posted at midnight, not expecting anything. A traveller had already packed and was ready to go.
+✓ The recipient's reaction: she didn't open it. She held it for a minute first.
+This moment is what makes the video shareable. Don't skip it.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 HOOK STARTERS — start with person, moment, or consequence (NEVER a price)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✓ "Her mum's retirement ceremony was on Friday."
-✓ "His cousin's portfolio deadline was in six days."
+✓ "He'd been making this trip every three months for two years."
 ✓ "The wedding was already set. The dress was still in Birmingham."
 ✓ "Sade hadn't been home in two years. She wanted to send something real."
 ✗ NEVER start with a price, courier quote, or BootHop name
@@ -454,6 +494,78 @@ Return ONLY valid JSON (no markdown):
 }}"""
 
 
+# ── Daily POV rotation ────────────────────────────────────────────────────────
+# Each weekday locks the story to a specific character's perspective.
+# POV makes stories feel intimate and personal — the viewer inhabits one person.
+# Index = weekday (0=Mon … 6=Sun)
+_DAILY_POV = [
+    (  # 0 — Monday: Sender's discovery
+        "THE SENDER — Discovery",
+        "Tell this story entirely through the eyes of the person in the UK trying to send something.\n"
+        "We feel the frustration building: expensive quotes, slow couriers, the late-night search.\n"
+        "HOOK: opens with the sender and the emotional weight of what they're trying to get there and why.\n"
+        "PROBLEM: show their exact moment of shock — the price on the screen, the delivery window that misses the date.\n"
+        "RESOLUTION: the instant BootHop changes everything for them — who messaged, how fast, what they paid.\n"
+        "Close with their feeling: not relief alone, but the realisation they've been doing this wrong for years.",
+    ),
+    (  # 1 — Tuesday: Recipient waiting in Nigeria
+        "THE RECIPIENT — Waiting",
+        "Tell this story from inside Nigeria, through the person who is waiting for the item to arrive.\n"
+        "We see THEIR world first — the occasion, the need, the anticipation.\n"
+        "HOOK: opens in Nigeria. What is this person about to celebrate or achieve? What does this item mean to them?\n"
+        "PROBLEM: told through their eyes — they're waiting, time is running out, they've started to worry.\n"
+        "RESOLUTION: the knock on the door. The parcel in their hands. The first thing they say or do.\n"
+        "LESSON: what this moment meant — not just a delivery, but the connection it carried.",
+    ),
+    (  # 2 — Wednesday: Traveller's accidental discovery
+        "THE TRAVELLER — Ordinary Trip, Unexpected Earning",
+        "Tell this story from the traveller's perspective — someone who was ALREADY flying this route.\n"
+        "This trip was booked months ago. BootHop wasn't in the plan.\n"
+        "HOOK: the traveller at the airport, on the train, packing their bag. Normal day. Then something shifts.\n"
+        "PROBLEM (reframed): the traveller has always had spare luggage allowance and never earned from it.\n"
+        "RESOLUTION: the match on BootHop, the handover, the £XX earned before boarding.\n"
+        "LESSON: this journey was going to happen anyway. BootHop made it count twice.",
+    ),
+    (  # 3 — Thursday: Sender's long frustration solved
+        "THE SENDER — Years of Overpaying, Now Solved",
+        "Tell this from the sender's perspective, but with a deeper emotional arc: this isn't the first time.\n"
+        "They've been sending things the expensive way for years — accepting it as the cost of diaspora life.\n"
+        "HOOK: opens with a past moment of frustration — 'Every year at this time, the same problem.'\n"
+        "PROBLEM: years of overpaying hits differently when they calculate the total they've wasted.\n"
+        "RESOLUTION: BootHop doesn't just solve today's problem — it changes how they'll think about this forever.\n"
+        "LESSON: they'll never go back. And they told everyone they know.",
+    ),
+    (  # 4 — Friday: Cinematic Traveller
+        "THE TRAVELLER — Cinematic, Aspirational",
+        "Friday = prime content slot. Make this feel like a short film, not a social post.\n"
+        "Tell it through the traveller's eyes — confident, purposeful, alive to the moment.\n"
+        "HOOK: the traveller in motion — airport, departure lounge, gate. Vivid sensory detail.\n"
+        "PROBLEM (reframed): show what their trips used to feel like versus now — unused capacity, wasted earnings.\n"
+        "RESOLUTION: cinematic. The handover. The landing. The WhatsApp notification with the earnings.\n"
+        "LESSON: delivered with weight — this isn't just logistics. This is what movement is for.",
+    ),
+    (  # 5 — Saturday: Community spread
+        "THE COMMUNITY — Word of Mouth",
+        "Tell this as a community ripple story — one person tells another, and suddenly everything changes.\n"
+        "Saturday = community content. Warm, connected, collective win.\n"
+        "HOOK: a community moment — a gathering, a WhatsApp group, a Sunday lunch, a church porch.\n"
+        "Someone mentions BootHop. Another person stops and asks: 'Wait, how does that work?'\n"
+        "PROBLEM: the listener has been sending things the expensive way for years, just like everyone else.\n"
+        "RESOLUTION: they try it the next week. It works. They tell the next person.\n"
+        "LESSON: the community already exists. BootHop just needed a seat in it.",
+    ),
+    (  # 6 — Sunday: Recipient's reunion
+        "THE RECIPIENT — Reunion and Gratitude",
+        "Sunday = family. Tell this entirely through the eyes of the Nigerian recipient.\n"
+        "We don't start in the UK — we start in Nigeria, in the life that was waiting for this.\n"
+        "HOOK: Sunday morning in Lagos, Abuja, or a family home. The person who is waiting. Why today matters.\n"
+        "PROBLEM: told as anticipation mixed with worry — will it arrive in time? Has anything gone wrong?\n"
+        "RESOLUTION: the delivery. Not just the parcel — the emotion. Voice note. Video call. Tears. Laughter.\n"
+        "LESSON: end on gratitude — for the sender, the traveller, and the movement that made it possible.",
+    ),
+]
+
+
 # Pillar-specific direction (human movement framing — never supply chain jargon)
 _PILLAR_ANGLES = {
     "supply_chain": (
@@ -472,12 +584,7 @@ _PILLAR_ANGLES = {
         "important on an existing trip, a last-minute handoff, or an emotional arrival. Open with "
         "the person and the moment. Make the viewer feel the relief at the end."
     ),
-    "travel_hacks": (
-        "Tell a story about the CLEVER HACK of using a traveller already going to Nigeria. "
-        "The 'hack' is that someone was ALREADY flying — BootHop found them. "
-        "NEVER write about hotel booking, flight reservations, packing tips, or general travel. "
-        "This pillar is about the smart sender who discovered peer-to-peer delivery."
-    ),
+    "travel_hacks": "__DYNAMIC__",  # built at generation time from ingredient pools
     "family": (
         "Tell a care story — someone sending something meaningful to a family member they miss. "
         "The item should carry emotional weight: a gift, clothing, a keepsake. "
@@ -500,6 +607,263 @@ _PILLAR_ANGLES = {
 }
 
 
+# ── Travel Hacks dynamic story ingredient pools ───────────────────────────────
+_TH_PROTAGONISTS = [
+    # (name, role, city, travel direction)
+    ("Tola",    "nurse",                    "Manchester",   "sender"),
+    ("Emeka",   "software developer",       "London",       "traveller"),
+    ("Sade",    "accountant",               "Birmingham",   "sender"),
+    ("Kunle",   "NHS doctor",               "Bristol",      "traveller"),
+    ("Ngozi",   "teacher",                  "Leeds",        "sender"),
+    ("Chidi",   "security guard",           "Leicester",    "traveller"),
+    ("Amara",   "care worker",              "Nottingham",   "sender"),
+    ("Femi",    "pharmacist",               "Croydon",      "traveller"),
+    ("Bisi",    "market trader",            "Peckham",      "sender"),
+    ("Yemi",    "student at UCL",           "London",       "traveller"),
+    ("Dayo",    "chef",                     "Edinburgh",    "traveller"),
+    ("Kemi",    "social worker",            "Sheffield",    "sender"),
+    ("Uche",    "warehouse manager",        "Coventry",     "traveller"),
+    ("Adaeze",  "midwife",                  "Liverpool",    "sender"),
+    ("Seun",    "delivery driver",          "Milton Keynes","traveller"),
+    ("Funmi",   "architect",               "East London",  "sender"),
+    ("Tobi",    "university lecturer",      "Exeter",       "traveller"),
+    ("Nkechi",  "retail manager",           "Cardiff",      "sender"),
+    ("Ebuka",   "IT consultant",            "Cambridge",    "traveller"),
+    ("Lola",    "community nurse",          "Wolverhampton","sender"),
+    ("Ade",     "plumber",                  "Luton",        "traveller"),
+    ("Chisom",  "finance analyst",          "Canary Wharf", "sender"),
+    ("Tunde",   "secondary school teacher", "Hackney",      "traveller"),
+    ("Bukola",  "NHS administrator",        "Slough",       "sender"),
+    ("Onyeka",  "event photographer",       "Brixton",      "traveller"),
+]
+
+_TH_ITEMS = [
+    ("a pair of Jordans",               "for his younger brother's graduation ceremony"),
+    ("a traditional aso-oke fabric",    "for her auntie's wedding in Lagos"),
+    ("a brand-new laptop",              "for her nephew starting university"),
+    ("baby clothes and shoes",          "for a newborn cousin she had never met"),
+    ("a medical stethoscope",           "for a cousin qualifying as a doctor"),
+    ("wireless headphones",             "a birthday gift three weeks overdue"),
+    ("a signed football shirt",         "for her father's 65th birthday"),
+    ("a framed family photo",           "the first one they'd ever printed together"),
+    ("an exam certificate",             "needed for a job application in Abuja"),
+    ("school shoes and a uniform",      "for a niece starting secondary school on Monday"),
+    ("a gaming controller",             "a Christmas present four months late"),
+    ("a smart watch",                   "for her mum's retirement ceremony"),
+    ("nursing scrubs",                  "for a cousin starting her first hospital placement"),
+    ("a replacement phone",             "after her sister's was stolen at the market"),
+    ("a handwritten letter and photos", "from grandchildren who had never met their grandfather"),
+    ("a wedding invitation suite",      "printed in London, needed in Abuja in two days"),
+    ("a portable power bank",           "her dad depended on CPAP at night"),
+    ("a box of Nigerian spices",        "her mum had been asking for since Christmas"),
+    ("an agbada for her father",        "tailored in Birmingham, needed for his chieftaincy ceremony"),
+    ("a ring box with an engagement ring","bought in Hatton Garden, proposal planned for Saturday"),
+    ("a university acceptance letter",  "needed physically for matriculation in three days"),
+    ("a breast pump",                   "her sister had just had twins and couldn't afford one locally"),
+    ("a driving licence renewal form",  "that had to be submitted in person in Lagos"),
+    ("a limited-edition perfume",       "sold out in Nigeria, her grandmother's favourite"),
+    ("crutches and a knee brace",       "her brother had torn his ACL and had no physio access"),
+]
+
+_TH_COMPLICATIONS = [
+    "A reputable courier quoted £{price} and said it would take {days} days.",
+    "She had already tried two couriers — both said it would miss the date.",
+    "Every courier she called wanted £{price} minimum and couldn't guarantee the date.",
+    "The cheapest option she found was £{price}, but delivery would miss {event} by a week.",
+    "He had been sending things this way for years — always overpaying, always anxious.",
+    "The item was too bulky to post cheaply but small enough to carry in a cabin bag.",
+    "She didn't even know BootHop existed — a friend mentioned it at a WhatsApp group.",
+    "He almost didn't check. His flight was in 36 hours and he assumed it was too late.",
+    "She posted at 11pm, assuming nothing would come of it at that hour.",
+    "Two previous couriers had lost her parcels. She had stopped trusting them entirely.",
+    "The local postal service had already failed her once this year.",
+    "A courier quoted £{price} — more than the item cost to buy.",
+    "She needed it there in 48 hours. Every courier wanted 5-7 days.",
+    "He was already at the airport when a stranger in the queue told him about BootHop.",
+    "The item had been sitting packaged in her hallway for a month — she kept putting it off.",
+]
+
+_TH_ANGLES = [
+    # (angle_label, pov, narrative_shape)
+    ("TRAVELLER EARNS ON AN EXISTING TRIP",
+     "traveller",
+     "Already had a flight booked. Checked BootHop before packing. Found two senders on the same route. "
+     "Carried both parcels, earned £{earn}. Enough to cover the checked bag fee. "
+     "HOOK = the traveller and the trip they already had planned. "
+     "PROBLEM = empty luggage allowance, wasted earning potential, didn't know BootHop existed. "
+     "STAKES = the money they had left on the table on every previous trip. "
+     "RESOLUTION = matched with two senders, earned £{earn} before boarding. "
+     "LESSON = every journey has value."),
+
+    ("URGENT SENDER FINDS A TRAVELLER IN TIME",
+     "sender",
+     "Needed {item} to reach Nigeria before {event}. Courier too expensive and too slow. "
+     "Posted on BootHop the same evening. A traveller flying the next morning accepted. "
+     "Item arrived in Lagos {hours} hours later — £{price} total. "
+     "HOOK = the sender and the deadline. "
+     "PROBLEM = reputable courier quoted £{courier_price} and {days} days — too slow. "
+     "STAKES = {event} happening without the item arriving. "
+     "RESOLUTION = BootHop matched them with a traveller leaving next morning. "
+     "LESSON = someone was already going."),
+
+    ("LAST-MINUTE AIRPORT DISCOVERY",
+     "traveller",
+     "Already at the airport departure lounge. A notification on BootHop: two senders nearby needed "
+     "someone going to the same city. Accepted both parcels at the gate. Earned £{earn} before boarding. "
+     "HOOK = traveller sitting at the gate, casually checking their phone. "
+     "PROBLEM = had been making this trip for years and never earned a penny from the luggage allowance. "
+     "STAKES = £{earn} sitting there, missed on every previous trip. "
+     "RESOLUTION = opened BootHop, matched instantly, parcels delivered same evening in Lagos. "
+     "LESSON = every journey has value."),
+
+    ("SOMEONE IN NIGERIA NEEDS IT URGENTLY",
+     "recipient",
+     "A family member in Nigeria needed {item} urgently — not available locally or priced at triple. "
+     "A sibling in the UK heard about it. Couriers wanted £{courier_price} and {days} days. "
+     "BootHop found a traveller flying in 24 hours. Item arrived in {hours} hours. "
+     "HOOK = the person in Nigeria and what they urgently need and why. "
+     "PROBLEM = courier too slow and too expensive, item unavailable locally. "
+     "STAKES = ceremony, exam, health, or milestone at risk if it doesn't arrive. "
+     "RESOLUTION = BootHop matched the UK sender with a traveller flying next day. "
+     "LESSON = the flight was already going. The parcel just needed a seat."),
+
+    ("RETURNING TRAVELLER BRINGS ITEMS BACK",
+     "traveller",
+     "Coming back from Nigeria to the UK. Checked BootHop before leaving Lagos. "
+     "Three diaspora families needed things sent from Nigeria to the UK — local fabric, spices, documents. "
+     "Carried all three, earned £{earn} on the return leg. "
+     "HOOK = traveller packing in Lagos the night before flying back to the UK. "
+     "PROBLEM = diaspora families struggling to get Nigerian items shipped to the UK cheaply. "
+     "STAKES = items stuck, high shipping costs, weeks of waiting. "
+     "RESOLUTION = traveller took all three parcels, earned £{earn}, items delivered to three homes in the UK. "
+     "LESSON = the journey already existed. BootHop made it useful both ways."),
+
+    ("COMMUNITY WORD OF MOUTH DISCOVERY",
+     "sender",
+     "A friend mentioned BootHop at a Sunday gathering. She had been overpaying couriers for years. "
+     "Posted that same evening needing {item} to reach Lagos for {event}. "
+     "Matched with a traveller leaving in two days. Saved £{save} compared to what she would have paid. "
+     "HOOK = the gathering, the conversation, the realisation. "
+     "PROBLEM = had been paying £{courier_price} per parcel every time without knowing there was another way. "
+     "STAKES = {event} and the item still stuck in the UK. "
+     "RESOLUTION = BootHop matched her within hours, item delivered two days later. "
+     "LESSON = movement already exists. BootHop makes it useful."),
+
+    ("LATE NIGHT POST, EARLY MORNING FLIGHT",
+     "sender",
+     "Posted on BootHop at 11pm, not expecting much. A traveller flying at 6am accepted within the hour. "
+     "Item delivered to Lagos that same afternoon. "
+     "HOOK = midnight, item packaged, deadline tomorrow, one last attempt. "
+     "PROBLEM = every courier had already said it was too late to guarantee the date. "
+     "STAKES = the item missing {event} entirely. "
+     "RESOLUTION = traveller accepted at 11:47pm, met at 5am, delivered by 3pm Lagos time. "
+     "LESSON = someone was already flying. BootHop connected the dots."),
+
+    ("CORPORATE TRAVELLER CARRIES ON A WORK TRIP",
+     "traveller",
+     "Flying to Lagos for a three-day conference. Checked BootHop on the way to the airport. "
+     "Two small parcels for people in Lagos — accepted both. Earned £{earn} on a trip already expensed. "
+     "HOOK = business traveller, taxi to Heathrow, opens the app out of curiosity. "
+     "PROBLEM = had extra luggage allowance going to waste every single trip. "
+     "STAKES = {earn} per trip unclaimed over years of work travel. "
+     "RESOLUTION = accepted two parcels, delivered them the next morning, earned £{earn}. "
+     "LESSON = the flight was already going. The parcel just needed a seat."),
+
+    ("STUDENT FLYING HOME FOR HOLIDAYS EARNS",
+     "traveller",
+     "Flying home to Lagos for the summer break. Bags mostly empty. "
+     "A flatmate told them about BootHop. Found three senders at their university town going to Lagos. "
+     "Earned £{earn} — enough to clear part of the term's rent. "
+     "HOOK = student at the end of term, packing light, flying home tomorrow. "
+     "PROBLEM = empty bags, tight finances, about to fly with half the luggage allowance unused. "
+     "STAKES = rent arrears back home, money stress following them on the holiday. "
+     "RESOLUTION = BootHop matched them with three senders, earned £{earn} by the time they boarded. "
+     "LESSON = every journey has value."),
+
+    ("TRAVELLER WHO ALMOST DIDN'T CHECK",
+     "traveller",
+     "Almost didn't open the app. Flight was in four hours. Thought it was too late. "
+     "Checked anyway — three senders within 20 minutes of the airport, parcels already packaged. "
+     "Earned £{earn}, dropped off two parcels in Lagos that same evening. "
+     "HOOK = traveller four hours from departure, doing last-minute checks. "
+     "PROBLEM = assumed BootHop needed more time — almost left the money behind. "
+     "STAKES = another trip where the luggage allowance earns nothing. "
+     "RESOLUTION = matched in 8 minutes, parcels at the airport 90 minutes later, £{earn} earned. "
+     "LESSON = the journey already existed. BootHop makes it useful."),
+]
+
+_TH_PRICE_PAIRS = [
+    (68, 12, 42, "5-7"),
+    (75, 14, 61, "7"),
+    (55, 10, 45, "5"),
+    (80, 16, 64, "6-8"),
+    (62, 13, 49, "5"),
+    (70, 11, 59, "7-10"),
+]
+
+_TH_EARN_AMOUNTS = [45, 55, 65, 72, 80, 85, 48, 60, 90, 38]
+
+_TH_DELIVERY_HOURS = [18, 22, 28, 14, 36, 20, 24]
+
+
+def _build_travel_hacks_angle() -> str:
+    """Build a unique story direction by randomly drawing from ingredient pools."""
+    protagonist = random.choice(_TH_PROTAGONISTS)
+    item_tuple  = random.choice(_TH_ITEMS)
+    comp        = random.choice(_TH_COMPLICATIONS)
+    angle       = random.choice(_TH_ANGLES)
+    prices      = random.choice(_TH_PRICE_PAIRS)
+    earn        = random.choice(_TH_EARN_AMOUNTS)
+    hours       = random.choice(_TH_DELIVERY_HOURS)
+
+    name, role, city, _pov = protagonist
+    item, item_context     = item_tuple
+    courier_price, boothop_price, save, days = prices
+
+    # Fill in templates
+    comp_filled = (comp
+        .replace("{price}", f"£{courier_price}")
+        .replace("{days}", days)
+        .replace("{event}", item_context.split("for")[-1].strip().rstrip(")")))
+
+    angle_text = (angle[2]
+        .replace("{item}", item)
+        .replace("{earn}", str(earn))
+        .replace("{hours}", str(hours))
+        .replace("{courier_price}", f"£{courier_price}")
+        .replace("{boothop_price}", f"£{boothop_price}")
+        .replace("{save}", f"£{save}")
+        .replace("{days}", days)
+        .replace("{event}", item_context.split("for")[-1].strip().rstrip(")")))
+
+    _POV_LABELS = {
+        "traveller": "THE TRAVELLER'S POV — tell this entirely from the traveller's perspective",
+        "sender":    "THE SENDER'S POV — tell this entirely from the sender's perspective",
+        "recipient": "THE RECIPIENT'S POV — begin in Nigeria, with the person who is waiting",
+    }
+    pov_label = _POV_LABELS.get(angle[1], "")
+
+    return (
+        f"TODAY'S STORY INGREDIENTS — use ALL of these. Do not swap them out.\n\n"
+        f"POINT OF VIEW: {pov_label}\n"
+        f"PROTAGONIST: {name}, a {role} based in {city}\n"
+        f"ITEM: {item} — {item_context}\n"
+        f"COMPLICATION: {comp_filled}\n"
+        f"STORY ANGLE: {angle[0]}\n"
+        f"NARRATIVE SHAPE:\n{angle_text}\n\n"
+        f"CRAFT RULES:\n"
+        f"- Open with {name} and the human moment — NOT the price or BootHop\n"
+        f"- Name {name} in the hook. Name the item. Name the event or deadline.\n"
+        f"- Stay in {pov_label.split('—')[0].strip()} throughout — never switch perspective\n"
+        f"- BootHop appears ONLY in the resolution beat — never earlier\n"
+        f"- Every beat must contain one specific detail: a price, a time, a number, a quote\n"
+        f"- RESOLUTION must include one unexpected moment that surprises the viewer\n"
+        f"- Show the before-emotion (stress, panic, resignation) and after-emotion (relief, joy, pride)\n"
+        f"- NEVER write about hotel booking, flight reservations, packing tips, or general travel advice\n"
+        f"- This story is about peer-to-peer delivery discovered at exactly the right moment"
+    )
+
+
 def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     """
     Stage 1: Story Writer generates the narrative.
@@ -518,6 +882,10 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
                   "July","August","September","October","November","December"][current_month]
 
     pillar_angle = _PILLAR_ANGLES.get(pillar, "")
+
+    # travel_hacks: build a fresh unique story direction from randomised ingredient pools
+    if pillar == "travel_hacks":
+        pillar_angle = _build_travel_hacks_angle()
 
     # ── Stage 0: News Editor — find today's top story ─────────────────────────
     print("  [NewsEditor] Searching for today's top story...")

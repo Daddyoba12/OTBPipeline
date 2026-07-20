@@ -181,6 +181,23 @@ def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
         return False
 
 
+# ── Volume guard ───────────────────────────────────────────────────────────────
+def _has_audio(path: Path, min_db: float = -60.0) -> bool:
+    """Return False if the track is silent (mean volume below min_db)."""
+    try:
+        res = subprocess.run(
+            ["ffmpeg", "-i", str(path), "-af", "volumedetect", "-f", "null", "NUL"],
+            capture_output=True, text=True, timeout=30,
+        )
+        for line in res.stderr.splitlines():
+            if "mean_volume" in line:
+                val = float(line.split("mean_volume:")[1].strip().split()[0])
+                return val > min_db
+    except Exception:
+        pass
+    return True  # assume ok if ffmpeg fails
+
+
 # ── Downloader ─────────────────────────────────────────────────────────────────
 def _download_soundcloud(query: str, raw_out: Path) -> bool:
     TMP_DIR.mkdir(parents=True, exist_ok=True)
@@ -251,26 +268,54 @@ def _try_track(item: dict, source_label: str, slot_out: Path, used_titles: set):
     hooked = _extract_hook(raw, slot_out, duration_s=60)
     raw.unlink(missing_ok=True)
     if hooked or slot_out.exists():
+        if not _has_audio(slot_out):
+            print(f"    Skip (silent output): {title[:55]}")
+            slot_out.unlink(missing_ok=True)
+            return None
         return {"title": title, "artist": item.get("channel", "?"),
                 "source": source_label, "logged_at": datetime.now().isoformat()}
     return None
 
+
+def _used_yesterday(title: str) -> bool:
+    log    = _load_log()
+    cutoff = (datetime.now() - timedelta(days=2)).isoformat()
+    return any(
+        e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
+        for e in log
+    )
 
 def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set):
     tracks = sorted(list(ARCHIVE.glob("*.mp3")) + list(ARCHIVE.glob("*.m4a")))
     if not tracks:
         return None
     day = datetime.now().timetuple().tm_yday
+    # First pass: respect 14-day AND yesterday dedup, skip silent files
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
-        if not _used_recently(t.stem) and t.stem not in used_titles:
+        if not _used_recently(t.stem) and not _used_yesterday(t.stem) and t.stem not in used_titles:
+            if not _has_audio(t):
+                print(f"    Skip silent archive: {t.name}")
+                continue
             shutil.copy2(str(t), str(slot_out))
             return {"title": t.stem, "artist": "archive",
                     "source": "archive", "logged_at": datetime.now().isoformat()}
-    t = tracks[(day * 4 + slot_num) % len(tracks)]
-    shutil.copy2(str(t), str(slot_out))
-    return {"title": t.stem, "artist": "archive",
-            "source": "archive", "logged_at": datetime.now().isoformat()}
+    # Second pass: only block yesterday (ignore 14-day to avoid total stall)
+    for offset in range(len(tracks)):
+        t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
+        if not _used_yesterday(t.stem) and t.stem not in used_titles:
+            if not _has_audio(t):
+                continue
+            shutil.copy2(str(t), str(slot_out))
+            return {"title": t.stem, "artist": "archive",
+                    "source": "archive", "logged_at": datetime.now().isoformat()}
+    # Final fallback: any track with actual audio
+    for t in tracks:
+        if _has_audio(t):
+            shutil.copy2(str(t), str(slot_out))
+            return {"title": t.stem, "artist": "archive",
+                    "source": "archive", "logged_at": datetime.now().isoformat()}
+    return None
 
 
 # ── Per-slot candidate pool ────────────────────────────────────────────────────
@@ -388,7 +433,8 @@ def _already_fresh_today() -> bool:
         if info.get("date") != datetime.now().strftime("%Y-%m-%d"):
             return False
         tracks = info.get("tracks", [])
-        return len(tracks) == 4 and all(t.get("source", "archive") != "archive" for t in tracks)
+        # Accept 3 or more tracks (code now produces 3 slots)
+        return len(tracks) >= 3
     except Exception:
         return False
 

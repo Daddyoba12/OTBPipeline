@@ -1197,3 +1197,12 @@ Blog published successfully.
 }
 [2026-07-16 11:41:35] Run: python blog/setup_blogger.py  to re-authenticate
 [2026-07-16 11:41:35] =======================================================
+[2026-07-20 20:12:46] =======================================================
+[2026-07-20 20:12:46] BootHop Blog Auto-Poster starting
+[2026-07-20 20:12:46] Found 7 pending post(s)
+[2026-07-20 20:12:47] ERROR: Could not get access token — Failed to get access token: {
+  "error": "invalid_grant",
+  "error_description": "Bad Request"
+}
+[2026-07-20 20:12:47] Run: python blog/setup_blogger.py  to re-authenticate
+[2026-07-20 20:12:47] =======================================================
