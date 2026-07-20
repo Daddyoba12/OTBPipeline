@@ -126,7 +126,7 @@ SLOT_PILLARS = {
     1: ["cost_pain",     "community",   "travel_hacks",   "family",         "logistics_stories", "cultural_earn",  "urgent_medical"],
     2: ["cultural_earn", "airport",     "supply_chain",   "cost_pain",      "community",         "urgent_medical", "travel_hacks"],
     3: ["urgent_medical","travel_hacks","cultural_earn",  "airport_deliveries","smart",           "cost_pain",      "family"],
-    4: ["brand_authority"],  # LinkedIn/blog — consistent thought-leadership angle
+    4: "brand_authority",   # LinkedIn/blog — consistent thought-leadership angle
 }
 
 PILLAR_LABELS = {

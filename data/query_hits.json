@@ -588,45 +588,5 @@
     "query": "london cityscape skyline professional wide shot",
     "hit_type": "video",
     "date": "2026-06-29"
-  },
-  {
-    "query": "large cargo containers stacked busy port wide shot",
-    "hit_type": "video",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "black british woman courier counter shocked expensive price medium shot",
-    "hit_type": "video",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "african man on phone frustrated logistics problem indoors medium shot",
-    "hit_type": "video",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "black traveller train station luggage medium shot",
-    "hit_type": "transport_fallback",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "african male traveller airplane seat parcel bag secure medium shot",
-    "hit_type": "video",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "black man handing parcel station traveller wide shot",
-    "hit_type": "transport_fallback",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "nigerian woman front door receiving parcel smiling relieved medium shot",
-    "hit_type": "video",
-    "date": "2026-07-17"
-  },
-  {
-    "query": "black woman door receiving parcel smiling medium shot",
-    "hit_type": "transport_fallback",
-    "date": "2026-07-17"
   }
 ]
