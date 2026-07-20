@@ -26,6 +26,49 @@ from config import (
 _VIDEO_LOG = DATA / "video_clip_log.json"
 _VIDEO_COOLDOWN_DAYS = 14
 
+# -- Music dedup + silence guard -----------------------------------------------
+_MUSIC_LOG = DATA / "music_log.json"
+
+def _track_has_audio(path: Path, min_db: float = -60.0) -> bool:
+    """Return False if the track is silent (mean volume below min_db dB)."""
+    import subprocess as _sp
+    try:
+        res = _sp.run(
+            ["ffmpeg", "-i", str(path), "-af", "volumedetect", "-f", "null", "NUL"],
+            capture_output=True, text=True, timeout=30,
+        )
+        for line in res.stderr.splitlines():
+            if "mean_volume" in line:
+                val = float(line.split("mean_volume:")[1].strip().split()[0])
+                return val > min_db
+    except Exception:
+        pass
+    return True  # assume ok if ffmpeg unavailable
+
+def _recently_used_music_stems(days: int = 2) -> set:
+    from datetime import datetime, timedelta
+    if not _MUSIC_LOG.exists():
+        return set()
+    try:
+        log    = json.loads(_MUSIC_LOG.read_text(encoding="utf-8"))
+        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        return {e.get("title", "").lower() for e in log if e.get("logged_at", "") > cutoff}
+    except Exception:
+        return set()
+
+def _log_music_used(track_path: Path):
+    from datetime import datetime
+    if not _MUSIC_LOG.exists():
+        log = []
+    else:
+        try:
+            log = json.loads(_MUSIC_LOG.read_text(encoding="utf-8"))
+        except Exception:
+            log = []
+    log.append({"title": track_path.stem, "artist": "archive",
+                "source": "archive_render", "logged_at": datetime.now().isoformat()})
+    _MUSIC_LOG.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
+
 def _load_video_log() -> list:
     if _VIDEO_LOG.exists():
         try: return json.loads(_VIDEO_LOG.read_text(encoding="utf-8"))
@@ -85,6 +128,59 @@ _TRANSPORT_FALLBACKS = [
     "Black man handing parcel station traveller wide shot",   # 5 resolution
     "African man seated plane window relaxed medium shot",    # 6 resolution
     "Black woman door receiving parcel smiling medium shot",  # 7 lesson
+]
+
+# Website screenshot directory — user drops screenshots of boothop.com here
+# for use as branded fallback clips when all stock footage fails
+_WEBSITE_SCREENS_DIR = ASSETS / "website_screens"
+
+# User-provided clips — sent via Telegram and saved here.
+# These are used FIRST before Pexels/Pixabay — authentic footage beats stock.
+# Beat-tag files: prefix filename with beat name (hook_, problem_, resolution_, etc.)
+# Untagged files are used for any beat position.
+_USER_CLIPS_DIR = ASSETS / "user_clips"
+_BEAT_TAGS = ["hook", "problem", "stakes", "resolution", "lesson"]
+
+
+def _pick_user_clip(beat: str, exclude_paths: set) -> Path | None:
+    """
+    Pick a user-provided clip from assets/user_clips/ for the given beat.
+    Priority: beat-tagged files (e.g. hook_*.mp4) → untagged → any available.
+    Skips paths already used this render (exclude_paths).
+    """
+    if not _USER_CLIPS_DIR.exists():
+        return None
+    all_clips = (list(_USER_CLIPS_DIR.glob("*.mp4"))
+                 + list(_USER_CLIPS_DIR.glob("*.mov"))
+                 + list(_USER_CLIPS_DIR.glob("*.jpg"))
+                 + list(_USER_CLIPS_DIR.glob("*.jpeg"))
+                 + list(_USER_CLIPS_DIR.glob("*.png")))
+    if not all_clips:
+        return None
+
+    avail = [p for p in all_clips if str(p) not in exclude_paths]
+    if not avail:
+        # Relax exclusion if everything is used
+        avail = all_clips
+
+    # Beat-tagged first
+    tagged = [p for p in avail if p.name.lower().startswith(beat)]
+    # Generic (no beat prefix)
+    generic = [p for p in avail if not any(p.name.lower().startswith(t) for t in _BEAT_TAGS)]
+
+    pool = tagged or generic or avail
+    return random.choice(pool)
+
+# Airport-specific fallbacks for slot 2 — enforced at every beat position
+_AIRPORT_FALLBACKS = [
+    "busy airport departures hall Black African travellers luggage wide shot",  # 0 hook
+    "airplane taking off runway dramatic wide shot",                             # 1 hook
+    "Nigerian woman stressed airport check-in counter medium shot",              # 2 problem
+    "Black traveller oversized luggage airport customs shocked medium shot",     # 3 problem
+    "African woman worried phone call airport departure lounge medium shot",     # 4 stakes
+    "Black traveller handing small parcel cabin bag airport gate wide shot",    # 5 resolution
+    "airplane landing runway wide shot cinematic",                               # 6 resolution
+    "airport arrivals hall African family reunion smiling wide shot",            # 7 lesson
 ]
 
 
@@ -478,6 +574,243 @@ def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP
     return False
 
 
+def _perplexity_suggest_queries(query: str, beat: str) -> list[str]:
+    """
+    When Pexels + Pixabay + photo fallback all fail, ask Perplexity to suggest
+    3 better Pexels-friendly search terms. Returns up to 3 alternative query strings.
+    This keeps us on licensed stock media rather than jumping straight to DALL-E.
+    """
+    import re as _re
+    try:
+        from config import PERPLEXITY_KEY
+        if not PERPLEXITY_KEY or not PERPLEXITY_KEY.startswith("pplx-"):
+            return []
+        resp = requests.post(
+            "https://api.perplexity.ai/chat/completions",
+            headers={"Authorization": f"Bearer {PERPLEXITY_KEY}", "Content-Type": "application/json"},
+            json={
+                "model": "sonar",
+                "messages": [{
+                    "role": "user",
+                    "content": (
+                        f"I'm searching Pexels for stock footage but got no results for: \"{query}\"\n"
+                        f"Beat type: {beat} (hook=tense/worried, problem=shocked/frustrated, "
+                        f"stakes=emotional, resolution=relief/handover, lesson_pre=happy/confident)\n"
+                        f"Suggest 3 alternative Pexels search queries with more likely results.\n"
+                        f"Rules: max 6 words each, include 'medium shot' or 'wide shot', "
+                        f"Black British/Nigerian/African subjects where people appear, "
+                        f"no animals, no food, no brand names, no close-ups.\n"
+                        f"Return ONLY valid JSON: {{\"alternatives\": [\"query1\", \"query2\", \"query3\"]}}"
+                    ),
+                }],
+                "max_tokens": 120,
+            },
+            timeout=12,
+        )
+        resp.raise_for_status()
+        raw = resp.json()["choices"][0]["message"]["content"]
+        m = _re.search(r"\{[\s\S]*\}", raw)
+        if m:
+            data = json.loads(m.group())
+            alts = [str(a).strip() for a in data.get("alternatives", []) if a]
+            print(f"    [Perplexity] Suggested alternatives: {alts}")
+            return alts[:3]
+    except Exception as e:
+        print(f"    [Perplexity] Query suggest failed: {e}")
+    return []
+
+
+def _veo_video_as_clip(beat: str, video_prompt: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+    """
+    Generate a 4-second vertical video clip using Google Veo via the Gemini API.
+    Uses the full cinematic prompt already written by the Cinematographer (Stage 5).
+    Falls back gracefully if Veo API is unavailable or quota exceeded.
+
+    The operation is async: we start generation, then poll every 8s for up to 3 minutes.
+    """
+    import time, re as _re
+    try:
+        from config import GEMINI_API_KEY
+        if not GEMINI_API_KEY:
+            return False
+
+        if not video_prompt or len(video_prompt) < 10:
+            return False
+
+        # Build a safe 9:16 portrait prompt — add vertical framing instruction
+        safe_prompt = (
+            f"{video_prompt.strip()} "
+            f"Vertical 9:16 portrait orientation. "
+            f"Photorealistic. No text overlays. No logos. No watermarks. "
+            f"High production quality short film style."
+        )[:4000]
+
+        # POST — start video generation (long-running operation)
+        # Use veo-3.1-fast for speed (pipeline runs 8 clips); full quality = veo-3.1-generate-preview
+        start_resp = requests.post(
+            "https://generativelanguage.googleapis.com/v1beta/models/veo-3.1-fast-generate-preview:generateVideo",
+            params={"key": GEMINI_API_KEY},
+            json={
+                "instances": [{"prompt": safe_prompt}],
+                "parameters": {
+                    "aspectRatio":     "9:16",
+                    "durationSeconds": max(5, duration),  # Veo minimum is 5s
+                    "sampleCount":     1,
+                },
+            },
+            timeout=30,
+        )
+        if start_resp.status_code in (400, 401, 403, 429, 503):
+            print(f"    [Veo] API error {start_resp.status_code}: {start_resp.text[:120]}")
+            return False
+        start_resp.raise_for_status()
+
+        operation = start_resp.json()
+        op_name = operation.get("name", "")
+        if not op_name:
+            print(f"    [Veo] No operation name in response")
+            return False
+
+        print(f"    [Veo] Generation started: {op_name[-40:]}")
+
+        # Poll for completion — Veo typically takes 60-120s
+        for attempt in range(23):   # up to ~3 minutes (23 × 8s = 184s)
+            time.sleep(8)
+            poll = requests.get(
+                f"https://generativelanguage.googleapis.com/v1beta/{op_name}",
+                params={"key": GEMINI_API_KEY},
+                timeout=20,
+            )
+            if not poll.ok:
+                continue
+            data = poll.json()
+            if not data.get("done"):
+                print(f"    [Veo] Still generating... ({attempt * 8}s elapsed)")
+                continue
+
+            # Done — extract video URI
+            error = data.get("error")
+            if error:
+                print(f"    [Veo] Generation error: {error.get('message', error)[:100]}")
+                return False
+
+            videos = (data.get("response", {}).get("videos")
+                      or data.get("response", {}).get("generatedVideos", []))
+            if not videos:
+                print(f"    [Veo] No videos in response")
+                return False
+
+            video_uri = (videos[0].get("uri") or videos[0].get("video", {}).get("uri", ""))
+            if not video_uri:
+                print(f"    [Veo] No URI in video object")
+                return False
+
+            # Download the generated video
+            vid_bytes = requests.get(
+                video_uri,
+                headers={"Authorization": f"Bearer {GEMINI_API_KEY}"}
+                if not video_uri.startswith("https://generativelanguage") else {},
+                params={"key": GEMINI_API_KEY}
+                if video_uri.startswith("https://generativelanguage") else {},
+                timeout=60,
+                stream=True,
+            ).content
+
+            if len(vid_bytes) < 10_000:
+                print(f"    [Veo] Downloaded file too small ({len(vid_bytes)} bytes)")
+                return False
+
+            # Write raw Veo file and re-encode to our target spec (trim to CLIP_DUR)
+            raw_veo = dest.parent / (dest.stem + "_veo_raw.mp4")
+            raw_veo.write_bytes(vid_bytes)
+            ok = _ff(
+                "-i", str(raw_veo),
+                "-t", str(duration),
+                "-vf",
+                f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1",
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+            )
+            raw_veo.unlink(missing_ok=True)
+            if ok and dest.exists() and dest.stat().st_size > 10_000:
+                print(f"    [Veo] Generated clip for: {video_prompt[:60]}")
+                return True
+            return False
+
+        print(f"    [Veo] Timed out after 3 minutes")
+        return False
+
+    except Exception as e:
+        print(f"    [Veo] Failed: {e}")
+        return False
+
+
+def _website_fallback_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+    """
+    Branded fallback when all stock footage AND DALL-E fail.
+    Priority:
+      1. Pre-saved website screenshots in assets/website_screens/ — Ken Burns animated
+      2. Generated BootHop brand card (purple/navy with tagline + URL)
+    The output is a silent clip that _process_clip() will overlay with beat text.
+    """
+    font_t = _font("title")
+    font_b = _font("body")
+
+    # 1. Use a pre-saved boothop.com screenshot if available
+    if _WEBSITE_SCREENS_DIR.exists():
+        screens = (list(_WEBSITE_SCREENS_DIR.glob("*.jpg"))
+                   + list(_WEBSITE_SCREENS_DIR.glob("*.png"))
+                   + list(_WEBSITE_SCREENS_DIR.glob("*.jpeg")))
+        if screens:
+            img_path = random.choice(screens)
+            frames = duration * VIDEO_FPS
+            ok = _ff(
+                "-loop", "1", "-i", str(img_path),
+                "-vf",
+                f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                f"zoompan=z='min(zoom+0.002,1.15)':d={frames}"
+                f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},"
+                "setsar=1",
+                "-t", str(duration),
+                "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+                "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+            )
+            if ok and dest.exists() and dest.stat().st_size > 5000:
+                print(f"    [WebsiteFallback] Screenshot used: {img_path.name}")
+                return True
+
+    # 2. Generate a BootHop branded card as background for beat-text overlay
+    plain = dest.parent / (dest.stem + "_wb_plain.mp4")
+    ok = _ff(
+        "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x130B4D:rate={VIDEO_FPS}",
+        "-t", str(duration), "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-pix_fmt", "yuv420p", "-an", str(plain),
+    )
+    if not ok or not plain.exists():
+        return False
+
+    vf = ",".join([
+        f"drawtext=fontfile='{font_t}':text='BootHop':fontsize=120:"
+        f"fontcolor=0xFFE600:x=(w-text_w)/2:y=h*0.35:"
+        f"shadowcolor=0x000000@0.7:shadowx=4:shadowy=4",
+        f"drawtext=fontfile='{font_b}':text='Movement already exists.':fontsize=40:"
+        f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.52",
+        f"drawtext=fontfile='{font_b}':text='BootHop makes it useful.':fontsize=40:"
+        f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.58",
+        f"drawtext=fontfile='{font_b}':text='boothop.com':fontsize=48:"
+        f"fontcolor=0xFFE600@0.95:x=(w-text_w)/2:y=h*0.72",
+    ])
+    result = _ff(
+        "-i", str(plain), "-vf", vf,
+        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+        "-pix_fmt", "yuv420p", "-an", str(dest),
+    )
+    plain.unlink(missing_ok=True)
+    if not result and plain.exists():
+        import shutil; shutil.copy2(plain, dest)
+    return dest.exists() and dest.stat().st_size > 5000
+
+
 def _download_clip(url: str, dest: Path) -> bool:
     try:
         r = requests.get(url, stream=True)
@@ -642,28 +975,39 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
         slot_track = MUSIC_DIR / f"track_{slot}.mp3"
         if slot_track.exists() and slot_track.stat().st_size > 50_000:
             if exclude_track is None or slot_track.resolve() != exclude_track.resolve():
-                track = slot_track
+                if _track_has_audio(slot_track):
+                    track = slot_track
+                else:
+                    print(f"    [Music] Skipping silent daily track: {slot_track.name}")
 
-    # 2. Any daily track (excluding the one already used)
+    # 2. Any daily track (excluding silent and already used)
     if track is None:
         daily = list(MUSIC_DIR.glob("*.mp3")) + list(MUSIC_DIR.glob("*.m4a"))
         daily = [t for t in daily
                  if t.stat().st_size > 50_000 and "_tmp" not in str(t)
-                 and (exclude_track is None or t.resolve() != exclude_track.resolve())]
+                 and (exclude_track is None or t.resolve() != exclude_track.resolve())
+                 and _track_has_audio(t)]
         if daily:
             track = random.choice(daily)
 
-    # 3. Archive fallback
+    # 3. Archive fallback — exclude recently used and silent tracks
     if track is None:
         archive = list(MUSIC_ARCHIVE.glob("*.mp3")) + list(MUSIC_ARCHIVE.glob("*.m4a"))
         archive = [t for t in archive
-                   if exclude_track is None or t.resolve() != exclude_track.resolve()]
+                   if (exclude_track is None or t.resolve() != exclude_track.resolve())
+                   and _track_has_audio(t)]
         if archive:
-            track = random.choice(archive)
+            recent_stems = _recently_used_music_stems(days=2)
+            fresh = [t for t in archive if t.stem.lower() not in recent_stems]
+            track = random.choice(fresh) if fresh else random.choice(archive)
 
     if track is None:
         shutil.copy(src, dest)
         return None
+
+    # Log archive picks so the 2-day dedup works across renders
+    if track.parent == MUSIC_ARCHIVE.resolve() or track.parent == MUSIC_ARCHIVE:
+        _log_music_used(track)
 
     total = float(TOTAL_DUR)
     print(f"    [Music] Using: {track.name}")
@@ -761,8 +1105,41 @@ def render_video(content: dict, slot: int, output_path: str,
 
         print(f"    Clip {i} [{beat}]: {query}")
 
-        clip_info = _pexels_video(query, used_ids) or _pixabay_video(query, used_ids)
         got_video = False
+        used_user_clips: set = getattr(render_video, "_used_user_clips_this_run", set())
+
+        # ── Priority 0: User-provided clips (authentic footage — beats stock) ──
+        user_clip = _pick_user_clip(beat, used_user_clips)
+        if user_clip:
+            if user_clip.suffix.lower() in (".jpg", ".jpeg", ".png"):
+                # Image → Ken Burns animated clip
+                photo_temp = TEMP / f"{prefix}_user_photo_{i}.mp4"
+                _frames = CLIP_DUR * VIDEO_FPS
+                _ff("-loop", "1", "-i", str(user_clip),
+                    "-vf",
+                    f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                    f"zoompan=z='min(zoom+0.002,1.15)':d={_frames}"
+                    f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},setsar=1",
+                    "-t", str(CLIP_DUR), "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+                    "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(photo_temp))
+                if photo_temp.exists():
+                    if _process_clip(photo_temp, proc, beat, text, beat_style):
+                        got_video = True
+                        used_user_clips.add(str(user_clip))
+                        print(f"    Clip {i}: using user photo {user_clip.name}")
+                    photo_temp.unlink(missing_ok=True)
+            else:
+                # Video → process directly
+                if _process_clip(user_clip, proc, beat, text, beat_style):
+                    got_video = True
+                    used_user_clips.add(str(user_clip))
+                    print(f"    Clip {i}: using user clip {user_clip.name}")
+
+        setattr(render_video, "_used_user_clips_this_run", used_user_clips)
+
+        clip_info = None
+        if not got_video:
+            clip_info = _pexels_video(query, used_ids) or _pixabay_video(query, used_ids)
 
         if clip_info:
             used_ids.add(clip_info["id"])
@@ -785,6 +1162,60 @@ def render_video(content: dict, slot: int, output_path: str,
                 photo_raw.unlink(missing_ok=True)
 
         if not got_video:
+            # Ask Perplexity for better search terms and try Pexels/Pixabay again
+            print(f"    Clip {i}: asking Perplexity for alternative queries")
+            for alt_q in _perplexity_suggest_queries(query, beat):
+                alt_q = _guard_query(alt_q, i)
+                clip_info = _pexels_video(alt_q, used_ids) or _pixabay_video(alt_q, used_ids)
+                if clip_info:
+                    used_ids.add(clip_info["id"])
+                    own_ids.add(clip_info["id"])
+                    if _download_clip(clip_info["url"], raw):
+                        if _process_clip(raw, proc, beat, text, beat_style):
+                            got_video = True
+                            try: report_hit(alt_q, "perplexity_alt")
+                            except Exception: pass
+                        raw.unlink(missing_ok=True)
+                if got_video:
+                    break
+                # Try as photo fallback too
+                if not got_video:
+                    photo_alt = TEMP / f"{prefix}_photo_alt_{i}.mp4"
+                    if _pexels_photo_as_clip(alt_q, photo_alt):
+                        if _process_clip(photo_alt, proc, beat, text, beat_style):
+                            got_video = True
+                            try: report_hit(alt_q, "perplexity_alt_photo")
+                            except Exception: pass
+                        photo_alt.unlink(missing_ok=True)
+                if got_video:
+                    break
+
+        if not got_video:
+            # Google Veo — use the Cinematographer's pre-written video prompt
+            veo_prompts = content.get("video_prompts", [])
+            veo_prompt = ""
+            if veo_prompts and i < len(veo_prompts):
+                veo_prompt = veo_prompts[i].get("full_prompt", "") if isinstance(veo_prompts[i], dict) else ""
+            if not veo_prompt:
+                # Build a basic prompt from the query + beat context
+                beat_mood = {
+                    "hook":       "dramatic tense scene medium shot",
+                    "problem":    "frustrated worried scene medium shot",
+                    "stakes":     "emotional charged moment medium shot",
+                    "resolution": "warm hopeful relief scene medium shot",
+                    "lesson_pre": "confident aspirational wide shot",
+                }.get(beat, "cinematic medium shot")
+                veo_prompt = f"{query}. {beat_mood}. 4 seconds. Vertical 9:16 portrait."
+            veo_raw = TEMP / f"{prefix}_veo_{i}.mp4"
+            print(f"    Clip {i}: trying Google Veo")
+            if _veo_video_as_clip(beat, veo_prompt, veo_raw):
+                if _process_clip(veo_raw, proc, beat, text, beat_style):
+                    got_video = True
+                    try: report_hit(query, "veo")
+                    except Exception: pass
+                veo_raw.unlink(missing_ok=True)
+
+        if not got_video:
             print(f"    Clip {i}: falling back to DALL-E generation")
             dalle_raw = TEMP / f"{prefix}_dalle_{i}.mp4"
             if _dalle_image_as_clip(beat, query, dalle_raw):
@@ -795,10 +1226,12 @@ def render_video(content: dict, slot: int, output_path: str,
                 dalle_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Final safety net — use transport query, relax dedup to current-run only
-            # (own_ids) so 14-day history can't exhaust the fallback pool
-            transport_q = _TRANSPORT_FALLBACKS[i % len(_TRANSPORT_FALLBACKS)]
-            print(f"    Clip {i}: transport safety fallback -> {transport_q}")
+            # Final safety net — use slot-specific fallback query, relax dedup to
+            # current-run only (own_ids) so 14-day history can't exhaust the pool.
+            # Slot 2 always gets airport queries to guarantee airport-scene footage.
+            fb_bank = _AIRPORT_FALLBACKS if slot == 2 else _TRANSPORT_FALLBACKS
+            transport_q = fb_bank[i % len(fb_bank)]
+            print(f"    Clip {i}: safety fallback -> {transport_q}")
             clip_info = _pexels_video(transport_q, own_ids) or _pixabay_video(transport_q, own_ids)
             if clip_info:
                 used_ids.add(clip_info["id"])
@@ -817,32 +1250,72 @@ def render_video(content: dict, slot: int, output_path: str,
                         try: report_hit(transport_q, "transport_photo_fallback")
                         except Exception: pass
                     photo_raw.unlink(missing_ok=True)
+            # Try DALL-E with the fallback query as a final visual rescue
+            if not got_video:
+                dalle_fb = TEMP / f"{prefix}_dalle_fb_{i}.mp4"
+                if _dalle_image_as_clip(beat, transport_q, dalle_fb):
+                    if _process_clip(dalle_fb, proc, beat, text, beat_style):
+                        got_video = True
+                    dalle_fb.unlink(missing_ok=True)
 
         if not got_video:
-            # Last resort: dark placeholder WITH beat text so it's not a silent void
-            try: report_hit(query, "placeholder")
+            # Last resort: branded BootHop card (website screenshot or brand card)
+            # Much better than a plain dark screen — keeps the brand visible.
+            try: report_hit(query, "branded_fallback")
             except Exception: pass
             placeholder_src = TEMP / f"{prefix}_ph_src_{i}.mp4"
-            _ff("-f", "lavfi", "-i",
-                f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
-                "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                str(placeholder_src))
+            if not _website_fallback_as_clip(beat, query, placeholder_src):
+                # Absolute fallback if even the brand card generation fails
+                _ff("-f", "lavfi", "-i",
+                    f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS}",
+                    "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                    str(placeholder_src))
             if placeholder_src.exists():
                 _process_clip(placeholder_src, proc, beat, text, beat_style)
                 placeholder_src.unlink(missing_ok=True)
             if not proc.exists():
                 _ff("-f", "lavfi", "-i",
-                    f"color=size={W}x{H}:color=0x111111:rate={VIDEO_FPS}",
+                    f"color=size={W}x{H}:color=0x130B4D:rate={VIDEO_FPS}",
                     "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
                     str(proc))
 
-        proc_clips.append(str(proc))
+        if proc.exists() and proc.stat().st_size > 5000:
+            proc_clips.append(str(proc))
+        else:
+            print(f"    WARNING: clip {i} missing after all fallbacks — skipping from concat")
 
     # Lesson card
     lesson_card = TEMP / f"{prefix}_lesson.mp4"
     print("    Making lesson card...")
     _make_lesson_card(lesson, hook, pillar, lesson_card)
-    proc_clips.append(str(lesson_card))
+    if not lesson_card.exists() or lesson_card.stat().st_size < 5000:
+        print("    WARNING: lesson card failed — generating branded fallback")
+        # Two-pass branded fallback: indigo card + lesson text + URL
+        _lc_plain = TEMP / f"{prefix}_lc_plain.mp4"
+        _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x4F46E5:rate={VIDEO_FPS}",
+            "-t", str(LESSON_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p", str(_lc_plain))
+        if _lc_plain.exists():
+            _font_t = _font("title"); _font_b = _font("body")
+            _lesson_esc = _esc(lesson)[:60]
+            _ff("-i", str(_lc_plain), "-vf",
+                f"drawtext=fontfile='{_font_t}':text='THE LESSON':fontsize=36:"
+                f"fontcolor=0xFFFFFF@0.7:x=(w-text_w)/2:y=h*0.26,"
+                f"drawtext=fontfile='{_font_t}':text='{_lesson_esc}':fontsize=56:"
+                f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2:"
+                f"shadowcolor=0x000000@0.7:shadowx=3:shadowy=3,"
+                f"drawtext=fontfile='{_font_b}':text='boothop.com':fontsize=42:"
+                f"fontcolor=0xFFFFFF@0.9:x=(w-text_w)/2:y=h*0.74",
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-pix_fmt", "yuv420p", "-an", str(lesson_card))
+            _lc_plain.unlink(missing_ok=True)
+        if not lesson_card.exists() or lesson_card.stat().st_size < 5000:
+            # Bare minimum plain color if text overlay also fails
+            _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x4F46E5:rate={VIDEO_FPS}",
+                "-t", str(LESSON_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p", str(lesson_card))
+    if lesson_card.exists() and lesson_card.stat().st_size > 5000:
+        proc_clips.append(str(lesson_card))
+    else:
+        print("    ERROR: lesson card completely failed — omitting from concat")
 
     # Brand end card (reuse FIG4End.png from main pipeline)
     brand_card = TEMP / f"{prefix}_brand.mp4"
@@ -870,7 +1343,13 @@ def render_video(content: dict, slot: int, output_path: str,
                 "-pix_fmt", "yuv420p", "-an", str(brand_card))
             _plain.unlink(missing_ok=True)
 
-    proc_clips.append(str(brand_card))
+    if brand_card.exists() and brand_card.stat().st_size > 5000:
+        proc_clips.append(str(brand_card))
+    else:
+        print("    WARNING: brand card missing — omitting from concat")
+
+    # Safety: remove any paths that don't exist before concat
+    proc_clips = [p for p in proc_clips if Path(p).exists() and Path(p).stat().st_size > 5000]
 
     # Concatenate all
     joined    = TEMP / f"{prefix}_joined.mp4"

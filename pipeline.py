@@ -224,6 +224,21 @@ def run_slot(slot: int, force: bool = False):
         _log(f"Slot {slot} already ran today — skipping (use --force to override)")
         return
 
+    # ── 0. Refresh daily music tracks (slot 1 only, once per day) ────────────
+    if slot == 1:
+        _step("slot1: music refresh")
+        try:
+            sys.path.insert(0, str(BASE / "scripts"))
+            from fetch_trending_music import fetch_trending_music, _already_fresh_today
+            if _already_fresh_today():
+                _log("Music already fresh today — skipping refresh")
+            else:
+                _log("Fetching today's music tracks...")
+                info = fetch_trending_music()
+                _log(f"Music ready: {[t['title'][:40] for t in info.get('tracks', [])]}")
+        except Exception as e:
+            _log(f"Music refresh failed (pipeline will use yesterday's tracks): {e}")
+
     # ── 1. Determine pillar + bucket ──────────────────────────────────────────
     _step(f"slot{slot}: pillar selection")
     from generate_content import get_pillar_for_slot, get_bucket

@@ -1420,6 +1420,77 @@ def _poll_once(offset: int) -> int:
                     "Use /menu → Re-voice S2/S3/S4 first, then tap 🎤 Record, then send your note."
                 )
 
+        # ── User clip / photo upload ───────────────────────────────────────────
+        # When you send a video or photo to the bot, it's saved to assets/user_clips/
+        # and used as priority footage in the next render.
+        #
+        # Naming tip — add a caption to tag the beat position:
+        #   "hook"       → used for hook scenes (0-1)
+        #   "problem"    → used for problem scenes (2-3)
+        #   "stakes"     → used for stakes scene (4)
+        #   "resolution" → used for resolution scenes (5-6)
+        #   "lesson"     → used for lesson scene (7)
+        #   (no caption) → used for any scene that needs a clip
+        else:
+            vid_obj  = msg.get("video") or msg.get("animation")
+            photo_arr = msg.get("photo")
+            doc_obj  = msg.get("document")
+
+            file_id  = None
+            ext      = ".mp4"
+            if vid_obj:
+                file_id = vid_obj.get("file_id", "")
+            elif photo_arr:
+                # photo is an array of sizes — take the largest
+                file_id = photo_arr[-1].get("file_id", "")
+                ext = ".jpg"
+            elif doc_obj:
+                mime = (doc_obj.get("mime_type") or "").lower()
+                if mime.startswith("video/") or mime.startswith("image/"):
+                    file_id = doc_obj.get("file_id", "")
+                    ext = ".mp4" if mime.startswith("video/") else ".jpg"
+
+            if file_id:
+                caption  = (msg.get("caption") or "").strip().lower()
+                # Determine beat tag from caption
+                beat_tag = ""
+                for _bt in ("hook", "problem", "stakes", "resolution", "lesson", "airport"):
+                    if _bt in caption:
+                        beat_tag = _bt + "_"
+                        break
+
+                ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"{beat_tag}user_{ts}{ext}"
+
+                clips_dir = BASE / "assets" / "user_clips"
+                clips_dir.mkdir(parents=True, exist_ok=True)
+                dest_path = clips_dir / filename
+
+                try:
+                    # Get download URL from Telegram
+                    fi_resp = requests.get(f"{BASE_URL}/getFile",
+                                           params={"file_id": file_id}, timeout=15).json()
+                    file_path_tg = fi_resp.get("result", {}).get("file_path", "")
+                    if not file_path_tg:
+                        _send("❌ Could not get file info from Telegram.")
+                    else:
+                        dl_url = (f"https://api.telegram.org/file/bot{TELEGRAM_TOKEN}/"
+                                  f"{file_path_tg}")
+                        data   = requests.get(dl_url, timeout=60).content
+                        dest_path.write_bytes(data)
+                        size_kb = len(data) // 1024
+                        beat_label = beat_tag.rstrip("_") if beat_tag else "any beat"
+                        _send(
+                            f"✅ Saved to user_clips: {filename} ({size_kb}KB)\n"
+                            f"📍 Beat tag: {beat_label}\n\n"
+                            f"This clip will be used in the next render as priority footage.\n"
+                            f"Tip: send with caption 'hook', 'problem', 'resolution', etc. to pin it to a specific scene."
+                        )
+                        print(f"[Cmdr] Saved user clip: {filename} ({size_kb}KB)")
+                except Exception as _ue:
+                    _send(f"❌ Failed to save clip: {_ue}")
+                    print(f"[Cmdr] User clip save error: {_ue}")
+
     _save_offset(offset)
     return offset
 
