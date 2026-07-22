@@ -31,7 +31,10 @@ $DataFiles = @(
     "sync_status.json",
     "memory.json",
     "trending_hashtags.json",
-    "hashtag_used_log.json"
+    "hashtag_used_log.json",
+    "pending_posts.json",
+    "video_clip_log.json",
+    "user_clip_log.json"
 )
 
 New-Item -ItemType Directory -Force $BackupDir | Out-Null
@@ -63,6 +66,21 @@ if ($Direction -eq "pull") {
 
     Write-Host ""
     Write-Host "Pull complete. Backups saved to data/backups/$ts..." -ForegroundColor Gray
+
+    # After pull, check if Oracle left any failed posts for the laptop to handle
+    $PendingFile = Join-Path $LocalData "pending_posts.json"
+    if (Test-Path $PendingFile) {
+        $pendingRaw = Get-Content $PendingFile -Raw
+        if ($pendingRaw -match '"status":\s*"pending"') {
+            Write-Host "[PendingPosts] Oracle has failed posts — laptop taking over..." -ForegroundColor Yellow
+            $pythonExe = (Get-Command python -ErrorAction SilentlyContinue).Source
+            if (-not $pythonExe) { $pythonExe = "python3" }
+            & $pythonExe "$PSScriptRoot\..\scripts\post_pending.py"
+            # Push the updated pending_posts.json back to Oracle so it knows it's done
+            & scp -i "$KeyFile" -o StrictHostKeyChecking=no "$PendingFile" "${OracleUser}@${OracleIP}:/opt/otb_pipeline/data/pending_posts.json" 2>&1 | Out-Null
+            Write-Host "[PendingPosts] Result synced back to Oracle." -ForegroundColor Green
+        }
+    }
 
 } elseif ($Direction -eq "push") {
     Write-Host "Pushing laptop data -> Oracle..." -ForegroundColor Yellow
