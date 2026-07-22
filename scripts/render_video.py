@@ -26,6 +26,34 @@ from config import (
 _VIDEO_LOG = DATA / "video_clip_log.json"
 _VIDEO_COOLDOWN_DAYS = 14
 
+# -- User clip cooldown --------------------------------------------------------
+# Prevents the same user-supplied clip from appearing in consecutive renders.
+# Each clip gets a 3-day rest after being used so the feed stays visually fresh.
+_USER_CLIP_LOG  = DATA / "user_clip_log.json"
+_USER_CLIP_COOLDOWN_DAYS = 14
+
+def _recently_used_user_clip_names(days: int = _USER_CLIP_COOLDOWN_DAYS) -> set:
+    from datetime import datetime, timedelta
+    if not _USER_CLIP_LOG.exists():
+        return set()
+    try:
+        log    = json.loads(_USER_CLIP_LOG.read_text(encoding="utf-8"))
+        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        return {e["name"] for e in log if e.get("logged_at", "") > cutoff}
+    except Exception:
+        return set()
+
+def _log_user_clips_used(paths: set):
+    from datetime import datetime
+    try:
+        log = json.loads(_USER_CLIP_LOG.read_text(encoding="utf-8")) if _USER_CLIP_LOG.exists() else []
+    except Exception:
+        log = []
+    now = datetime.now().isoformat()
+    for p in paths:
+        log.append({"name": Path(p).name, "path": str(p), "logged_at": now})
+    _USER_CLIP_LOG.write_text(json.dumps(log[-200:], indent=2, ensure_ascii=False), encoding="utf-8")
+
 # -- Music dedup + silence guard -----------------------------------------------
 _MUSIC_LOG = DATA / "music_log.json"
 
@@ -142,11 +170,15 @@ _USER_CLIPS_DIR = ASSETS / "user_clips"
 _BEAT_TAGS = ["hook", "problem", "stakes", "resolution", "lesson"]
 
 
+_USER_CLIP_CAP = 3   # max user assets per video — rest come from Pexels/Pixabay
+
 def _pick_user_clip(beat: str, exclude_paths: set) -> Path | None:
     """
-    Pick a user-provided clip from assets/user_clips/ for the given beat.
-    Priority: beat-tagged files (e.g. hook_*.mp4) → untagged → any available.
-    Skips paths already used this render (exclude_paths).
+    Pick a beat-tagged user clip from assets/user_clips/.
+    ONLY returns a file whose name starts with the beat tag (e.g. hook_*, resolution_*).
+    Skips clips used in this render (exclude_paths) AND clips used in the last
+    _USER_CLIP_COOLDOWN_DAYS days — so the same clip never appears in back-to-back videos.
+    Falls through to Pexels/Pixabay when all tagged clips are on cooldown.
     """
     if not _USER_CLIPS_DIR.exists():
         return None
@@ -158,18 +190,24 @@ def _pick_user_clip(beat: str, exclude_paths: set) -> Path | None:
     if not all_clips:
         return None
 
-    avail = [p for p in all_clips if str(p) not in exclude_paths]
-    if not avail:
-        # Relax exclusion if everything is used
-        avail = all_clips
+    recent_names = _recently_used_user_clip_names()
 
-    # Beat-tagged first
+    # Only beat-tagged matches — never fall through to generic or any-available
+    avail  = [p for p in all_clips if str(p) not in exclude_paths]
     tagged = [p for p in avail if p.name.lower().startswith(beat)]
-    # Generic (no beat prefix)
-    generic = [p for p in avail if not any(p.name.lower().startswith(t) for t in _BEAT_TAGS)]
+    if not tagged:
+        return None
 
-    pool = tagged or generic or avail
-    return random.choice(pool)
+    # Prefer clips not on cooldown; fall back to cooldown clips only if every
+    # tagged clip for this beat was recently used (avoids a complete blackout).
+    fresh = [p for p in tagged if p.name not in recent_names]
+    pool  = fresh if fresh else tagged
+    if not pool:
+        return None
+    chosen = random.choice(pool)
+    if not fresh:
+        print(f"    [UserClip] All {beat} clips on cooldown — reusing {chosen.name}")
+    return chosen
 
 # Airport-specific fallbacks for slot 2 — enforced at every beat position
 _AIRPORT_FALLBACKS = [
@@ -279,9 +317,10 @@ CLIP_BEAT = [
 def _ff(*args, timeout=600):
     cmd = ["ffmpeg", "-y"] + list(args)
     env = os.environ.copy()
-    # Suppress fontconfig "Cannot load default config" warning on Windows — without
-    # this, FFmpeg sometimes fails drawtext entirely instead of just warning.
-    env.setdefault("FONTCONFIG_FILE", "NUL")
+    # Suppress fontconfig "Cannot load default config" warning on Windows.
+    # NUL is the Windows null device — on Linux use /dev/null instead.
+    _null = "NUL" if os.name == "nt" else "/dev/null"
+    env.setdefault("FONTCONFIG_FILE", _null)
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
     if r.returncode != 0:
         print(f"  [FFmpeg] {' '.join(cmd[-6:])}")
@@ -762,7 +801,9 @@ def _website_fallback_as_clip(beat: str, query: str, dest: Path, duration: int =
                    + list(_WEBSITE_SCREENS_DIR.glob("*.png"))
                    + list(_WEBSITE_SCREENS_DIR.glob("*.jpeg")))
         if screens:
-            img_path = random.choice(screens)
+            recent_names = _recently_used_user_clip_names()
+            fresh = [p for p in screens if p.name not in recent_names]
+            img_path = random.choice(fresh if fresh else screens)
             frames = duration * VIDEO_FPS
             ok = _ff(
                 "-loop", "1", "-i", str(img_path),
@@ -777,6 +818,7 @@ def _website_fallback_as_clip(beat: str, query: str, dest: Path, duration: int =
             )
             if ok and dest.exists() and dest.stat().st_size > 5000:
                 print(f"    [WebsiteFallback] Screenshot used: {img_path.name}")
+                _log_user_clips_used({str(img_path)})
                 return True
 
     # 2. Generate a BootHop branded card as background for beat-text overlay
@@ -1058,6 +1100,10 @@ def render_video(content: dict, slot: int, output_path: str,
     except Exception:
         pass
 
+    # Reset per-render user clip state so each video starts fresh
+    setattr(render_video, "_used_user_clips_this_run", set())
+    setattr(render_video, "_user_clip_count_this_run", 0)
+
     pillar  = content.get("pillar", "community")
     # V2 uses alternate hook/lesson/queries if Claude generated them; falls back to V1 fields
     is_v2   = (version == "v2")
@@ -1107,9 +1153,12 @@ def render_video(content: dict, slot: int, output_path: str,
 
         got_video = False
         used_user_clips: set = getattr(render_video, "_used_user_clips_this_run", set())
+        user_clip_count: int = getattr(render_video, "_user_clip_count_this_run", 0)
 
-        # ── Priority 0: User-provided clips (authentic footage — beats stock) ──
-        user_clip = _pick_user_clip(beat, used_user_clips)
+        # ── Priority 0: User-provided clips (beat-tagged only, capped at _USER_CLIP_CAP) ──
+        user_clip = None
+        if user_clip_count < _USER_CLIP_CAP:
+            user_clip = _pick_user_clip(beat, used_user_clips)
         if user_clip:
             if user_clip.suffix.lower() in (".jpg", ".jpeg", ".png"):
                 # Image → Ken Burns animated clip
@@ -1126,6 +1175,7 @@ def render_video(content: dict, slot: int, output_path: str,
                     if _process_clip(photo_temp, proc, beat, text, beat_style):
                         got_video = True
                         used_user_clips.add(str(user_clip))
+                        user_clip_count += 1
                         print(f"    Clip {i}: using user photo {user_clip.name}")
                     photo_temp.unlink(missing_ok=True)
             else:
@@ -1133,9 +1183,11 @@ def render_video(content: dict, slot: int, output_path: str,
                 if _process_clip(user_clip, proc, beat, text, beat_style):
                     got_video = True
                     used_user_clips.add(str(user_clip))
+                    user_clip_count += 1
                     print(f"    Clip {i}: using user clip {user_clip.name}")
 
         setattr(render_video, "_used_user_clips_this_run", used_user_clips)
+        setattr(render_video, "_user_clip_count_this_run", user_clip_count)
 
         clip_info = None
         if not got_video:
@@ -1389,6 +1441,10 @@ def render_video(content: dict, slot: int, output_path: str,
         if own_ids:
             _save_video_log(own_ids)
             print(f"  [Render-{version.upper()}] Logged {len(own_ids)} clip IDs (14-day cooldown)")
+        used_user_clips: set = getattr(render_video, "_used_user_clips_this_run", set())
+        if used_user_clips:
+            _log_user_clips_used(used_user_clips)
+            print(f"  [Render-{version.upper()}] Logged {len(used_user_clips)} user clip(s) ({_USER_CLIP_COOLDOWN_DAYS}-day cooldown)")
     else:
         print(f"  [Render-{version.upper()}] Output missing or too small")
     return ok, own_ids
