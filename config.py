@@ -56,6 +56,8 @@ if True:
         PERPLEXITY_KEY    = _env_pairs.get("PERPLEXITY_KEY",    os.environ.get("PERPLEXITY_KEY",    ""))
         ZERNIO_API_KEY    = _env_pairs.get("ZERNIO_API_KEY",    os.environ.get("ZERNIO_API_KEY",    ""))
         ZERNIO_ACCOUNT_ID = _env_pairs.get("ZERNIO_ACCOUNT_ID", os.environ.get("ZERNIO_ACCOUNT_ID",""))
+        GMAIL_USER        = _env_pairs.get("GMAIL_USER",        os.environ.get("GMAIL_USER",        ""))
+        GMAIL_APP_PASSWORD= _env_pairs.get("GMAIL_APP_PASSWORD",os.environ.get("GMAIL_APP_PASSWORD",""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -102,7 +104,7 @@ STORY_MODEL = "claude"
 #   "openai"  → GPT-4o  (recommended — strong at structured critique)
 #   "claude"  → Claude Sonnet 4.6
 #   "gemini"  → Gemini 2.0 Flash (good secondary opinion)
-QA_MODEL = "openai"
+QA_MODEL = "claude"
 
 # ── Slot schedule ──────────────────────────────────────────────────────────────
 # Task Scheduler calls: python pipeline.py --slot 1|2|3|4
@@ -110,7 +112,7 @@ QA_MODEL = "openai"
 # Slot 2: 15:00 UK → posts ~15:30  afternoon (UK / 10am EST / Nigeria evening)
 # Slot 3: 22:00 UK → posts ~22:30  US prime time (5-6pm EST / Nigeria night / UK late)
 # Slot 4: 09:00 Tue+Fri → LinkedIn + Blog  (Telegram-reviewed, not fully auto)
-SLOT_TIMES = {1: "09:00", 2: "15:00", 3: "22:00", 4: "09:00"}
+SLOT_TIMES = {1: "08:00", 2: "14:00", 3: "21:00", 4: "08:00"}
 
 SLOT_PLATFORMS = {
     1: ["tiktok", "instagram", "youtube", "newspaper"],  # 09:00 — video + newspaper image
@@ -122,12 +124,20 @@ SLOT_PLATFORMS = {
 # ── Content pillars per slot — 7-day rotation (indexed by weekday: 0=Mon … 6=Sun)
 # No pillar appears twice on the same day. Each angle repeats once per week per slot.
 SLOT_PILLARS = {
-    #              Mon                   Tue                   Wed                   Thu                   Fri                   Sat                   Sun
-    1: ["cost_pain",        "community",        "travel_hacks",     "family",           "logistics_stories", "cultural_earn",     "urgent_medical"],
-    2: ["airport",          "airport_deliveries","airport",         "airport_deliveries","airport",           "airport_deliveries","airport"],
+    #              Mon                   Tue                   Wed                   Thu                   Fri (alternates weekly)            Sat (alternates weekly)                 Sun (alternates weekly)
+    1: ["cost_pain",        "personal_shopper", "airport",          "smart",            ["urgent_medical",   "faith_friday"],     ["community",    "celebration_weekend"], ["cultural_earn", "faith_friday"]],
+    2: ["courier_business", "airport_deliveries","personal_shopper","community",         "multi_courier",     "airport",           "family"],
     3: ["urgent_medical",   "travel_hacks",     "cultural_earn",    "airport_deliveries","smart",             "cost_pain",         "family"],
     4: "brand_authority",   # LinkedIn/blog — consistent thought-leadership angle
 }
+
+# Pillars that only post to Instagram — never TikTok or YouTube
+# These are B2B content pillars (courier recruitment, personal shopper, multi-courier platform)
+INSTAGRAM_ONLY_PILLARS = {"courier_business", "multi_courier"}
+
+# Wildcard pillars — injected randomly (~1 in 10 slot runs) regardless of scheduled pillar.
+# These are secondary angles that shouldn't dominate the schedule but appear occasionally.
+WILDCARD_PILLARS = ["flight_discovery"]
 
 PILLAR_LABELS = {
     "community":          "Community & Diaspora",
@@ -142,6 +152,12 @@ PILLAR_LABELS = {
     "cultural_earn":      "Cultural & Earn",
     "urgent_medical":     "Urgent & Medical",
     "brand_authority":    "Brand Authority",
+    "courier_business":       "Courier Business",
+    "personal_shopper":       "Personal Shopper",
+    "multi_courier":          "Multi-Courier Business",
+    "faith_friday":           "Faith & Prayer",
+    "celebration_weekend":    "Weekend Celebration",
+    "flight_discovery":       "Flight Discovery",
 }
 
 # Day-of-week content bucket (affects hook tone and visual style)
