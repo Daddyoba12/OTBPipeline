@@ -93,9 +93,7 @@ def _build_caption(content: dict) -> str:
     return "".join(parts)[:2200]
 
 
-def _upload_to_host(video_path: str) -> str | None:
-    """Upload video to litterbox.catbox.moe (72h temp link) for Instagram container."""
-    _log("Uploading to litterbox...")
+def _upload_litterbox(video_path: str) -> str | None:
     try:
         with open(video_path, "rb") as f:
             r = requests.post(
@@ -106,11 +104,59 @@ def _upload_to_host(video_path: str) -> str | None:
             )
         url = r.text.strip()
         if url.startswith("https://"):
-            _log(f"Hosted: {url}")
             return url
-        _log(f"litterbox error: {url}")
+        _log(f"Litterbox rejected ({r.status_code}): {url[:80]}")
     except Exception as e:
-        _log(f"litterbox upload failed: {e}")
+        _log(f"Litterbox error: {e}")
+    return None
+
+
+def _upload_catbox(video_path: str) -> str | None:
+    try:
+        with open(video_path, "rb") as f:
+            r = requests.post(
+                "https://catbox.moe/user/api.php",
+                data={"reqtype": "fileupload", "userhash": ""},
+                files={"fileToUpload": (Path(video_path).name, f, "video/mp4")},
+                timeout=120,
+            )
+        url = r.text.strip()
+        if url.startswith("https://"):
+            return url
+        _log(f"Catbox rejected ({r.status_code}): {url[:80]}")
+    except Exception as e:
+        _log(f"Catbox error: {e}")
+    return None
+
+
+def _upload_0x0(video_path: str) -> str | None:
+    try:
+        with open(video_path, "rb") as f:
+            r = requests.post(
+                "https://0x0.st",
+                files={"file": (Path(video_path).name, f, "video/mp4")},
+                timeout=120,
+            )
+        url = r.text.strip()
+        if url.startswith("https://") or url.startswith("http://"):
+            return url
+        _log(f"0x0.st rejected ({r.status_code}): {url[:80]}")
+    except Exception as e:
+        _log(f"0x0.st error: {e}")
+    return None
+
+
+def _upload_to_host(video_path: str) -> str | None:
+    """Upload video to a temporary host for Instagram container. Tries 3 hosts in order."""
+    for name, fn in [("Litterbox", _upload_litterbox),
+                     ("Catbox", _upload_catbox),
+                     ("0x0.st", _upload_0x0)]:
+        _log(f"Uploading via {name}...")
+        url = fn(video_path)
+        if url:
+            _log(f"Hosted ({name}): {url}")
+            return url
+    _log("All upload hosts failed — Instagram post skipped")
     return None
 
 
