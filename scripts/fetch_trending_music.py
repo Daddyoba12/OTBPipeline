@@ -291,11 +291,7 @@ def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set) -> dict |
                 continue
             shutil.copy2(str(t), str(slot_out))
             return {"title": t.stem, "artist": "archive", "source": "archive"}
-    # Final: any audible track
-    for t in tracks:
-        if _has_audio(t):
-            shutil.copy2(str(t), str(slot_out))
-            return {"title": t.stem, "artist": "archive", "source": "archive"}
+    # No non-repeat track found — do NOT silently reuse yesterday's track
     return None
 
 
@@ -337,12 +333,20 @@ def fetch_trending_music() -> dict:
                 slot_out.unlink(missing_ok=True)
 
         if not result:
-            print(f"  [Slot {slot_num}] SoundCloud failed — using archive")
-            result = _archive_fallback(slot_out, slot_num, used_titles) or {}
-            if result:
-                result["logged_at"] = datetime.now().isoformat()
-                used_titles.add(result.get("title", ""))
-                _save_log(result)
+            print(f"  [Slot {slot_num}] SoundCloud failed — trying archive")
+            archive_result = _archive_fallback(slot_out, slot_num, used_titles)
+            if archive_result is None:
+                msg = (
+                    f"[Music] CRITICAL: Slot {slot_num} — no non-repeat track available. "
+                    f"SoundCloud failed and every archive track was used recently. "
+                    f"Add more tracks to music/archive/ or wait for the 2-day cooldown to expire."
+                )
+                print(msg)
+                raise RuntimeError(msg)
+            result = archive_result
+            result["logged_at"] = datetime.now().isoformat()
+            used_titles.add(result.get("title", ""))
+            _save_log(result)
 
         info["tracks"].append({
             "slot":   slot_num,
