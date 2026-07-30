@@ -1410,6 +1410,155 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
     return track
 
 
+def _tts_narration(content: dict, dest: Path) -> bool:
+    """Generate OpenAI TTS narration for story beats. Returns True on success."""
+    if not OPENAI_API_KEY:
+        return False
+    parts = []
+    for key in ("hook", "problem", "stakes", "resolution", "lesson"):
+        t = content.get(key, "").strip().rstrip(".")
+        if t:
+            parts.append(t)
+    script = ". ".join(parts) + "."
+    try:
+        resp = requests.post(
+            "https://api.openai.com/v1/audio/speech",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+            json={"model": "tts-1", "input": script[:4096], "voice": "nova", "speed": 0.88},
+            timeout=30,
+        )
+        if not resp.ok:
+            print(f"    [TTS] API error {resp.status_code}: {resp.text[:80]}")
+            return False
+        dest.write_bytes(resp.content)
+        return dest.exists() and dest.stat().st_size > 1000
+    except Exception as e:
+        print(f"    [TTS] Failed: {e}")
+        return False
+
+
+def _add_music_with_voiceover(src: Path, dest: Path, tts_path: Path,
+                               slot: int = None, exclude_track: Path | None = None) -> Path | None:
+    """Mix TTS narration (full volume) + music (25% ducked) into the video."""
+    import shutil
+    track = None
+    if slot:
+        slot_track = MUSIC_DIR / f"track_{slot}.mp3"
+        if slot_track.exists() and slot_track.stat().st_size > 50_000:
+            if (exclude_track is None or slot_track.resolve() != exclude_track.resolve()):
+                if _track_has_audio(slot_track):
+                    track = slot_track
+    if track is None:
+        daily = [t for t in (list(MUSIC_DIR.glob("*.mp3")) + list(MUSIC_DIR.glob("*.m4a")))
+                 if t.stat().st_size > 50_000 and "_tmp" not in str(t)
+                 and (exclude_track is None or t.resolve() != exclude_track.resolve())
+                 and _track_has_audio(t)]
+        if daily:
+            track = random.choice(daily)
+    if track is None:
+        archive = [t for t in (list(MUSIC_ARCHIVE.glob("*.mp3")) + list(MUSIC_ARCHIVE.glob("*.m4a")))
+                   if (exclude_track is None or t.resolve() != exclude_track.resolve())
+                   and _track_has_audio(t)]
+        if archive:
+            recent_stems = _recently_used_music_stems(days=2)
+            fresh = [t for t in archive if t.stem.lower() not in recent_stems]
+            track = random.choice(fresh) if fresh else random.choice(archive)
+    if track is None:
+        shutil.copy(src, dest)
+        return None
+    total = float(TOTAL_DUR)
+    print(f"    [Music+TTS] Using: {track.name}")
+    ok = _ff(
+        "-i", str(src),
+        "-stream_loop", "-1", "-i", str(track),
+        "-i", str(tts_path),
+        "-filter_complex",
+        f"[1:a]afade=t=out:st={total-3}:d=3,volume=0.22[mus];"
+        f"[2:a]volume=1.0,adelay=400|400[nar];"
+        f"[mus][nar]amix=inputs=2:duration=first[aout]",
+        "-map", "0:v", "-map", "[aout]",
+        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+        "-t", str(total),
+        str(dest),
+    )
+    if not ok:
+        print("    [TTS] Mix failed — falling back to music-only")
+        return _add_music(src, dest, slot=slot, exclude_track=exclude_track)
+    if track.parent in (MUSIC_ARCHIVE.resolve(), MUSIC_ARCHIVE):
+        _log_music_used(track)
+    return track
+
+
+def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
+    """
+    Generate a custom YouTube thumbnail (1280×720) via PIL.
+    Dark background, bold hook text in yellow, BootHop branding.
+    High CTR format: left=face shock visual area, right=text.
+    """
+    try:
+        from PIL import Image, ImageDraw
+        TW, TH = 1280, 720
+        img  = Image.new("RGB", (TW, TH), (8, 14, 28))
+        draw = ImageDraw.Draw(img)
+
+        # Orange accent strip top
+        draw.rectangle([(0, 0), (TW, 8)], fill=(255, 107, 0))
+        draw.rectangle([(0, TH - 8), (TW, TH)], fill=(255, 107, 0))
+
+        # Right half: text block
+        hook   = content.get("hook", "").rstrip("?").rstrip(".")
+        lesson = content.get("lesson", "")
+
+        ft_hook = _load_pil_font("title", 72)
+        ft_sub  = _load_pil_font("body",  38)
+        ft_cta  = _load_pil_font("title", 52)
+
+        # Split hook into ≤20 chars/line for the thumbnail
+        hook_lines = _split_lines(hook, 20, 3)
+        y = 120
+        for line in hook_lines:
+            try:
+                tw = draw.textbbox((0, 0), line, font=ft_hook)[2]
+            except Exception:
+                tw = len(line) * 40
+            x = max(640, (TW - tw) // 2)  # right half
+            draw.text((x + 3, y + 3), line, font=ft_hook, fill=(0, 0, 0))
+            draw.text((x, y), line, font=ft_hook, fill=(255, 230, 0))
+            y += 90
+
+        # Divider
+        draw.rectangle([(660, y + 10), (TW - 40, y + 14)], fill=(255, 107, 0))
+        y += 40
+
+        # Sub-text: lesson or brand line
+        sub = lesson[:60] if lesson else "boothop.com"
+        sub_lines = _split_lines(sub, 28, 2)
+        for line in sub_lines:
+            try:
+                tw = draw.textbbox((0, 0), line, font=ft_sub)[2]
+            except Exception:
+                tw = len(line) * 22
+            x = max(640, (TW - tw) // 2)
+            draw.text((x, y), line, font=ft_sub, fill=(200, 200, 200))
+            y += 52
+
+        # BootHop brand bottom right
+        brand = "BootHop"
+        try:
+            btw = draw.textbbox((0, 0), brand, font=ft_cta)[2]
+        except Exception:
+            btw = len(brand) * 28
+        draw.text((TW - btw - 30 + 2, TH - 80 + 2), brand, font=ft_cta, fill=(0, 0, 0))
+        draw.text((TW - btw - 30, TH - 80), brand, font=ft_cta, fill=(255, 230, 0))
+
+        dest.parent.mkdir(exist_ok=True)
+        img.save(str(dest), "JPEG", quality=95)
+        return dest.exists()
+    except Exception as e:
+        print(f"    [Thumbnail] Failed: {e}")
+        return False
+
+
 def _concat_clips(clip_paths: list, dest: Path) -> bool:
     """Concatenate processed clips using FFmpeg concat demuxer."""
     list_path = dest.parent / f"concat_{dest.stem}.txt"
@@ -1802,11 +1951,30 @@ def render_video(content: dict, slot: int, output_path: str,
         import shutil
         shutil.move(str(with_bar), str(with_logo))
 
+    print("    Generating voiceover...")
+    tts_path   = TEMP / f"{prefix}_tts.mp3"
+    tts_ok     = _tts_narration(content, tts_path)
+
+    exclude_music = content.get("_v1_music_track")
     print("    Adding music...")
-    exclude_music = content.get("_v1_music_track")   # set by pipeline after V1 render
-    used_track = _add_music(with_logo, Path(output_path), slot=slot,
-                            exclude_track=Path(exclude_music) if exclude_music else None)
-    with_logo.unlink(missing_ok=True)
+    if tts_ok and tts_path.exists():
+        print("    [TTS] Mixing narration + music")
+        with_audio = TEMP / f"{prefix}_audio.mp4"
+        used_track = _add_music_with_voiceover(
+            with_logo, with_audio, tts_path,
+            slot=slot,
+            exclude_track=Path(exclude_music) if exclude_music else None,
+        )
+        tts_path.unlink(missing_ok=True)
+        with_logo.unlink(missing_ok=True)
+        import shutil
+        shutil.move(str(with_audio), output_path)
+    else:
+        if tts_path.exists():
+            tts_path.unlink(missing_ok=True)
+        used_track = _add_music(with_logo, Path(output_path), slot=slot,
+                                exclude_track=Path(exclude_music) if exclude_music else None)
+        with_logo.unlink(missing_ok=True)
 
     # Store which track was used so pipeline can pass it as exclude for V2
     if used_track:
@@ -1948,6 +2116,13 @@ def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_onl
         "newspaper":        str(base),
         "linkedin":         str(base),   # will be overwritten if grade succeeds
     }
+
+    # YouTube thumbnail — custom image boosts CTR on Shorts browse
+    thumb_path = outdir / f"{stem}_thumb.jpg"
+    print("  [Render] Generating YouTube thumbnail...")
+    if _make_youtube_thumbnail(content, thumb_path):
+        paths["youtube_thumbnail"] = str(thumb_path)
+        print(f"  [Render] Thumbnail OK ({thumb_path.stat().st_size // 1024}KB)")
 
     # "" Instagram warm grade """"""""""""""""""""""""""""""""""""""""""""""""""
     ig_path = outdir / f"{stem}_ig.mp4"
