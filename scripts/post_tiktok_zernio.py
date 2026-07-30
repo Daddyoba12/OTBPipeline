@@ -57,19 +57,22 @@ def _check_rate_limit(min_gap_hours: float = 2.5) -> bool:
     return True
 
 
-def _log_post(slot: int, publish_id: str):
+def _log_post(slot: int, publish_id: str, zernio_raw: dict | None = None):
     log_path = DATA / "post_log.json"
     log_path.parent.mkdir(exist_ok=True)
     try:
         log = json.loads(log_path.read_text()) if log_path.exists() else []
     except Exception:
         log = []
-    log.append({
+    entry = {
         "platform":   "tiktok",
         "slot":       slot,
         "publish_id": publish_id,
         "posted_at":  datetime.utcnow().isoformat(),
-    })
+    }
+    if zernio_raw:
+        entry["zernio_response"] = zernio_raw
+    log.append(entry)
     log_path.write_text(json.dumps(log, indent=2))
 
 
@@ -173,12 +176,34 @@ def _publish(public_url: str, title: str, description: str) -> str | None:
         if r.status_code in (429, 402, 403):
             from quota_alert import alert as _qa
             _qa("Zernio", r.status_code, "TikTok post blocked")
-        r.raise_for_status()
-        data = r.json()
-        post_id = data.get("_id", "")
-        status  = data.get("status", "")
-        _log(f"Zernio post created: id={post_id} status={status}")
-        return post_id or None
+        data = r.json() if r.content else {}
+        # Log full raw response — helps diagnose "queued" fallback vs real post IDs
+        _log(f"Zernio response {r.status_code}: {json.dumps(data)}")
+
+        # Hard failures — Zernio explicitly rejected the post
+        if r.status_code in (400, 401, 402, 403, 422, 429):
+            from quota_alert import alert as _qa
+            _qa("Zernio", r.status_code, data.get("error", "TikTok post blocked"))
+            return None
+
+        # 2xx → Zernio accepted the post. Walk all known ID field names.
+        inner = data.get("data") or data.get("post") or data.get("result") or {}
+        if isinstance(inner, list):
+            inner = inner[0] if inner else {}
+        post_id = (
+            data.get("_id") or data.get("id") or
+            data.get("postId") or data.get("post_id") or
+            data.get("tiktokId") or data.get("tiktok_id") or
+            inner.get("_id") or inner.get("id") or
+            inner.get("postId") or inner.get("post_id") or
+            inner.get("tiktokId") or inner.get("tiktok_id") or ""
+        )
+        status = (
+            data.get("status") or data.get("state") or data.get("publishStatus") or
+            inner.get("status") or inner.get("state") or inner.get("publishStatus") or ""
+        )
+        _log(f"Zernio post accepted: id={post_id!r} status={status!r} keys={list(data.keys())}")
+        return post_id or status or "queued"
     except Exception as e:
         _log(f"Publish failed: {e}")
         return None
@@ -227,5 +252,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     if post_id:
         _log_post(slot, post_id)
         _log(f"Posted! zernio_id={post_id}")
+        if post_id == "queued":
+            _log("WARNING: Zernio returned no post ID — check pipeline_crash.log for full response")
 
     return post_id
