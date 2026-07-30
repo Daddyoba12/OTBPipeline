@@ -26,6 +26,10 @@ from config import (
 )
 from fetch_trending_hashtags import fetch_today as _fetch_trending_tags
 from scene_planner import plan_scenes, plan_scenes_v2
+try:
+    from trend_scout import get_trend_context as _get_trend_context
+except ImportError:
+    def _get_trend_context(): return ""
 from qa_director import review_and_improve
 from photographer import generate_image_prompts
 from cinematographer import generate_video_prompts
@@ -659,6 +663,7 @@ top_caption     (max 9 words): A conversational scene-setter shown at the very t
                                  "Picture this — a stranger carries your mums birthday gift."
                                  "Ever sent something home and wished it could go tonight?"
 
+{_get_trend_context()}
 {_hook_intelligence_block()}
 {_recent_hooks_block()}
 Return ONLY valid JSON (no markdown):

@@ -5394,5 +5394,147 @@
         "watch_time_sec": 0
       }
     }
+  },
+  {
+    "id": "614fd53c",
+    "date": "2026-07-30",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "airport_deliveries",
+    "hook": "Her gran's 80th was Saturday. The courier said ten days.",
+    "problem": "Amara's framed photo and letter had nowhere to go.",
+    "stakes": "Saturday arrives. The parcel sits in Coventry.",
+    "resolution": "Amara found a BootHop traveller flying to Lagos on Thursday. The framed photo landed Friday — the day before her gran turned eighty.",
+    "lesson": "Someone was already flying. The seat just needed a parcel.",
+    "visual_queries": [
+      "nigerian woman holding framed photo worried home medium shot",
+      "african woman airport departures holding parcel urgent worried medium shot",
+      "african man phone call worried holding framed gift airport medium shot",
+      "black traveller airport gate receiving small parcel sender wide shot",
+      "black male traveller airplane window seat flying medium shot",
+      "nigerian male traveller walking airport arrivals lagos confidently medium shot",
+      "nigerian elderly woman doorway receiving framed gift smiling relief medium shot",
+      "diverse black people UK city street walking confident purposeful wide shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 28-year-old Nigerian woman standing in a modern UK living room, holding a wrapped picture frame gift and looking at her phone with a deeply worried expression. Soft indoor lamplight. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 28-year-old Nigerian woman standing inside a busy UK airport departures hall, clutching a small wrapped parcel tightly, face tense with urgency and worry. Bright overhead airport lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 32-year-old Nigerian man standing near an airport check-in area, on a phone call with a frustrated and worried expression, holding a wrapped picture frame under his arm. Cool fluorescent airport lighting. Medium shot. No text. No logos. Vertical 9:16.",
+      "Photorealistic. 28-year-old Nigerian woman handing a small wrapped parcel to a 35-year-old Black male traveller at a UK airport departure gate. Both look purposeful and calm. Wide airport terminal background with gates visible. Natural bright terminal lighting. Wide shot. No text. No logos. Vertical 9:16.",
+      "Photorealistic. 35-year-old Black man seated in an economy window seat on a commercial flight, small wrapped parcel resting on the tray table beside him, gazing calmly out the window at clouds. Soft cabin ambient lighting. Medium shot. No text. No logos. Vertical 9:16.",
+      "Photorealistic. 35-year-old Black man walking confidently through a busy Lagos airport arrivals hall, carry-on bag over shoulder, small wrapped parcel tucked under his arm. Warm Nigerian airport lighting with arrivals signage in background. Medium shot. No text. No logos. Vertical 9:16.",
+      "Photorealistic. 80-year-old Nigerian grandmother standing in the doorway of a Lagos home, receiving a wrapped picture frame from a younger man, face lit with joyful relief and a wide smile. Warm golden doorway light. Medium shot. No text. No logos. Vertical 9:16.",
+      "Photorealistic. Busy London street scene with a diverse group of Black British and African people walking confidently in both directions, modern city buildings in the background, natural daylight. Uplifting and purposeful mood. Wide shot. No text. No logos. Vertical 9:16."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 28-year-old Nigerian woman standing in a modern UK living room, holding a wrapped picture frame gift and looking at her phone with a deeply worried expression. Soft indoor lamplight. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. 28-year-old Nigerian woman standing inside a busy UK airport departures hall, clutching a small wrapped parcel tightly, face tense with urgency and worry. Bright overhead airport lighting. Medium shot. No text. No logos. Vertical 9:16 portrait. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 32-year-old Nigerian man standing near an airport check-in area, on a phone call with a frustrated and worried expression, holding a wrapped picture frame under his arm. Cool fluorescent airport lighting. Medium shot. No text. No logos. Vertical 9:16. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 28-year-old Nigerian woman handing a small wrapped parcel to a 35-year-old Black male traveller at a UK airport departure gate. Both look purposeful and calm. Wide airport terminal background with gates visible. Natural bright terminal lighting. Wide shot. No text. No logos. Vertical 9:16. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 35-year-old Black man seated in an economy window seat on a commercial flight, small wrapped parcel resting on the tray table beside him, gazing calmly out the window at clouds. Soft cabin ambient lighting. Medium shot. No text. No logos. Vertical 9:16. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 35-year-old Black man walking confidently through a busy Lagos airport arrivals hall, carry-on bag over shoulder, small wrapped parcel tucked under his arm. Warm Nigerian airport lighting with arrivals signage in background. Medium shot. No text. No logos. Vertical 9:16. Camera: slow dolly forward. Duration: 4 seconds. Emotion: relief."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 80-year-old Nigerian grandmother standing in the doorway of a Lagos home, receiving a wrapped picture frame from a younger man, face lit with joyful relief and a wide smile. Warm golden doorway light. Medium shot. No text. No logos. Vertical 9:16. Camera: slow zoom out. Duration: 4 seconds. Emotion: happiness."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. Busy London street scene with a diverse group of Black British and African people walking confidently in both directions, modern city buildings in the background, natural daylight. Uplifting and purposeful mood. Wide shot. No text. No logos. Vertical 9:16. Camera: slow pan right. Duration: 4 seconds. Emotion: confidence."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 6,
+      "anchor_consistency": 5,
+      "story_coherence": 6,
+      "beat_length": 2,
+      "brand_safety": 10,
+      "emotional_impact": 7,
+      "boothop_fit": 8,
+      "lesson_quality": 6,
+      "overall": 63
+    },
+    "review_scores": {
+      "hook_virality": 9,
+      "story_coherence": 8,
+      "emotional_journey": 9,
+      "visual_relevance": 7,
+      "engagement_potential": 9,
+      "brand_integration": 10,
+      "lesson_shareability": 8,
+      "overall": 86
+    },
+    "caption_tiktok": "The diaspora tax is real. BootHop just cancelled it. 📦",
+    "caption_instagram": "The diaspora tax is real. BootHop just cancelled it. Stop overpaying for what was already flying. boothop.com 📦 #BootHop #SendToNigeria",
+    "youtube_title": "Every year the same problem — until she found this.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
   }
 ]

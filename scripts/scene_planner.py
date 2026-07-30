@@ -17,6 +17,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import ANTHROPIC_API_KEY
+try:
+    from trend_scout import get_scene_trend_context as _get_scene_trends
+except ImportError:
+    def _get_scene_trends(): return ""
 
 
 # ── Item visual vocabulary ─────────────────────────────────────────────────────
@@ -523,6 +527,7 @@ CORRECT examples:
     "Nigerian woman door smiling parcel medium shot"
     "diverse Black people london street wide shot"
 
+{_get_scene_trends()}
 WRONG — never do this:
   "woman close up face shocked"   ← missing ethnicity (Black British / Nigerian / African)
   "close up face only"            ← no ethnicity, no context
@@ -597,6 +602,7 @@ V1 already used these queries — do NOT repeat them, find fresh alternatives:
 {specificity_block}
 RULES: same as V1 — scenes 0 and 1 use "close up face" + emotion, scenes 2–7 use medium/wide shots only. No animals, no food, no courier brand names. Always include ethnicity (Black British / Nigerian / African).{airport_rule}
 
+{_get_scene_trends()}
 Return ONLY valid JSON:
 {{"visual_queries": ["q0","q1","q2","q3","q4","q5","q6","q7"]}}"""
 

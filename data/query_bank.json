@@ -4578,5 +4578,85 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-07-29"
+  },
+  {
+    "query": "nigerian woman holding framed photo worried home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "african woman airport departures holding parcel urgent worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "african man phone call worried holding framed gift airport medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "black traveller airport gate receiving small parcel sender wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "black male traveller airplane window seat flying medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "nigerian male traveller walking airport arrivals lagos confidently medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "nigerian elderly woman doorway receiving framed gift smiling relief medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
+  },
+  {
+    "query": "diverse black people UK city street walking confident purposeful wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-30"
   }
 ]
