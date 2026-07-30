@@ -167,6 +167,37 @@ def _already_ran_today(slot: int) -> bool:
     return False
 
 
+def _queue_pending_post(platform: str, slot: int, video_path, content: dict):
+    """If a platform post fails on Oracle, queue it so the laptop picks it up on next sync."""
+    import platform as _pl
+    if _pl.system() == "Windows":
+        return  # Already on laptop — no point queueing for laptop
+    try:
+        pending_path = DATA / "pending_posts.json"
+        existing = {}
+        if pending_path.exists():
+            try:
+                existing = json.loads(pending_path.read_text())
+            except Exception:
+                existing = {}
+        pending = existing.get("pending", [])
+        # Remove any stale entry for the same slot + platform
+        pending = [p for p in pending if not (p["slot"] == slot and p["platform"] == platform)]
+        pending.append({
+            "platform":   platform,
+            "slot":       slot,
+            "video_path": str(video_path),
+            "content":    {k: v for k, v in content.items() if k != "story_anchor"},
+            "queued_at":  datetime.now().isoformat(),
+            "status":     "pending",
+        })
+        existing["pending"] = pending
+        pending_path.write_text(json.dumps(existing, indent=2))
+        _log(f"[Pending] {platform} slot {slot} queued — laptop will post on next sync")
+    except Exception as e:
+        _log(f"[Pending] Queue write failed: {e}")
+
+
 def _mark_ran_today(slot: int):
     try:
         ran = {}
@@ -184,6 +215,26 @@ def _mark_ran_today(slot: int):
         pass
 
 
+def _push_ran_signal_to_oracle():
+    """Push pipeline_ran_today.json to Oracle so the 1-hour backup cron skips if laptop ran first."""
+    import os
+    if os.name != "nt":
+        return  # only push from Windows laptop, not from Oracle itself
+    key = Path.home() / ".ssh" / "oracle_boothop.pem"
+    if not key.exists() or not RAN_TODAY.exists():
+        return
+    try:
+        subprocess.run(
+            ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
+             "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
+             str(RAN_TODAY),
+             "ubuntu@140.238.73.32:/opt/otb_pipeline/data/pipeline_ran_today.json"],
+            timeout=12, capture_output=True,
+        )
+    except Exception:
+        pass  # Oracle offline — backup cron will run, which is the intended behaviour
+
+
 def _tg_send(text: str) -> None:
     """Quick Telegram send without reply markup."""
     import requests
@@ -197,7 +248,7 @@ def _tg_send(text: str) -> None:
         pass
 
 
-def run_slot(slot: int, force: bool = False):
+def run_slot(slot: int, force: bool = False, no_post: bool = False):
     """Run a full pipeline slot: generate → render → approve → post."""
     _log(f"{'='*56}")
     _log(f"OTB_Pipeline — Slot {slot} — {date.today()}")
@@ -235,12 +286,44 @@ def run_slot(slot: int, force: bool = False):
             from fetch_trending_music import fetch_trending_music, _already_fresh_today
             if _already_fresh_today():
                 _log("Music already fresh today — skipping refresh")
+                _tg_send("🎵 Music already fresh today — tracks carry over")
             else:
                 _log("Fetching today's music tracks...")
                 info = fetch_trending_music()
-                _log(f"Music ready: {[t['title'][:40] for t in info.get('tracks', [])]}")
+                tracks = info.get("tracks", [])
+                _log(f"Music ready: {[t['title'][:40] for t in tracks]}")
+                lines = [f"  [{t.get('source','?')[:8]}] {t['title'][:45]}" for t in tracks]
+                _tg_send("🎵 Music refresh done:\n" + "\n".join(lines))
         except Exception as e:
             _log(f"Music refresh failed (pipeline will use yesterday's tracks): {e}")
+            _tg_send(f"⚠️ Music refresh failed — using yesterday's tracks\n{e}")
+
+    # ── 0b. Slot-1 intelligence + hashtag pre-warm ────────────────────────────
+    if slot == 1:
+        # Hashtag pre-warm — fetch today's trending tags now so slot doesn't pay at runtime
+        try:
+            sys.path.insert(0, str(BASE / "scripts"))
+            from fetch_trending_hashtags import fetch_today as _fth
+            tags = _fth()
+            _log(f"Hashtags pre-warmed: {tags[:3] if tags else 'none'}")
+            _tg_send(f"#️⃣ Hashtags ready: {' '.join(tags[:5]) if tags else 'none'}")
+        except Exception as _hte:
+            _log(f"Hashtag pre-warm skipped: {_hte}")
+
+        # Hook analysis — extracts patterns from top-scoring hooks, feeds back into prompts
+        try:
+            from hook_analyzer import analyze_and_save as _hook_analyze
+            _hook_analyze()
+        except Exception as _he:
+            _log(f"Hook analysis skipped: {_he}")
+
+        # Product funnel — auto-activates if client_profile.json has product.enabled = true
+        try:
+            from product_funnel import run_full_funnel as _run_funnel, load_client_profile as _load_profile
+            _profile = _load_profile()
+            _run_funnel(profile=_profile)
+        except Exception as _fe:
+            _log(f"Product funnel skipped: {_fe}")
 
     # ── 1. Determine pillar + bucket ──────────────────────────────────────────
     _step(f"slot{slot}: pillar selection")
@@ -343,6 +426,14 @@ def run_slot(slot: int, force: bool = False):
 
         video_path = str(video_file)
 
+        # ── no-post mode: skip approval + posting ─────────────────────────────
+        if no_post:
+            _log(f"--no-post: video ready → {video_path}")
+            _log(f"Hook   : {content.get('hook','')}")
+            _log(f"Lesson : {content.get('lesson','')}")
+            _clear_step()
+            return
+
         # ── Telegram preview ──────────────────────────────────────────────────
         _step(f"slot{slot}: telegram preview")
         _log("Sending Telegram preview...")
@@ -389,6 +480,14 @@ def run_slot(slot: int, force: bool = False):
 
     # ── 8. Platform posting — V1 + V2 on each platform ────────────────────────
     platforms = SLOT_PLATFORMS.get(slot, ["tiktok", "instagram"])
+    # B2B pillars are Instagram-only — never post to TikTok or YouTube
+    try:
+        from config import INSTAGRAM_ONLY_PILLARS as _ig_only
+        if pillar in _ig_only:
+            platforms = [p for p in platforms if p == "instagram"]
+            _log(f"B2B pillar '{pillar}' — restricting to Instagram only")
+    except Exception:
+        pass
     _log(f"Posting to: {platforms}")
     results = {}
 
@@ -403,9 +502,12 @@ def run_slot(slot: int, force: bool = False):
             pub_id = _tk.post_video(platform_videos.get("tiktok", video_path), content, slot)
             results["tiktok"] = pub_id
             _log(f"TikTok: {'OK ' + pub_id if pub_id else 'FAILED'}")
+            if not pub_id:
+                _queue_pending_post("tiktok", slot, platform_videos.get("tiktok", video_path), content)
         except Exception as e:
             _crash(f"TikTok error: {e}")
             results["tiktok"] = None
+            _queue_pending_post("tiktok", slot, platform_videos.get("tiktok", video_path), content)
 
     # Instagram Reel (warm-graded)
     if "instagram" in platforms:
@@ -416,9 +518,12 @@ def run_slot(slot: int, force: bool = False):
             media_id = ig_post(platform_videos.get("instagram", video_path), content, slot)
             results["instagram"] = media_id
             _log(f"Instagram: {'OK ' + media_id if media_id else 'FAILED'}")
+            if not media_id:
+                _queue_pending_post("instagram", slot, platform_videos.get("instagram", video_path), content)
         except Exception as e:
             _crash(f"Instagram error: {e}")
             results["instagram"] = None
+            _queue_pending_post("instagram", slot, platform_videos.get("instagram", video_path), content)
 
     # YouTube Shorts
     if "youtube" in platforms:
@@ -429,9 +534,12 @@ def run_slot(slot: int, force: bool = False):
             vid_id = yt_post(platform_videos.get("youtube", video_path), content, slot)
             results["youtube"] = vid_id
             _log(f"YouTube: {'OK https://youtube.com/shorts/' + vid_id if vid_id else 'FAILED'}")
+            if not vid_id:
+                _queue_pending_post("youtube", slot, platform_videos.get("youtube", video_path), content)
         except Exception as e:
             _crash(f"YouTube post error: {e}")
             results["youtube"] = None
+            _queue_pending_post("youtube", slot, platform_videos.get("youtube", video_path), content)
 
     # Newspaper — Pillow-rendered 1080x1350, rotating masthead, posted as IG feed image
     if "newspaper" in platforms:
@@ -474,6 +582,7 @@ def run_slot(slot: int, force: bool = False):
 
     # ── Log + notify ───────────────────────────────────────────────────────────
     _mark_ran_today(slot)
+    _push_ran_signal_to_oracle()   # tell Oracle backup cron laptop already handled this slot
     send_result(slot, results, content=content)
 
     # Write run summary so the other machine sees what happened
@@ -539,12 +648,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="OTB_Pipeline slot runner")
     parser.add_argument("--slot",  type=int, required=True, choices=[1, 2, 3, 4],
                         help="1=09:00 TikTok/IG/YT  2=15:00 TikTok/IG/YT  3=22:00 TikTok/IG/YT  4=LinkedIn/Blog (Tue/Fri)")
-    parser.add_argument("--force", action="store_true",
+    parser.add_argument("--force",   action="store_true",
                         help="Force run even if slot already ran today")
+    parser.add_argument("--no-post", action="store_true",
+                        help="Generate + render only — skip Telegram approval and posting")
     args = parser.parse_args()
 
     try:
-        run_slot(args.slot, force=args.force)
+        run_slot(args.slot, force=args.force, no_post=args.no_post)
     except Exception as exc:
         _crash(f"UNHANDLED: {exc}")
         _tg_send(f"💥 OTB Slot {args.slot} crashed: {exc}")

@@ -1638,5 +1638,2945 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-06-29"
+  },
+  {
+    "query": "plane lifting off runway",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "black cab speeding city night",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "train departing platform fast",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "cargo ship leaving harbour",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "long queue airport check-in",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "frustrated traveller customs hall",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "delayed departure board airport",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "crowded bus station lagos",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "woman waiting alone airport",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "man checking phone arrivals hall",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "family farewell airport gate",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "lone traveller sitting station bench",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "taxi pulling up kerb",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "parcel handed over doorstep",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "traveller collecting bag arrivals",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "courier delivering box smiling",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "businessman walking london street",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "professional with luggage lagos airport",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "confident woman hailing black cab",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "man rolling suitcase canary wharf",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "nigerian woman pharmacy worried holding prescription medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "black woman urgent phone call medical explanation UK street medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "nigerian family member video call worried urgent expression indoor medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "black traveller train station receiving small medical parcel sender wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "black traveller airplane window seat small parcel relaxed medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "nigerian woman front door receiving medical parcel relief smiling medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "diverse black community london street warm sunny wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-20"
+  },
+  {
+    "query": "black british man airport lounge phone excited medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african male traveller cabin bag airport departure gate wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone home medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black traveller receiving small parcel train station platform wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african man handing parcel traveller airport departures smiling wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "commercial airplane taking off runway golden hour dramatic wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black male traveller lagos airport arrivals hall confident walking medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman doorway receiving parcel smiling relief wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman birmingham street animated talking medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african woman phone app smiling relieved public space medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black traveller train station parcel handover nigerian community member wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african man airport departure gate cabin bag heading out medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman front door morning parcel delivery arriving medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black family happy parcel handover front door smiling recipient medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "diverse black community london street welcoming gathering wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black british woman airport lounge phone excited medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african woman cabin luggage crutches airport departure gate wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone airport medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black traveller receiving crutches parcel nigerian woman train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "commercial airplane taking off runway dramatic golden hour wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black british woman arrivals hall lagos airport confident walking medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman front door receiving crutches parcel smiling relief wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african woman phone app public street smiling satisfied medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "african male traveller airport departure gate cabin luggage boarding medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "nigerian woman arriving front door Port Harcourt home parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black family happy parcel handover front door smiling graduation medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "diverse black people london community street welcoming celebrating wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "young Black woman university backpack Leicester street worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "young Black British woman holding folded Arsenal football shirt worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "African man urgent phone call airport departures hall stressed medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "Black traveller airport terminal receiving wrapped football shirt parcel wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "African male traveller plane window seat holding parcel in-flight medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "young Black British woman walking confident London airport arrivals hall medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "young Black British woman doorstep receiving Arsenal shirt parcel relieved smiling medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "diverse Black people confident London street walking graduation attire wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-21"
+  },
+  {
+    "query": "black british man heathrow departure lounge confident medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african man airport check-in desk cabin bag earning phone medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman animated phone call excited earning home medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african man airplane window seat relaxed smiling flight medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall accomplished proud wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "two african people trainers parcel handover smiling satisfied lagos wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "successful black diaspora people london street walking confident wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian woman holding framed jersey gift London office medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "diverse Black diaspora people busy London high street wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian woman on phone concerned framed parcel London office medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian man comparing delivery prices phone relieved London office medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "African man Black woman professional parcel handover London street wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black British traveller airport departure lounge luggage confident medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian couple receiving framed parcel front door home smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "diverse Black community celebrating together London street daylight wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "busy airport departures hall African travellers luggage wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black traveller airport security checkpoint bags screened wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian woman stressed airport check-in counter medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black male traveller departure gate cabin luggage small parcel medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black travellers walking confidently airport arrivals hall Lagos wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "African woman smiling parcel handover airport arrivals hall wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "aerial Lagos Nigeria skyline international airport wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "black british woman london flat holding gift box worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman shocked phone screen expensive shipping price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african woman on phone call frustrated high delivery cost living room medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "black man london train station handing small parcel traveller wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african traveller seated airplane cabin small parcel relaxed medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman arriving lagos airport arrivals hall luggage wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman doorstep lagos smiling receiving small gift parcel handover medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "lagos nigeria city skyline sunset golden hour aspirational wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "black british woman heathrow departure lounge confident medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african man airport check-in cabin luggage earning phone medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman london home animated phone call excited earning medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african man flight window seat smiling relaxed cabin medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "african man arriving lagos airport arrivals hall accomplished proud wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "two african people parcel handover lagos both smiling satisfied wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "black diaspora professionals lagos street confident successful celebrating wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black British professional man London office smiling confident medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "diverse Black diaspora people busy London high street walking wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian woman phone call Lagos living room confident satisfied medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian man phone screen delivery prices comparing frustrated medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "African man Black woman London street friendly parcel handover wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Black male traveller London airport departure lounge luggage confident medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "Nigerian couple front door receiving clothing parcel smiling happy wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "diverse Black community London street celebrating together joyful wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-22"
+  },
+  {
+    "query": "nigerian woman bristol harbour waterfront thoughtful medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "african man smartphone app earnings smiling london apartment medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black british traveller london airport departure gate cabin luggage confident wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "nigerian woman handing parcel black traveller bristol train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "african male traveller airplane window seat relaxed thoughtful medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black male traveller lagos airport arrivals hall exiting confident wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "two black people parcel handover smiling mutual satisfaction lagos doorstep wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "lagos nigeria skyline golden hour aspirational wide shot urban",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "nigerian man phone call worried living room urgent medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "african male traveller window seat airplane flight daytime medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black male traveller airport arrivals hall walking confidently parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "nigerian woman front door receiving flat parcel relief smiling medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "diverse black people london city street walking confident daytime wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "nigerian woman london street animated talking worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "african woman phone app public street smiling relieved medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black traveller london train station receiving small parcel community member wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black african traveller airport departure gate luggage boarding medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "nigerian woman home front door arriving receiving small parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black nigerian family front door smiling heirloom parcel handover medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "diverse black community london street welcoming celebrating together wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-23"
+  },
+  {
+    "query": "black woman phone urgent medical conversation stressed medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "nigerian woman video call worried urgent family medical medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "black traveller train station receiving medical parcel handover wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "diverse black people london street community warm sunny wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "black british woman home office small parcel worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "nigerian woman shocked phone screen expensive delivery price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "african woman frustrated phone call high delivery cost indoor medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "african male traveller airplane seat relaxed small parcel carry-on medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall luggage wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "nigerian woman front door smiling receiving small parcel friendly handover medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "lagos nigeria city skyline waterfront business aspirational golden hour wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Black British professional London airport departure lounge confident medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "African man smartphone earnings app pleased airport seating medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Black traveller London departure gate cabin luggage confident wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Nigerian woman handing parcel Black traveller London train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "African traveller airplane window seat relaxed flight medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Black traveller Lagos airport arrivals hall exiting confident wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "two Black people parcel handover Lagos smiling mutual benefit wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Lagos skyline golden hour aspirational wide shot city success",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Nigerian woman confident smiling modern London office medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Nigerian woman on phone looking worried frustrated London home medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Nigerian man comparing delivery apps phone London home looking concerned medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "Nigerian couple front door receiving parcel smiling joyful London wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "diverse Black British community celebrating together London street wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-24"
+  },
+  {
+    "query": "nigerian woman london street animated talking medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black british nigerian women laughing church community hall wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "african woman smiling phone app community centre medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black traveller london train station handing parcel nigerian woman wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "african male traveller airport departure gate cabin bag medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "nigerian woman Lagos home front door arriving parcel morning medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "nigerian family grandmother framed photo gift happy doorway medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "diverse black community members london street welcoming smiling wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Nigerian woman holding framed jersey departures hall wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Black traveller bags security checkpoint airport screening wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Nigerian woman stressed airport check-in counter courier quote medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Black traveller departure gate cabin bag small parcel medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Black African travellers walking confidently airport arrivals hall wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "Lagos Murtala Muhammed international airport aerial skyline wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "nigerian woman london flat holding signed jersey shocked medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked UK home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "african man courier service counter shocked high delivery price medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "nigerian woman phone call upset stressed UK living room medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black traveller nigerian woman train station parcel handover wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black male traveller airplane window seat parcel relaxed flight medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery UK home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "diverse black people london street confident celebrating joyful wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-25"
+  },
+  {
+    "query": "black british professional woman smiling london office medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian woman holding framed photo gift phone worried london flat medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "african man comparing delivery prices phone frustrated london home medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian couple receiving wrapped parcel gift front door home abuja smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "diverse black community group london street celebrating joyful connection wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian woman uk living room holding silk headwrap medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "black british woman shipping counter shocked expensive price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "black man leeds train station handing parcel traveller friendly wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "black nigerian traveller airplane window seat relaxed parcel overhead medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian family doorstep lagos reunion arrival morning wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian older woman receiving silk headwrap smiling happy home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "diverse black people london residential street walking neighbourhood wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "african man airport check-in cabin luggage phone earning medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian woman london home phone animated excited framed photo medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian man airplane window seat relaxed smiling flight medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "african man abuja airport arrivals hall accomplished proud wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "two african people parcel handover both smiling satisfied nigeria wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "successful black diaspora people london lagos street confident wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "Nigerian woman London home framed photo worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "Nigerian woman animated phone call London flat excited worried medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "Black African male traveller airplane window seat smiling relaxed medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "African male traveller Lagos airport arrivals hall accomplished proud wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "African man woman parcel handover Enugu doorstep both smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "Nigerian woman receiving framed family photo home doorway smiling satisfied medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian woman london home holding small gift box medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "black woman shipping counter shocked expensive price parcel medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "african woman worried phone call home upset stressed medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "black man train station handing small parcel traveller friendly wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "african traveller airplane window seat relaxed Nigeria flight medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian family doorstep reunion arrival warm embrace wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "nigerian elderly woman smiling receiving small gift family home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "london residential street diverse people walking neighbourhood wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-26"
+  },
+  {
+    "query": "plane taking off runway",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black cab speeding london street",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "train departing city station",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "cargo ship leaving port",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "long queue airport customs",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "traveller anxious crowded terminal",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "delayed flight board airport",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "frustrated passenger waiting luggage",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "farewell embrace departure gate",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "man checking phone train station",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "family separated airport terminal",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "taxi pulling up passenger smiling",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "happy reunion airport exit",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "london black cab city traffic",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "professional driver lagos street",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "businessman walking canary wharf",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "courier bag london underground",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman birmingham home shocked paper quote medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african man courier counter shocked high delivery price medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home phone call upset delivery cost medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black traveller nigerian sender train station parcel handover wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black traveller airplane window seat parcel overhead bin relaxed medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home phone smiling affordable delivery good news medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "diverse black people london street confident celebrating community wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black british woman home office worried small parcel medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman shocked expensive delivery price phone screen medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african woman phone call frustrated high delivery cost indoor medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african traveller seated train window relaxed small parcel beside medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black traveller arriving lagos airport arrivals hall wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "lagos nigeria cityscape skyline confident aspirational golden hour wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home shocked holding paper quote medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african man courier counter shocked high price receipt medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone call home upset worried delivery medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black male traveller airplane window seat parcel relaxed medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home smiling phone call happy affordable delivery medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "diverse black people london street confident celebrating together wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home shocked holding paper document medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african man courier counter shocked high price package medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone call upset delivery cost home medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black male traveller airplane window seat relaxed parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "diverse black people london street confident celebrating graduation wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked home desk medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african man courier office counter shocked delivery price quote medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone call upset stressed living room medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african male traveller airplane window seat parcel relaxed medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone smiling relieved happy affordable delivery home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman bristol home shocked holding price quote medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive courier website worried UK home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone call upset delivery cost UK flat medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black traveller nigerian woman train station parcel handover UK wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african male traveller flight window seat parcel relaxed medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery bristol home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "diverse black people lagos street celebrating parcel arrival confident wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman home shocked holding paper price quote medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked home desk medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "african man courier service counter shocked expensive price quote medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "nigerian woman smiling phone call happy affordable delivery UK home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "diverse black people London street celebrating confident joyful wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-27"
+  },
+  {
+    "query": "black british woman home worried holding small gift box medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone screen medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "african woman phone call frustrated high delivery cost living room medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "african traveller airplane seat relaxed small parcel carry-on medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman front door smiling receiving small parcel handover medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "lagos victoria island skyline confident aspirational golden hour wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black british woman airport lounge excited phone discovery medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "african woman half-empty cabin luggage airport departure gate wide shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price smartphone airport terminal medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black traveller receiving small parcel nigerian sender train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "african man handing parcel black traveller airport departures smiling wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman front door receiving parcel smiling relief wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black british woman home worried holding gift box medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman shocked phone screen high shipping price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "african woman frustrated phone call expensive international delivery medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black traveller seated airplane cabin relaxed small parcel overhead medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall walking wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "nigerian woman lekki home door smiling receiving small parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "lagos island cityscape skyline confident aspirational golden hour wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-28"
+  },
+  {
+    "query": "black british man laptop flight prices worried home medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black british man phone screen shocked expensive flight price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black british man laptop multiple flight booking sites frustrated medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black british man office desk calendar approved leave stressed wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black british man phone flight search app tense living room medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black british man phone relieved smiling flight booked London flat medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "black african man Lagos airport arrivals hall wide shot confident",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
+  },
+  {
+    "query": "Lagos Nigeria skyline cityscape aspirational golden hour wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-07-29"
   }
 ]

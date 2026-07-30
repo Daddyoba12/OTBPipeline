@@ -1,0 +1,52 @@
+{
+  "last_updated": "2026-07-26",
+  "hooks_analysed": 25,
+  "brand_context": "BootHop — peer-to-peer parcel delivery between UK and Nigeria via travellers already making the journey. TikTok + Instagram Reels.",
+  "top_patterns": [
+    {
+      "trigger": "empathy",
+      "structure": "Would you trust a stranger with your [family member]'s [emotional/milestone object]?",
+      "why_it_works": "Activates protective instinct and relational identity. Viewers picture themselves in the scenario, creating immediate emotional stakes and self-projection that drives engagement.",
+      "strength_score": 9
+    },
+    {
+      "trigger": "urgency",
+      "structure": "What if [cherished item] is still in [UK location] — and the [event] is [day]?",
+      "why_it_works": "Time scarcity creates cognitive tension. The dash amplifies the collision between two incompatible states, forcing viewers to feel the problem before considering the solution.",
+      "strength_score": 9
+    },
+    {
+      "trigger": "desire",
+      "structure": "Would you [save money/earn money] by [action related to luggage space]?",
+      "why_it_works": "Frames BootHop as a financial unlock, not a service. Appeals to both senders (cost savings) and travellers (side income), creating dual-audience resonance.",
+      "strength_score": 8
+    },
+    {
+      "trigger": "surprise",
+      "structure": "[Specific item] needed in [Lagos/destination] by [tight deadline]!",
+      "why_it_works": "Specificity (signed shirt, stethoscope, Air Force 1s) creates narrative intrigue. The concrete detail makes the problem feel real and memorable, increasing shares.",
+      "strength_score": 8
+    },
+    {
+      "trigger": "curiosity",
+      "structure": "How to get [sentimental item] to [Lagos] when [obstacle]?",
+      "why_it_works": "Opens a knowledge gap. Viewers watch to discover the 'how,' and the implicit answer (BootHop) feels earned rather than pitched.",
+      "strength_score": 7
+    }
+  ],
+  "avoid": [
+    "Generic 'Would you trust a stranger' without emotional specificity — hooks 5, 8, 10, 24 dilute impact by removing family/milestone context",
+    "B2B framing (hook 12) — lower engagement than peer-to-peer human stories in short-form",
+    "Weak value propositions (hooks 20, 25) — detached from emotional narrative; feel salesy rather than story-driven",
+    "Overuse of 'stranger' without context — repetition dulls the psychological tension by hook 9+",
+    "Vague destinations (hook 16 'Abuja' vs hook 1 'Lagos') — specificity to major hubs increases relatability"
+  ],
+  "suggested_hooks": [
+    "Your mum's burial cloth is packed. Your flight leaves tomorrow. Can it still make it?",
+    "Would you let a traveller carry your baby's first shoes to your parents in Accra?",
+    "Your brother just got engaged. The ring is in London. The proposal is this weekend in Port Harcourt.",
+    "Earn £120 bringing your cousin's WAEC results to Ibadan—she can't register without them.",
+    "What if the herbal remedy your grandmother needs is in a suitcase flying out Thursday?"
+  ],
+  "summary": "BootHop's strongest hooks weaponise empathy + urgency by making abstract logistics feel like emotional emergencies tied to family milestones and irreplaceable moments. Double down on specific, time-bound scenarios featuring named relationships (brother, nan, sister) and tangible objects (stethoscope, dress, signed shirt) rather than generic trust statements—this combination drives both emotional resonance and shareability."
+}

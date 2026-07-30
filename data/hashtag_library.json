@@ -59,10 +59,6 @@
     "travel_hacks":       ["travel_hacks", "flights"],
     "logistics_stories":  ["courier", "earning"],
     "airport_deliveries": ["courier", "airport"],
-    "supply_chain":       ["business", "courier"],
-    "cost_pain":          ["courier", "diaspora"],
-    "cultural_earn":      ["earning", "community"],
-    "urgent_medical":     ["diaspora", "courier"],
-    "brand_authority":    ["business", "courier"]
+    "supply_chain":       ["business", "courier"]
   }
 }

@@ -1,0 +1,280 @@
+{
+  "recent_runs": [
+    {
+      "timestamp": "2026-07-20T21:19:04.474823",
+      "slot": 3,
+      "pillar": "urgent_medical",
+      "bucket": "business",
+      "results": {
+        "tiktok": false,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "oracle"
+    },
+    {
+      "timestamp": "2026-07-21T06:43:51.995298",
+      "slot": 1,
+      "pillar": "community",
+      "bucket": "family",
+      "results": {
+        "tiktok": false,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "oracle"
+    },
+    {
+      "timestamp": "2026-07-21T08:36:46.660586",
+      "slot": 1,
+      "pillar": "community",
+      "bucket": "family",
+      "results": {
+        "tiktok": false,
+        "instagram": false,
+        "youtube": true,
+        "newspaper": false
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-21T13:27:27.816311",
+      "slot": 2,
+      "pillar": "airport_deliveries",
+      "bucket": "family",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-22T09:32:28.147779",
+      "slot": 2,
+      "pillar": "personal_shopper",
+      "bucket": "airport",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-22T10:02:08.547765",
+      "slot": 1,
+      "pillar": "airport",
+      "bucket": "airport",
+      "results": {
+        "tiktok": false,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-22T21:26:56.692523",
+      "slot": 4,
+      "pillar": "brand_authority",
+      "bucket": "airport",
+      "results": {
+        "linkedin": true,
+        "blog": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-23T08:07:34.168673",
+      "slot": 1,
+      "pillar": "smart",
+      "bucket": "smart",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-24T08:09:17.530416",
+      "slot": 1,
+      "pillar": "urgent_medical",
+      "bucket": "cinematic",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-24T09:26:59.015525",
+      "slot": 2,
+      "pillar": "multi_courier",
+      "bucket": "cinematic",
+      "results": {
+        "instagram": false
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-24T18:27:32.628580",
+      "slot": 3,
+      "pillar": "smart",
+      "bucket": "cinematic",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-24T21:26:38.665439",
+      "slot": 4,
+      "pillar": "brand_authority",
+      "bucket": "cinematic",
+      "results": {
+        "linkedin": true,
+        "blog": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-25T08:07:38.515101",
+      "slot": 1,
+      "pillar": "community",
+      "bucket": "community",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-25T09:28:05.459368",
+      "slot": 2,
+      "pillar": "airport",
+      "bucket": "community",
+      "results": {
+        "tiktok": false,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-26T14:57:11.710443",
+      "slot": 2,
+      "pillar": "family",
+      "bucket": "community",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-26T15:24:05.626474",
+      "slot": 4,
+      "pillar": "brand_authority",
+      "bucket": "community",
+      "results": {
+        "linkedin": false,
+        "blog": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-26T15:24:31.653084",
+      "slot": 1,
+      "pillar": "cultural_earn",
+      "bucket": "community",
+      "results": {
+        "tiktok": false,
+        "instagram": false,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-27T09:28:49.760999",
+      "slot": 2,
+      "pillar": "courier_business",
+      "bucket": "business",
+      "results": {
+        "instagram": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-28T00:50:07.191137",
+      "slot": 3,
+      "pillar": "travel_hacks",
+      "bucket": "family",
+      "results": {
+        "tiktok": true,
+        "instagram": false,
+        "youtube": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-28T01:20:28.187519",
+      "slot": 4,
+      "pillar": "flight_discovery",
+      "bucket": "family",
+      "results": {
+        "linkedin": true,
+        "blog": true
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-28T13:59:15.344360",
+      "slot": 1,
+      "pillar": "personal_shopper",
+      "bucket": "family",
+      "results": {
+        "tiktok": true,
+        "instagram": false,
+        "youtube": true,
+        "newspaper": false
+      },
+      "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-29T21:12:26.098509",
+      "slot": 3,
+      "pillar": "flight_discovery",
+      "bucket": "airport",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
+    }
+  ],
+  "last_run": {
+    "timestamp": "2026-07-29T21:12:26.098509",
+    "slot": 3,
+    "pillar": "flight_discovery",
+    "bucket": "airport",
+    "results": {
+      "tiktok": true,
+      "instagram": true,
+      "youtube": true
+    },
+    "machine": "laptop"
+  }
+}
