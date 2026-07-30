@@ -1,0 +1,48 @@
+{
+  "slug": "boothop",
+  "brand_name": "BootHop",
+  "niche": "UK to Nigeria peer-to-peer parcel delivery via travellers",
+  "website": "boothop.com",
+  "industry": "logistics",
+  "social": {
+    "tiktok": "@boothopuk",
+    "instagram": "@boothopuk"
+  },
+  "cta_phrases": [
+    "Are you travelling to Nigeria soon?",
+    "Check if someone is already going your way",
+    "Someone willing to carry your parcel home?",
+    "You could earn money on your next trip",
+    "Send it home. Someone is already going.",
+    "Is someone heading your way with space to spare?",
+    "Turn your suitcase into a side income",
+    "Your parcel. Their journey. Problem solved."
+  ],
+  "end_card_palettes": [
+    {"bg": "4F46E5", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "7C3AED", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "0369A1", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "047857", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "DC2626", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "0F172A", "title": "FFE600", "body": "FFFFFF"}
+  ],
+  "schedule": {
+    "timezone": "Europe/London",
+    "active": true,
+    "slots": [
+      {"time": "08:00", "pipeline_slot": 1, "label": "morning"},
+      {"time": "14:00", "pipeline_slot": 2, "label": "afternoon"},
+      {"time": "21:00", "pipeline_slot": 3, "label": "evening"},
+      {"time": "08:00", "pipeline_slot": 4, "label": "weekly", "days": [1, 4]}
+    ]
+  },
+  "user_clips_disabled": true,
+  "product": {
+    "enabled": false,
+    "name": "",
+    "price": 27,
+    "currency": "GBP",
+    "description": "",
+    "url": ""
+  }
+}
