@@ -38,6 +38,9 @@ keys.env
 social_credentials.json
 youtube_token.json
 youtube_credentials.json
+blog/config.json
+client_profile.json
+client_profiles/
 *.pem
 *.key
 
