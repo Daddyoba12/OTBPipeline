@@ -1312,6 +1312,10 @@ def _check_hook_duplicate(hook: str, days: int = 14):
     Hard gate: raise ContentDuplicateError if the hook is too similar to any
     hook already in memory.json from the last N days.
     Called after Stage 2 (QA) so we abort before expensive image/video stages.
+
+    Thresholds:
+      Yesterday/today : ≥ 30% significant-word overlap → reject  (strict)
+      2-14 days ago   : ≥ 65% significant-word overlap → reject  (normal)
     """
     try:
         mem_file = DATA / "memory.json"
@@ -1321,43 +1325,47 @@ def _check_hook_duplicate(hook: str, days: int = 14):
     except Exception:
         return
 
-    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    cutoff    = (date.today() - timedelta(days=days)).isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+
     hook_lower = hook.lower().strip()
     hook_start = " ".join(hook_lower.split()[:5])
-    new_sig = {w.strip(".,?!\"'") for w in hook_lower.split()} - _STOP_WORDS
+    new_sig    = {w.strip(".,?!\"'") for w in hook_lower.split()} - _STOP_WORDS
 
     if not new_sig:
         return
 
     for entry in mem:
-        if entry.get("date", "") < cutoff:
+        entry_date = entry.get("date", "")
+        if entry_date < cutoff:
             continue
         old = entry.get("hook", "").strip()
         if not old:
             continue
         old_lower = old.lower()
 
-        # Exact match
+        # Exact match — always reject
         if old_lower == hook_lower:
             raise ContentDuplicateError(
-                f"Exact hook reuse from {entry.get('date')}: \"{old[:80]}\""
+                f"Exact hook reuse from {entry_date}: \"{old[:80]}\""
             )
 
-        # Same opening 5 words (catches "Would you trust a stranger…" repeats)
+        # Same opening 5 words — always reject (catches "Would you trust a stranger…")
         old_start = " ".join(old_lower.split()[:5])
         if hook_start == old_start:
             raise ContentDuplicateError(
-                f"Hook opener repeated from {entry.get('date')}: \"{hook_start}…\""
+                f"Hook opener repeated from {entry_date}: \"{hook_start}…\""
             )
 
-        # Significant-word overlap ≥ 65%
+        # Word-overlap threshold — stricter for yesterday/today
         old_sig = {w.strip(".,?!\"'") for w in old_lower.split()} - _STOP_WORDS
         if old_sig:
-            overlap = len(new_sig & old_sig) / min(len(new_sig), len(old_sig))
-            if overlap >= 0.65:
+            overlap   = len(new_sig & old_sig) / min(len(new_sig), len(old_sig))
+            threshold = 0.30 if entry_date >= yesterday else 0.65
+            if overlap >= threshold:
                 raise ContentDuplicateError(
-                    f"Hook {int(overlap*100)}% similar to entry from "
-                    f"{entry.get('date')}: \"{old[:80]}\""
+                    f"Hook {int(overlap*100)}% similar to {'yesterday' if entry_date >= yesterday else entry_date} entry "
+                    f"(threshold {'30' if entry_date >= yesterday else '65'}%): \"{old[:80]}\""
                 )
 
 
@@ -1432,19 +1440,20 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     _save_used_queries(queries, slot)
     data["visual_queries"] = queries
 
-    # ── Memory DB — save the complete content package ─────────────────────────
-    memory_db.save_entry(data, slot, version="v1")
+    # Metadata — set BEFORE saving to memory so pillar/slot/date are recorded
+    data["pillar"] = pillar
+    data["slot"]   = slot
+    data["date"]   = today
 
-    # Metadata
     tags_311 = _fetch_trending_tags(pillar=pillar)
     data["hashtags_tiktok"]    = _tiktok_hashtags(pillar, tags_311)
     data["hashtags_instagram"] = _instagram_hashtags(pillar, tags_311)
     data["hashtags_311"]       = tags_311
     data["youtube_tags"]       = _youtube_tags(pillar, data.get("hook", ""))
     data["youtube_category"]   = YOUTUBE_CATEGORIES.get(pillar, 22)
-    data["pillar"]             = pillar
-    data["slot"]               = slot
-    data["date"]               = today
+
+    # ── Memory DB — save the complete content package ─────────────────────────
+    memory_db.save_entry(data, slot, version="v1")
 
     return data
 
