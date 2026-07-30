@@ -158,6 +158,99 @@ _TRANSPORT_FALLBACKS = [
     "Black woman door receiving parcel smiling medium shot",  # 7 lesson
 ]
 
+# Car-dealership fallbacks for G-Inspired — used when stock footage fails
+_CAR_FALLBACKS = [
+    "luxury SUV driving mountain road",          # 0 hook
+    "sedan driving highway golden hour",         # 1 hook
+    "couple at car dealership lot",              # 2 problem
+    "man looking at used car stressed",          # 3 problem
+    "highway traffic morning commute",           # 4 stakes
+    "car salesman handshake customer smiling",   # 5 resolution
+    "couple drives new car dealership exit",     # 6 resolution
+    "businessman walking to luxury car",         # 7 lesson
+]
+
+
+def _car_dalle_prompt(car: dict, beat: str) -> str:
+    """Build a beat-specific DALL-E prompt for G-Inspired automotive clips."""
+    make  = car.get("make", "")
+    model = car.get("model", "")
+    year  = car.get("year", "")
+    scenes = {
+        "hook": (
+            f"Dramatic golden hour automotive commercial photography. "
+            f"A {year} {make} {model} parked on an open road, low angle, the car fills the frame. "
+            f"No people blocking the car. Cinematic sunset lighting, warm amber sky."
+        ),
+        "problem": (
+            "A stressed man standing in an outdoor used-car lot, surrounded by price tags with hidden fees. "
+            "Moody overcast lighting, hands in pockets, clearly frustrated. "
+            "Documentary-style, realistic photography."
+        ),
+        "stakes": (
+            "Wide view from inside a car on a busy morning highway, traffic jam ahead. "
+            "Driver's hands on steering wheel, commuter stress. "
+            "Cinematic bokeh, warm morning light."
+        ),
+        "resolution": (
+            "A happy couple at a clean, bright car dealership signing paperwork. "
+            "Friendly salesperson across the desk, all three smiling. "
+            "Natural warm lighting, professional dealership interior. Realistic photography."
+        ),
+        "lesson_pre": (
+            f"Confident car owner opening the door of a clean {make} {model} in a bright parking lot. "
+            "Professional clean lighting, executive energy. Realistic commercial photography."
+        ),
+    }
+    scene = scenes.get(beat, (
+        f"Cinematic automotive photography featuring a {year} {make} {model}. "
+        "Clean exterior, professional studio-quality lighting."
+    ))
+    return (
+        f"Photorealistic commercial photography. {scene} "
+        f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
+        f"High production quality."
+    )
+
+
+def _bh_dalle_prompt(beat: str, content: dict) -> str:
+    """Beat-specific DALL-E prompts for BootHop UK-Nigeria delivery clips."""
+    scenes = {
+        "hook": (
+            "A Black British woman in a bright modern UK home, smiling warmly while "
+            "carefully wrapping a gift parcel on a kitchen table. Afternoon sunlight. "
+            "Medium shot, portrait orientation."
+        ),
+        "problem": (
+            "A stressed Nigerian British woman at a UK Post Office counter, looking "
+            "frustrated while holding a large parcel. A price sign showing high fees. "
+            "Documentary medium shot, muted lighting."
+        ),
+        "stakes": (
+            "A Black British man sitting at an airport departure gate, anxiously checking "
+            "his phone. A carry-on bag beside him, other travellers in background. "
+            "Cinematic wide shot, airport environment."
+        ),
+        "resolution": (
+            "A Black British traveller at an airport gate, smiling as they hand a "
+            "gift-wrapped package to another passenger. Warm, relieved expressions. "
+            "Medium shot, hopeful golden hour lighting."
+        ),
+        "lesson_pre": (
+            "A joyful Nigerian woman standing at her doorstep receiving a delivered parcel "
+            "from a smiling visitor. Warm evening light on a residential street. "
+            "Emotional medium shot, authentic documentary feel."
+        ),
+    }
+    scene = scenes.get(beat, scenes["hook"])
+    return (
+        f"Photorealistic commercial photography. {scene} "
+        f"Subjects are Black British or Nigerian British people. "
+        f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
+        f"High production quality."
+    )
+
+
 # Website screenshot directory — user drops screenshots of boothop.com here
 # for use as branded fallback clips when all stock footage fails
 _WEBSITE_SCREENS_DIR = ASSETS / "website_screens"
@@ -172,13 +265,12 @@ _BEAT_TAGS = ["hook", "problem", "stakes", "resolution", "lesson"]
 
 _USER_CLIP_CAP = 3   # max user assets per video — rest come from Pexels/Pixabay
 
-def _pick_user_clip(beat: str, exclude_paths: set) -> Path | None:
+def _pick_user_clip(beat: str, exclude_paths: set, allow_untagged: bool = False) -> Path | None:
     """
-    Pick a beat-tagged user clip from assets/user_clips/.
-    ONLY returns a file whose name starts with the beat tag (e.g. hook_*, resolution_*).
-    Skips clips used in this render (exclude_paths) AND clips used in the last
-    _USER_CLIP_COOLDOWN_DAYS days — so the same clip never appears in back-to-back videos.
-    Falls through to Pexels/Pixabay when all tagged clips are on cooldown.
+    Pick a user clip from assets/user_clips/.
+    Beat-tagged files (e.g. hook_*, resolution_*) are preferred.
+    allow_untagged=True (assets-only mode): if no tagged clip is fresh, fall back to
+    any untagged clip, then any available clip, so we never reach external stock sources.
     """
     if not _USER_CLIPS_DIR.exists():
         return None
@@ -191,23 +283,36 @@ def _pick_user_clip(beat: str, exclude_paths: set) -> Path | None:
         return None
 
     recent_names = _recently_used_user_clip_names()
-
-    # Only beat-tagged matches — never fall through to generic or any-available
     avail  = [p for p in all_clips if str(p) not in exclude_paths]
+
+    # Beat-tagged clips first
     tagged = [p for p in avail if p.name.lower().startswith(beat)]
-    if not tagged:
+    fresh_tagged = [p for p in tagged if p.name not in recent_names]
+    if fresh_tagged:
+        return random.choice(fresh_tagged)
+    if tagged:
+        # All tagged clips on cooldown
+        if not allow_untagged:
+            print(f"    [UserClip] All {beat} clips on 14-day cooldown — skipping to stock footage")
+            return None
+        # assets-only: use cooldown clip rather than going to stock
+        return random.choice(tagged)
+
+    # No tagged clips for this beat at all
+    if not allow_untagged:
         return None
 
-    # Prefer clips not on cooldown; fall back to cooldown clips only if every
-    # tagged clip for this beat was recently used (avoids a complete blackout).
-    fresh = [p for p in tagged if p.name not in recent_names]
-    pool  = fresh if fresh else tagged
-    if not pool:
-        return None
-    chosen = random.choice(pool)
-    if not fresh:
-        print(f"    [UserClip] All {beat} clips on cooldown — reusing {chosen.name}")
-    return chosen
+    # assets-only fallback: untagged clips (no beat prefix)
+    untagged = [p for p in avail if not any(p.name.lower().startswith(t) for t in _BEAT_TAGS)]
+    fresh_untagged = [p for p in untagged if p.name not in recent_names]
+    if fresh_untagged:
+        return random.choice(fresh_untagged)
+    if untagged:
+        return random.choice(untagged)
+
+    # Last resort in assets-only: any available clip
+    fresh_any = [p for p in avail if p.name not in recent_names]
+    return random.choice(fresh_any) if fresh_any else (random.choice(avail) if avail else None)
 
 # Airport-specific fallbacks for slot 2 — enforced at every beat position
 _AIRPORT_FALLBACKS = [
@@ -400,13 +505,7 @@ def _split_hook(text: str) -> list[str]:
     return _split_lines(clean, 24, 4)
 
 
-_BEAT_LABELS = {
-    "hook":       "",           # hook text IS the label " no duplicate tag
-    "problem":    "THE PROBLEM",
-    "stakes":     "THE STAKES",
-    "resolution": "THE RESOLUTION",
-    "lesson_pre": "THE LESSON",
-}
+_BEAT_LABELS: dict = {}   # beat section labels removed — story text only
 
 
 def _drawtext_filters(text: str, beat: str, style_override: dict | None = None) -> str:
@@ -457,6 +556,69 @@ def _drawtext_filters(text: str, beat: str, style_override: dict | None = None) 
             f"shadowx=3:shadowy=3:shadowcolor=0x000000"
         )
     return ",".join(parts)
+
+
+def _apply_caption_overlay(clip: Path, text: str) -> None:
+    """Overlay a two-line caption bar at the top of a clip using PIL (no fontconfig needed)."""
+    if not text or not clip.exists():
+        return
+    try:
+        from PIL import Image, ImageDraw
+        CAP_H = 140
+        img   = Image.new("RGBA", (W, CAP_H), (0, 0, 0, 0))
+        draw  = ImageDraw.Draw(img)
+        draw.rectangle([(0, 0), (W, CAP_H)], fill=(0, 0, 0, 160))
+
+        font = _load_pil_font("body", 36)
+        words = text.split()
+        lines: list[str] = []
+        cur: list[str]   = []
+        for word in words:
+            test = " ".join(cur + [word])
+            try:
+                tw = draw.textbbox((0, 0), test, font=font)[2]
+            except Exception:
+                tw = len(test) * 20
+            if tw > W - 60 and cur:
+                lines.append(" ".join(cur))
+                cur = [word]
+            else:
+                cur.append(word)
+        if cur:
+            lines.append(" ".join(cur))
+        lines = lines[:2]
+
+        line_h = 52
+        y0     = max(8, (CAP_H - len(lines) * line_h) // 2)
+        for i, line in enumerate(lines):
+            try:
+                tw = draw.textbbox((0, 0), line, font=font)[2]
+            except Exception:
+                tw = len(line) * 20
+            x = max(20, (W - tw) // 2)
+            y = y0 + i * line_h
+            draw.text((x + 2, y + 2), line, font=font, fill=(0, 0, 0, 210))
+            draw.text((x, y), line, font=font, fill=(255, 255, 255, 255))
+
+        cap_png = clip.parent / (clip.stem + "_cap.png")
+        img.save(str(cap_png), "PNG")
+
+        tmp = clip.parent / (clip.stem + "_caped.mp4")
+        ok  = _ff(
+            "-i", str(clip), "-i", str(cap_png),
+            "-filter_complex", "[0:v][1:v]overlay=0:14",
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-pix_fmt", "yuv420p", "-an", str(tmp),
+        )
+        cap_png.unlink(missing_ok=True)
+        if ok and tmp.exists() and tmp.stat().st_size > 5000:
+            clip.unlink()
+            tmp.rename(clip)
+        else:
+            tmp.unlink(missing_ok=True)
+    except Exception as e:
+        print(f"    [Caption] Error: {e}")
+
 
 # "" Video clip fetching """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -560,56 +722,79 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR) -> b
     return False
 
 
-def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP_DUR) -> bool:
-    """Generate a unique image with DALL-E 3 and Ken-Burns animate it into a clip."""
+def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP_DUR,
+                         dalle_prompt: str | None = None, cheap: bool = False) -> bool:
+    """Generate an AI image and Ken-Burns animate it into a clip.
+    cheap=True uses gpt-image-1-mini/medium — for slots 2 & 3 fallback only."""
     if not OPENAI_API_KEY:
         return False
-    # Craft a cinematic prompt from the beat type and query
-    beat_mood = {
-        "hook":       "dramatic cinematic medium-wide shot, golden hour lighting",
-        "problem":    "tense medium shot, moody blue tones, documentary style",
-        "stakes":     "emotional medium shot, shallow depth of field, orange accent light",
-        "resolution": "warm joyful medium-wide scene, soft natural light, hopeful mood",
-        "lesson_pre": "clean professional wide shot, bright neutral tones",
-    }.get(beat, "cinematic medium wide shot")
-    prompt = (
-        f"Photorealistic {beat_mood}. Scene: {query}. "
-        f"The main subject must be a Black British woman, Nigerian man, or person of African descent. "
-        f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
-        f"High quality professional photography."
-    )
-    try:
-        resp = requests.post(
-            "https://api.openai.com/v1/images/generations",
-            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
-            json={"model": "dall-e-3", "prompt": prompt[:4000], "n": 1,
-                  "size": "1024x1792", "quality": "standard"},
+    if dalle_prompt:
+        prompt = dalle_prompt
+    else:
+        beat_mood = {
+            "hook":       "dramatic cinematic medium-wide shot, golden hour lighting",
+            "problem":    "tense medium shot, moody blue tones, documentary style",
+            "stakes":     "emotional medium shot, shallow depth of field, orange accent light",
+            "resolution": "warm joyful medium-wide scene, soft natural light, hopeful mood",
+            "lesson_pre": "clean professional wide shot, bright neutral tones",
+        }.get(beat, "cinematic medium wide shot")
+        prompt = (
+            f"Photorealistic {beat_mood}. Scene: {query}. "
+            f"The main subject should be a person living in the UK — "
+            f"could be Black British, Nigerian, or any Western/European ethnicity. "
+            f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
+            f"High quality professional photography."
         )
-        data = resp.json()
-        if "error" in data:
-            print(f"    [DALL-E] API error: {data['error'].get('message', data['error'])[:80]}")
-            return False
-        img_url = data["data"][0]["url"]
-        img_bytes = requests.get(img_url, timeout=30).content
-        img_path = dest.with_suffix(".jpg")
-        img_path.write_bytes(img_bytes)
-        frames = duration * VIDEO_FPS
-        ok = _ff(
-            "-loop", "1", "-i", str(img_path),
-            "-vf",
-            f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
-            f"zoompan=z='min(zoom+0.002,1.15)':d={frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},"
-            "setsar=1",
-            "-t", str(duration),
-            "-c:v", "libx264", "-crf", "22", "-preset", "fast",
-            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
-        )
-        img_path.unlink(missing_ok=True)
-        if ok and dest.exists():
-            print(f"    [DALL-E] Generated unique image for: {query[:50]}")
-            return True
-    except Exception as e:
-        print(f"    [DALL-E] {query}: {e}")
+
+    import base64 as _b64
+    # cheap=True (slots 2 & 3 fallback): use mini at standard size
+    if cheap:
+        _models = [("gpt-image-1-mini", "1024x1024", "medium")]
+    else:
+        _models = [
+            ("gpt-image-1", "1024x1536", "medium"),
+            ("gpt-image-1-mini", "1024x1536", "medium"),
+        ]
+    for _model, _size, _quality in _models:
+        try:
+            resp = requests.post(
+                "https://api.openai.com/v1/images/generations",
+                headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
+                         "Content-Type": "application/json"},
+                json={"model": _model, "prompt": prompt[:4000], "n": 1,
+                      "size": _size, "quality": _quality},
+                timeout=90,
+            )
+            data = resp.json()
+            if "error" in data:
+                print(f"    [ImageGen] {_model}: {data['error'].get('message','')[:80]}")
+                continue
+            img_item = data["data"][0]
+            if "b64_json" in img_item:
+                img_bytes = _b64.b64decode(img_item["b64_json"])
+            elif "url" in img_item:
+                img_bytes = requests.get(img_item["url"], timeout=30).content
+            else:
+                continue
+            img_path = dest.with_suffix(".png")
+            img_path.write_bytes(img_bytes)
+            frames = duration * VIDEO_FPS
+            ok = _ff(
+                "-loop", "1", "-i", str(img_path),
+                "-vf",
+                f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                f"zoompan=z='min(zoom+0.002,1.15)':d={frames}"
+                f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},setsar=1",
+                "-t", str(duration),
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+            )
+            img_path.unlink(missing_ok=True)
+            if ok and dest.exists() and dest.stat().st_size > 5000:
+                print(f"    [ImageGen] {_model} generated for: {query[:50]}")
+                return True
+        except Exception as e:
+            print(f"    [ImageGen] {_model}: {e}")
     return False
 
 
@@ -866,7 +1051,8 @@ def _download_clip(url: str, dest: Path) -> bool:
     return False
 
 
-def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_override: dict | None = None) -> bool:
+def _process_clip(src: Path, dest: Path, beat: str, beat_text: str,
+                  style_override: dict | None = None, top_caption: str = "") -> bool:
     """Resize, crop to 9:16, sharpen, add beat text overlay, trim to CLIP_DUR."""
     base_vf = ",".join([
         f"scale={W}:{H}:force_original_aspect_ratio=increase",
@@ -886,7 +1072,6 @@ def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_overri
     )
     if not ok and text_f:
         # drawtext failed (Windows fontconfig issue) — retry without text overlay
-        # so we get real video instead of a black placeholder
         dest.unlink(missing_ok=True)
         ok = _ff(
             "-ss", "0", "-i", str(src),
@@ -896,78 +1081,160 @@ def _process_clip(src: Path, dest: Path, beat: str, beat_text: str, style_overri
             "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an",
             str(dest),
         )
+    # Burn top caption onto every beat via PIL (reliable, no fontconfig needed)
+    if top_caption and ok and dest.exists():
+        _apply_caption_overlay(dest, top_caption)
     return ok
 
 
-def _make_lesson_card(lesson: str, hook: str, pillar_color: str, dest: Path) -> bool:
-    """Create a 5-second lesson card: dark overlay + lesson text + CTA.
-    Two-pass approach: generate plain colour video first, then overlay text via -vf.
-    This avoids the lavfi+drawtext parsing issue with apostrophes on Windows.
-    """
-    color_map = {
-        "community":          "4F46E5",
-        "family":             "7C3AED",
-        "airport":            "1D4ED8",
-        "smart":              "0369A1",
-        "travel_hacks":       "0891B2",
-        "logistics_stories":  "047857",
-        "airport_deliveries": "B45309",
-        "supply_chain":       "DC2626",
-        "cost_pain":          "7C3AED",
-        "cultural_earn":      "0369A1",
-        "urgent_medical":     "B45309",
-        "brand_authority":    "1D4ED8",
-    }
-    bg = color_map.get(pillar_color, "4F46E5")
-    font_t = _font("title")
-    font_b = _font("body")
+# ── PIL card helpers (used by lesson card and CTA card) ───────────────────────
 
-    # Split lesson into at most 2 lines (28 chars each) " separate drawtext per line
-    lesson_lines = _split_lines(_esc(lesson), 28, 3)
+def _hex_to_rgb(h: str) -> tuple:
+    h = h.lstrip("#")
+    return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
 
-    # Pass 1 " plain colour card
-    plain = dest.parent / (dest.stem + "_plain.mp4")
+
+def _load_pil_font(kind: str, size: int):
+    from PIL import ImageFont
+    custom = FONT_TITLE if kind == "title" else FONT_BODY
+    custom = custom.replace("C\\:/", "C:/").replace("\\", "/")
+    for path in [custom,
+                 r"C:\Windows\Fonts\impact.ttf" if kind == "title" else r"C:\Windows\Fonts\arialbd.ttf",
+                 r"C:\Windows\Fonts\arial.ttf"]:
+        try:
+            if Path(path).exists():
+                return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
+
+
+def _pil_draw_centered(draw, text: str, y: int, font, color: tuple, shadow: bool = True):
+    try:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        tw = bbox[2] - bbox[0]
+    except Exception:
+        tw = len(text) * (font.size if hasattr(font, "size") else 20)
+    x = max(0, (W - tw) // 2)
+    if shadow:
+        draw.text((x + 3, y + 3), text, font=font, fill=(0, 0, 0))
+    draw.text((x, y), text, font=font, fill=color)
+
+
+def _eval_y(expr: str) -> int:
+    import re
+    m = re.match(r"h\s*\*\s*(\d+\.?\d*)", expr.strip())
+    if m:
+        return int(H * float(m.group(1)))
+    return H // 2
+
+
+def _pil_png_to_video(png: Path, dest: Path, duration: int) -> bool:
     ok = _ff(
-        "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x{bg}:rate={VIDEO_FPS}",
-        "-t", str(LESSON_DUR),
+        "-loop", "1", "-i", str(png),
+        "-t", str(duration),
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-        "-pix_fmt", "yuv420p", "-an", str(plain),
+        "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
     )
-    if not ok or not plain.exists():
-        return False
+    return ok and dest.exists() and dest.stat().st_size > 5000
 
-    # Pass 2 " overlay text: label + lesson lines (each separate drawtext) + URL
-    # Lesson block centred vertically " y_mid is the top of the text block
-    n_lines  = len(lesson_lines)
-    line_gap = 80   # 62px font * 1.3
-    y_mid    = f"(h - {n_lines * line_gap}) / 2"
-    lesson_parts = []
-    for i, ln in enumerate(lesson_lines):
-        y_expr = f"({y_mid}) + {i * line_gap}"
-        lesson_parts.append(
-            f"drawtext=fontfile='{font_t}':text='{ln}':fontsize=62:"
-            f"fontcolor=0xFFE600:x=(w-text_w)/2:y={y_expr}:"
-            f"shadowcolor=0x000000@0.8:shadowx=3:shadowy=3"
-        )
-    vf = ",".join([
-        f"drawtext=fontfile='{font_t}':text='THE LESSON':fontsize=34:"
-        f"fontcolor=0xFFFFFF@0.6:x=(w-text_w)/2:y=h*0.26",
-    ] + lesson_parts + [
-        f"drawtext=fontfile='{font_b}':text='boothop.com':fontsize=38:"
-        f"fontcolor=0xFFFFFF@0.85:x=(w-text_w)/2:y=h*0.74",
+
+# ── Lesson card ───────────────────────────────────────────────────────────────
+
+def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: Path) -> bool:
+    """
+    Single 10-second end card that merges the lesson takeaway + CTA contact block.
+    Layout  (top → bottom):
+      - Lesson text  (large yellow, centred, upper half)
+      - Divider line
+      - CTA phrase   (rotating, body font, white)
+      - Brand name   (title font, yellow)
+      - Contact info (phone / email / website)
+    Background colour picked randomly from client’s palette each render.
+    """
+    duration = LESSON_DUR + BRAND_DUR   # 10 seconds
+
+    # ── Pick a random palette from client profile ────────────────────────────
+    palettes = client_profile.get("end_card_palettes", [
+        {"bg": "4F46E5", "title": "FFE600", "body": "FFFFFF"},
     ])
-    result = _ff(
-        "-i", str(plain),
-        "-vf", vf,
-        "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-        "-pix_fmt", "yuv420p", "-an", str(dest),
-    )
-    if not result:
-        import shutil
-        shutil.copy2(plain, dest)
-        result = dest.exists()
-    plain.unlink(missing_ok=True)
-    return result
+    pal     = random.choice(palettes)
+    bg_hex  = pal.get("bg", "4F46E5")
+    tc_hex  = pal.get("title", "FFE600")   # title / accent colour
+    bc_hex  = pal.get("body",  "FFFFFF")   # body text colour
+
+    # ── Pick a random CTA phrase ─────────────────────────────────────────────
+    phrases = client_profile.get("cta_phrases", ["Visit us today"])
+    cta     = random.choice(phrases)
+
+    # ── Contact info (non-BootHop only) ─────────────────────────────────────
+    phone   = client_profile.get("phone", "")
+    email   = client_profile.get("contact_email", "")
+    website = (client_profile.get("website", "")
+               .replace("https://www.", "").replace("https://", ""))
+    brand   = client_profile.get("brand_name", "")
+
+    png = dest.parent / (dest.stem + "_end.png")
+    try:
+        from PIL import Image, ImageDraw
+
+        img  = Image.new("RGB", (W, H), _hex_to_rgb(bg_hex))
+        draw = ImageDraw.Draw(img)
+
+        tc = _hex_to_rgb(tc_hex)
+        bc = _hex_to_rgb(bc_hex)
+
+        # ── Lesson text (upper ~40% of frame) ───────────────────────────────
+        lesson_clean = (lesson
+                        .replace("’", "").replace("‘", "").replace("’", "")
+                        .replace("—", "-").replace("–", "-"))
+        lesson_lines = _split_lines(lesson_clean, 26, 3)
+        ft_lesson    = _load_pil_font("title", 66)
+        n            = len(lesson_lines)
+        line_gap     = 90
+        y_lesson     = int(H * 0.12)
+        for i, ln in enumerate(lesson_lines):
+            _pil_draw_centered(draw, ln, y_lesson + i * line_gap, ft_lesson, tc, shadow=True)
+
+        # ── Divider ──────────────────────────────────────────────────────────
+        div_y = int(H * 0.48)
+        draw.rectangle([(80, div_y), (W - 80, div_y + 4)], fill=_hex_to_rgb(tc_hex))
+
+        # ── CTA phrase ───────────────────────────────────────────────────────
+        ft_cta = _load_pil_font("body", 42)
+        _pil_draw_centered(draw, cta, int(H * 0.54), ft_cta, bc, shadow=False)
+
+        # ── Brand + contact (BootHop: just website; others: full contact) ───
+        ft_brand   = _load_pil_font("title", 72)
+        ft_contact = _load_pil_font("body",  38)
+        ft_small   = _load_pil_font("body",  32)
+
+        if client == "boothop" or not client:
+            _pil_draw_centered(draw, brand,   int(H * 0.64), ft_brand,   tc, shadow=True)
+            _pil_draw_centered(draw, website, int(H * 0.76), ft_contact, bc, shadow=False)
+        else:
+            _pil_draw_centered(draw, brand,   int(H * 0.62), ft_brand,   tc, shadow=True)
+            if phone:
+                _pil_draw_centered(draw, phone, int(H * 0.72), ft_contact, bc, shadow=False)
+            if email:
+                _pil_draw_centered(draw, email, int(H * 0.80), ft_small,   bc, shadow=False)
+            if website:
+                _pil_draw_centered(draw, website, int(H * 0.87), ft_small, tc, shadow=False)
+
+        img.save(str(png))
+        ok = _pil_png_to_video(png, dest, duration)
+        png.unlink(missing_ok=True)
+        return ok
+
+    except Exception as e:
+        print(f"    [EndCard] PIL error: {e} — plain fallback")
+        png.unlink(missing_ok=True)
+        ok = _ff(
+            "-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x{bg_hex}:rate={VIDEO_FPS}",
+            "-t", str(duration), "-c:v", "libx264", "-crf", "20",
+            "-preset", "fast", "-pix_fmt", "yuv420p", "-an", str(dest),
+        )
+        return ok and dest.exists() and dest.stat().st_size > 5000
 
 
 def _add_progress_bar(src: Path, dest: Path) -> bool:
@@ -992,7 +1259,7 @@ def _add_logo(src: Path, logo: Path, dest: Path) -> bool:
     return _ff(
         "-i", str(src), "-i", str(logo),
         "-filter_complex",
-        f"[1:v]scale=180:-1[logo];[0:v][logo]overlay=W-180-20:20",
+        f"[1:v]scale=180:-1[logo];[0:v][logo]overlay=W-180-20:160",
         "-c:v", "libx264", "-crf", "20", "-preset", "fast",
         "-c:a", "copy", str(dest),
     )
@@ -1103,8 +1370,28 @@ def render_video(content: dict, slot: int, output_path: str,
     # Reset per-render user clip state so each video starts fresh
     setattr(render_video, "_used_user_clips_this_run", set())
     setattr(render_video, "_user_clip_count_this_run", 0)
+    setattr(render_video, "_used_user_beat_types_this_run", set())
 
-    pillar  = content.get("pillar", "community")
+    pillar      = content.get("pillar", "community")
+    top_caption = content.get("top_caption", "")
+    _client     = content.get("client", "boothop")
+    _is_car     = (_client == "g-inspired")
+    _is_boothop = (_client == "boothop" or not _client)
+    _car_data   = content.get("car", {})
+
+    # user_clips_disabled: skip assets/user_clips folder entirely for this client.
+    # Set "user_clips_disabled": true in client_profile.json to stop repeating
+    # supplied photos/videos. Set to false to re-enable whenever ready.
+    _user_clips_disabled = False
+    if _is_boothop:
+        _cp_check_path = Path(__file__).parent.parent / "client_profile.json"
+        try:
+            _cp_check = json.loads(_cp_check_path.read_text(encoding="utf-8"))
+            _user_clips_disabled = bool(_cp_check.get("user_clips_disabled", False))
+            if _user_clips_disabled:
+                print(f"  [UserClips] Disabled until further notice — using AI/stock only")
+        except Exception:
+            pass
     # V2 uses alternate hook/lesson/queries if Claude generated them; falls back to V1 fields
     is_v2   = (version == "v2")
     hook    = content.get("hook_v2" if is_v2 else "hook", content.get("hook", ""))
@@ -1152,12 +1439,15 @@ def render_video(content: dict, slot: int, output_path: str,
         print(f"    Clip {i} [{beat}]: {query}")
 
         got_video = False
-        used_user_clips: set = getattr(render_video, "_used_user_clips_this_run", set())
-        user_clip_count: int = getattr(render_video, "_user_clip_count_this_run", 0)
+        used_user_clips: set      = getattr(render_video, "_used_user_clips_this_run", set())
+        user_clip_count: int      = getattr(render_video, "_user_clip_count_this_run", 0)
+        used_user_beat_types: set = getattr(render_video, "_used_user_beat_types_this_run", set())
 
-        # ── Priority 0: User-provided clips (beat-tagged only, capped at _USER_CLIP_CAP) ──
+        # ── Priority 0: User-provided clips ──────────────────────────────────────
+        # Skipped when user_clips_disabled=true in client_profile.json (e.g. to avoid
+        # repeating the same supplied photos). Falls through to AI/stock sources.
         user_clip = None
-        if user_clip_count < _USER_CLIP_CAP:
+        if not _user_clips_disabled and user_clip_count < _USER_CLIP_CAP and beat not in used_user_beat_types:
             user_clip = _pick_user_clip(beat, used_user_clips)
         if user_clip:
             if user_clip.suffix.lower() in (".jpg", ".jpeg", ".png"):
@@ -1172,22 +1462,49 @@ def render_video(content: dict, slot: int, output_path: str,
                     "-t", str(CLIP_DUR), "-c:v", "libx264", "-crf", "22", "-preset", "fast",
                     "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(photo_temp))
                 if photo_temp.exists():
-                    if _process_clip(photo_temp, proc, beat, text, beat_style):
+                    if _process_clip(photo_temp, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
                         used_user_clips.add(str(user_clip))
+                        used_user_beat_types.add(beat)
                         user_clip_count += 1
                         print(f"    Clip {i}: using user photo {user_clip.name}")
                     photo_temp.unlink(missing_ok=True)
             else:
                 # Video → process directly
-                if _process_clip(user_clip, proc, beat, text, beat_style):
+                if _process_clip(user_clip, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     used_user_clips.add(str(user_clip))
+                    used_user_beat_types.add(beat)
                     user_clip_count += 1
                     print(f"    Clip {i}: using user clip {user_clip.name}")
 
         setattr(render_video, "_used_user_clips_this_run", used_user_clips)
         setattr(render_video, "_user_clip_count_this_run", user_clip_count)
+        setattr(render_video, "_used_user_beat_types_this_run", used_user_beat_types)
+
+        # ── G-Inspired: DALL-E first for slot 1 (morning/premium render only) ──
+        if not got_video and _is_car and _car_data and slot == 1:
+            print(f"    Clip {i}: [car-{beat}] generating {_car_data.get('make','')}/{_car_data.get('model','')} via AI image")
+            dalle_first_raw = TEMP / f"{prefix}_dalle_{beat}_{i}.mp4"
+            _dp = _car_dalle_prompt(_car_data, beat)
+            if _dalle_image_as_clip(beat, query, dalle_first_raw, dalle_prompt=_dp):
+                if _process_clip(dalle_first_raw, proc, beat, text, beat_style, top_caption=top_caption):
+                    got_video = True
+                    try: report_hit(query, f"dalle_car_{beat}")
+                    except Exception: pass
+            dalle_first_raw.unlink(missing_ok=True)
+
+        # ── BootHop: DALL-E first for slot 1 (morning/premium render only) ──
+        if not got_video and _is_boothop and slot == 1:
+            print(f"    Clip {i}: [bh-{beat}] generating BootHop scene via AI image")
+            bh_dalle_raw = TEMP / f"{prefix}_bh_{beat}_{i}.mp4"
+            _dp = _bh_dalle_prompt(beat, content)
+            if _dalle_image_as_clip(beat, query, bh_dalle_raw, dalle_prompt=_dp):
+                if _process_clip(bh_dalle_raw, proc, beat, text, beat_style, top_caption=top_caption):
+                    got_video = True
+                    try: report_hit(query, f"dalle_bh_{beat}")
+                    except Exception: pass
+            bh_dalle_raw.unlink(missing_ok=True)
 
         clip_info = None
         if not got_video:
@@ -1197,7 +1514,7 @@ def render_video(content: dict, slot: int, output_path: str,
             used_ids.add(clip_info["id"])
             own_ids.add(clip_info["id"])
             if _download_clip(clip_info["url"], raw):
-                if _process_clip(raw, proc, beat, text, beat_style):
+                if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     try: report_hit(query, "video")
                     except Exception: pass
@@ -1207,7 +1524,7 @@ def render_video(content: dict, slot: int, output_path: str,
             print(f"    Clip {i}: falling back to Pexels photo")
             photo_raw = TEMP / f"{prefix}_photo_{i}.mp4"
             if _pexels_photo_as_clip(query, photo_raw):
-                if _process_clip(photo_raw, proc, beat, text, beat_style):
+                if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     try: report_hit(query, "photo")
                     except Exception: pass
@@ -1223,7 +1540,7 @@ def render_video(content: dict, slot: int, output_path: str,
                     used_ids.add(clip_info["id"])
                     own_ids.add(clip_info["id"])
                     if _download_clip(clip_info["url"], raw):
-                        if _process_clip(raw, proc, beat, text, beat_style):
+                        if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                             got_video = True
                             try: report_hit(alt_q, "perplexity_alt")
                             except Exception: pass
@@ -1234,13 +1551,16 @@ def render_video(content: dict, slot: int, output_path: str,
                 if not got_video:
                     photo_alt = TEMP / f"{prefix}_photo_alt_{i}.mp4"
                     if _pexels_photo_as_clip(alt_q, photo_alt):
-                        if _process_clip(photo_alt, proc, beat, text, beat_style):
+                        if _process_clip(photo_alt, proc, beat, text, beat_style, top_caption=top_caption):
                             got_video = True
                             try: report_hit(alt_q, "perplexity_alt_photo")
                             except Exception: pass
                         photo_alt.unlink(missing_ok=True)
                 if got_video:
                     break
+
+        # G-Inspired already tried DALL-E at the top of this clip loop (before Pexels).
+        # Nothing to do here for car client — fall through to Veo if still needed.
 
         if not got_video:
             # Google Veo — use the Cinematographer's pre-written video prompt
@@ -1249,7 +1569,6 @@ def render_video(content: dict, slot: int, output_path: str,
             if veo_prompts and i < len(veo_prompts):
                 veo_prompt = veo_prompts[i].get("full_prompt", "") if isinstance(veo_prompts[i], dict) else ""
             if not veo_prompt:
-                # Build a basic prompt from the query + beat context
                 beat_mood = {
                     "hook":       "dramatic tense scene medium shot",
                     "problem":    "frustrated worried scene medium shot",
@@ -1261,35 +1580,39 @@ def render_video(content: dict, slot: int, output_path: str,
             veo_raw = TEMP / f"{prefix}_veo_{i}.mp4"
             print(f"    Clip {i}: trying Google Veo")
             if _veo_video_as_clip(beat, veo_prompt, veo_raw):
-                if _process_clip(veo_raw, proc, beat, text, beat_style):
+                if _process_clip(veo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     try: report_hit(query, "veo")
                     except Exception: pass
                 veo_raw.unlink(missing_ok=True)
 
-        if not got_video:
+        if not got_video and not _is_car:
             print(f"    Clip {i}: falling back to DALL-E generation")
             dalle_raw = TEMP / f"{prefix}_dalle_{i}.mp4"
-            if _dalle_image_as_clip(beat, query, dalle_raw):
-                if _process_clip(dalle_raw, proc, beat, text, beat_style):
+            if _dalle_image_as_clip(beat, query, dalle_raw, cheap=(slot != 1)):
+                if _process_clip(dalle_raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     try: report_hit(query, "dalle")
                     except Exception: pass
                 dalle_raw.unlink(missing_ok=True)
 
         if not got_video:
-            # Final safety net — use slot-specific fallback query, relax dedup to
-            # current-run only (own_ids) so 14-day history can't exhaust the pool.
-            # Slot 2 always gets airport queries to guarantee airport-scene footage.
-            fb_bank = _AIRPORT_FALLBACKS if slot == 2 else _TRANSPORT_FALLBACKS
+            # Final safety net — client-appropriate fallback queries
+            if _is_car:
+                fb_bank = _CAR_FALLBACKS
+            elif slot == 2:
+                fb_bank = _AIRPORT_FALLBACKS
+            else:
+                fb_bank = _TRANSPORT_FALLBACKS
             transport_q = fb_bank[i % len(fb_bank)]
             print(f"    Clip {i}: safety fallback -> {transport_q}")
-            clip_info = _pexels_video(transport_q, own_ids) or _pixabay_video(transport_q, own_ids)
+            clip_info = (_pexels_video(transport_q, used_ids) or _pixabay_video(transport_q, used_ids)
+                         or _pexels_video(transport_q, own_ids) or _pixabay_video(transport_q, own_ids))
             if clip_info:
                 used_ids.add(clip_info["id"])
                 own_ids.add(clip_info["id"])
                 if _download_clip(clip_info["url"], raw):
-                    if _process_clip(raw, proc, beat, text, beat_style):
+                    if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
                         try: report_hit(transport_q, "transport_fallback")
                         except Exception: pass
@@ -1297,7 +1620,7 @@ def render_video(content: dict, slot: int, output_path: str,
             if not got_video:
                 photo_raw = TEMP / f"{prefix}_photo_fb_{i}.mp4"
                 if _pexels_photo_as_clip(transport_q, photo_raw):
-                    if _process_clip(photo_raw, proc, beat, text, beat_style):
+                    if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
                         try: report_hit(transport_q, "transport_photo_fallback")
                         except Exception: pass
@@ -1305,8 +1628,8 @@ def render_video(content: dict, slot: int, output_path: str,
             # Try DALL-E with the fallback query as a final visual rescue
             if not got_video:
                 dalle_fb = TEMP / f"{prefix}_dalle_fb_{i}.mp4"
-                if _dalle_image_as_clip(beat, transport_q, dalle_fb):
-                    if _process_clip(dalle_fb, proc, beat, text, beat_style):
+                if _dalle_image_as_clip(beat, transport_q, dalle_fb, cheap=(slot != 1)):
+                    if _process_clip(dalle_fb, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
                     dalle_fb.unlink(missing_ok=True)
 
@@ -1323,7 +1646,7 @@ def render_video(content: dict, slot: int, output_path: str,
                     "-t", str(CLIP_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
                     str(placeholder_src))
             if placeholder_src.exists():
-                _process_clip(placeholder_src, proc, beat, text, beat_style)
+                _process_clip(placeholder_src, proc, beat, text, beat_style, top_caption=top_caption)
                 placeholder_src.unlink(missing_ok=True)
             if not proc.exists():
                 _ff("-f", "lavfi", "-i",
@@ -1336,69 +1659,30 @@ def render_video(content: dict, slot: int, output_path: str,
         else:
             print(f"    WARNING: clip {i} missing after all fallbacks — skipping from concat")
 
-    # Lesson card
-    lesson_card = TEMP / f"{prefix}_lesson.mp4"
-    print("    Making lesson card...")
-    _make_lesson_card(lesson, hook, pillar, lesson_card)
-    if not lesson_card.exists() or lesson_card.stat().st_size < 5000:
-        print("    WARNING: lesson card failed — generating branded fallback")
-        # Two-pass branded fallback: indigo card + lesson text + URL
-        _lc_plain = TEMP / f"{prefix}_lc_plain.mp4"
-        _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x4F46E5:rate={VIDEO_FPS}",
-            "-t", str(LESSON_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p", str(_lc_plain))
-        if _lc_plain.exists():
-            _font_t = _font("title"); _font_b = _font("body")
-            _lesson_esc = _esc(lesson)[:60]
-            _ff("-i", str(_lc_plain), "-vf",
-                f"drawtext=fontfile='{_font_t}':text='THE LESSON':fontsize=36:"
-                f"fontcolor=0xFFFFFF@0.7:x=(w-text_w)/2:y=h*0.26,"
-                f"drawtext=fontfile='{_font_t}':text='{_lesson_esc}':fontsize=56:"
-                f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2:"
-                f"shadowcolor=0x000000@0.7:shadowx=3:shadowy=3,"
-                f"drawtext=fontfile='{_font_b}':text='boothop.com':fontsize=42:"
-                f"fontcolor=0xFFFFFF@0.9:x=(w-text_w)/2:y=h*0.74",
-                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-                "-pix_fmt", "yuv420p", "-an", str(lesson_card))
-            _lc_plain.unlink(missing_ok=True)
-        if not lesson_card.exists() or lesson_card.stat().st_size < 5000:
-            # Bare minimum plain color if text overlay also fails
-            _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x4F46E5:rate={VIDEO_FPS}",
-                "-t", str(LESSON_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p", str(lesson_card))
-    if lesson_card.exists() and lesson_card.stat().st_size > 5000:
-        proc_clips.append(str(lesson_card))
-    else:
-        print("    ERROR: lesson card completely failed — omitting from concat")
+    # ── Detect client + load client profile for end card ─────────────────────
+    _client     = content.get("client", "boothop")
+    _is_boothop = (_client == "boothop" or not _client)
 
-    # Brand end card (reuse FIG4End.png from main pipeline)
-    brand_card = TEMP / f"{prefix}_brand.mp4"
-    if FIG_END.exists():
-        _ff(
-            "-loop", "1", "-i", str(FIG_END),
-            "-t", str(BRAND_DUR),
-            "-vf", f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1",
-            "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(brand_card),
-        )
-    else:
-        # Two-pass brand card (plain colour ' overlay text via -vf, same as lesson card)
-        _plain = TEMP / f"{prefix}_brand_plain.mp4"
-        _ff("-f", "lavfi", "-i", f"color=size={W}x{H}:color=0x0F172A:rate={VIDEO_FPS}",
-            "-t", str(BRAND_DUR), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-            str(_plain))
-        if _plain.exists():
-            _ff("-i", str(_plain),
-                "-vf", (f"drawtext=fontfile='{_font('title')}':text='BootHop':fontsize=90:"
-                        f"fontcolor=0xFFE600:x=(w-text_w)/2:y=(h-th)/2-30,"
-                        f"drawtext=fontfile='{_font('body')}':text='boothop.com':fontsize=42:"
-                        f"fontcolor=0xFFFFFF:x=(w-text_w)/2:y=(h-th)/2+70"),
-                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
-                "-pix_fmt", "yuv420p", "-an", str(brand_card))
-            _plain.unlink(missing_ok=True)
+    # Load client profile (local client folder first, then OTB shared copy)
+    import os as _os
+    _client_base = _os.environ.get("OTB_CLIENT_BASE")
+    _cp_local    = Path(_client_base) / "client_profile.json" if _client_base else None
+    _cp_shared   = Path(__file__).parent.parent / ("client_profile.json" if _is_boothop
+                   else f"client_profiles/{_client}.json")
+    _cp_path     = (_cp_local if _cp_local and _cp_local.exists() else _cp_shared)
+    try:
+        _cp = json.loads(_cp_path.read_text(encoding="utf-8"))
+    except Exception:
+        _cp = {}
 
-    if brand_card.exists() and brand_card.stat().st_size > 5000:
-        proc_clips.append(str(brand_card))
+    # ── Merged end card (lesson takeaway + CTA, 10 seconds, dynamic colour) ──
+    end_card = TEMP / f"{prefix}_end.mp4"
+    print("    Making end card...")
+    _make_merged_end_card(lesson, _client, _cp, end_card)
+    if end_card.exists() and end_card.stat().st_size > 5000:
+        proc_clips.append(str(end_card))
     else:
-        print("    WARNING: brand card missing — omitting from concat")
+        print("    WARNING: end card failed — omitting from concat")
 
     # Safety: remove any paths that don't exist before concat
     proc_clips = [p for p in proc_clips if Path(p).exists() and Path(p).stat().st_size > 5000]
@@ -1417,9 +1701,14 @@ def render_video(content: dict, slot: int, output_path: str,
     _add_progress_bar(joined, with_bar)
     joined.unlink(missing_ok=True)
 
-    print("    Adding logo...")
-    _add_logo(with_bar, LOGO_PATH, with_logo)
-    with_bar.unlink(missing_ok=True)
+    # Logo: BootHop only — non-BootHop clients get their own branding in the CTA card
+    if _is_boothop:
+        print("    Adding logo...")
+        _add_logo(with_bar, LOGO_PATH, with_logo)
+        with_bar.unlink(missing_ok=True)
+    else:
+        import shutil
+        shutil.move(str(with_bar), str(with_logo))
 
     print("    Adding music...")
     exclude_music = content.get("_v1_music_track")   # set by pipeline after V1 render

@@ -1,28 +1,22 @@
 """
 OTB_Pipeline — Daily trending music fetcher
-Downloads 4 slot-specific music tracks every morning before Slot 1 runs.
 
 Priority chain per slot:
-  1. Nigeria YouTube trending     (Afrobeats / Naija chart — primary audience)
-  2. UK Grime / Afroswing         (UK diaspora second audience)
-  3. US R&B / Neo Soul            (Slot 1 + 4 only — broad appeal)
-  4. Amapiano                     (Slot 3 — evening energy)
-  5. Archive fallback             (music/archive/ — royalty-free library)
+  1. SoundCloud genre search  (direct search — no YouTube, no cookies, no auth)
+  2. Archive fallback         (music/archive/ — royalty-free library)
 
-Output (4 slot-specific files):
-  music/daily/track_1.mp3 -> Slot 1  7:00am  morning commute
-  music/daily/track_2.mp3 -> Slot 2  12:00pm lunch scroll
-  music/daily/track_3.mp3 -> Slot 3  17:30   evening peak
-  music/daily/track_4.mp3 -> Slot 4  20:30   night scroll
+SoundCloud via yt-dlp scsearch: requires no authentication.
+YouTube downloads removed — they require browser cookies since mid-2026.
 
-Hook extraction: librosa finds the highest-energy 30-second window (the drop/chorus).
-Falls back to ffmpeg trim from 30s if librosa unavailable.
+Output:
+  music/daily/track_1.mp3 -> Slot 1  08:00 morning
+  music/daily/track_2.mp3 -> Slot 2  14:00 afternoon
+  music/daily/track_3.mp3 -> Slot 3  21:00 evening
 
 14-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
-Scheduled: daily at 06:00 via Task Scheduler (OTB-MusicRefresh), before Slot 1.
 """
 
-import json, subprocess, shutil, sys
+import json, subprocess, shutil, sys, os, platform as _platform
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -32,13 +26,13 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
 BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 
-from config import DATA, MUSIC_ARCHIVE
-try:
-    from config import YOUTUBE_API_KEY
-except ImportError:
-    YOUTUBE_API_KEY = ""
+# Ensure FFmpeg is on PATH so yt-dlp postprocessors work
+if _platform.system() == "Windows":
+    for _fp in [r"C:\ffmpeg\bin", r"C:\ffmpeg", r"C:\Program Files\ffmpeg\bin"]:
+        if Path(_fp).exists() and _fp not in os.environ.get("PATH", ""):
+            os.environ["PATH"] = _fp + os.pathsep + os.environ.get("PATH", "")
 
-import requests as _req
+from config import DATA, MUSIC_ARCHIVE
 
 DAILY_DIR = BASE / "music" / "daily"
 ARCHIVE   = MUSIC_ARCHIVE
@@ -50,24 +44,50 @@ DAILY_DIR.mkdir(parents=True, exist_ok=True)
 ARCHIVE.mkdir(parents=True, exist_ok=True)
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 
-UK_GRIND_KW = [
-    "drill", "grind", "urban", "grime", "afroswing", "afrobeats uk",
-    "central cee", "stormzy", "dave ", "skepta", "headie",
-    "little simz", "pa salieu", "ghetts", "russ millions",
-]
-US_RNB_KW = [
-    "rnb", "r&b", "neo soul", "usher", "sza", "frank ocean",
-    "h.e.r.", "summer walker", "brent faiyaz", "giveon", "jhene aiko",
-    "anderson paak", "daniel caesar", "khalid", "lucky daye",
-]
-AMAPIANO_KW = [
-    "amapiano", "log drum", "piano afro", "amapiano 2025", "amapiano 2026",
-    "kabza", "dj maphorisa", "focalistic", "daliwonga",
-]
+
+# ── Per-slot SoundCloud search queries ────────────────────────────────────────
+# Multiple queries per slot → tried in order until one downloads successfully.
+# Queries are genre/vibe based — no YouTube dependency, no cookies needed.
+
+SLOT_QUERIES = {
+    # IMPORTANT: Use artist-name searches, not genre-name searches.
+    # Genre searches ("afrobeats 2026") return mixes (7000s+), which are filtered
+    # by --match-filter duration < 600 and waste a download attempt.
+    # Artist searches ("Victony 2026") reliably return single tracks (2-4 min).
+
+    1: [  # Morning 08:00 — Afrobeats energy
+        "Victony 2026",
+        "Rema official 2026",
+        "Asake 2026 official",
+        "Ayra Starr 2026",
+        "Ckay 2026 official",
+        "Fireboy DML 2026",
+        "Tems 2026 official",
+    ],
+    2: [  # Afternoon 14:00 — Naija / Afroswing
+        "Wizkid 2026 official",
+        "Burna Boy 2026 official",
+        "Davido 2026 official",
+        "Omah Lay 2026",
+        "Oxlade 2026 official",
+        "Fave 2026",
+        "Ruger 2026 official",
+    ],
+    3: [  # Evening 21:00 — Amapiano / chill Afrobeats
+        "Focalistic 2026",
+        "Kabza De Small 2026",
+        "Amapiano 2025 official",
+        "DJ Maphorisa 2025",
+        "Blaqbonez 2026",
+        "Zinoleesky 2026",
+        "Kizz Daniel 2026",
+    ],
+}
 
 
 # ── Music log helpers ──────────────────────────────────────────────────────────
-def _load_log():
+
+def _load_log() -> list:
     if MUSIC_LOG.exists():
         try:
             return json.loads(MUSIC_LOG.read_text(encoding="utf-8"))
@@ -75,12 +95,14 @@ def _load_log():
             pass
     return []
 
-def _save_log(entry):
+
+def _save_log(entry: dict):
     log = _load_log()
     log.append(entry)
     MUSIC_LOG.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
 
-def _used_recently(title, days=14):
+
+def _used_recently(title: str, days: int = 14) -> bool:
     log    = _load_log()
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     return any(
@@ -89,51 +111,19 @@ def _used_recently(title, days=14):
     )
 
 
-# ── YouTube helpers ────────────────────────────────────────────────────────────
-def _yt_trending(region="NG", max_results=15):
-    if not YOUTUBE_API_KEY:
-        return []
-    try:
-        r = _req.get(
-            "https://www.googleapis.com/youtube/v3/videos",
-            params={"part": "snippet", "chart": "mostPopular",
-                    "regionCode": region, "videoCategoryId": "10",
-                    "maxResults": max_results, "key": YOUTUBE_API_KEY},
-            timeout=10,
-        )
-        if r.ok:
-            return [{"title": i["snippet"]["title"],
-                     "channel": i["snippet"]["channelTitle"],
-                     "video_id": i["id"]}
-                    for i in r.json().get("items", [])]
-    except Exception as e:
-        print(f"  [Music] YT trending error ({region}): {e}")
-    return []
-
-def _yt_search(query, max_results=6):
-    if not YOUTUBE_API_KEY:
-        return []
-    try:
-        r = _req.get(
-            "https://www.googleapis.com/youtube/v3/search",
-            params={"part": "snippet", "q": query, "type": "video",
-                    "videoCategoryId": "10", "order": "relevance",
-                    "maxResults": max_results, "key": YOUTUBE_API_KEY},
-            timeout=10,
-        )
-        if r.ok:
-            return [{"title": i["snippet"]["title"],
-                     "channel": i["snippet"]["channelTitle"],
-                     "video_id": i["id"]["videoId"]}
-                    for i in r.json().get("items", [])]
-    except Exception as e:
-        print(f"  [Music] YT search error: {e}")
-    return []
+def _used_yesterday(title: str) -> bool:
+    log    = _load_log()
+    cutoff = (datetime.now() - timedelta(days=2)).isoformat()
+    return any(
+        e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
+        for e in log
+    )
 
 
 # ── Hook extraction ────────────────────────────────────────────────────────────
+
 def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
-    """Find highest-energy 30s window. Falls back to ffmpeg trim if librosa absent."""
+    """Find highest-energy window. Falls back to ffmpeg trim if librosa absent."""
     try:
         import librosa
         import numpy as np
@@ -141,7 +131,6 @@ def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
 
         y, sr    = librosa.load(str(src_path), duration=210, mono=True)
         rms      = librosa.feature.rms(y=y, frame_length=2048, hop_length=512)[0]
-        # Smooth over ~3s
         from scipy.ndimage import uniform_filter1d
         smoothed = uniform_filter1d(rms, size=60)
         s_start  = int(len(smoothed) * 0.20)
@@ -162,12 +151,13 @@ def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
         return True
 
     except ImportError:
-        # ffmpeg fallback — trim from 30s into track with dynamic fade
         try:
+            src_dur = _get_duration(src_path)
+            trim_start = max(0, min(30, src_dur - duration_s - 1)) if src_dur > duration_s else 0
             fade_out_st = max(0, duration_s - 1.5)
             res = subprocess.run(
                 ["ffmpeg", "-y", "-i", str(src_path),
-                 "-ss", "30", "-t", str(duration_s),
+                 "-ss", str(trim_start), "-t", str(duration_s),
                  "-af", f"afade=t=in:st=0:d=0.5,afade=t=out:st={fade_out_st}:d=1.5",
                  "-b:a", "192k", str(out_path)],
                 capture_output=True, timeout=60,
@@ -181,12 +171,25 @@ def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
         return False
 
 
+def _get_duration(path: Path) -> float:
+    """Return audio duration in seconds using ffprobe."""
+    try:
+        r = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(path)],
+            capture_output=True, text=True, timeout=10,
+        )
+        return float(json.loads(r.stdout).get("format", {}).get("duration", 60))
+    except Exception:
+        return 60.0
+
+
 # ── Volume guard ───────────────────────────────────────────────────────────────
+
 def _has_audio(path: Path, min_db: float = -60.0) -> bool:
-    """Return False if the track is silent (mean volume below min_db)."""
     try:
         res = subprocess.run(
-            ["ffmpeg", "-i", str(path), "-af", "volumedetect", "-f", "null", "NUL"],
+            ["ffmpeg", "-i", str(path), "-af", "volumedetect", "-f", "null",
+             "NUL" if _platform.system() == "Windows" else "/dev/null"],
             capture_output=True, text=True, timeout=30,
         )
         for line in res.stderr.splitlines():
@@ -195,185 +198,114 @@ def _has_audio(path: Path, min_db: float = -60.0) -> bool:
                 return val > min_db
     except Exception:
         pass
-    return True  # assume ok if ffmpeg fails
+    return True
 
 
-# ── Downloader ─────────────────────────────────────────────────────────────────
-def _download_soundcloud(query: str, raw_out: Path) -> bool:
+# ── SoundCloud downloader ──────────────────────────────────────────────────────
+
+def _download_soundcloud(query: str, raw_out: Path) -> dict | None:
+    """
+    Search SoundCloud for a track matching query and download it.
+    Uses yt-dlp scsearch — no cookies, no YouTube, no auth required.
+    Returns metadata dict on success, None on failure.
+    """
     TMP_DIR.mkdir(parents=True, exist_ok=True)
     for f in TMP_DIR.iterdir():
         try: f.unlink()
         except Exception: pass
 
-    try:
-        import yt_dlp
-        opts = {
-            "format": "bestaudio/best",
-            "outtmpl": str(TMP_DIR / "track.%(ext)s"),
-            "quiet": True, "no_warnings": True,
-            "default_search": "scsearch1",
-            "postprocessors": [{"key": "FFmpegExtractAudio",
-                                "preferredcodec": "mp3", "preferredquality": "192"}],
-        }
-        with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([f"scsearch1:{query}"])
-    except Exception as e:
-        if "WinError 32" not in str(e) and "being used by another process" not in str(e):
-            print(f"    [SC] {str(e)[:80]}")
-
-    mp3 = TMP_DIR / "track.mp3"
-    if mp3.exists() and mp3.stat().st_size > 50_000:
-        try:
-            mp3.rename(raw_out); return True
-        except Exception:
-            shutil.copy2(str(mp3), str(raw_out)); return True
-    mp3s = [f for f in TMP_DIR.glob("*.mp3") if f.stat().st_size > 50_000]
-    if mp3s:
-        try: mp3s[0].rename(raw_out)
-        except Exception: shutil.copy2(str(mp3s[0]), str(raw_out))
-        return True
-    return False
-
-def _download_youtube(video_id: str, raw_out: Path) -> bool:
-    tmp = str(raw_out).replace(".mp3", "_ytdl")
-    url = (f"https://www.youtube.com/watch?v={video_id}"
-           if not video_id.startswith("ytsearch") else video_id)
+    tmp_out = str(TMP_DIR / "sc_track.%(ext)s")
     try:
         res = subprocess.run(
-            ["yt-dlp", "--no-playlist", "--extract-audio", "--audio-format", "mp3",
-             "--audio-quality", "192K", "-o", f"{tmp}.%(ext)s",
-             "--quiet", "--no-warnings", url],
+            ["yt-dlp",
+             "--no-playlist",
+             "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K",
+             "--max-filesize", "12m",         # skip albums/mixes (>12MB raw)
+             "--match-filter", "duration < 600",  # skip anything over 10 min
+             "--print", "%(title)s|||%(uploader)s",  # print metadata before downloading
+             "--no-simulate",                 # --print implies simulate in newer yt-dlp; force actual download
+             "-o", tmp_out,
+             "--quiet", "--no-warnings",
+             f"scsearch1:{query}"],
             timeout=120, capture_output=True, text=True,
         )
-        tmp_mp3 = Path(f"{tmp}.mp3")
-        if res.returncode == 0 and tmp_mp3.exists():
-            tmp_mp3.rename(raw_out); return True
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        pass
-    return False
-
-
-def _try_track(item: dict, source_label: str, slot_out: Path, used_titles: set):
-    title = item.get("title", "")
-    if _used_recently(title) or title in used_titles:
-        print(f"    Skip (recent/used): {title[:55]}")
+    except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+        print(f"    [SC] Timeout/missing yt-dlp: {e}")
         return None
-    vid   = item.get("video_id", "")
-    query = f"{item.get('channel', '')} {title}"
-    raw   = TMP_DIR / "raw_download.mp3"
-    print(f"    Trying: {title[:60]}")
-    ok = _download_soundcloud(query, raw) or _download_youtube(vid, raw)
-    if not ok:
-        return None
-    hooked = _extract_hook(raw, slot_out, duration_s=60)
-    raw.unlink(missing_ok=True)
-    if hooked or slot_out.exists():
-        if not _has_audio(slot_out):
-            print(f"    Skip (silent output): {title[:55]}")
-            slot_out.unlink(missing_ok=True)
+
+    # Extract printed title/uploader from stdout
+    title, artist = query, "SoundCloud"
+    if res.stdout:
+        for line in res.stdout.strip().splitlines():
+            if "|||" in line:
+                parts = line.split("|||", 1)
+                title  = parts[0].strip() or query
+                artist = parts[1].strip() or "SoundCloud"
+                break
+
+    # Find downloaded mp3
+    mp3 = TMP_DIR / "sc_track.mp3"
+    if not mp3.exists():
+        mp3s = [f for f in TMP_DIR.glob("*.mp3") if f.stat().st_size > 50_000]
+        if not mp3s:
             return None
-        return {"title": title, "artist": item.get("channel", "?"),
-                "source": source_label, "logged_at": datetime.now().isoformat()}
-    return None
+        mp3 = mp3s[0]
+
+    if mp3.stat().st_size < 50_000:
+        return None
+
+    if _used_recently(title):
+        print(f"    [SC] Skip (used recently): {title[:55]}")
+        mp3.unlink(missing_ok=True)
+        return None
+
+    try:
+        shutil.copy2(str(mp3), str(raw_out))
+        mp3.unlink(missing_ok=True)
+        return {"title": title, "artist": artist, "source": "soundcloud"}
+    except Exception as e:
+        print(f"    [SC] Copy failed: {e}")
+        return None
 
 
-def _used_yesterday(title: str) -> bool:
-    log    = _load_log()
-    cutoff = (datetime.now() - timedelta(days=2)).isoformat()
-    return any(
-        e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
-        for e in log
-    )
+# ── Archive fallback ───────────────────────────────────────────────────────────
 
-def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set):
+def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set) -> dict | None:
     tracks = sorted(list(ARCHIVE.glob("*.mp3")) + list(ARCHIVE.glob("*.m4a")))
     if not tracks:
         return None
     day = datetime.now().timetuple().tm_yday
-    # First pass: respect 14-day AND yesterday dedup, skip silent files
+    # First pass: respect 14-day + yesterday dedup
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
         if not _used_recently(t.stem) and not _used_yesterday(t.stem) and t.stem not in used_titles:
             if not _has_audio(t):
-                print(f"    Skip silent archive: {t.name}")
                 continue
             shutil.copy2(str(t), str(slot_out))
-            return {"title": t.stem, "artist": "archive",
-                    "source": "archive", "logged_at": datetime.now().isoformat()}
-    # Second pass: only block yesterday (ignore 14-day to avoid total stall)
+            return {"title": t.stem, "artist": "archive", "source": "archive"}
+    # Second pass: only block yesterday
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
         if not _used_yesterday(t.stem) and t.stem not in used_titles:
             if not _has_audio(t):
                 continue
             shutil.copy2(str(t), str(slot_out))
-            return {"title": t.stem, "artist": "archive",
-                    "source": "archive", "logged_at": datetime.now().isoformat()}
-    # Final fallback: any track with actual audio
+            return {"title": t.stem, "artist": "archive", "source": "archive"}
+    # Final: any audible track
     for t in tracks:
         if _has_audio(t):
             shutil.copy2(str(t), str(slot_out))
-            return {"title": t.stem, "artist": "archive",
-                    "source": "archive", "logged_at": datetime.now().isoformat()}
+            return {"title": t.stem, "artist": "archive", "source": "archive"}
     return None
 
 
-# ── Per-slot candidate pool ────────────────────────────────────────────────────
-def _build_pool(slot_num: int):
-    """
-    Build ordered candidate list for a slot.
-    Slot 1 (7am) morning: Nigeria + UK + US RnB
-    Slot 2 (12pm) lunch:  Nigeria pick #2
-    Slot 3 (5:30pm) eve:  UK Grind + Amapiano
-    Slot 4 (8:30pm) night:Nigeria + US RnB (night energy)
-    """
-    pool = []
-
-    if slot_num in (1, 2, 4):
-        for item in _yt_trending(region="NG", max_results=15):
-            pool.append((item, "nigeria"))
-        for q in ("Nigeria afrobeats trending 2026", "Naija music trending afrobeats 2025"):
-            for item in _yt_search(q, max_results=5):
-                pool.append((item, "nigeria_search"))
-
-    if slot_num in (1, 3):
-        for item in _yt_trending(region="GB", max_results=12):
-            if any(kw in item["title"].lower() for kw in UK_GRIND_KW):
-                pool.append((item, "uk_grind"))
-        for q in ("UK Drill Grime afroswing 2026", "UK rap grime chart 2025 2026"):
-            for item in _yt_search(q, max_results=4):
-                pool.append((item, "uk_grind_search"))
-
-    if slot_num in (1, 4):
-        for item in _yt_trending(region="US", max_results=10):
-            if any(kw in item["title"].lower() for kw in US_RNB_KW):
-                pool.append((item, "us_rnb"))
-        for q in ("US RnB soul trending 2026", "neo soul smooth RnB 2025 2026"):
-            for item in _yt_search(q, max_results=4):
-                pool.append((item, "us_rnb_search"))
-
-    if slot_num in (3,):
-        for q in ("amapiano 2026 no copyright free", "amapiano log drum 2025 free"):
-            for item in _yt_search(q, max_results=5):
-                pool.append((item, "amapiano"))
-
-    return pool
-
-
 # ── Main ──────────────────────────────────────────────────────────────────────
+
 def fetch_trending_music() -> dict:
-    """
-    Download 4 daily tracks (one per slot) to music/daily/.
-    Returns summary dict.
-    """
-    print("\n[Music] Selecting today's tracks — 3 slots...")
+    """Download 3 daily tracks (one per slot). SoundCloud primary, archive fallback."""
+    print("\n[Music] Selecting today's tracks...")
 
-    SLOT_LABELS = {
-        1: "Morning  09:00",
-        2: "Afternoon 15:00",
-        3: "Night    22:00 (US prime time)",
-    }
-
+    SLOT_LABELS = {1: "Morning 08:00", 2: "Afternoon 14:00", 3: "Evening 21:00"}
     info = {"date": datetime.now().strftime("%Y-%m-%d"), "tracks": []}
     used_titles: set = set()
 
@@ -381,34 +313,41 @@ def fetch_trending_music() -> dict:
         slot_out = DAILY_DIR / f"track_{slot_num}.mp3"
         print(f"\n  [Slot {slot_num}] {SLOT_LABELS[slot_num]}")
 
-        pool = _build_pool(slot_num)
-        # Deduplicate pool by title
-        seen, deduped = set(), []
-        for (item, src) in pool:
-            t = item["title"]
-            if t not in seen:
-                seen.add(t); deduped.append((item, src))
-
         result = None
-        for (item, src) in deduped:
-            result = _try_track(item, src, slot_out, used_titles)
-            if result:
-                used_titles.add(result["title"])
+        queries = SLOT_QUERIES.get(slot_num, SLOT_QUERIES[1])
+
+        for query in queries:
+            print(f"    Trying SoundCloud: {query}")
+            raw = TMP_DIR / "raw_download.mp3"
+            meta = _download_soundcloud(query, raw)
+            if not meta:
+                continue
+
+            hooked = _extract_hook(raw, slot_out, duration_s=30)
+            raw.unlink(missing_ok=True)
+
+            if hooked and slot_out.exists() and _has_audio(slot_out):
+                result = {**meta, "logged_at": datetime.now().isoformat()}
+                used_titles.add(meta["title"])
                 _save_log(result)
-                size = slot_out.stat().st_size // 1024 if slot_out.exists() else 0
-                print(f"  [Slot {slot_num}] OK [{src}] {result['title'][:50]} ({size}KB)")
+                size = slot_out.stat().st_size // 1024
+                print(f"  [Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
                 break
+            else:
+                slot_out.unlink(missing_ok=True)
 
         if not result:
-            print(f"  [Slot {slot_num}] No online track — using archive")
+            print(f"  [Slot {slot_num}] SoundCloud failed — using archive")
             result = _archive_fallback(slot_out, slot_num, used_titles) or {}
             if result:
+                result["logged_at"] = datetime.now().isoformat()
                 used_titles.add(result.get("title", ""))
                 _save_log(result)
 
         info["tracks"].append({
             "slot":   slot_num,
             "title":  result.get("title", "?"),
+            "artist": result.get("artist", "?"),
             "source": result.get("source", "?"),
         })
 
@@ -416,10 +355,7 @@ def fetch_trending_music() -> dict:
 
     print("\n  [Music] Summary:")
     for t in info["tracks"]:
-        flag = ("NG" if "nigeria"  in t["source"] else
-                "UK" if "uk"       in t["source"] else
-                "US" if "us"       in t["source"] else
-                "AP" if "amapiano" in t["source"] else "A")
+        flag = "SC" if t["source"] == "soundcloud" else "A"
         print(f"    [{flag}] track_{t['slot']}.mp3 — {t['title'][:50]}")
 
     return info
@@ -432,9 +368,7 @@ def _already_fresh_today() -> bool:
         info = json.loads(INFO_FILE.read_text(encoding="utf-8"))
         if info.get("date") != datetime.now().strftime("%Y-%m-%d"):
             return False
-        tracks = info.get("tracks", [])
-        # Accept 3 or more tracks (code now produces 3 slots)
-        return len(tracks) >= 3
+        return len(info.get("tracks", [])) >= 3
     except Exception:
         return False
 
@@ -445,10 +379,10 @@ if __name__ == "__main__":
     else:
         fetch_trending_music()
 
-    # Pre-warm trending hashtags so Slot 1 doesn't pay the fetch cost at 7am
-    print("\n[Hashtags] Pre-warming trending hashtags for today...")
+    # Pre-warm trending hashtags
+    print("\n[Hashtags] Pre-warming trending hashtags...")
     try:
         from fetch_trending_hashtags import fetch_today as _fth
         _fth()
     except Exception as e:
-        print(f"[Hashtags] Pre-warm failed (will retry at slot time): {e}")
+        print(f"[Hashtags] Pre-warm failed: {e}")
