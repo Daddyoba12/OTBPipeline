@@ -157,6 +157,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
                     if video_id:
                         _log(f"Uploaded! video_id={video_id}")
                         _log(f"URL: https://youtube.com/shorts/{video_id}")
+                        _set_thumbnail(video_id, content, access_token)
                         _log_post(slot, video_id)
                         return video_id
                 elif r.status_code == 308:
@@ -169,6 +170,33 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
         _log(f"Upload error: {e}"); return None
 
     _log("Upload completed but no video_id received"); return None
+
+
+def _set_thumbnail(video_id: str, content: dict, access_token: str):
+    """Upload custom thumbnail to YouTube after video upload."""
+    thumb_path = content.get("youtube_thumbnail", "")
+    if not thumb_path or not Path(thumb_path).exists():
+        return
+    try:
+        with open(thumb_path, "rb") as f:
+            thumb_bytes = f.read()
+        r = requests.post(
+            f"https://www.googleapis.com/upload/youtube/v3/thumbnails/set"
+            f"?videoId={video_id}&uploadType=media",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-Type": "image/jpeg",
+                "Content-Length": str(len(thumb_bytes)),
+            },
+            data=thumb_bytes,
+            timeout=30,
+        )
+        if r.status_code in (200, 201):
+            _log(f"Thumbnail set OK for {video_id}")
+        else:
+            _log(f"Thumbnail set failed {r.status_code}: {r.text[:100]}")
+    except Exception as e:
+        _log(f"Thumbnail upload error: {e}")
 
 
 def _log_post(slot: int, video_id: str):

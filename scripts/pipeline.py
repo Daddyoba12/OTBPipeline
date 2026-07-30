@@ -432,6 +432,8 @@ def run_slot(slot: int, force: bool = False):
         _log("Posting to YouTube Shorts...")
         try:
             from post_youtube import post_video as yt_post
+            if platform_videos.get("youtube_thumbnail"):
+                content["youtube_thumbnail"] = platform_videos["youtube_thumbnail"]
             vid_id = yt_post(platform_videos.get("youtube", video_path), content, slot)
             results["youtube"] = vid_id
             _log(f"YouTube: {'OK https://youtube.com/shorts/' + vid_id if vid_id else 'FAILED'}")
