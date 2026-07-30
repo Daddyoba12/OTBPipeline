@@ -54,9 +54,11 @@ if True:
         YOUTUBE_API_KEY   = _env_pairs.get("YOUTUBE_API_KEY",   os.environ.get("YOUTUBE_API_KEY",   ""))
         OPENAI_API_KEY    = _env_pairs.get("OPENAI_API_KEY",    os.environ.get("OPENAI_API_KEY",    ""))
         PERPLEXITY_KEY    = _env_pairs.get("PERPLEXITY_KEY",    os.environ.get("PERPLEXITY_KEY",    ""))
-        ZERNIO_API_KEY    = _env_pairs.get("ZERNIO_API_KEY",    os.environ.get("ZERNIO_API_KEY",    ""))
-        ZERNIO_ACCOUNT_ID = _env_pairs.get("ZERNIO_ACCOUNT_ID", os.environ.get("ZERNIO_ACCOUNT_ID",""))
-        GMAIL_USER        = _env_pairs.get("GMAIL_USER",        os.environ.get("GMAIL_USER",        ""))
+        ZERNIO_API_KEY        = _env_pairs.get("ZERNIO_API_KEY",         os.environ.get("ZERNIO_API_KEY",         ""))
+        ZERNIO_ACCOUNT_ID     = _env_pairs.get("ZERNIO_ACCOUNT_ID",      os.environ.get("ZERNIO_ACCOUNT_ID",      ""))
+        INSTAGRAM_ACCESS_TOKEN= _env_pairs.get("INSTAGRAM_ACCESS_TOKEN",  os.environ.get("INSTAGRAM_ACCESS_TOKEN",  ""))
+        INSTAGRAM_ACCOUNT_ID  = _env_pairs.get("INSTAGRAM_ACCOUNT_ID",   os.environ.get("INSTAGRAM_ACCOUNT_ID",   ""))
+        GMAIL_USER            = _env_pairs.get("GMAIL_USER",              os.environ.get("GMAIL_USER",             ""))
         GMAIL_APP_PASSWORD= _env_pairs.get("GMAIL_APP_PASSWORD",os.environ.get("GMAIL_APP_PASSWORD",""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
@@ -72,18 +74,22 @@ if True:
             YOUTUBE_API_KEY   = getattr(_bhp, "YOUTUBE_API_KEY",   "")
             OPENAI_API_KEY    = ""
             PERPLEXITY_KEY    = ""
-            ZERNIO_API_KEY    = os.environ.get("ZERNIO_API_KEY",    "")
-            ZERNIO_ACCOUNT_ID = os.environ.get("ZERNIO_ACCOUNT_ID", "")
+            ZERNIO_API_KEY         = os.environ.get("ZERNIO_API_KEY",         "")
+            ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
+            INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
+            INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
         except Exception:
-            ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
-            PEXELS_KEY        = os.environ.get("PEXELS_KEY",        "")
-            PIXABAY_KEY       = os.environ.get("PIXABAY_KEY",       "")
-            GEMINI_API_KEY    = os.environ.get("GEMINI_API_KEY",    "")
-            YOUTUBE_API_KEY   = os.environ.get("YOUTUBE_API_KEY",   "")
-            OPENAI_API_KEY    = os.environ.get("OPENAI_API_KEY",    "")
-            PERPLEXITY_KEY    = os.environ.get("PERPLEXITY_KEY",    "")
-            ZERNIO_API_KEY    = os.environ.get("ZERNIO_API_KEY",    "")
-            ZERNIO_ACCOUNT_ID = os.environ.get("ZERNIO_ACCOUNT_ID", "")
+            ANTHROPIC_API_KEY      = os.environ.get("ANTHROPIC_API_KEY",      "")
+            PEXELS_KEY             = os.environ.get("PEXELS_KEY",             "")
+            PIXABAY_KEY            = os.environ.get("PIXABAY_KEY",            "")
+            GEMINI_API_KEY         = os.environ.get("GEMINI_API_KEY",         "")
+            YOUTUBE_API_KEY        = os.environ.get("YOUTUBE_API_KEY",        "")
+            OPENAI_API_KEY         = os.environ.get("OPENAI_API_KEY",         "")
+            PERPLEXITY_KEY         = os.environ.get("PERPLEXITY_KEY",         "")
+            ZERNIO_API_KEY         = os.environ.get("ZERNIO_API_KEY",         "")
+            ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
+            INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
+            INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
