@@ -217,9 +217,10 @@ def _bh_dalle_prompt(beat: str, content: dict) -> str:
     """Beat-specific DALL-E prompts for BootHop UK-Nigeria delivery clips."""
     scenes = {
         "hook": (
-            "A Black British woman in a bright modern UK home, smiling warmly while "
-            "carefully wrapping a gift parcel on a kitchen table. Afternoon sunlight. "
-            "Medium shot, portrait orientation."
+            "Extreme close-up of a Black British woman's face — eyes wide in shock, "
+            "staring at her phone screen which shows a large expensive courier price. "
+            "Hand raised to mouth in disbelief. Intense emotional expression, shallow "
+            "depth of field. Vertical 9:16 portrait orientation."
         ),
         "problem": (
             "A stressed Nigerian British woman at a UK Post Office counter, looking "
@@ -1441,6 +1442,10 @@ def render_video(content: dict, slot: int, output_path: str,
 
     for i in range(N_CLIPS):
         query  = _guard_query(queries[i], i)
+        # Clip 0 is the very first frame TikTok users see — force a close-up emotional face
+        # regardless of what the scene planner generated; stock video for clip 0 must grab attention
+        if i == 0:
+            query = "Black woman close up face shocked expression phone screen"
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
         raw    = TEMP / f"{prefix}_raw_{i}.mp4"
