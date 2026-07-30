@@ -1,0 +1,37 @@
+{
+  "slug": "g-inspired",
+  "brand_name": "G-Inspired Automall",
+  "niche": "used car dealership offering quality pre-owned vehicles at honest prices with no hidden fees",
+  "website": "https://www.ginspiredautomall.com",
+  "inventory_url": "https://www.cars.com/dealers/5386080/g-inspired-automall-llc/inventory/",
+  "location": "Washington, IL",
+  "phone": "(309) 713-1020",
+  "contact_email": "info@kreativerock.com",
+  "contact_name": "Ebube",
+  "industry": "automotive",
+  "social": {
+    "facebook": "https://www.facebook.com/ginspiredautomall/",
+    "tiktok": "",
+    "instagram": "",
+    "whatsapp": ""
+  },
+  "delivery": {
+    "method": "email",
+    "to": "info@kreativerock.com",
+    "cc": "",
+    "note": "Switch method to tiktok|instagram|whatsapp once credentials are provided"
+  },
+  "brand_lines": [
+    "No hidden fees. No surprises. Just honest cars.",
+    "Quality you can drive off the lot today.",
+    "Every car CARFAX checked. Every price transparent.",
+    "Good cars. Real prices. G-Inspired.",
+    "We do things different here. No fees. No games."
+  ],
+  "product": {
+    "enabled": false,
+    "name": "",
+    "price": 0,
+    "description": ""
+  }
+}
