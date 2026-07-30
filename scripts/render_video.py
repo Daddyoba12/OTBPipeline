@@ -419,14 +419,24 @@ CLIP_BEAT = [
 ]
 
 
-def _ff(*args, timeout=600):
+def _ff(*args, timeout=1200):
     cmd = ["ffmpeg", "-y"] + list(args)
     env = os.environ.copy()
     # Suppress fontconfig "Cannot load default config" warning on Windows.
     # NUL is the Windows null device — on Linux use /dev/null instead.
     _null = "NUL" if os.name == "nt" else "/dev/null"
     env.setdefault("FONTCONFIG_FILE", _null)
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, env=env)
+    except subprocess.TimeoutExpired:
+        print(f"  [FFmpeg] TIMEOUT after {timeout}s — killing hung process: {' '.join(cmd[-6:])}")
+        try:
+            _kill = "taskkill" if os.name == "nt" else "killall"
+            _args = (["/F", "/IM", "ffmpeg.exe"] if os.name == "nt" else ["ffmpeg"])
+            subprocess.run([_kill] + _args, capture_output=True, timeout=5)
+        except Exception:
+            pass
+        return False
     if r.returncode != 0:
         print(f"  [FFmpeg] {' '.join(cmd[-6:])}")
         print(f"  [FFmpeg] stderr: {r.stderr[-400:]}")
