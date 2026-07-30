@@ -16,7 +16,7 @@ Visual query safety — 3 layers applied after Stage 4:
 """
 
 import json, re, sys, random
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -164,7 +164,13 @@ TIKTOK_PILLAR = {
     "travel_hacks":       ["#TravelHacks", "#TravelTips", "#PackingTips", "#SaveMoney", "#TravelSmart"],
     "logistics_stories":  ["#LogisticsLife", "#SupplyChain", "#DeliveryStories", "#CourierLife", "#LastMile"],
     "airport_deliveries": ["#AirportDelivery", "#CustomsLife", "#AirportDrama", "#FreightLife", "#Airside"],
-    "supply_chain":       ["#SupplyChain", "#Logistics", "#BusinessTips", "#OperationsLife", "#TradeRoutes"],
+    "courier_business":   ["#CourierBusiness", "#LogisticsJobs", "#DeliveryBusiness", "#CourierUK", "#FreightUK"],
+    "personal_shopper":   ["#PersonalShopper", "#ShopForMe", "#DubaiToLagos", "#LondonToLagos", "#ShoppingHaul"],
+    "multi_courier":          ["#BusinessLogistics", "#CourierOptions", "#SMEUk", "#ShippingBusiness", "#BootHopBusiness"],
+    "faith_friday":           ["#FaithFriday", "#WayMaker", "#GodProvides", "#PrayerLine", "#SundayBlessings"],
+    "celebration_weekend":    ["#WeekendVibes", "#CelebrationSzn", "#AfrobeatsUK", "#NigerianWedding", "#PartyHard"],
+    "flight_discovery":       ["#CheapFlights", "#FlightDeals", "#UKToNigeria", "#LagosFlights", "#BootHopFlights"],
+    "supply_chain":           ["#SupplyChain", "#Logistics", "#BusinessTips", "#OperationsLife", "#TradeRoutes"],
 }
 
 INSTAGRAM_TAGS = {
@@ -175,7 +181,13 @@ INSTAGRAM_TAGS = {
     "travel_hacks":       "#BootHop #TravelHacks #TravelTips #PackingTips #SaveMoney #TravelSmart #SameDayDelivery #DiasporaMagic #LondonToLagos #UKNigeria #AbroadLife #NaijaUK #UrgentDelivery #TravelLife #HumanLogistics #SmartTravel #DiasporaLife #AfricanDiaspora #UKtoNigeria #TravelInspo",
     "logistics_stories":  "#BootHop #LogisticsLife #SupplyChain #DeliveryStories #CourierLife #LastMile #FreightLife #ShippingLogistics #LogisticsUK #DiasporaMagic #LondonToLagos #SameDayDelivery #Logistics2024 #TradingLife #NaijaUK #HumanLogistics #BusinessUK #UrgentDelivery #TradeUK #GlobalLogistics",
     "airport_deliveries": "#BootHop #AirportDelivery #CustomsLife #AirportDrama #FreightLife #AirsideLife #CargoLife #AirportLogistics #DiasporaMagic #LondonToLagos #SameDayDelivery #NaijaUK #UrgentDelivery #AirportStories #DeliveryLife #ShippingUK #LogisticsLife #CourierUK #TravelHack #UKNigeria",
-    "supply_chain":       "#BootHop #SupplyChain #Logistics #BusinessTips #OperationsLife #TradeRoutes #GlobalTrade #BusinessUK #LogisticsLife #FreightLife #ShippingIndustry #DiasporaMagic #LondonToLagos #SameDayDelivery #BusinessOwner #SME #StartupUK #HumanLogistics #TradeUK #LogisticsUK",
+    "courier_business":   "#BootHop #BootHopBusiness #CourierBusiness #LogisticsUK #DeliveryBusiness #CourierUK #FreightUK #CourierLife #LogisticsJobs #DeliveryJobs #SmallBusiness #UKLogistics #SideHustleUK #CourierNetwork #ParcelDelivery #LastMile #LogisticsNetwork #ShippingUK #FreelanceCourier #BusinessGrowthUK",
+    "personal_shopper":   "#BootHop #PersonalShopper #ShopForMe #DubaiToLagos #LondonToLagos #UKToNigeria #ShoppingHaul #LagosLife #CustomsHandled #NigerianShopper #AfricanShopper #LuxuryShopping #ShippingToNigeria #NaijaUK #AbujaShopping #PortHarcourtLife #DeliveryToNigeria #InternationalShopping #DiasporaLife #ShopAndShip",
+    "multi_courier":          "#BootHop #BootHopBusiness #MultiCourier #BusinessLogistics #SMEuk #ShippingBusiness #CourierOptions #LogisticsPlatform #UKBusiness #BusinessGrowth #ExportUK #ImportExport #CourierComparison #SmallBusinessUK #AfricanBusiness #DiasporaBusinessUK #ShippingRates #FreightOptions #LogisticsNetwork #BusinessTips",
+    "faith_friday":           "#BootHop #FaithFriday #WayMaker #GodProvides #PrayerLine #SundayBlessings #ChristianTikTok #NigerianChristians #DiasporaFaith #UKChurch #MercyChinwo #NathanielBassey #Sinach #MaverickCityMusic #KirkFranklin #DunsinOyekan #GospelUK #ChristianCommunity #FaithAndLogistics #TravelMercies",
+    "celebration_weekend":    "#BootHop #WeekendVibes #CelebrationSzn #AfrobeatsUK #NigerianWedding #NamingCeremony #NaijaParty #UKNigeria #AfricanWedding #GraduationParty #PartyHard #DanceChallenge #AfrobeatsLife #LagosToUK #NaijaUK #DiasporaLife #CelebrationVibes #WeekendMood #AfricanCelebration #JoyfulDelivery",
+    "flight_discovery":       "#BootHop #CheapFlights #FlightDeals #UKToNigeria #LagosFlights #AbujFlights #CheapFlightsToNigeria #NigeriaTravel #AfricaFlights #FlightComparison #TravelDeals #NaijaUK #DiasporaTravel #UKNigeria #AfricaTravel #BudgetTravel #CheapFlightsUK #TravelTips #FlightHack #BootHopFlights",
+    "supply_chain":           "#BootHop #SupplyChain #Logistics #BusinessTips #OperationsLife #TradeRoutes #GlobalTrade #BusinessUK #LogisticsLife #FreightLife #ShippingIndustry #DiasporaMagic #LondonToLagos #SameDayDelivery #BusinessOwner #SME #StartupUK #HumanLogistics #TradeUK #LogisticsUK",
 }
 
 YOUTUBE_CATEGORIES = {
@@ -311,6 +323,89 @@ def _parse_json(raw: str) -> dict:
 
 # ── Story Writer prompt builder ───────────────────────────────────────────────
 
+def _hook_intelligence_block() -> str:
+    """Return a prompt section with hook patterns if analysis data exists."""
+    try:
+        from hook_analyzer import load_patterns
+        patterns = load_patterns()
+        if not patterns:
+            return ""
+        top = patterns.get("top_patterns", [])[:3]
+        suggested = patterns.get("suggested_hooks", [])[:5]
+        avoid = patterns.get("avoid", [])[:3]
+        if not top and not suggested:
+            return ""
+        lines = ["━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                 "HOOK INTELLIGENCE — from our best-performing hooks this week",
+                 "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+                 "These patterns consistently produce high hook-strength and virality scores."]
+        if top:
+            lines.append("TOP PATTERNS (use these structures as inspiration, not copy-paste):")
+            for pt in top:
+                lines.append(f"  [{pt.get('trigger','').upper()}] {pt.get('structure','')}  — {pt.get('why_it_works','')}")
+        if suggested:
+            lines.append("EXAMPLE HOOKS GENERATED FROM THESE PATTERNS (for inspiration only — write something fresh):")
+            for h in suggested:
+                lines.append(f"  ✓ {h}")
+        if avoid:
+            lines.append("AVOID (overused or weak in this niche):")
+            for a in avoid:
+                lines.append(f"  ✗ {a}")
+        lines.append("")
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _recent_hooks_block(days: int = 7) -> str:
+    """Inject hooks used in the last N days as explicit avoids so patterns don't repeat."""
+    try:
+        mem_file = DATA / "memory.json"
+        if not mem_file.exists():
+            return ""
+        mem = json.loads(mem_file.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+
+    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    recent_hooks = [
+        e.get("hook", "").strip()
+        for e in mem
+        if e.get("date", "") >= cutoff and e.get("hook", "").strip()
+    ]
+    if not recent_hooks:
+        return ""
+
+    # Detect overused openers so the AI gets an explicit structural warning
+    openers: dict[str, int] = {}
+    for h in recent_hooks:
+        first_words = " ".join(h.lower().split()[:4])
+        openers[first_words] = openers.get(first_words, 0) + 1
+    overused = [opener for opener, count in openers.items() if count >= 2]
+
+    lines = [
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        f"HOOKS USED IN THE LAST {days} DAYS — DO NOT reuse these phrasings or structures",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+    ]
+    for h in recent_hooks[-14:]:
+        lines.append(f"  ✗ {h}")
+    if overused:
+        lines.append("")
+        lines.append("OVERUSED OPENERS — never start a hook with any of these this week:")
+        for opener in overused:
+            lines.append(f"  ✗ '{opener}...'")
+    lines.append("")
+    lines.append(
+        "Your hook must open with a DIFFERENT structure from everything above. "
+        "Rotate: lead with a specific person and a specific problem, or a time-bound crisis, "
+        "or a striking number, or a question that names the item/stakes before asking. "
+        "Avoid 'Would you trust a stranger' unless it appears zero times above."
+    )
+    lines.append("")
+    return "\n".join(lines)
+
+
 def _build_story_prompt(
     slot: int, pillar: str, bucket: str,
     pillar_label: str, pillar_angle: str,
@@ -365,7 +460,9 @@ Tone: {bucket}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NARRATIVE FORMULA — follow this structure exactly
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. PERSON     A specific named person with real context (not "a woman" — "Sade, a nurse in Wolverhampton")
+1. PERSON     A specific named person with real context (not "a woman" — "Sade, a nurse in Wolverhampton").
+              Names can be Nigerian/African (Emeka, Sade, Amara, Tunde) OR Western/UK (Sarah, James, Emma, Daniel).
+              BootHop serves all UK residents — mix it up across videos.
 2. MOMENT     A deadline, event, or celebration that makes this urgent NOW
 3. PROBLEM    Why a reputable courier fails — too expensive, too slow, or both
 4. MOVEMENT   Someone was ALREADY flying this route — the journey existed before BootHop
@@ -410,13 +507,22 @@ Examples of good unexpected moments:
 This moment is what makes the video shareable. Don't skip it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-HOOK STARTERS — start with person, moment, or consequence (NEVER a price)
+HOOK — POV QUESTION DIRECTED AT THE VIEWER (primary format)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ "Her mum's retirement ceremony was on Friday."
-✓ "He'd been making this trip every three months for two years."
-✓ "The wedding was already set. The dress was still in Birmingham."
-✓ "Sade hadn't been home in two years. She wanted to send something real."
+The HOOK is a question that puts the viewer INSIDE the situation before they know the character's name.
+It must feel personal — like you're asking THEM, not telling them a story.
+
+✓ "Would you trust a stranger with your dad's most precious parcel?"
+✓ "What would you do if the ceremony is Saturday and the parcel is still in Leeds?"
+✓ "Would you let a stranger carry your mum's framed photo to Lagos?"
+✓ "What if the only person flying tomorrow is someone you've never met?"
+✓ "Would you risk it — a stranger, a flight, your dad's gift — to save £60?"
+
+Then IMMEDIATELY the story answers that question through one specific person (Emeka, Sade, Sarah, James, Tunde, Emma etc.)
+The hook question + character name together = the first 3 seconds of the video.
+
 ✗ NEVER start with a price, courier quote, or BootHop name
+✗ NEVER write a narrative statement as hook — it must be a question OR a setup that demands one
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ITEMS — use variety, NEVER default to tablets or medication
@@ -429,6 +535,32 @@ School:       textbooks, school shoes, stationery pack, school uniform
 Keepsakes:    framed family photo, handmade jewellery, signed sports shirt, handwritten letter
 Baby items:   baby clothes, baby shoes, toys, formula tin
 Food (sealed only): Nigerian spices, stockfish, Indomie noodles, shea butter
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RELATIONSHIP VARIETY — never default to dad/mum
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Stories MUST rotate through different relationships and discovery scenarios.
+Do NOT always use "his dad" or "her mum" — that becomes a formula viewers tune out.
+
+RELATIONSHIP OPTIONS (pick one, rotate across days):
+- A complete stranger who posted in a Nigerian WhatsApp group
+- A colleague at work who mentioned BootHop in passing
+- A friend of a friend who needed something sent urgently
+- Someone the sender has never met — just a name and a delivery address
+- A business owner sending product samples to a Lagos stockist
+- A student sending exam certificates home before a family ceremony
+- A church member who heard about BootHop at Sunday service
+- Someone who Googled "send parcel to Nigeria cheap" at midnight and found BootHop
+- A neighbour who knocked on the door because they saw a BootHop sticker
+- An old flatmate in Lagos who needs something from the UK
+
+DISCOVERY SCENARIOS — how they found BootHop (rotate these too):
+- Typed "cheap parcel to Nigeria" at 11pm and found BootHop on the third result
+- Someone in their WhatsApp group posted the link — they signed up the same night
+- A traveller on the same flight told them about it at check-in
+- They saw a BootHop post on TikTok and opened the app that same evening
+- Their sister mentioned it had saved her £55 — they tried it the next day
+- A colleague had used it twice — they logged in on their lunch break
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ABOUT BOOTHOP
@@ -455,23 +587,80 @@ BRAND CLOSING LINES — lesson MUST use one of these EXACTLY
 5. "Every journey has value."
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BEAT RULES (on-screen video text — SHORT is essential, text gets cut off if too long)
+BEAT RULES (on-screen video text / voice over — SHORT is essential, text gets cut off if too long)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-HOOK:       max 15 words. Start with person or moment — NEVER a price or courier quote.
-PROBLEM:    max 12 words. The courier failure. One sentence.
-STAKES:     max 10 words. Consequence if it doesn't arrive. Same character and item.
-RESOLUTION: max 12 words. BootHop appears HERE. Traveller was ALREADY going. Close the loop.
+These 5 beats ARE the video. They appear as text overlays or voice over on the clips.
+Each beat must be ONE clear sentence. Simple. Direct. The viewer reads it in 2 seconds and moves on.
+
+HOOK:       max 15 words. A POV question to the viewer ("Would you trust a stranger with your dad's parcel?")
+            Immediately follow in PROBLEM with the character's name and situation.
+PROBLEM:    max 12 words. [Character name] + the specific item + the specific deadline. One sentence.
+            Example: "Emeka had a framed photo and letter ready in Leeds. The ceremony was Saturday."
+STAKES:     max 10 words. What fails if it doesn't arrive. Concrete. No vague emotion.
+RESOLUTION: max 12 words. BootHop matched them. Traveller was ALREADY going. Item arrived. Simple.
+            Example: "A BootHopper flying from Manchester picked it up. Delivered before the ceremony."
 LESSON:     max 10 words. Use ONE closing line from the brand language bank above, EXACTLY.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PLATFORM CAPTIONS (go in caption, not on screen — can be longer)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-caption_tiktok  (max 300 chars): Open with human moment. 2 line breaks. 2–3 story sentences. Engagement question at end.
-caption_instagram (max 400 chars): First 125 chars = emotional hook + stakes. Full arc 3–4 sentences. Include "someone was already making that journey." CTA + engagement question.
-youtube_title   (max 60 chars): Human story or question format. NOT "BootHop does X". No BootHop in title.
-youtube_description: 2–3 sentences, keyword-rich first 100 chars. Include "boothop.com" at end.
-engagement      (max 10 words): One question that opens a real conversation.
+THE STORY MUST PASS THIS TEST: read all 5 beats in order. Does it tell the WHOLE story in 10 seconds?
+Can a 10-year-old understand it? If yes, it's ready. If not, simplify.
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PLATFORM CAPTIONS (go in the app caption field — NOT on the video screen)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+The caption is NOT a story summary and NOT a repeat of the hook.
+The video tells the story. The caption is the BRAND STATEMENT that makes the brand stick.
+
+CAPTION STYLE — short, bold, brand-positioning. Think viral TikTok energy.
+Each post must pick ONE style family and write a FRESH, ORIGINAL caption inspired by it.
+DO NOT copy the examples verbatim. Use them only as tone/direction references.
+ROTATE through all four styles — never default to the same one twice in a row.
+
+The four style families (with tone references — write something NEW each time):
+
+  BRAND IDENTITY (tone: confident, owning the space):
+    Ref: "BootHop. Your courier plug." / "The Rolls Royce of cargo." /
+         "The new face of shipping." / "New household name in logistics." /
+         "Different breed of shipping." / "Built different. Ships different."
+    → Write a fresh 1-line brand statement that positions BootHop as THE name.
+
+  CULTURAL FLEX (tone: swagger, community pride, word-of-mouth energy):
+    Ref: "Chilling with the big names now." / "The brand everyone is talking about." /
+         "BootHop understood the assignment." / "We're in our BootHop era." /
+         "The diaspora's best kept secret. (Not anymore.)" / "Your mum knows now."
+    → Write a fresh 1-line that gives BootHop cultural credibility and heat.
+
+  CONFIDENCE / AUTHORITY (tone: results-first, no fluff, business assured):
+    Ref: "We matched. We delivered. End of story." / "The plug your shipment needed." /
+         "First class logistics from the UK." / "We run the logistics game different." /
+         "Your parcel. Our mission." / "UK's favourite parcel connection."
+    → Write a fresh 1-line that leads with the outcome — no hype, just results.
+
+  POV / SCROLL-STOP (tone: relatable, discovery moment, share-worthy):
+    Ref: "POV: you just found the shipping cheat code." / "POV: your parcel is already in Lagos." /
+         "Before BootHop vs after BootHop." / "Tell a friend. Then tell another." /
+         "The moment you realised BootHop existed."
+    → Write a fresh 1-line that puts the viewer in the moment of discovering BootHop.
+
+caption_tiktok  (max 150 chars): ONE original line in one of the styles above. No story. Max 1 emoji.
+                                 No hashtags — keep it clean and confident.
+caption_instagram (max 200 chars): Same original line, slightly expanded if it adds impact. Add "boothop.com" at the end.
+                                   Max 2 hashtags. Nothing else.
+youtube_title   (max 60 chars): The POV question from the hook. Human, no BootHop name.
+youtube_description: 2 sentences max. First: the story in one line. Second: "boothop.com"
+engagement      (max 10 words): One question that opens a real conversation.
+top_caption     (max 9 words): A conversational scene-setter shown at the very top of the
+                               video screen throughout every clip — like a TikTok thought bubble.
+                               It draws the viewer into the feeling BEFORE the story begins.
+                               Start with Imagine, What if, Picture this, Ever wondered, or similar.
+                               Do NOT mention BootHop or prices. Must feel like a real person typed it.
+                               Examples:
+                                 "Imagine sending a gift home for a tenner."
+                                 "What if your parcel beat the courier to Lagos?"
+                                 "Picture this — a stranger carries your mums birthday gift."
+                                 "Ever sent something home and wished it could go tonight?"
+
+{_hook_intelligence_block()}
+{_recent_hooks_block()}
 Return ONLY valid JSON (no markdown):
 {{
   "story_anchor": {{
@@ -486,6 +675,7 @@ Return ONLY valid JSON (no markdown):
   "stakes": "...",
   "resolution": "...",
   "lesson": "...",
+  "top_caption": "...",
   "caption_tiktok": "...",
   "caption_instagram": "...",
   "youtube_title": "...",
@@ -604,6 +794,234 @@ _PILLAR_ANGLES = {
         "Someone was already going. BootHop connected them. The smart move cost a fraction of the courier. "
         "Open with the problem, let the solution feel like a revelation."
     ),
+
+    # ── B2B Instagram pillars — always end with LOG YOUR NEEDS / LOG YOUR INTENTIONS ──
+    "courier_business": (
+        "B2B recruitment content targeting couriers, dispatch riders, and small logistics operators.\n"
+        "Hook (POV question): 'Are you a courier? Do you know how many more shipments you could be handling?'\n"
+        "Tell the story of a courier or small delivery business who joined BootHop's network.\n"
+        "PROBLEM: they were operating alone — chasing clients, empty return trips, no consistent income.\n"
+        "RESOLUTION: BootHop opened them to a verified pool of senders. More bookings, better earnings, no cold calls.\n"
+        "LESSON: 'You move parcels. BootHop fills your schedule.'\n"
+        "\n"
+        "MANDATORY B2B CTA — must appear in BOTH the lesson beat AND the caption:\n"
+        "Direct couriers to LOG THEIR ROUTE AND AVAILABILITY on BootHop.\n"
+        "Example lesson: 'Register your courier business. Log your routes. We send the clients to you.'\n"
+        "Example caption: 'Are you a courier or delivery business? Log your routes and availability at boothop.com/business — we connect you to verified senders every day.'\n"
+        "The action is SPECIFIC: log routes, log vehicle type, log availability. Not just 'sign up'.\n"
+        "Tone: professional, direct, B2B. No family story. This is business to business."
+    ),
+
+    "personal_shopper": (
+        "Personal shopping and international forwarding content — target Nigerians and Africans who\n"
+        "want items from Dubai, UK, USA that aren't available locally or are overpriced.\n"
+        "Hook (POV question): 'Want something from Dubai? From London? Log your request — we shop it, clear customs, and deliver to your door.'\n"
+        "Tell the story of a customer in Lagos who wanted something specific from Dubai or London.\n"
+        "PROBLEM: shipping costs were high, customs were confusing, they didn't know who to trust.\n"
+        "RESOLUTION: BootHop's personal shopper sourced it, handled customs duty, used a reputable courier. Delivered to their door.\n"
+        "LESSON: 'You find it. Log your request. We shop it, clear it, deliver it.'\n"
+        "\n"
+        "MANDATORY B2B CTA — must appear in BOTH the lesson beat AND the caption:\n"
+        "Direct the viewer to LOG THEIR SHOPPING REQUEST / NEEDS on BootHop.\n"
+        "Example lesson: 'Log what you need. Where from. When you need it. BootHop handles the rest.'\n"
+        "Example caption: 'Need something from Dubai, London, or New York delivered to Lagos? Log your request at boothop.com — we shop it, pay the customs, and deliver to your door.'\n"
+        "The action is SPECIFIC: log the item, the origin city, the destination, the deadline.\n"
+        "Destinations: Lagos, Abuja, Port Harcourt, Accra, Nairobi.\n"
+        "Origins: Dubai, London, Manchester, New York, Toronto.\n"
+        "Tone: aspirational, service-focused. Show ease and trust."
+    ),
+
+    "multi_courier": (
+        "Business logistics platform content — target UK-based African SMEs, importers/exporters,\n"
+        "and couriers who want more control and better options.\n"
+        "Hook (POV question): 'As a business, why are you still locked into one courier?'\n"
+        "\n"
+        "TELL EITHER THIS STORY (alternate perspective each time):\n"
+        "\n"
+        "VERSION A — Business Sender:\n"
+        "  PROBLEM: locked into one courier — premium rates, no alternatives when it failed, no control.\n"
+        "  RESOLUTION (ACCURATE — this is exactly how BootHop works):\n"
+        "    They went to BootHop. Listed what they needed to ship — item, size, destination, deadline.\n"
+        "    Set a reasonable price. The system auto-matched them with multiple couriers in that price range.\n"
+        "    They picked the best fit. No phone calls. No quotes. Just matched and shipped.\n"
+        "  LESSON: 'Log your shipping need. Set your budget. BootHop finds your match.'\n"
+        "\n"
+        "VERSION B — Courier:\n"
+        "  PROBLEM: courier was running empty returns, chasing clients, undercutting their own rates.\n"
+        "  RESOLUTION (ACCURATE — this is exactly how BootHop works):\n"
+        "    They listed on BootHop what they can carry — route, dates, vehicle, item types accepted.\n"
+        "    Set their price. The system auto-matched them with senders in that price range.\n"
+        "    Bookings came in. No cold calls. No empty runs.\n"
+        "  LESSON: 'List what you carry. Set your price. BootHop sends the right senders to you.'\n"
+        "\n"
+        "MANDATORY B2B CTA — must appear in BOTH the lesson beat AND the caption:\n"
+        "Direct businesses AND couriers to LOG THEIR NEEDS / LIST THEIR CAPACITY on BootHop.\n"
+        "Example caption (sender): 'Running a business? Log your shipment needs at boothop.com/business — set your price and let the system match you to the right courier. No calls needed.'\n"
+        "Example caption (courier): 'Are you a courier with spare capacity? List your route and price at boothop.com/business — BootHop auto-matches you with senders in your range.'\n"
+        "The action is SPECIFIC: list the items, set the price, let the system match. Not just 'sign up'.\n"
+        "Tone: confident, empowering, business-smart. The viewer should feel fully in control."
+    ),
+
+    # ── Faith & Prayer pillars (Friday / Sunday rotation) ─────────────────────
+    "faith_friday": (
+        "Faith-infused brand content for the Nigerian and African Christian diaspora in the UK and USA.\n"
+        "Runs on Fridays and Sundays as part of a weekly alternating rotation.\n"
+        "\n"
+        "TONE: Warm, spiritual, uplifting. Community prayer energy. Not preachy — celebratory.\n"
+        "\n"
+        "CONTENT OPTIONS — pick one per run, rotate across these formats:\n"
+        "\n"
+        "FORMAT A — PRAYER LINE + BRAND:\n"
+        "  Hook: A short, sincere prayer line relevant to the diaspora — travel mercies, family connections,\n"
+        "        provision, answered prayers, safe arrivals.\n"
+        "  Bridge: Connect the prayer to BootHop in one line. The link must feel natural, not forced.\n"
+        "  Example hook: 'May everything you sent ahead of you arrive before you do.'\n"
+        "  Example bridge: 'BootHop makes sure it does. 📦'\n"
+        "  Example hook: 'This Friday, may your connections be strong — in faith and in delivery.'\n"
+        "  Example hook: 'God puts the right people in the right place. BootHop connects them.'\n"
+        "\n"
+        "FORMAT B — CHRISTIAN TRENDING SONG REFERENCE:\n"
+        "  Reference a trending Nigerian or US gospel song. Do not quote lyrics (copyright) — reference the\n"
+        "  SPIRIT or TITLE only.\n"
+        "  Nigerian gospel artists to reference: Sinach (Way Maker), Mercy Chinwo, Nathaniel Bassey,\n"
+        "  Tim Godfrey, Dunsin Oyekan, Tope Alabi, Frank Edwards, Prospa Ochimana.\n"
+        "  US gospel artists: Maverick City Music, Kirk Franklin, Elevation Worship, Tasha Cobbs Leonard.\n"
+        "  Example: 'Way Maker energy this Friday. Things are moving. Your parcel is on its way. 📦'\n"
+        "  Example: 'Nathaniel Bassey said hallelujah. We said your parcel landed. Same energy. BootHop.'\n"
+        "\n"
+        "FORMAT C — FRIDAY / SUNDAY BLESSING:\n"
+        "  A short diaspora-relevant blessing that ends with a BootHop brand line.\n"
+        "  Example: 'This weekend, may what you sent reach who needs it most. BootHop. 📦'\n"
+        "  Example: 'Sunday blessings from the UK to Lagos. Your love always arrives. BootHop.'\n"
+        "\n"
+        "BEAT RULES for faith_friday:\n"
+        "  HOOK:       max 12 words. A prayer line, blessing, or faith statement.\n"
+        "  PROBLEM:    Skip traditional problem beat — use a TRANSITION instead.\n"
+        "              max 10 words. Connect faith/prayer to real logistics need.\n"
+        "              Example: 'But prayer alone can't carry a parcel across the ocean.'\n"
+        "  STAKES:     max 8 words. What's at stake emotionally — not commercially.\n"
+        "  RESOLUTION: max 10 words. BootHop is the answer — the physical arm of the blessing.\n"
+        "  LESSON:     max 10 words. A warm brand line. End with BootHop.\n"
+        "\n"
+        "Caption style: warm, faith-community energy. Can use 🙏 or 📦 emoji.\n"
+        "  TikTok example: 'Travel mercies for your parcel too. BootHop. 🙏📦'\n"
+        "  Instagram example: 'Friday blessings to every parcel in transit. boothop.com 🙏 #BootHop #FaithFriday'\n"
+        "Tone: inclusive — spiritual but not exclusive. Speaks to anyone who prays."
+    ),
+
+    # ── Weekend Celebration pillar (Saturday rotation) ─────────────────────────
+    "celebration_weekend": (
+        "Weekend celebration content — joyful, high-energy, culturally rich.\n"
+        "Runs on Saturdays in alternating weeks.\n"
+        "\n"
+        "TONE: Upbeat, celebratory, Afrobeats energy. People dancing. People celebrating together.\n"
+        "\n"
+        "VISUAL DIRECTION — tell the scene director to source:\n"
+        "  Free stock videos of: people dancing in a hall, Nigerian party, wedding reception,\n"
+        "  Afrobeats dance, graduation celebration, African church celebration, people clapping.\n"
+        "  Pexels/Pixabay search terms: 'people dancing celebration', 'african wedding hall',\n"
+        "  'graduation party', 'afrobeats dance', 'nigerian celebration', 'hall party'.\n"
+        "\n"
+        "IMPORTANT: The celebration is NOT always about a physical parcel.\n"
+        "BootHop creates value in two ways — choose either angle per run:\n"
+        "\n"
+        "ANGLE A — THE PARCEL THAT MADE THE MOMENT:\n"
+        "  Something sent through BootHop arrived just in time for the celebration.\n"
+        "  The gift, the outfit, the certificate — it made the moment possible.\n"
+        "  Hook example: 'Would the aso-ebi arrive before the wedding started?'\n"
+        "  Hook example: 'The party was tonight. The parcel was still in Leeds.'\n"
+        "  Lesson: 'Every celebration deserves a BootHop moment.'\n"
+        "\n"
+        "ANGLE B — THE MONEY THAT MADE THE MOMENT:\n"
+        "  Someone is celebrating because of MONEY EARNED through BootHop.\n"
+        "  A traveller who made £150–£300 carrying parcels on a flight they were already taking.\n"
+        "  A courier whose schedule filled up through BootHop — extra income every week.\n"
+        "  A sender who saved £80 vs another service — and spent that saving on the celebration itself.\n"
+        "  Hook example: 'Would you celebrate £200 made on a flight you were already on?'\n"
+        "  Hook example: 'She flew to Lagos anyway. BootHop paid for the party.'\n"
+        "  Hook example: 'He carried two parcels. Made £180. The weekend sorted itself.'\n"
+        "  Lesson: 'You were already going. BootHop just made it pay.'\n"
+        "  OR: 'BootHop earnings. Real money. Real celebrations.'\n"
+        "\n"
+        "OCCASION OPTIONS (rotate across both angles):\n"
+        "  - Nigerian wedding in Birmingham — aso-ebi arrived OR traveller paid for the aso-ebi with BootHop earnings\n"
+        "  - Naming ceremony in Manchester — gift reached the family OR courier earned enough for the gift\n"
+        "  - Graduation in Leeds — certificate sent from Lagos OR the grad made money delivering for BootHop\n"
+        "  - Church harvest in London — donations sent to Abuja branch via BootHop\n"
+        "  - Birthday party in Peckham — birthday dress from Lagos OR savings used on the party\n"
+        "  - New Year party — last-minute delivery OR extra BootHop income made the night possible\n"
+        "\n"
+        "Caption: upbeat, celebratory, emoji-friendly.\n"
+        "  TikTok example (parcel): 'The party was waiting. BootHop delivered. Weekend sorted. 🎉📦'\n"
+        "  TikTok example (money): 'She carried two parcels on her flight. Came back £200 richer. 🎉 BootHop.'\n"
+        "  Instagram example: 'Every celebration has a BootHop story behind it. boothop.com 🎉 #BootHop #WeekendVibes'\n"
+        "Tone: joyful, high energy. This is the feel-good post of the week."
+    ),
+
+    # ── Flight Discovery — wildcard pillar, fires randomly ~once per 10 days ──
+    "flight_discovery": (
+        "A secondary BootHop angle — NOT the main focus, but a real feature worth telling.\n"
+        "BootHop.com has a scrolling flight ticker on the website showing live cheap flight\n"
+        "prices and destinations. Visitors come for one thing and discover the other.\n"
+        "\n"
+        "THIS IS NOT THE MAIN BOOTHOP PITCH. Treat it as a bonus discovery — a pleasant surprise.\n"
+        "Tone: 'did you know BootHop also does this?' — low-key insider tip, not a loud sales push.\n"
+        "\n"
+        "DO NOT write from a fixed template. Build a FRESH story each time by combining ingredients\n"
+        "from the pools below. No two posts should feel the same.\n"
+        "\n"
+        "── PROTAGONIST POOL (pick one, give them a name and UK city) ──\n"
+        "  - A nurse in Manchester who goes to boothop.com every month to send food items home\n"
+        "  - A student in Birmingham who was searching online for the cheapest flight to Lagos\n"
+        "  - A market trader in Peckham who was checking parcel rates on his lunch break\n"
+        "  - A pharmacist in Leeds who stumbled on the site from a WhatsApp link\n"
+        "  - A care worker in Nottingham who had been overpaying for flights for two years\n"
+        "  - A business owner in East London who just wanted to track a shipment\n"
+        "  - A recent graduate in Liverpool who was pricing up a trip home before getting a job\n"
+        "  - An NHS worker in Bristol who booked through BootHop on a work break\n"
+        "  - Someone's auntie who got sent the link by her daughter and wasn't expecting much\n"
+        "  - A first-time visitor to boothop.com who came from a Google search\n"
+        "\n"
+        "── DISCOVERY TRIGGER POOL (how they found the flight bar — pick one) ──\n"
+        "  - Noticed the flight prices scrolling across the top of the page while booking a parcel\n"
+        "  - A friend sent them the link saying 'they do flights too'\n"
+        "  - Was already on the site and clicked the scrolling bar out of curiosity\n"
+        "  - Found boothop.com searching for 'cheap flights to Nigeria' and landed on the flight bar\n"
+        "  - Was comparing prices across tabs — boothop.com came up and was cheaper\n"
+        "  - Accidentally scrolled past it then scrolled back — the price caught their eye\n"
+        "  - Their colleague mentioned it at work — they didn't believe it until they saw it\n"
+        "  - Had boothop.com open on their phone and noticed it while waiting for the bus\n"
+        "\n"
+        "── OUTCOME POOL (what happened next — pick one) ──\n"
+        "  - Booked the flight right there. Sent the parcel too. Left the site with both sorted.\n"
+        "  - Found a fare £60–£100 cheaper than they'd seen anywhere else. Booked immediately.\n"
+        "  - Booked the cheap flight and then noticed they could earn by carrying parcels on the same trip.\n"
+        "    Registered as a traveller. Covered most of their trip cost before the flight even left.\n"
+        "  - Called their sister to tell her. Now the whole family uses BootHop for flights.\n"
+        "  - Didn't believe it at first — compared three times. Then booked. Then told everyone.\n"
+        "  - Used the savings on the flight to pay for the parcel delivery instead.\n"
+        "  - Now boothop.com is their first stop — flights, parcels, both in one place.\n"
+        "\n"
+        "── PRICE & DESTINATION POOL ──\n"
+        "  Destinations: Lagos, Abuja, Accra, Nairobi, Port Harcourt, Enugu, Accra.\n"
+        "  Price saves to reference: '£60 less than another site', '£189 to Lagos',\n"
+        "  '£210 to Abuja', 'nearly £100 cheaper', 'cheaper than anything she'd seen that week'.\n"
+        "  Do NOT name any other flight booking service or airline comparison site.\n"
+        "  Say 'another site', 'everywhere else', 'what she'd been quoted before'.\n"
+        "\n"
+        "BEAT RULES:\n"
+        "  HOOK:       max 12 words. A discovery moment — the scroll, the click, the realisation.\n"
+        "              Must be fresh every time. Do NOT reuse hook examples from previous runs.\n"
+        "  PROBLEM:    max 10 words. Overpaying for flights, or never knowing where to look.\n"
+        "  STAKES:     max 8 words. What they were about to miss.\n"
+        "  RESOLUTION: max 10 words. BootHop flight bar. Better price. Done in minutes.\n"
+        "  LESSON:     max 10 words. One line. 'BootHop. Parcels AND flights. One place.'\n"
+        "\n"
+        "Caption style: curiosity-driving, insider tip energy. Fresh line every time.\n"
+        "  TikTok tone ref: 'Most people go to BootHop for parcels. The flights section is the secret. 🛫'\n"
+        "  Instagram tone ref: 'Parcels AND cheap flights. One platform. You knew, right? boothop.com 🛫'\n"
+        "  Do NOT copy the tone refs above — write something original in that spirit."
+    ),
 }
 
 
@@ -635,6 +1053,17 @@ _TH_PROTAGONISTS = [
     ("Tunde",   "secondary school teacher", "Hackney",      "traveller"),
     ("Bukola",  "NHS administrator",        "Slough",       "sender"),
     ("Onyeka",  "event photographer",       "Brixton",      "traveller"),
+    # UK / Western names — BootHop also serves diverse UK residents
+    ("Sarah",   "project manager",          "Manchester",   "sender"),
+    ("James",   "civil engineer",           "Leeds",        "traveller"),
+    ("Emma",    "community midwife",        "Birmingham",   "sender"),
+    ("Michael", "IT analyst",               "Nottingham",   "traveller"),
+    ("Chloe",   "solicitor",                "London",       "sender"),
+    ("Daniel",  "secondary school teacher", "Bristol",      "traveller"),
+    ("Grace",   "social worker",            "Liverpool",    "sender"),
+    ("Ryan",    "warehouse supervisor",     "Leicester",    "traveller"),
+    ("Diane",   "NHS physiotherapist",      "Sheffield",    "sender"),
+    ("Jordan",  "software engineer",        "Cambridge",    "traveller"),
 ]
 
 _TH_ITEMS = [
@@ -1025,10 +1454,31 @@ Return ONLY valid JSON:
 
 
 def get_pillar_for_slot(slot: int) -> str:
+    from datetime import date as _date
+    import hashlib as _hashlib
+    today = _date.today()
+
+    # ── Wildcard injection — fires ~1 in 10 days, date-deterministic (no true random)
+    # Same date always gives same result so Oracle and laptop agree.
+    try:
+        from config import WILDCARD_PILLARS as _wildcards
+        if _wildcards:
+            _date_key = f"{today.isoformat()}-slot{slot}"
+            _h = int(_hashlib.md5(_date_key.encode()).hexdigest(), 16)
+            if _h % 10 == 0:          # ~10% of slot runs → roughly once per 10 days per slot
+                return _wildcards[_h % len(_wildcards)]
+    except Exception:
+        pass
+
     val = SLOT_PILLARS[slot]
     if isinstance(val, list):
-        from datetime import date as _date
-        return val[_date.today().weekday()]  # 0=Mon … 6=Sun
+        day_val = val[today.weekday()]  # 0=Mon … 6=Sun
+        # If the day entry is itself a list, alternate by ISO week number
+        # e.g. ["urgent_medical", "faith_friday"] → week 1 = urgent_medical, week 2 = faith_friday
+        if isinstance(day_val, list):
+            week_num = today.isocalendar()[1]
+            return day_val[week_num % len(day_val)]
+        return day_val
     return val
 
 
