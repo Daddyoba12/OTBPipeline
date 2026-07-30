@@ -1,0 +1,42 @@
+[
+  {
+    "date": "2026-07-26T18:03:52.509721",
+    "car": "2016 Nissan Altima",
+    "hook": "What if $11,995 was all you ever had to pay?",
+    "video_file": "C:\\Users\\babso\\Desktop\\OTB_Pipeline\\output\\g_inspired_20260726_175958.mp4",
+    "video_url": "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/promo-videos/pipeline/g-inspired/daily_20260726_175958.mp4",
+    "emailed_to": "info@kreativerock.com"
+  },
+  {
+    "date": "2026-07-26T18:46:42.498620",
+    "car": "2016 Honda CR-V",
+    "hook": "What if 106,000 miles still had a lot left to give?",
+    "video_file": "C:\\Users\\babso\\Desktop\\OTB_Pipeline\\output\\g_inspired_20260726_184504.mp4",
+    "video_url": "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/promo-videos/pipeline/g-inspired/daily_20260726_184504.mp4",
+    "emailed_to": "info@kreativerock.com"
+  },
+  {
+    "date": "2026-07-26T18:59:42.665601",
+    "car": "2016 Subaru Outback",
+    "hook": "What if $14,995 actually got you everything you needed?",
+    "video_file": "C:\\Users\\babso\\Desktop\\OTB_Pipeline\\output\\g_inspired_20260726_185738.mp4",
+    "video_url": "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/promo-videos/pipeline/g-inspired/daily_20260726_185738.mp4",
+    "emailed_to": "info@kreativerock.com"
+  },
+  {
+    "date": "2026-07-26T19:07:09.862211",
+    "car": "2018 Chevrolet Equinox",
+    "hook": "What if $10,995 got you an SUV with zero surprises?",
+    "video_file": "C:\\Users\\babso\\Desktop\\OTB_Pipeline\\output\\g_inspired_20260726_190448.mp4",
+    "video_url": "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/promo-videos/pipeline/g-inspired/daily_20260726_190448.mp4",
+    "emailed_to": "info@kreativerock.com"
+  },
+  {
+    "date": "2026-07-26T19:09:54.321809",
+    "car": "2015 Chrysler Town & Country",
+    "hook": "What if a minivan could actually fix your Monday morning?",
+    "video_file": "C:\\Users\\babso\\Desktop\\OTB_Pipeline\\output\\g_inspired_20260726_190733.mp4",
+    "video_url": "https://zwgngbzbdvnrdnanjded.supabase.co/storage/v1/object/public/promo-videos/pipeline/g-inspired/daily_20260726_190733.mp4",
+    "emailed_to": "info@kreativerock.com"
+  }
+]

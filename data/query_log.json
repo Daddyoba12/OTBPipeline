@@ -1,82 +1,1522 @@
 [
   {
-    "query": "woman shocked phone screen close up reaction",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "airplane wing takeoff dramatic sky",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "man frustrated phone call close up face",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "traveller stressed queue airport medium shot",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "woman looking down hands holding parcel emotional",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "parcel handover doorstep smile close up",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "woman relieved happy face close up reaction",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "london city skyline professional daytime wide",
-    "date": "2026-06-29",
-    "slot": 4
-  },
-  {
-    "query": "woman shocked phone screen close up face",
-    "date": "2026-06-29",
+    "query": "nigerian woman pharmacy worried holding prescription medium shot",
+    "date": "2026-07-20",
     "slot": 3
   },
   {
-    "query": "airplane takeoff runway sunrise",
-    "date": "2026-06-29",
+    "query": "black woman urgent phone call medical explanation uk street medium shot",
+    "date": "2026-07-20",
     "slot": 3
+  },
+  {
+    "query": "crowded airport terminal busy",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "nigerian family member video call worried urgent expression indoor medium shot",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "black traveller train station receiving small medical parcel sender wide shot",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "black traveller airplane window seat small parcel relaxed medium shot",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman front door receiving medical parcel relief smiling medium shot",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "diverse black community london street warm sunny wide shot",
+    "date": "2026-07-20",
+    "slot": 3
+  },
+  {
+    "query": "black british man airport lounge phone excited medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "african male traveller cabin bag airport departure gate wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone home medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "black traveller receiving small parcel train station platform wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "african man handing parcel traveller airport departures smiling wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "commercial airplane taking off runway golden hour dramatic wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "black male traveller lagos airport arrivals hall confident walking medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman doorway receiving parcel smiling relief wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman birmingham street animated talking medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "ocean cargo ship harbour port",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "african woman phone app smiling relieved public space medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "black traveller train station parcel handover nigerian community member wide shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "african man airport departure gate cabin bag heading out medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman front door morning parcel delivery arriving medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "black family happy parcel handover front door smiling recipient medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "diverse black community london street welcoming gathering wide shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "black british woman airport lounge phone excited medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "african woman cabin luggage crutches airport departure gate wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone airport medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "black traveller receiving crutches parcel nigerian woman train station wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "woman phone call airport emotional",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "commercial airplane taking off runway dramatic golden hour wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "black british woman arrivals hall lagos airport confident walking medium shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman front door receiving crutches parcel smiling relief wide shot",
+    "date": "2026-07-21",
+    "slot": 3
+  },
+  {
+    "query": "gatwick airport departure lounge",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "commercial aircraft boarding passengers",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "african woman phone app public street smiling satisfied medium shot",
+    "date": "2026-07-21",
+    "slot": 1
   },
   {
     "query": "airport queue long waiting customs",
-    "date": "2026-06-29",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller airport departure gate cabin luggage boarding medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman arriving front door port harcourt home parcel medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "black family happy parcel handover front door smiling graduation medium shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london community street welcoming celebrating wide shot",
+    "date": "2026-07-21",
+    "slot": 1
+  },
+  {
+    "query": "young black woman university backpack leicester street worried medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "young black british woman holding folded arsenal football shirt worried medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "african man urgent phone call airport departures hall stressed medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "black traveller airport terminal receiving wrapped football shirt parcel wide shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "african male traveller plane window seat holding parcel in-flight medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "young black british woman walking confident london airport arrivals hall medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "young black british woman doorstep receiving arsenal shirt parcel relieved smiling medium shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "diverse black people confident london street walking graduation attire wide shot",
+    "date": "2026-07-21",
+    "slot": 2
+  },
+  {
+    "query": "black british man heathrow departure lounge confident medium shot",
+    "date": "2026-07-22",
     "slot": 3
   },
   {
-    "query": "traveller stressed queue airport close up reaction",
-    "date": "2026-06-29",
+    "query": "african man airport check-in desk cabin bag earning phone medium shot",
+    "date": "2026-07-22",
     "slot": 3
   },
   {
-    "query": "woman emotional close up airport departure gate",
-    "date": "2026-06-29",
+    "query": "nigerian woman animated phone call excited earning home medium shot",
+    "date": "2026-07-22",
     "slot": 3
+  },
+  {
+    "query": "two black people handshake airport station parcel exchange wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "african man airplane window seat relaxed smiling flight medium shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall accomplished proud wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "two african people trainers parcel handover smiling satisfied lagos wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "successful black diaspora people london street walking confident wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman holding framed jersey gift london office medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "diverse black diaspora people busy london high street wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman on phone concerned framed parcel london office medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian man comparing delivery prices phone relieved london office medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "african man black woman professional parcel handover london street wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "black british traveller airport departure lounge luggage confident medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian couple receiving framed parcel front door home smiling wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "diverse black community celebrating together london street daylight wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "busy airport departures hall african travellers luggage wide shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "black traveller airport security checkpoint bags screened wide shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman stressed airport check-in counter medium shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "black male traveller departure gate cabin luggage small parcel medium shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "family farewell airport departure terminal",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "black travellers walking confidently airport arrivals hall lagos wide shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "african woman smiling parcel handover airport arrivals hall wide shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "aerial lagos nigeria skyline international airport wide shot",
+    "date": "2026-07-22",
+    "slot": 1
+  },
+  {
+    "query": "black british woman london flat holding gift box worried medium shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman shocked phone screen expensive shipping price medium shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "african woman on phone call frustrated high delivery cost living room medium shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "black man london train station handing small parcel traveller wide shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "african traveller seated airplane cabin small parcel relaxed medium shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman arriving lagos airport arrivals hall luggage wide shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman doorstep lagos smiling receiving small gift parcel handover medium shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "lagos nigeria city skyline sunset golden hour aspirational wide shot",
+    "date": "2026-07-22",
+    "slot": 2
+  },
+  {
+    "query": "black british woman heathrow departure lounge confident medium shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "african man airport check-in cabin luggage earning phone medium shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman london home animated phone call excited earning medium shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "two black people handshake airport departure gate traveller sender wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "african man flight window seat smiling relaxed cabin medium shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "african man arriving lagos airport arrivals hall accomplished proud wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "two african people parcel handover lagos both smiling satisfied wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "black diaspora professionals lagos street confident successful celebrating wide shot",
+    "date": "2026-07-22",
+    "slot": 3
+  },
+  {
+    "query": "black british professional man london office smiling confident medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "diverse black diaspora people busy london high street walking wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman phone call lagos living room confident satisfied medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian man phone screen delivery prices comparing frustrated medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "african man black woman london street friendly parcel handover wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "black male traveller london airport departure lounge luggage confident medium shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian couple front door receiving clothing parcel smiling happy wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "diverse black community london street celebrating together joyful wide shot",
+    "date": "2026-07-22",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman bristol harbour waterfront thoughtful medium shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "african man smartphone app earnings smiling london apartment medium shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "black british traveller london airport departure gate cabin luggage confident wide shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman handing parcel black traveller bristol train station wide shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller airplane window seat relaxed thoughtful medium shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "black male traveller lagos airport arrivals hall exiting confident wide shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "two black people parcel handover smiling mutual satisfaction lagos doorstep wide shot",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "lagos nigeria skyline golden hour aspirational wide shot urban",
+    "date": "2026-07-23",
+    "slot": 1
+  },
+  {
+    "query": "london underground tube commuter",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "london black cab night city",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "nigerian man phone call worried living room urgent medium shot",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "train delay announcement platform",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "african male traveller window seat airplane flight daytime medium shot",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "black male traveller airport arrivals hall walking confidently parcel medium shot",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman front door receiving flat parcel relief smiling medium shot",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "diverse black people london city street walking confident daytime wide shot",
+    "date": "2026-07-23",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman london street animated talking worried medium shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "train departing station platform",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "african woman phone app public street smiling relieved medium shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "black traveller london train station receiving small parcel community member wide shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "black african traveller airport departure gate luggage boarding medium shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman home front door arriving receiving small parcel medium shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "black nigerian family front door smiling heirloom parcel handover medium shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "diverse black community london street welcoming celebrating together wide shot",
+    "date": "2026-07-23",
+    "slot": 2
+  },
+  {
+    "query": "airplane takeoff runway sunrise",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "black woman phone urgent medical conversation stressed medium shot",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "cargo delay shipping port container",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman video call worried urgent family medical medium shot",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "black traveller train station receiving medical parcel handover wide shot",
+    "date": "2026-07-24",
+    "slot": 1
   },
   {
     "query": "parcel package handover smiling",
-    "date": "2026-06-29",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "woman opening delivery box happy",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london street community warm sunny wide shot",
+    "date": "2026-07-24",
+    "slot": 1
+  },
+  {
+    "query": "black british woman home office small parcel worried medium shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman shocked phone screen expensive delivery price medium shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "african woman frustrated phone call high delivery cost indoor medium shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "stressed traveller missed flight gate",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "african male traveller airplane seat relaxed small parcel carry-on medium shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall luggage wide shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman front door smiling receiving small parcel friendly handover medium shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "lagos nigeria city skyline waterfront business aspirational golden hour wide shot",
+    "date": "2026-07-24",
+    "slot": 2
+  },
+  {
+    "query": "black british professional london airport departure lounge confident medium shot",
+    "date": "2026-07-24",
     "slot": 3
   },
   {
-    "query": "woman relieved happy face phone medium shot",
-    "date": "2026-06-29",
+    "query": "african man smartphone earnings app pleased airport seating medium shot",
+    "date": "2026-07-24",
     "slot": 3
   },
   {
-    "query": "london cityscape skyline professional wide shot",
-    "date": "2026-06-29",
+    "query": "black traveller london departure gate cabin luggage confident wide shot",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman handing parcel black traveller london train station wide shot",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "african traveller airplane window seat relaxed flight medium shot",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall exiting confident wide shot",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "two black people parcel handover lagos smiling mutual benefit wide shot",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "lagos skyline golden hour aspirational wide shot city success",
+    "date": "2026-07-24",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman confident smiling modern london office medium shot",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "heathrow airport departure gate",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman on phone looking worried frustrated london home medium shot",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "nigerian man comparing delivery apps phone london home looking concerned medium shot",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "man sitting airport gate alone",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "luggage claim belt passengers happy",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "nigerian couple front door receiving parcel smiling joyful london wide shot",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "diverse black british community celebrating together london street wide shot",
+    "date": "2026-07-24",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman london street animated talking medium shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "black british nigerian women laughing church community hall wide shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "african woman smiling phone app community centre medium shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "black traveller london train station handing parcel nigerian woman wide shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller airport departure gate cabin bag medium shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman lagos home front door arriving parcel morning medium shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "nigerian family grandmother framed photo gift happy doorway medium shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "diverse black community members london street welcoming smiling wide shot",
+    "date": "2026-07-25",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman holding framed jersey departures hall wide shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "black traveller bags security checkpoint airport screening wide shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman stressed airport check-in counter courier quote medium shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "black traveller departure gate cabin bag small parcel medium shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "traveller looking at passport nervous",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "black african travellers walking confidently airport arrivals hall wide shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "traveller delivery doorstep smile",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "lagos murtala muhammed international airport aerial skyline wide shot",
+    "date": "2026-07-25",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman london flat holding signed jersey shocked medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked uk home medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "african man courier service counter shocked high delivery price medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman phone call upset stressed uk living room medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "black traveller nigerian woman train station parcel handover wide shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "black male traveller airplane window seat parcel relaxed flight medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery uk home medium shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "diverse black people london street confident celebrating joyful wide shot",
+    "date": "2026-07-25",
+    "slot": 3
+  },
+  {
+    "query": "black british professional woman smiling london office medium shot",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "cargo plane loading airport freight",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman holding framed photo gift phone worried london flat medium shot",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "african man comparing delivery prices phone frustrated london home medium shot",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "person hugging goodbye airport",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "taxi arriving destination passenger happy",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "nigerian couple receiving wrapped parcel gift front door home abuja smiling wide shot",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "diverse black community group london street celebrating joyful connection wide shot",
+    "date": "2026-07-26",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman uk living room holding silk headwrap medium shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "black british woman shipping counter shocked expensive price medium shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "commuter waiting train platform stressed",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "black man leeds train station handing parcel traveller friendly wide shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "black nigerian traveller airplane window seat relaxed parcel overhead medium shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "nigerian family doorstep lagos reunion arrival morning wide shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "nigerian older woman receiving silk headwrap smiling happy home medium shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "diverse black people london residential street walking neighbourhood wide shot",
+    "date": "2026-07-26",
+    "slot": 2
+  },
+  {
+    "query": "taxi cab london street rain",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "african man airport check-in cabin luggage phone earning medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman london home phone animated excited framed photo medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "black man woman airport handshake parcel exchange trust wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian man airplane window seat relaxed smiling flight medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "african man abuja airport arrivals hall accomplished proud wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "two african people parcel handover both smiling satisfied nigeria wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "successful black diaspora people london lagos street confident wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman london home framed photo worried medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "eurostar train platform london",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman animated phone call london flat excited worried medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "black nigerian man woman handshake airport departure gate wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "black african male traveller airplane window seat smiling relaxed medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller lagos airport arrivals hall accomplished proud wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "african man woman parcel handover enugu doorstep both smiling wide shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman receiving framed family photo home doorway smiling satisfied medium shot",
+    "date": "2026-07-26",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman london home holding small gift box medium shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "black woman shipping counter shocked expensive price parcel medium shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "african woman worried phone call home upset stressed medium shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "black man train station handing small parcel traveller friendly wide shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "african traveller airplane window seat relaxed nigeria flight medium shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "nigerian family doorstep reunion arrival warm embrace wide shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "nigerian elderly woman smiling receiving small gift family home medium shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "london residential street diverse people walking neighbourhood wide shot",
+    "date": "2026-07-26",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman birmingham home shocked paper quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man courier counter shocked high delivery price medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman home phone call upset delivery cost medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black traveller nigerian sender train station parcel handover wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black traveller airplane window seat parcel overhead bin relaxed medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman home phone smiling affordable delivery good news medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london street confident celebrating community wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black british woman home office worried small parcel medium shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman shocked expensive delivery price phone screen medium shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "african woman phone call frustrated high delivery cost indoor medium shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "heavy suitcase luggage overweight check",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "african traveller seated train window relaxed small parcel beside medium shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "black traveller arriving lagos airport arrivals hall wide shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "plane landing runway arrival",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "lagos nigeria cityscape skyline confident aspirational golden hour wide shot",
+    "date": "2026-07-27",
+    "slot": 2
+  },
+  {
+    "query": "nigerian woman home shocked holding paper quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man courier counter shocked high price receipt medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone call home upset worried delivery medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "young woman crying airport goodbye",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black male traveller airplane window seat parcel relaxed medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman home smiling phone call happy affordable delivery medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london street confident celebrating together wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman home shocked holding paper document medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man courier counter shocked high price package medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone call upset delivery cost home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "professional traveller briefcase airport",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black male traveller airplane window seat relaxed parcel medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london street confident celebrating graduation wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "airport runway plane taxiing",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive courier website shocked home desk medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man courier office counter shocked delivery price quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone call upset stressed living room medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man airport departure lounge",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller airplane window seat parcel relaxed medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone smiling relieved happy affordable delivery home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "professional business person london city",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman bristol home shocked holding price quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive courier website worried uk home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "airport customs officer inspection",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone call upset delivery cost uk flat medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black traveller nigerian woman train station parcel handover uk wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african male traveller flight window seat parcel relaxed medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman phone smiling relieved affordable delivery bristol home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people lagos street celebrating parcel arrival confident wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman home shocked holding paper price quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black woman laptop expensive delivery website shocked home desk medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "african man courier service counter shocked expensive price quote medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "delayed flight departure board",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diaspora traveller london heathrow",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "package delivered door receiver happy",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman smiling phone call happy affordable delivery uk home medium shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "diverse black people london street celebrating confident joyful wide shot",
+    "date": "2026-07-27",
+    "slot": 1
+  },
+  {
+    "query": "black british woman home worried holding small gift box medium shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price phone screen medium shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "african woman phone call frustrated high delivery cost living room medium shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "immigration passport queue airport",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "african traveller airplane seat relaxed small parcel carry-on medium shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "train arrival platform people smiling",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "nigerian woman front door smiling receiving small parcel handover medium shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "lagos victoria island skyline confident aspirational golden hour wide shot",
+    "date": "2026-07-28",
+    "slot": 4
+  },
+  {
+    "query": "black british woman airport lounge excited phone discovery medium shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "african woman half-empty cabin luggage airport departure gate wide shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman shocked expensive courier price smartphone airport terminal medium shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "black traveller receiving small parcel nigerian sender train station wide shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "african man handing parcel black traveller airport departures smiling wide shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "cargo ship docking port workers",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "traveller handing parcel airport",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman front door receiving parcel smiling relief wide shot",
+    "date": "2026-07-28",
+    "slot": 3
+  },
+  {
+    "query": "black british woman home worried holding gift box medium shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman shocked phone screen high shipping price medium shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "african woman frustrated phone call expensive international delivery medium shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "overweight baggage airline counter",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "black traveller seated airplane cabin relaxed small parcel overhead medium shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "black traveller lagos airport arrivals hall walking wide shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "nigerian woman lekki home door smiling receiving small parcel medium shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "lagos island cityscape skyline confident aspirational golden hour wide shot",
+    "date": "2026-07-28",
+    "slot": 1
+  },
+  {
+    "query": "black british man laptop flight prices worried home medium shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black british man phone screen shocked expensive flight price medium shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black british man laptop multiple flight booking sites frustrated medium shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black british man office desk calendar approved leave stressed wide shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black british man phone flight search app tense living room medium shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black british man phone relieved smiling flight booked london flat medium shot",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "black african man lagos airport arrivals hall wide shot confident",
+    "date": "2026-07-29",
+    "slot": 3
+  },
+  {
+    "query": "lagos nigeria skyline cityscape aspirational golden hour wide shot",
+    "date": "2026-07-29",
     "slot": 3
   }
 ]

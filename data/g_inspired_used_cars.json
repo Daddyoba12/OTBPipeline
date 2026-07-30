@@ -1,0 +1,86 @@
+[
+  {
+    "key": "2013_Dodge_Avenger",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2013,
+      "make": "Dodge",
+      "model": "Avenger",
+      "trim": "SE V6",
+      "price": 7995,
+      "mileage": 122986
+    }
+  },
+  {
+    "key": "2011_Ford_F-150",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2011,
+      "make": "Ford",
+      "model": "F-150",
+      "trim": "XLT",
+      "price": 13995,
+      "mileage": 96305
+    }
+  },
+  {
+    "key": "2016_Nissan_Altima",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2016,
+      "make": "Nissan",
+      "model": "Altima",
+      "trim": "2.5 S",
+      "price": 11995,
+      "mileage": 83999
+    }
+  },
+  {
+    "key": "2016_Honda_CR-V",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2016,
+      "make": "Honda",
+      "model": "CR-V",
+      "trim": "EX-L",
+      "price": 15995,
+      "mileage": 106545
+    }
+  },
+  {
+    "key": "2016_Subaru_Outback",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2016,
+      "make": "Subaru",
+      "model": "Outback",
+      "trim": "2.5i Limited",
+      "price": 14995,
+      "mileage": 107037
+    }
+  },
+  {
+    "key": "2018_Chevrolet_Equinox",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2018,
+      "make": "Chevrolet",
+      "model": "Equinox",
+      "trim": "LT",
+      "price": 10995,
+      "mileage": 101312
+    }
+  },
+  {
+    "key": "2015_Chrysler_Town & Country",
+    "date": "2026-07-26",
+    "car": {
+      "year": 2015,
+      "make": "Chrysler",
+      "model": "Town & Country",
+      "trim": "Touring-L",
+      "price": 8995,
+      "mileage": 144454
+    }
+  }
+]
