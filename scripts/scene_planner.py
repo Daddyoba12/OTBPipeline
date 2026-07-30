@@ -320,8 +320,8 @@ def _build_specificity_block(story: dict) -> str:
 # The Scene Planner AI uses these as hard constraints when writing search queries.
 PILLAR_BLUEPRINTS = {
     "supply_chain": [
-        "Black British woman in UK home or office — looks worried, holds a small item to send",
-        "Phone screen showing an expensive courier price — Nigerian woman reacting shocked",
+        "CLOSE-UP Black British woman face — shocked expression reading expensive courier price on phone — vertical portrait shot",
+        "Close-up phone screen showing expensive courier price — Nigerian woman shocked reaction face — vertical shot",
         "African woman on phone call looking frustrated at a high delivery price",
         "Black man at train station handing small parcel to a traveller — wide shot",
         "African traveller seated on a train or flight — relaxed, parcel with them",
@@ -330,8 +330,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London or Lagos cityscape — confident aspirational wide shot",
     ],
     "family": [
-        "Nigerian woman in UK home — holds small gift cream or medicine for family — medium shot",
-        "Black woman at courier counter reacting to expensive price — shocked medium shot",
+        "CLOSE-UP Nigerian woman face — worried anxious expression holding phone in UK home — vertical portrait shot",
+        "Close-up Black woman face shocked at courier counter reacting to expensive price — vertical shot",
         "African woman upset or worried on phone at home — medium shot",
         "Black man at train station handing small parcel to traveller — friendly wide shot",
         "African traveller on flight heading to Nigeria — window seat relaxed medium shot",
@@ -340,8 +340,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London residential street or Lagos neighbourhood — people walking",
     ],
     "airport": [
-        "Busy airport departures hall — African and Black travellers moving with luggage wide shot",
-        "Customs security checkpoint — Black traveller bags being checked wide shot",
+        "CLOSE-UP Black traveller face — stressed anxious expression checking phone at airport departures — vertical portrait shot",
+        "Close-up Nigerian woman face shocked stressed at airport counter — vertical shot",
         "Nigerian woman looking stressed at airport counter medium shot",
         "Black traveller at departure gate with cabin luggage and small parcel medium shot",
         "Wide airplane taking off from runway — dramatic wide shot",
@@ -350,8 +350,8 @@ PILLAR_BLUEPRINTS = {
         "Wide aerial international airport or Lagos skyline wide shot",
     ],
     "airport_deliveries": [
-        "Black woman at pharmacy counter collecting prescription — medium shot",
-        "Nigerian woman holding small medicine box prescription packet — medium shot",
+        "CLOSE-UP Black woman face — deeply worried urgent expression holding prescription at pharmacy — vertical portrait shot",
+        "Close-up Nigerian woman face urgent worried expression holding medicine box — vertical shot",
         "African man on phone call looking worried — explaining urgent problem medium shot",
         "Black traveller at train station receiving small medical parcel from sender wide shot",
         "African traveller on flight window seat plane in air medium shot",
@@ -360,8 +360,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London city street — diverse people walking confident wide shot",
     ],
     "community": [
-        "Nigerian man or woman in London street or apartment — animated talking medium shot",
-        "Two Black people talking warmly — community gathering or cafe wide shot",
+        "CLOSE-UP Nigerian man or woman face — animated excited emotional expression talking — London vertical portrait shot",
+        "Close-up two Black people faces animated conversation community cafe — vertical shot",
         "African woman using phone app in public — smiling satisfied medium shot",
         "Black traveller at train station receiving parcel from Nigerian community member wide shot",
         "African traveller on train or at airport gate heading out medium shot",
@@ -370,8 +370,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London street or community space — diverse Black people welcoming wide shot",
     ],
     "smart": [
-        "Black British professional at London airport departure lounge confident medium shot",
-        "African man on phone checking app looking pleased at earnings medium shot",
+        "CLOSE-UP Black British professional face — confident pleased expression checking phone earnings app — vertical portrait shot",
+        "Close-up African man face excited pleased looking at phone earnings — vertical shot",
         "Wide airport departure gate — Black traveller with cabin luggage confident wide shot",
         "Nigerian woman handing small parcel to Black traveller at train station wide shot",
         "African traveller on flight relaxed looking out window medium shot",
@@ -380,8 +380,8 @@ PILLAR_BLUEPRINTS = {
         "Wide Lagos or London skyline — successful aspirational wide shot",
     ],
     "travel_hacks": [
-        "Black British traveller at airport departure lounge checking phone — excited realisation medium shot",
-        "African traveller with cabin luggage at airport gate wide shot",
+        "CLOSE-UP Black British traveller face — excited shocked realisation expression checking phone at airport — vertical portrait shot",
+        "Close-up African traveller face excited surprised expression at airport gate — vertical shot",
         "Nigerian woman shocked face looking at expensive courier price on phone medium shot",
         "Black traveller receiving small parcel from Nigerian sender at train station wide shot",
         "African man handing parcel to traveller airport departures smiling wide shot",
@@ -390,8 +390,8 @@ PILLAR_BLUEPRINTS = {
         "Nigerian person at door receiving parcel smiling relief wide shot",
     ],
     "logistics_stories": [
-        "Wide cargo ship at sea or shipping containers stacked at port wide shot",
-        "Black woman at courier counter reacting to high price surprised medium shot",
+        "CLOSE-UP Black woman face — shocked surprised expression reading expensive courier price quote — vertical portrait shot",
+        "Close-up Black woman face shocked reacting to high courier price counter — vertical shot",
         "African man on phone frustrated logistics problem medium shot",
         "Wide Black traveller at airport handing parcel to Nigerian recipient wide shot",
         "African traveller on flight or train — parcel safely with them medium shot",
@@ -400,8 +400,8 @@ PILLAR_BLUEPRINTS = {
         "Wide busy port cargo facility or London Lagos cityscape wide shot",
     ],
     "cost_pain": [
-        "Nigerian woman in UK home looking shocked holding courier price quote medium shot",
-        "Black woman at laptop or phone — expensive courier website shown on screen medium shot",
+        "CLOSE-UP Nigerian woman face — shocked disbelieving expression staring at expensive courier price — phone in hand vertical portrait shot",
+        "Close-up Black woman face shocked staring at laptop showing expensive courier website — vertical shot",
         "African man at courier counter shocked at high delivery price medium shot",
         "Nigerian woman on phone call upset about delivery cost medium shot",
         "Black traveller and Nigerian sender at train station parcel handover wide shot",
@@ -410,8 +410,8 @@ PILLAR_BLUEPRINTS = {
         "Diverse Black people London street confident celebrating wide shot",
     ],
     "cultural_earn": [
-        "Black British traveller at Heathrow airport confident departure lounge medium shot",
-        "African man at airport check-in with cabin luggage earning money on phone medium shot",
+        "CLOSE-UP Black British traveller face — confident excited expression at Heathrow departure lounge — vertical portrait shot",
+        "Close-up African man face excited pleased checking phone earnings at airport — vertical shot",
         "Nigerian woman talking animatedly on phone — excited about earning medium shot",
         "Two Black people shaking hands airport or station — traveller and sender wide shot",
         "African traveller on flight smiling relaxed window seat medium shot",
@@ -420,8 +420,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London or Lagos street — successful Black diaspora people wide shot",
     ],
     "urgent_medical": [
-        "Nigerian woman at pharmacy looking worried holding prescription medium shot",
-        "Black woman on phone urgently explaining medical situation medium shot",
+        "CLOSE-UP Nigerian woman face — deeply worried urgent stressed expression holding prescription — vertical portrait shot",
+        "Close-up Black woman face urgent worried on phone call medical situation — vertical shot",
         "African man at pharmacy counter medication unavailable worried medium shot",
         "Nigerian family member on video call worried urgent expression medium shot",
         "Black traveller at train station receiving small medical parcel from sender wide shot",
@@ -430,8 +430,8 @@ PILLAR_BLUEPRINTS = {
         "Wide London street — diverse Black people community warm wide shot",
     ],
     "brand_authority": [
-        "Black British professional confident smiling at London office medium shot",
-        "Wide shot diverse Black diaspora people on London high street wide shot",
+        "CLOSE-UP Black British professional face — confident warm genuine smile — London office vertical portrait shot",
+        "Close-up diverse Black diaspora people faces animated warm conversation London — vertical shot",
         "Nigerian woman on phone looking confident and satisfied medium shot",
         "Nigerian man comparing delivery options on phone looking pleased medium shot",
         "African man and Black woman friendly professional parcel handover wide shot",
