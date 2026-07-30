@@ -484,8 +484,9 @@ SCENE BLUEPRINT — follow this order EXACTLY. Each query must visually match it
 
 RULES FOR EVERY QUERY (non-negotiable):
 - Maximum 6 words per query
-- ALWAYS use "medium shot" OR "wide shot" in the query — no exceptions
-- NEVER use "close up", "close-up", "extreme", or "face only"
+- Scene 0 and Scene 1 (hook): MUST include "close up" and a face/emotion descriptor — this is the attention-grab
+- Scenes 2–7: ALWAYS use "medium shot" OR "wide shot" — no exceptions
+- NEVER use "face only" as the entire query — always include ethnicity and emotion
 - NEVER use animals: dog, cat, horse, farm, zoo, bird, wildlife, livestock
 - NEVER use food: restaurant, kitchen, grocery, meal, cooking, cafe
 - NEVER use Christmas, Halloween, pumpkin, Santa
@@ -511,17 +512,20 @@ AIRPORT PILLAR — MANDATORY (if pillar is airport or airport_deliveries):
     "Black traveller airport departure gate cabin luggage medium shot"
     "airport arrivals hall Nigerian family reunion smiling wide shot"
 
-CORRECT examples (any pillar):
-  "Black British woman london flat worried medium shot"
-  "Nigerian woman pharmacy counter shocked medium shot"
-  "African man train station parcel handover wide shot"
-  "Black traveller plane window seat medium shot"
-  "Nigerian woman door smiling parcel medium shot"
-  "diverse Black people london street wide shot"
-  "African woman dancing celebration wide shot"
+CORRECT examples:
+  Scene 0 or 1 (hook — close-up required):
+    "Black British woman close up face shocked phone"
+    "Nigerian woman shocked face expensive price close up"
+  Scenes 2–7 (medium/wide required):
+    "Nigerian woman post office counter shocked medium shot"
+    "African man train station parcel handover wide shot"
+    "Black traveller plane window seat medium shot"
+    "Nigerian woman door smiling parcel medium shot"
+    "diverse Black people london street wide shot"
 
 WRONG — never do this:
-  "woman close up face shocked"   ← no ethnicity, close-up
+  "woman close up face shocked"   ← missing ethnicity (Black British / Nigerian / African)
+  "close up face only"            ← no ethnicity, no context
   "DHL courier tracking parcel"   ← brand name
   "farm green field landscape"    ← no people, banned
   "airport crowd far away wide"   ← vague, no people descriptor
@@ -591,7 +595,7 @@ SCENE BLUEPRINT (same structure as V1 — follow this order):
 V1 already used these queries — do NOT repeat them, find fresh alternatives:
 {v1_str}
 {specificity_block}
-RULES: same as V1 — medium/wide shots only, no close-ups, no animals, no food, no courier brand names.{airport_rule}
+RULES: same as V1 — scenes 0 and 1 use "close up face" + emotion, scenes 2–7 use medium/wide shots only. No animals, no food, no courier brand names. Always include ethnicity (Black British / Nigerian / African).{airport_rule}
 
 Return ONLY valid JSON:
 {{"visual_queries": ["q0","q1","q2","q3","q4","q5","q6","q7"]}}"""

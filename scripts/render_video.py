@@ -223,19 +223,19 @@ def _bh_dalle_prompt(beat: str, content: dict) -> str:
             "depth of field. Vertical 9:16 portrait orientation."
         ),
         "problem": (
-            "A stressed Nigerian British woman at a UK Post Office counter, looking "
-            "frustrated while holding a large parcel. A price sign showing high fees. "
-            "Documentary medium shot, muted lighting."
+            "Close-up of a stressed Black British woman's face — eyes wide, staring in "
+            "disbelief at a phone screen showing a courier price over £300. One hand "
+            "pressed to her mouth in shock. Portrait orientation, documentary lighting."
         ),
         "stakes": (
-            "A Black British man sitting at an airport departure gate, anxiously checking "
-            "his phone. A carry-on bag beside him, other travellers in background. "
-            "Cinematic wide shot, airport environment."
+            "Black British woman at kitchen table — head in hands, phone showing expensive "
+            "courier fees, bills in background. Defeated and stressed. Tight medium shot, "
+            "dim warm home lighting. Portrait orientation."
         ),
         "resolution": (
-            "A Black British traveller at an airport gate, smiling as they hand a "
-            "gift-wrapped package to another passenger. Warm, relieved expressions. "
-            "Medium shot, hopeful golden hour lighting."
+            "A Black British woman's face lighting up with relief — warm smile, eyes bright, "
+            "holding her phone showing a much lower price. Hopeful, relieved expression. "
+            "Close-up medium portrait shot, soft natural light."
         ),
         "lesson_pre": (
             "A joyful Nigerian woman standing at her doorstep receiving a delivered parcel "
@@ -361,8 +361,8 @@ BEAT_STYLE = {
     "hook": {
         "size": 78, "size_cont": 60,
         "color": "FFE600",
-        "y_start": 100,   # shifted up to give room for 4th line
-        "line_gap": 96,
+        "y_start": 1280,  # lower third: face fills top, text below it
+        "line_gap": 84,
         "max_chars": 20,
         "max_lines": 4,
         "title_font": True,
@@ -1442,10 +1442,14 @@ def render_video(content: dict, slot: int, output_path: str,
 
     for i in range(N_CLIPS):
         query  = _guard_query(queries[i], i)
-        # Clip 0 is the very first frame TikTok users see — force a close-up emotional face
-        # regardless of what the scene planner generated; stock video for clip 0 must grab attention
+        # Clips 0-1: close-up face grabs attention (face at top, hook text at bottom)
+        # Clip 4: stakes beat — tight stressed shot at peak tension
         if i == 0:
             query = "Black woman close up face shocked expression phone screen"
+        elif i == 1:
+            query = "Nigerian woman shocked face expensive price reaction close up"
+        elif i == 4:
+            query = "Black woman stressed worried phone bills money close up"
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
         raw    = TEMP / f"{prefix}_raw_{i}.mp4"
