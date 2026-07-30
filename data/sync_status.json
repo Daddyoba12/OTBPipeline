@@ -263,13 +263,25 @@
         "youtube": true
       },
       "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-07-30T21:16:24.446082",
+      "slot": 3,
+      "pillar": "airport_deliveries",
+      "bucket": "smart",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
     }
   ],
   "last_run": {
-    "timestamp": "2026-07-29T21:12:26.098509",
+    "timestamp": "2026-07-30T21:16:24.446082",
     "slot": 3,
-    "pillar": "flight_discovery",
-    "bucket": "airport",
+    "pillar": "airport_deliveries",
+    "bucket": "smart",
     "results": {
       "tiktok": true,
       "instagram": true,
