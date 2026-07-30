@@ -1150,6 +1150,69 @@ def _pil_png_to_video(png: Path, dest: Path, duration: int) -> bool:
     return ok and dest.exists() and dest.stat().st_size > 5000
 
 
+def _text_card_clip(hook_text: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+    """
+    Proven TikTok hook format: dark branded background + centered hook text.
+    First sentence in large yellow (punch), rest in smaller white (sub-hook).
+    No stock footage — text IS the visual. Native, not ad-like.
+    """
+    try:
+        from PIL import Image, ImageDraw
+        img  = Image.new("RGB", (W, H), (8, 14, 28))   # #080E1C very dark navy
+        draw = ImageDraw.Draw(img)
+
+        # Thin brand-accent strip at the very bottom
+        draw.rectangle([(0, H - 8), (W, H)], fill=(255, 107, 0))
+
+        font_punch = _load_pil_font("title", 88)   # Oswald Bold — punch line
+        font_cont  = _load_pil_font("body",  52)   # Montserrat  — sub-hook
+
+        hook_lines  = _split_hook(_esc(hook_text))
+        punch_lines = hook_lines[:2]
+        cont_lines  = hook_lines[2:]
+
+        punch_h = 104   # px per punch line
+        cont_h  = 72    # px per cont line
+        gap_mid = 36    # gap between punch and sub-hook
+
+        total = (len(punch_lines) * punch_h
+                 + (gap_mid + len(cont_lines) * cont_h if cont_lines else 0))
+        y = (H - total) // 2 - 50   # slightly above dead center
+
+        for line in punch_lines:
+            _pil_draw_centered(draw, line, y, font_punch, (255, 230, 0), shadow=True)
+            y += punch_h
+
+        if cont_lines:
+            y += gap_mid
+            for line in cont_lines:
+                _pil_draw_centered(draw, line, y, font_cont, (210, 210, 210), shadow=True)
+                y += cont_h
+
+        png = dest.with_suffix(".png")
+        img.save(str(png), "PNG")
+        ok = _ff(
+            "-loop", "1", "-i", str(png),
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+        )
+        png.unlink(missing_ok=True)
+        return ok and dest.exists() and dest.stat().st_size > 1000
+    except Exception as e:
+        print(f"    [TextCard] PIL failed ({e}) — ffmpeg plain card")
+        ok = _ff(
+            "-f", "lavfi", "-i",
+            f"color=size={W}x{H}:color=0x080E1C:rate={VIDEO_FPS}",
+            "-vf",
+            f"drawbox=x=0:y={H-8}:w={W}:h=8:color=0xFF6B00:t=fill",
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "18", "-preset", "fast",
+            "-pix_fmt", "yuv420p", "-an", str(dest),
+        )
+        return ok and dest.exists() and dest.stat().st_size > 1000
+
+
 # ── Lesson card ───────────────────────────────────────────────────────────────
 
 def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: Path) -> bool:
@@ -1461,6 +1524,16 @@ def render_video(content: dict, slot: int, output_path: str,
         used_user_clips: set      = getattr(render_video, "_used_user_clips_this_run", set())
         user_clip_count: int      = getattr(render_video, "_user_clip_count_this_run", 0)
         used_user_beat_types: set = getattr(render_video, "_used_user_beat_types_this_run", set())
+
+        # ── Clip 0: Text-card hook (proven TikTok format) ─────────────────────
+        # Dark branded background + hook text centered — native feel, no stock footage.
+        # Text baked in by _text_card_clip (PIL), so _process_clip is NOT called.
+        if i == 0:
+            if _text_card_clip(text, proc):
+                got_video = True
+                if top_caption and proc.exists():
+                    _apply_caption_overlay(proc, top_caption)
+                print(f"    Clip 0: text-card hook [{len(text.split())} words]")
 
         # ── Priority 0: User-provided clips ──────────────────────────────────────
         # Skipped when user_clips_disabled=true in client_profile.json (e.g. to avoid
