@@ -357,7 +357,7 @@ def _hook_intelligence_block() -> str:
         return ""
 
 
-def _recent_hooks_block(days: int = 7) -> str:
+def _recent_hooks_block(days: int = 14) -> str:
     """Inject hooks used in the last N days as explicit avoids so patterns don't repeat."""
     try:
         mem_file = DATA / "memory.json"
@@ -1293,6 +1293,74 @@ def _build_travel_hacks_angle() -> str:
     )
 
 
+class ContentDuplicateError(Exception):
+    """Raised when a generated hook is too similar to content posted in the last 14 days."""
+
+
+_STOP_WORDS = {
+    "a", "an", "the", "is", "are", "was", "were", "be", "been", "to", "of",
+    "in", "on", "at", "for", "with", "and", "or", "but", "your", "you",
+    "his", "her", "their", "its", "our", "my", "this", "that", "if", "what",
+    "would", "could", "should", "do", "did", "have", "has", "had", "not",
+    "just", "still", "as", "by", "from", "how", "when", "where", "who",
+    "which", "while", "s", "t",
+}
+
+
+def _check_hook_duplicate(hook: str, days: int = 14):
+    """
+    Hard gate: raise ContentDuplicateError if the hook is too similar to any
+    hook already in memory.json from the last N days.
+    Called after Stage 2 (QA) so we abort before expensive image/video stages.
+    """
+    try:
+        mem_file = DATA / "memory.json"
+        if not mem_file.exists():
+            return
+        mem = json.loads(mem_file.read_text(encoding="utf-8"))
+    except Exception:
+        return
+
+    cutoff = (date.today() - timedelta(days=days)).isoformat()
+    hook_lower = hook.lower().strip()
+    hook_start = " ".join(hook_lower.split()[:5])
+    new_sig = {w.strip(".,?!\"'") for w in hook_lower.split()} - _STOP_WORDS
+
+    if not new_sig:
+        return
+
+    for entry in mem:
+        if entry.get("date", "") < cutoff:
+            continue
+        old = entry.get("hook", "").strip()
+        if not old:
+            continue
+        old_lower = old.lower()
+
+        # Exact match
+        if old_lower == hook_lower:
+            raise ContentDuplicateError(
+                f"Exact hook reuse from {entry.get('date')}: \"{old[:80]}\""
+            )
+
+        # Same opening 5 words (catches "Would you trust a stranger…" repeats)
+        old_start = " ".join(old_lower.split()[:5])
+        if hook_start == old_start:
+            raise ContentDuplicateError(
+                f"Hook opener repeated from {entry.get('date')}: \"{hook_start}…\""
+            )
+
+        # Significant-word overlap ≥ 65%
+        old_sig = {w.strip(".,?!\"'") for w in old_lower.split()} - _STOP_WORDS
+        if old_sig:
+            overlap = len(new_sig & old_sig) / min(len(new_sig), len(old_sig))
+            if overlap >= 0.65:
+                raise ContentDuplicateError(
+                    f"Hook {int(overlap*100)}% similar to entry from "
+                    f"{entry.get('date')}: \"{old[:80]}\""
+                )
+
+
 def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     """
     Stage 1: Story Writer generates the narrative.
@@ -1334,6 +1402,10 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
 
     # ── Stage 2: QA Director — review and improve the story ──────────────────
     data = review_and_improve(data, pillar)
+
+    # ── 14-day duplicate gate — abort before expensive stages run ─────────────
+    _check_hook_duplicate(data.get("hook", ""), days=14)
+    print(f"  [DupCheck] Hook cleared 14-day window: {data.get('hook','')[:70]}")
 
     # ── Stage 3: Scene Planner ────────────────────────────────────────────────
     scene_queries = plan_scenes(data, pillar)
