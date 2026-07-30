@@ -511,22 +511,33 @@ Examples of good unexpected moments:
 This moment is what makes the video shareable. Don't skip it.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-HOOK — POV QUESTION DIRECTED AT THE VIEWER (primary format)
+HOOK — THREE PROVEN FORMATS (rotate, never repeat the same format twice in a row)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-The HOOK is a question that puts the viewer INSIDE the situation before they know the character's name.
-It must feel personal — like you're asking THEM, not telling them a story.
+Pick ONE format per video. Rotate through all three — variety drives discovery.
 
-✓ "Would you trust a stranger with your dad's most precious parcel?"
-✓ "What would you do if the ceremony is Saturday and the parcel is still in Leeds?"
-✓ "Would you let a stranger carry your mum's framed photo to Lagos?"
-✓ "What if the only person flying tomorrow is someone you've never met?"
-✓ "Would you risk it — a stranger, a flight, your dad's gift — to save £60?"
+FORMAT 1 — POV QUESTION (puts viewer inside the situation):
+  "Would you let a stranger carry your mum's framed photo to Lagos?"
+  "What if the only person flying tomorrow is someone you've never met?"
+  "Would you risk it — a stranger, a flight, your dad's gift — to save £60?"
+  Rule: must feel personal. Story immediately answers through one named character.
 
-Then IMMEDIATELY the story answers that question through one specific person (Emeka, Sade, Sarah, James, Tunde, Emma etc.)
-The hook question + character name together = the first 3 seconds of the video.
+FORMAT 2 — NOBODY TOLD US (community discovery / insider reveal — TRENDING):
+  "Nobody told me Nigerians in the UK could earn £200 just for flying home."
+  "Nobody told us there was a cheaper way to send things to Naija."
+  "Nobody told her there was a traveller already booked on that flight."
+  Rule: opens with discovery energy. Creates FOMO. Best for traveller-earns stories.
 
-✗ NEVER start with a price, courier quote, or BootHop name
-✗ NEVER write a narrative statement as hook — it must be a question OR a setup that demands one
+FORMAT 3 — CINEMATIC STATEMENT (specific moment or number, immediate tension):
+  "She posted at midnight. By 6am the parcel was on a plane to Lagos."
+  "He nearly left £200 on the table. He almost didn't check the app."
+  "The ceremony was Saturday. The parcel was still in Leeds on Thursday night."
+  Rule: opens with a concrete moment or number. No brand name. Pure tension.
+
+Then IMMEDIATELY continue with the named character (Emeka, Sade, Sarah, James, Tunde, Emma etc.)
+
+✗ NEVER start with a BootHop name or price in the hook
+✗ NEVER reuse an opener from the HOOKS USED IN LAST 14 DAYS list below
+✗ "Would you trust a stranger" is OVERUSED — avoid unless it genuinely fits best
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ITEMS — use variety, NEVER default to tablets or medication
