@@ -1557,6 +1557,17 @@ def get_pillar_for_slot(slot: int) -> str:
         # If the day entry is itself a list, alternate by ISO week number
         # e.g. ["urgent_medical", "faith_friday"] → week 1 = urgent_medical, week 2 = faith_friday
         if isinstance(day_val, list):
+            # Use weekly performance data to pick the better-performing option
+            _wf = DATA / "pillar_weights.json"
+            if _wf.exists():
+                try:
+                    _weights = json.loads(_wf.read_text(encoding="utf-8"))
+                    best = max(day_val, key=lambda p: _weights.get(p, 0.5))
+                    print(f"  [Pillar] Weights used — picked '{best}' from {day_val}")
+                    return best
+                except Exception:
+                    pass
+            # Fallback: alternate by ISO week number
             week_num = today.isocalendar()[1]
             return day_val[week_num % len(day_val)]
         return day_val
