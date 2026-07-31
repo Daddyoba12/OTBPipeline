@@ -181,23 +181,20 @@ def engage_instagram():
 # ── YouTube engagement ──────────────────────────────────────────────────────────
 
 def _yt_token() -> str | None:
-    """Load YT access token without scope restriction (works for comment-enabled tokens)."""
+    """Load YT access token, refreshing if expired. No scope restriction."""
     if not YOUTUBE_TOKEN.exists():
         return None
     try:
-        data = json.loads(YOUTUBE_TOKEN.read_text())
         from google.oauth2.credentials import Credentials
         from google.auth.transport.requests import Request
-        creds = Credentials(
-            token         = data.get("token"),
-            refresh_token = data.get("refresh_token"),
-            token_uri     = data.get("token_uri", "https://oauth2.googleapis.com/token"),
-            client_id     = data.get("client_id"),
-            client_secret = data.get("client_secret"),
-        )
-        if creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-            YOUTUBE_TOKEN.write_text(creds.to_json())
+        # from_authorized_user_file with no scopes = no scope validation, just loads + refreshes
+        creds = Credentials.from_authorized_user_file(str(YOUTUBE_TOKEN))
+        if not creds.valid:
+            if creds.refresh_token:
+                creds.refresh(Request())
+                YOUTUBE_TOKEN.write_text(creds.to_json())
+            else:
+                _log("YT token invalid and no refresh_token"); return None
         return creds.token
     except Exception as e:
         _log(f"YT token error: {e}"); return None
