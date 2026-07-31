@@ -159,6 +159,9 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
                         _log(f"URL: https://youtube.com/shorts/{video_id}")
                         _set_thumbnail(video_id, content, access_token)
                         _log_post(slot, video_id)
+                        engagement = content.get("engagement", "")
+                        if engagement:
+                            _post_first_comment(video_id, engagement, access_token)
                         return video_id
                 elif r.status_code == 308:
                     # Resume incomplete — next chunk
@@ -197,6 +200,28 @@ def _set_thumbnail(video_id: str, content: dict, access_token: str):
             _log(f"Thumbnail set failed {r.status_code}: {r.text[:100]}")
     except Exception as e:
         _log(f"Thumbnail upload error: {e}")
+
+
+def _post_first_comment(video_id: str, text: str, access_token: str):
+    """Post the engagement question as first comment to seed early interaction."""
+    try:
+        r = requests.post(
+            "https://www.googleapis.com/youtube/v3/commentThreads?part=snippet",
+            headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"},
+            json={
+                "snippet": {
+                    "videoId": video_id,
+                    "topLevelComment": {"snippet": {"textOriginal": text}},
+                }
+            },
+            timeout=15,
+        ).json()
+        if r.get("id"):
+            _log(f"First comment posted on {video_id} ✓")
+        else:
+            _log(f"First comment failed: {r.get('error', r)}")
+    except Exception as e:
+        _log(f"First comment error (non-fatal): {e}")
 
 
 def _log_post(slot: int, video_id: str):

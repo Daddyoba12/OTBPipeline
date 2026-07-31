@@ -237,4 +237,23 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     if media_id:
         _log_post(slot, media_id)
         _log(f"Reel posted! media_id={media_id}")
+        engagement = content.get("engagement", "")
+        if engagement:
+            _post_first_comment(media_id, engagement, access_token)
     return media_id or None
+
+
+def _post_first_comment(media_id: str, text: str, access_token: str):
+    """Post the engagement question as first comment to seed early interaction."""
+    try:
+        r = requests.post(
+            f"https://graph.instagram.com/v21.0/{media_id}/comments",
+            params={"message": text, "access_token": access_token},
+            timeout=15,
+        ).json()
+        if r.get("id"):
+            _log(f"First comment posted ✓")
+        else:
+            _log(f"First comment failed: {r}")
+    except Exception as e:
+        _log(f"First comment error (non-fatal): {e}")
