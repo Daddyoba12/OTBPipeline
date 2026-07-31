@@ -1,13 +1,14 @@
 """
-Re-authorize LinkedIn access token (run every ~55 days before it expires).
+LinkedIn access token re-authorization.
 Usage: python auth_linkedin.py
 
-Opens browser → you approve → you paste the redirect URL back → done.
-No need to register a redirect URI — uses LinkedIn's own redirect tool URL.
+Browser opens → approve → token saved automatically.
+Requires http://localhost:8080 to be registered in your LinkedIn app:
+  linkedin.com/developers/apps → your app → Auth → Authorized redirect URLs
 """
 
 import json, sys, webbrowser
-from datetime import datetime
+from datetime import datetime, timedelta
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
@@ -17,112 +18,124 @@ from config import CREDS_PATH
 
 import requests
 
-# Must be registered in LinkedIn Developer Portal → App → Auth → Authorized redirect URLs
 REDIRECT_URI = "http://localhost:8080"
-SCOPES       = "r_liteprofile w_member_social"
+# Only request w_member_social — person_urn is already saved in credentials
+SCOPES = "w_member_social"
 
-# ── Load credentials ────────────────────────────────────────────────────────────
+# ── Load credentials ─────────────────────────────────────────────────────────
 try:
     creds = json.loads(Path(CREDS_PATH).read_text())
     li    = creds.get("linkedin", {})
     CLIENT_ID     = li.get("client_id", "").strip()
     CLIENT_SECRET = li.get("client_secret", "").strip()
+    PERSON_URN    = li.get("person_urn", "").strip()
 except Exception as e:
     print(f"ERROR reading credentials: {e}"); sys.exit(1)
 
 if not CLIENT_ID or not CLIENT_SECRET:
-    print("ERROR: LinkedIn client_id or client_secret missing from social_credentials.json")
+    print("ERROR: client_id or client_secret missing from social_credentials.json")
     sys.exit(1)
 
-# ── Step 1: Build auth URL and open browser ─────────────────────────────────────
+# ── Step 1: Build auth URL ───────────────────────────────────────────────────
 auth_url = (
     f"https://www.linkedin.com/oauth/v2/authorization"
     f"?response_type=code"
     f"&client_id={CLIENT_ID}"
     f"&redirect_uri={REDIRECT_URI}"
-    f"&scope={SCOPES.replace(' ', '%20')}"
+    f"&scope={SCOPES}"
 )
 
 print("\n" + "="*60)
 print("LINKEDIN RE-AUTHORIZATION")
 print("="*60)
-print("\nBrowser opening... Approve in LinkedIn then come back here.")
-print("(Script catches the redirect automatically — no copy/paste needed)\n")
-
+print(f"\nScope requested: {SCOPES}")
+print(f"person_urn on file: {PERSON_URN}")
+print("\nOpening browser — approve in LinkedIn then wait here...")
 webbrowser.open(auth_url)
 
-# ── Local server catches the OAuth callback automatically ───────────────────────
-code = None
+# ── Step 2: Local server catches callback ────────────────────────────────────
+captured = {"code": None, "error": None, "full_path": None}
 
 class _Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        global code
-        qs   = parse_qs(urlparse(self.path).query)
-        code = (qs.get("code") or [""])[0]
+        qs = parse_qs(urlparse(self.path).query)
+        captured["full_path"] = self.path
+        captured["code"]  = (qs.get("code")  or [None])[0]
+        captured["error"] = (qs.get("error") or [None])[0]
         self.send_response(200)
         self.send_header("Content-Type", "text/html")
         self.end_headers()
-        if code:
+        if captured["code"]:
             self.wfile.write(b"<h2 style='font-family:sans-serif;color:green'>"
-                             b"LinkedIn authorized! You can close this tab.</h2>")
+                             b"Authorized! You can close this tab.</h2>")
         else:
-            self.wfile.write(b"<h2 style='font-family:sans-serif;color:red'>"
-                             b"Error: no code received.</h2>")
+            msg = f"LinkedIn error: {captured['error']}".encode()
+            self.wfile.write(b"<h2 style='font-family:sans-serif;color:red'>" + msg + b"</h2>")
     def log_message(self, *a): pass
 
-print("Waiting for you to approve in the browser...")
-server = HTTPServer(("localhost", 8080), _Handler)
-server.handle_request()  # blocks until LinkedIn redirects back
+print("Waiting for LinkedIn callback on localhost:8080 ...")
+HTTPServer(("localhost", 8080), _Handler).handle_request()
 
-if not code:
-    print("ERROR: No auth code received — did you approve in LinkedIn?")
+# ── Show exactly what came back ───────────────────────────────────────────────
+print(f"\nCallback received: {captured['full_path']}")
+
+if captured["error"]:
+    print(f"\nLinkedIn returned an error: {captured['error']}")
+    print("This usually means the app is missing a required product.")
+    print("\nTo fix:")
+    print("  1. Go to linkedin.com/developers/apps → your app → Products tab")
+    print("  2. Add 'Share on LinkedIn' (enables w_member_social)")
+    print("  3. Wait for approval (usually instant for development)")
+    print("  4. Run this script again")
     sys.exit(1)
 
-print(f"\nAuth code received ({code[:20]}...). Exchanging for token...")
+code = captured["code"]
+if not code:
+    print("ERROR: No code and no error — unexpected response"); sys.exit(1)
 
-# ── Step 3: Exchange code for access token ──────────────────────────────────────
+print(f"Auth code: {code[:20]}...")
+
+# ── Step 3: Exchange code for token ─────────────────────────────────────────
 r = requests.post(
     "https://www.linkedin.com/oauth/v2/accessToken",
     data={
-        "grant_type":    "authorization_code",
-        "code":          code,
-        "redirect_uri":  REDIRECT_URI,
-        "client_id":     CLIENT_ID,
+        "grant_type":   "authorization_code",
+        "code":         code,
+        "redirect_uri": REDIRECT_URI,
+        "client_id":    CLIENT_ID,
         "client_secret": CLIENT_SECRET,
     },
     headers={"Content-Type": "application/x-www-form-urlencoded"},
     timeout=20,
 )
-token_data = r.json()
+token_data   = r.json()
 access_token = token_data.get("access_token", "")
 expires_in   = token_data.get("expires_in", 5184000)
 
 if not access_token:
-    print(f"ERROR: Token exchange failed: {token_data}")
-    sys.exit(1)
+    print(f"ERROR: Token exchange failed: {token_data}"); sys.exit(1)
 
-print(f"Token received (valid for {expires_in // 86400} days)")
+print(f"Token received — valid for {expires_in // 86400} days")
 
-# ── Step 4: Get person URN ──────────────────────────────────────────────────────
-me = requests.get(
-    "https://api.linkedin.com/v2/me",
-    headers={
-        "Authorization": f"Bearer {access_token}",
-        "X-Restli-Protocol-Version": "2.0.0",
-    },
-    timeout=15,
-).json()
+# ── Step 4: Keep existing person_urn (no extra API call needed) ──────────────
+if not PERSON_URN:
+    # Only fetch if not already on file
+    try:
+        me = requests.get(
+            "https://api.linkedin.com/v2/me",
+            headers={"Authorization": f"Bearer {access_token}",
+                     "X-Restli-Protocol-Version": "2.0.0"},
+            timeout=15,
+        ).json()
+        pid = me.get("id", "")
+        PERSON_URN = f"urn:li:person:{pid}" if pid else ""
+        print(f"person_urn fetched: {PERSON_URN}")
+    except Exception as e:
+        print(f"Could not fetch person_urn: {e}")
 
-person_id  = me.get("id", "")
-first_name = me.get("localizedFirstName", "")
-last_name  = me.get("localizedLastName", "")
-person_urn = f"urn:li:person:{person_id}" if person_id else li.get("person_urn", "")
-
-print(f"Logged in as: {first_name} {last_name} ({person_urn})")
-
-# ── Step 5: Save ────────────────────────────────────────────────────────────────
+# ── Step 5: Save ─────────────────────────────────────────────────────────────
 li["access_token"] = access_token
-li["person_urn"]   = person_urn
+li["person_urn"]   = PERSON_URN
 li["expires_in"]   = expires_in
 li["issued_at"]    = datetime.now().isoformat()
 li.pop("refresh_token", None)
@@ -130,8 +143,7 @@ li.pop("refresh_token", None)
 creds["linkedin"] = li
 Path(CREDS_PATH).write_text(json.dumps(creds, indent=2, ensure_ascii=False))
 
-from datetime import timedelta
-expiry_date = (datetime.now() + timedelta(seconds=expires_in)).strftime('%Y-%m-%d')
+expiry = (datetime.now() + timedelta(seconds=expires_in)).strftime("%Y-%m-%d")
 print(f"\nSaved to {CREDS_PATH}")
-print(f"Valid until: {expiry_date}")
-print("\nLinkedIn re-authorized. Pipeline will post at next slot 4 run (Tue/Fri 08:00).")
+print(f"Token valid until: {expiry}")
+print("LinkedIn re-authorized. Next Tue/Fri slot 4 will post again.")
