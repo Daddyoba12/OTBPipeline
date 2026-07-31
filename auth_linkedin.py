@@ -19,7 +19,7 @@ import requests
 
 # Must be registered in LinkedIn Developer Portal → App → Auth → Authorized redirect URLs
 REDIRECT_URI = "http://localhost:8080"
-SCOPES       = "openid profile w_member_social"
+SCOPES       = "r_liteprofile w_member_social"
 
 # ── Load credentials ────────────────────────────────────────────────────────────
 try:
@@ -106,7 +106,10 @@ print(f"Token received (valid for {expires_in // 86400} days)")
 # ── Step 4: Get person URN ──────────────────────────────────────────────────────
 me = requests.get(
     "https://api.linkedin.com/v2/me",
-    headers={"Authorization": f"Bearer {access_token}"},
+    headers={
+        "Authorization": f"Bearer {access_token}",
+        "X-Restli-Protocol-Version": "2.0.0",
+    },
     timeout=15,
 ).json()
 
@@ -114,21 +117,6 @@ person_id  = me.get("id", "")
 first_name = me.get("localizedFirstName", "")
 last_name  = me.get("localizedLastName", "")
 person_urn = f"urn:li:person:{person_id}" if person_id else li.get("person_urn", "")
-
-if not person_id:
-    # Try OpenID userinfo endpoint
-    try:
-        ui = requests.get(
-            "https://api.linkedin.com/v2/userinfo",
-            headers={"Authorization": f"Bearer {access_token}"},
-            timeout=15,
-        ).json()
-        person_id  = ui.get("sub", "")
-        first_name = ui.get("given_name", "")
-        last_name  = ui.get("family_name", "")
-        person_urn = f"urn:li:person:{person_id}" if person_id else person_urn
-    except Exception:
-        pass
 
 print(f"Logged in as: {first_name} {last_name} ({person_urn})")
 
