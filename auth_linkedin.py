@@ -8,6 +8,7 @@ No need to register a redirect URI — uses LinkedIn's own redirect tool URL.
 
 import json, sys, webbrowser
 from datetime import datetime
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -16,8 +17,8 @@ from config import CREDS_PATH
 
 import requests
 
-# LinkedIn's own OAuth redirect page (always pre-approved, no registration needed)
-REDIRECT_URI = "https://www.linkedin.com/developers/tools/oauth/redirect"
+# Must be registered in LinkedIn Developer Portal → App → Auth → Authorized redirect URLs
+REDIRECT_URI = "http://localhost:8080"
 SCOPES       = "openid profile w_member_social"
 
 # ── Load credentials ────────────────────────────────────────────────────────────
@@ -42,71 +43,40 @@ auth_url = (
     f"&scope={SCOPES.replace(' ', '%20')}"
 )
 
+print("\n" + "="*60)
+print("LINKEDIN RE-AUTHORIZATION")
+print("="*60)
+print("\nBrowser opening... Approve in LinkedIn then come back here.")
+print("(Script catches the redirect automatically — no copy/paste needed)\n")
+
 webbrowser.open(auth_url)
 
-# ── Popup dialog for URL paste (works regardless of how script is launched) ─────
-import tkinter as tk
-from tkinter import messagebox
+# ── Local server catches the OAuth callback automatically ───────────────────────
+code = None
 
-root = tk.Tk()
-root.title("LinkedIn Re-Authorization")
-root.geometry("640x320")
-root.resizable(False, False)
-root.lift()
-root.attributes("-topmost", True)
+class _Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        global code
+        qs   = parse_qs(urlparse(self.path).query)
+        code = (qs.get("code") or [""])[0]
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        if code:
+            self.wfile.write(b"<h2 style='font-family:sans-serif;color:green'>"
+                             b"LinkedIn authorized! You can close this tab.</h2>")
+        else:
+            self.wfile.write(b"<h2 style='font-family:sans-serif;color:red'>"
+                             b"Error: no code received.</h2>")
+    def log_message(self, *a): pass
 
-tk.Label(root, text="LinkedIn Authorization", font=("Arial", 14, "bold")).pack(pady=(16, 4))
-tk.Label(root, text="1. Approve in the browser tab that just opened", font=("Arial", 11)).pack()
-tk.Label(root, text="2. Copy the FULL URL from your browser address bar", font=("Arial", 11)).pack()
-tk.Label(root, text="3. Paste it below and click OK", font=("Arial", 11)).pack(pady=(0, 10))
-
-url_var = tk.StringVar()
-entry = tk.Entry(root, textvariable=url_var, width=72, font=("Courier", 9))
-entry.pack(padx=20, pady=6)
-entry.focus_set()
-
-result = {"url": ""}
-
-def on_ok():
-    result["url"] = url_var.get().strip()
-    root.destroy()
-
-def on_cancel():
-    root.destroy()
-
-btn_frame = tk.Frame(root)
-btn_frame.pack(pady=10)
-tk.Button(btn_frame, text="OK", width=12, command=on_ok, bg="#0077B5", fg="white",
-          font=("Arial", 11, "bold")).pack(side="left", padx=8)
-tk.Button(btn_frame, text="Cancel", width=12, command=on_cancel,
-          font=("Arial", 11)).pack(side="left", padx=8)
-
-tk.Label(root, text="(If browser didn't open, the URL was printed in the terminal)",
-         font=("Arial", 9), fg="gray").pack()
-tk.Label(root, text=auth_url[:80] + "...", font=("Courier", 7), fg="gray", wraplength=600).pack()
-
-root.mainloop()
-
-redirect_url = result["url"]
-if not redirect_url:
-    print("Cancelled."); sys.exit(0)
-
-# ── Step 2: Extract code from URL ───────────────────────────────────────────────
-try:
-    parsed = urlparse(redirect_url)
-    qs     = parse_qs(parsed.query)
-    code   = (qs.get("code") or qs.get("authorization_code") or [""])[0]
-    if not code and "code=" in redirect_url:
-        code = redirect_url.split("code=")[1].split("&")[0]
-except Exception:
-    code = ""
+print("Waiting for you to approve in the browser...")
+server = HTTPServer(("localhost", 8080), _Handler)
+server.handle_request()  # blocks until LinkedIn redirects back
 
 if not code:
-    # Last resort: maybe they pasted just the code itself
-    code = redirect_url.strip()
-
-if not code:
-    print("ERROR: No auth code found — aborting"); sys.exit(1)
+    print("ERROR: No auth code received — did you approve in LinkedIn?")
+    sys.exit(1)
 
 print(f"\nAuth code received ({code[:20]}...). Exchanging for token...")
 
