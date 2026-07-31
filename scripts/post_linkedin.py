@@ -57,8 +57,9 @@ def _auto_refresh(access_token: str, person_urn: str) -> tuple[str, str]:
         expires = li.get("expires_in", 5184000)
         if issued:
             expiry = _dt.fromisoformat(issued) + timedelta(seconds=expires)
-            if (_dt.now() - expiry).total_seconds() < 7 * 86400:
-                return access_token, person_urn
+            days_left = (expiry - _dt.now()).total_seconds() / 86400
+            if days_left > 7:
+                return access_token, person_urn  # plenty of time, skip refresh
         resp = requests.post(
             "https://www.linkedin.com/oauth/v2/accessToken",
             data={"grant_type": "refresh_token", "refresh_token": refresh,
