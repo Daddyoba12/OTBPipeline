@@ -1222,17 +1222,23 @@ async def cmdr_yt_music_alias(
     dl_dir.mkdir(parents=True, exist_ok=True)
     safe   = re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
     target = query if query.startswith("http") else f"ytsearch1:{query}"
-    final  = dl_dir / f"{safe}.mp3"
-    try:
-        subprocess.run(
-            ["yt-dlp", "-x", "--audio-format", "mp3", "--audio-quality", "192K",
-             "-o", str(final), target],
-            check=True, capture_output=True, timeout=60,
-        )
-    except Exception as e:
-        raise HTTPException(500, f"yt-dlp error: {e}")
+    # Output template without extension — yt-dlp appends .mp3 after audio extraction
+    out_tmpl = str(dl_dir / safe) + ".%(ext)s"
+    final    = dl_dir / f"{safe}.mp3"
+    result = subprocess.run(
+        ["yt-dlp", "--no-playlist", "-x", "--audio-format", "mp3",
+         "--audio-quality", "0", "-o", out_tmpl, target],
+        capture_output=True, text=True, timeout=180,
+    )
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout or "unknown error")[-400:]
+        raise HTTPException(500, f"yt-dlp error: {detail}")
     if not final.exists():
-        raise HTTPException(500, "Download failed")
+        # yt-dlp may have written a different extension before conversion
+        candidates = sorted(dl_dir.glob(f"{safe}.*"), key=lambda f: f.stat().st_mtime, reverse=True)
+        if not candidates:
+            raise HTTPException(500, "Download produced no output file")
+        final = candidates[0]
     rel_path = f"yt_downloads/{final.name}"
     return {"label": f"[YouTube] {final.stem}", "path": rel_path}
 
