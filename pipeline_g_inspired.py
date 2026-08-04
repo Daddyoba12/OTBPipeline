@@ -307,16 +307,44 @@ def _run_slot1(profile: dict):
     size_mb = video_file.stat().st_size / 1_048_576
     _log(f"Video ready: {video_file.name} ({size_mb:.1f} MB)")
 
+    slug      = profile.get("slug", "g-inspired")
     video_url = ""
     try:
         from push_pipeline_state import _upload_video
-        slug      = profile.get("slug", "g-inspired")
         store_key = f"pipeline/{slug}/daily_{ts}.mp4"
         video_url = _upload_video(str(video_file), store_key)
         if video_url:
             _log(f"Uploaded → {video_url[:80]}")
     except Exception as e:
         _log(f"Supabase upload skipped: {e}")
+
+    # Push slot state so Commander shows today's video
+    try:
+        from push_pipeline_state import push_slot_state
+        content["rendered_at"] = datetime.now().isoformat()
+        push_slot_state(1, content, v1_path=str(video_file), company_slug=slug)
+        _log("Slot state synced to Supabase ✓")
+    except Exception as e:
+        _log(f"Supabase slot push skipped: {e}")
+
+    # Append to shared post_log.json so Commander history works for this client
+    try:
+        shared_log = BASE / "data" / "post_log.json"
+        shared_log.parent.mkdir(exist_ok=True)
+        log = json.loads(shared_log.read_text(encoding="utf-8")) if shared_log.exists() else []
+        log.append({
+            "company_slug": slug,
+            "platform":     "email",
+            "slot":         1,
+            "hook":         content.get("hook", ""),
+            "video_url":    video_url,
+            "date":         datetime.now().strftime("%Y-%m-%d"),
+            "posted_at":    datetime.now().isoformat(),
+        })
+        shared_log.write_text(json.dumps(log[-200:], indent=2), encoding="utf-8")
+        _log("Post log updated ✓")
+    except Exception as e:
+        _log(f"Post log update skipped: {e}")
 
     _log(f"Step 3: Emailing video to {to_email}...")
     try:
