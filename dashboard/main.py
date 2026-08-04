@@ -1073,12 +1073,16 @@ async def api_post_log(request: Request, days: int = 14):
     if PIPELINE_SECRET:
         if request.headers.get("x-pipeline-secret") != PIPELINE_SECRET:
             raise HTTPException(401)
+    client_slug = request.headers.get("x-commander-slug", "").strip().lower()
     log_path = DATA / "post_log.json"
     if not log_path.exists():
         return []
     all_entries = _load_json(log_path, [])
     cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
     recent = [e for e in all_entries if e.get("posted_at", "") >= cutoff]
+    # Filter by client — entries without company_slug belong to boothop (the original client)
+    if client_slug:
+        recent = [e for e in recent if e.get("company_slug", "boothop") == client_slug]
     recent.sort(key=lambda e: e.get("posted_at", ""), reverse=True)
     return recent[:100]
 
