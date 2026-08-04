@@ -615,9 +615,11 @@ def _apply_caption_overlay(clip: Path, text: str) -> None:
         img.save(str(cap_png), "PNG")
 
         tmp = clip.parent / (clip.stem + "_caped.mp4")
+        # y=130: clears TikTok's native search/status bar (~0-100px) so the
+        # story header appears on its own line below it, not overlapping.
         ok  = _ff(
             "-i", str(clip), "-i", str(cap_png),
-            "-filter_complex", "[0:v][1:v]overlay=0:14",
+            "-filter_complex", "[0:v][1:v]overlay=0:130",
             "-c:v", "libx264", "-crf", "18", "-preset", "fast",
             "-pix_fmt", "yuv420p", "-an", str(tmp),
         )
@@ -1951,9 +1953,13 @@ def render_video(content: dict, slot: int, output_path: str,
         import shutil
         shutil.move(str(with_bar), str(with_logo))
 
-    print("    Generating voiceover...")
-    tts_path   = TEMP / f"{prefix}_tts.mp3"
-    tts_ok     = _tts_narration(content, tts_path)
+    tts_path = TEMP / f"{prefix}_tts.mp3"
+    if slot == 1:
+        print("    Generating voiceover (slot 1 only)...")
+        tts_ok = _tts_narration(content, tts_path)
+    else:
+        print("    Skipping voiceover (slot 2/3)...")
+        tts_ok = False
 
     exclude_music = content.get("_v1_music_track")
     print("    Adding music...")
