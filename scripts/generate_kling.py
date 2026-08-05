@@ -110,6 +110,29 @@ def _genz_text(origin: str, dest: str) -> str:
 # SECTION 2 — Daily hook concepts (15-second Kling scenes)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# ── Actor diversity & visual rotation ────────────────────────────────────────
+# Paused character: the shocked woman (hand-over-mouth, wide eyes, phone).
+# Do not reuse until intentionally reintroduced after 6–10 new videos.
+_NEGATIVE_PROMPT = (
+    "shocked woman, hand over mouth, wide eyes staring at phone, extreme surprise expression, "
+    "same face repeated, same hairstyle repeated, same actor as previous video, "
+    "low quality, blurry, watermark, text overlay, subtitles, cartoon, animation"
+)
+
+# Thumbnail hook styles — rotate by concept index so each video opens differently
+_THUMBNAIL_HOOKS = [
+    "luxury car arrival — a sleek car pulls up and a stylish person steps out",
+    "airport luggage trolley — a traveller confidently pushes an overloaded trolley through departures",
+    "first-class lounge — a well-dressed person relaxes in a premium airport lounge",
+    "family opening a parcel — warm home setting, genuine joy as a package is unwrapped",
+    "business owner checking stock — sharp professional inspects fresh inventory just delivered",
+    "wedding outfit reveal — a beautiful traditional outfit lifted carefully from a box",
+    "student receiving an important item — university room, emotional moment opening a care package",
+    "two friends laughing at a restaurant — upscale restaurant, infectious laughter over a shared moment",
+    "traveller collecting payment — airport or departure gate, phone notification showing earnings",
+    "close-up of attractive luggage or packaging — cinematic product shot, premium feel",
+]
+
 _HOOK_CONCEPTS = [
     {
         "style": "glamour_bar",
@@ -226,8 +249,9 @@ def _kling_headers() -> dict:
         "Content-Type": "application/json",
     }
 
-def _build_kling_prompt(concept: dict) -> str:
+def _build_kling_prompt(concept: dict, day_index: int = 0) -> str:
     timing_text = "\n".join(f"{t}: {d}" for t, d in concept["timing"])
+    thumbnail_hook = _THUMBNAIL_HOOKS[day_index % len(_THUMBNAIL_HOOKS)]
     return (
         f"Create a 15-second cinematic social-media advert for BootHop, set {concept['scene']}\n\n"
         f"Timing:\n{timing_text}\n\n"
@@ -236,10 +260,16 @@ def _build_kling_prompt(concept: dict) -> str:
         "- Clear Nigerian accents and natural lip-sync\n"
         "- Use on-screen text sparingly — do not try to spell BootHop on screen\n"
         "- End on a clean fade to black ready for post-editing\n"
-        "- Fast-paced cuts matching the dialogue rhythm"
+        "- Fast-paced cuts matching the dialogue rhythm\n\n"
+        "Actor diversity (mandatory):\n"
+        "- Cast completely new actors — different face, hairstyle, clothing, age and body type from any previous video\n"
+        "- Avoid shocked expressions, hand-over-mouth poses and extreme wide eyes\n"
+        "- Use natural, subtle facial reactions — a smile, a raised eyebrow, a quiet nod\n"
+        "- Mix genders, ages (20s–50s) and body types across videos\n\n"
+        f"Opening thumbnail hook: {thumbnail_hook}"
     )
 
-def _kling_generate_video(prompt: str) -> str | None:
+def _kling_generate_video(prompt: str, negative_prompt: str = "") -> str | None:
     """
     POST to Kling API → returns task_id, then polls until video URL available.
     Returns local file path on success, None on failure/unavailable.
@@ -247,16 +277,20 @@ def _kling_generate_video(prompt: str) -> str | None:
     if not KLING_API_KEY:
         return None
 
+    payload = {
+        "model":    "kling-v1",
+        "prompt":   prompt,
+        "duration": 5,     # Kling generates 5s segments; we request 3× for 15s
+        "cfg_scale": 0.5,
+    }
+    if negative_prompt:
+        payload["negative_prompt"] = negative_prompt
+
     try:
         r = requests.post(
             f"{KLING_API_BASE}/v1/videos/text2video",
             headers=_kling_headers(),
-            json={
-                "model":    "kling-v1",
-                "prompt":   prompt,
-                "duration": 5,     # Kling generates 5s segments; we request 3× for 15s
-                "cfg_scale": 0.5,
-            },
+            json=payload,
             timeout=30,
         )
         r.raise_for_status()
@@ -745,9 +779,9 @@ def run_kling_production(slot: int = 1) -> str | None:
     print(f"[Kling] Concept: {concept['style']}")
 
     # ── 2. Generate Kling hook video (15s)
-    kling_prompt = _build_kling_prompt(concept)
+    kling_prompt = _build_kling_prompt(concept, day_index=day_index)
     print(f"[Kling] Submitting hook prompt to API…")
-    hook_video = _kling_generate_video(kling_prompt)
+    hook_video = _kling_generate_video(kling_prompt, negative_prompt=_NEGATIVE_PROMPT)
     if not hook_video:
         print("[Kling] Hook video unavailable — will produce cards-only composition")
 
