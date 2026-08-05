@@ -278,6 +278,9 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _log(f"Slot {slot} already ran today — skipping (use --force to override)")
         return
 
+    # Claim the slot immediately so a concurrent dispatcher tick can't start a duplicate run
+    _mark_ran_today(slot)
+
     # ── 0. Refresh daily music tracks (slot 1 only, once per day) ────────────
     if slot == 1:
         _step("slot1: music refresh")

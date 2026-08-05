@@ -488,6 +488,24 @@ def _safe_font() -> str:
     p = Path(FONT_TITLE)
     return str(p) if p.exists() else FONT_TITLE_FB
 
+def _ffmpeg_text(text: str) -> str:
+    """Sanitise text for FFmpeg drawtext: strip emoji, escape special chars, fix currency."""
+    import unicodedata, re
+    text = text.replace('£', 'GBP ').replace('€', 'EUR ').replace('$', 'USD ')
+    # Strip non-ASCII (emoji etc)
+    text = re.sub(r'[^\x00-\x7F]+', '', text)
+    # Escape FFmpeg drawtext special chars
+    text = text.replace('\\', '\\\\').replace("'", "\\'").replace(':', '\\:')
+    return text.strip()
+
+def _ffmpeg_font(font: str) -> str:
+    """Convert Windows font path to FFmpeg drawtext format: backslashes→/, escape drive colon."""
+    font = font.replace('\\', '/')
+    # Escape drive letter colon: C:/ → C\:/
+    if len(font) >= 2 and font[1] == ':':
+        font = font[0] + '\\:' + font[2:]
+    return font
+
 def _render_journey_card(journey: dict, out_path: Path) -> str:
     """
     Render a single journey card as a video clip.
@@ -501,12 +519,12 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
     origin = (journey.get("originCity") or "").upper()
     dest   = (journey.get("destinationCity") or "").upper()
     price  = journey.get("price")
-    price_str = f"From £{int(price)}" if price else "Competitive rates"
-    genz   = _genz_text(origin, dest)
-    route  = f"{origin}  →  {dest}"
+    price_str = _ffmpeg_text(f"From GBP {int(price)}" if price else "Competitive rates")
+    genz      = _ffmpeg_text(_genz_text(origin, dest))
+    route     = _ffmpeg_text(f"{origin}  to  {dest}")
 
     photo = _fetch_landmark_photo(journey.get("destinationCity") or dest)
-    font  = _safe_font()
+    font  = _ffmpeg_font(_safe_font())
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     if photo and Path(photo).exists():
@@ -514,19 +532,14 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
         filtergraph = (
             f"[0:v]scale={CARD_W}:{CARD_H}:force_original_aspect_ratio=increase,"
             f"crop={CARD_W}:{CARD_H},setsar=1,"
-            # dark overlay
             f"colorchannelmixer=rr=0.3:gg=0.3:bb=0.3:aa=1[bg];"
             f"[bg]"
-            # route text
             f"drawtext=fontfile='{font}':fontsize=88:fontcolor=white:"
             f"text='{route}':x=(w-text_w)/2:y=h*0.28:shadowcolor=black:shadowx=3:shadowy=3,"
-            # gen-z hook
             f"drawtext=fontfile='{font}':fontsize=44:fontcolor=#FFCC00:"
             f"text='{genz}':x=(w-text_w)/2:y=h*0.42:shadowcolor=black:shadowx=2:shadowy=2,"
-            # price pill
             f"drawtext=fontfile='{font}':fontsize=56:fontcolor=white:"
             f"text='{price_str}':x=(w-text_w)/2:y=h*0.62:shadowcolor=black:shadowx=2:shadowy=2,"
-            # brand strip
             f"drawtext=fontfile='{font}':fontsize=36:fontcolor=#FF6A00:"
             f"text='BootHop.com':x=(w-text_w)/2:y=h*0.92:shadowcolor=black:shadowx=1:shadowy=1"
             f"[out]"
@@ -556,7 +569,7 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
             f"[out]"
         )
         _ffmpeg(
-            "-f", "lavfi", "-i", filtergraph.split(";")[0].replace("[bg]", ""),
+            "-f", "lavfi", "-i", f"color=c=0x0d0d18:s={CARD_W}x{CARD_H}:r=30",
             "-filter_complex", filtergraph,
             "-map", "[out]",
             "-t", str(CARD_DURATION),
@@ -750,7 +763,7 @@ def run_kling_production(slot: int = 1) -> str | None:
             card_paths.append(_render_journey_card(journey, card_out))
             print(f"[Kling] Card {i+1}: {journey.get('originCity')} → {journey.get('destinationCity')}")
         except Exception as e:
-            print(f"[Kling] Card {i+1} failed: {e}")
+            print(f"[Kling] Card {i+1} failed: {str(e).encode('ascii', errors='replace').decode()}")
 
     if not card_paths:
         print("[Kling] No cards rendered — aborting")
