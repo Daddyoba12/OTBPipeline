@@ -97,8 +97,12 @@ _CITY_MARKET = {
     "toronto": "canada","calgary": "canada","vancouver": "canada",
 }
 
+def _clean_city(city: str) -> str:
+    """Strip country suffix from city name: 'London, UK' → 'london'."""
+    return city.split(',')[0].strip().lower()
+
 def _market(city: str) -> str:
-    return _CITY_MARKET.get(city.lower().strip(), "default")
+    return _CITY_MARKET.get(_clean_city(city), "default")
 
 def _genz_text(origin: str, dest: str) -> str:
     # choose hook based on destination market
@@ -391,7 +395,7 @@ def _fetch_journeys(limit: int = 4) -> list[dict]:
         r.raise_for_status()
         journeys = r.json().get("journeys", [])
         # Filter: must have origin, destination, and a future travel date
-        today = datetime.utcnow().date().isoformat()
+        today = datetime.now().date().isoformat()
         valid = [
             j for j in journeys
             if j.get("originCity") and j.get("destinationCity")
@@ -435,7 +439,7 @@ _LANDMARK_QUERIES = {
 }
 
 def _landmark_query(city: str) -> str:
-    key = city.lower().strip()
+    key = _clean_city(city)
     queries = _LANDMARK_QUERIES.get(key, _LANDMARK_QUERIES["default"])
     return random.choice(queries)
 
@@ -533,12 +537,18 @@ def _ffmpeg_text(text: str) -> str:
     return text.strip()
 
 def _ffmpeg_font(font: str) -> str:
-    """Convert Windows font path to FFmpeg drawtext format: backslashes→/, escape drive colon."""
-    font = font.replace('\\', '/')
-    # Escape drive letter colon: C:/ → C\:/
-    if len(font) >= 2 and font[1] == ':':
-        font = font[0] + '\\:' + font[2:]
-    return font
+    """Return FFmpeg-safe font path. Uses relative path for project fonts (avoids fontconfig)."""
+    p = Path(font)
+    try:
+        rel = p.relative_to(BASE)
+        # Use forward-slash relative path — works when ffmpeg is run from BASE dir
+        return str(rel).replace('\\', '/')
+    except ValueError:
+        # System font (e.g. C:\Windows\Fonts\impact.ttf) — use C\:/ format
+        font = font.replace('\\', '/')
+        if len(font) >= 2 and font[1] == ':':
+            font = font[0] + '\\:' + font[2:]
+        return font
 
 def _render_journey_card(journey: dict, out_path: Path) -> str:
     """
@@ -550,12 +560,14 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
       - Price pill bottom third: "Small package from £30"
       - BootHop brand strip at very bottom
     """
-    origin = (journey.get("originCity") or "").upper()
-    dest   = (journey.get("destinationCity") or "").upper()
-    price  = journey.get("price")
-    price_str = _ffmpeg_text(f"From GBP {int(price)}" if price else "Competitive rates")
-    genz      = _ffmpeg_text(_genz_text(origin, dest))
-    route     = _ffmpeg_text(f"{origin}  to  {dest}")
+    origin_raw = (journey.get("originCity") or "")
+    dest_raw   = (journey.get("destinationCity") or "")
+    origin     = _clean_city(origin_raw).upper()
+    dest       = _clean_city(dest_raw).upper()
+    price      = journey.get("price")
+    price_str  = _ffmpeg_text(f"From GBP {int(price)}" if price else "Competitive rates")
+    genz       = _ffmpeg_text(_genz_text(origin_raw, dest_raw))
+    route      = _ffmpeg_text(f"{origin}  to  {dest}")
 
     photo = _fetch_landmark_photo(journey.get("destinationCity") or dest)
     font  = _ffmpeg_font(_safe_font())
@@ -711,8 +723,8 @@ def _assemble(
 
     n = len(video_labels)
     concat_input = "".join(video_labels)
-    filter_chain = "\n".join(parts)
-    filter_chain += f"\n{concat_input}concat=n={n}:v=1:a=0[vout]"
+    filter_chain = ";".join(parts)
+    filter_chain += f";{concat_input}concat=n={n}:v=1:a=0[vout]"
 
     # Audio: mix music + voiceover, music fades in at 15s
     music_offset = 15 if (hook_video and Path(hook_video).exists()) else 0
@@ -732,13 +744,13 @@ def _assemble(
 
     if audio_filters:
         if len(audio_filters) == 2:
-            filter_chain += "\n" + audio_filters[0]
-            filter_chain += "\n" + audio_filters[1]
-            filter_chain += "\n[music][vo]amix=inputs=2:duration=shortest[aout]"
+            filter_chain += ";" + audio_filters[0]
+            filter_chain += ";" + audio_filters[1]
+            filter_chain += ";[music][vo]amix=inputs=2:duration=shortest[aout]"
         elif len(audio_filters) == 1:
-            filter_chain += "\n" + audio_filters[0]
+            filter_chain += ";" + audio_filters[0]
             a_label = audio_filters[0].split("[")[-1].rstrip("]")
-            filter_chain += f"\n[{a_label}]acopy[aout]"
+            filter_chain += f";[{a_label}]acopy[aout]"
 
     has_audio = bool(audio_filters)
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -795,7 +807,7 @@ def run_kling_production(slot: int = 1) -> str | None:
         card_out = TEMP / f"kling_card_{i}_{today.strftime('%Y%m%d_%H%M')}.mp4"
         try:
             card_paths.append(_render_journey_card(journey, card_out))
-            print(f"[Kling] Card {i+1}: {journey.get('originCity')} → {journey.get('destinationCity')}")
+            print(f"[Kling] Card {i+1}: {journey.get('originCity')} -> {journey.get('destinationCity')}")
         except Exception as e:
             print(f"[Kling] Card {i+1} failed: {str(e).encode('ascii', errors='replace').decode()}")
 
@@ -821,7 +833,7 @@ def run_kling_production(slot: int = 1) -> str | None:
 
     # ── 7. Assemble final video
     final_out = OUTPUT / f"kling_{today.strftime('%Y%m%d')}_{concept['style']}.mp4"
-    print(f"[Kling] Assembling final video → {final_out.name}")
+    print(f"[Kling] Assembling final video -> {final_out.name}")
     try:
         result = _assemble(
             hook_video=hook_video,
