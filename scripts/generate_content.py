@@ -473,6 +473,10 @@ NARRATIVE FORMULA — follow this structure exactly
 1. PERSON     A specific named person with real context (not "a woman" — "Sade, a nurse in Wolverhampton").
               Names can be Nigerian/African (Emeka, Sade, Amara, Tunde) OR Western/UK (Sarah, James, Emma, Daniel).
               BootHop serves all UK residents — mix it up across videos.
+              ROTATE the lead character type: men, women, couples, students, parents, business owners, grandparents.
+              BANNED visual archetype: do NOT write a story where the main character's defining moment is a shocked
+              expression — hand over mouth, wide eyes, staring at phone in disbelief. Write calm, purposeful people
+              with real emotional range (relief, pride, determination, joy, laughter).
 2. MOMENT     A deadline, event, or celebration that makes this urgent NOW
 3. PROBLEM    Why a reputable courier fails — too expensive, too slow, or both
 4. MOVEMENT   Someone was ALREADY flying this route — the journey existed before BootHop
@@ -1728,7 +1732,9 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     scene_queries = plan_scenes(data, pillar)
 
     # ── Stage 4: Photographer — upgrade queries + generate image prompts ──────
-    photo_result = generate_image_prompts(data, scene_queries, pillar)
+    from datetime import date as _d
+    _day_idx = _d.today().toordinal()
+    photo_result = generate_image_prompts(data, scene_queries, pillar, day_index=_day_idx)
     queries = photo_result.get("pexels_queries", scene_queries)
     data["image_prompts"] = photo_result.get("image_prompts", [])
 
