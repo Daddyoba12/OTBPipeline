@@ -105,7 +105,7 @@ TIKTOK_POSTER = "zernio"
 # One 30-40s Kling video per day, alternating morning/afternoon slots.
 # Client gate: only slugs in this list get Kling videos.
 KLING_API_BASE        = "https://api.klingai.com"
-KLING_ENABLED_SLUGS   = ["otb_midas"]
+KLING_ENABLED_SLUGS   = ["otb_midas", "boothop"]
 # slot 1 = morning run (Mon, Wed, Fri…), slot 2 = afternoon run (Tue, Thu, Sat…)
 # Weekday 0=Mon,1=Tue,… — even weekdays get slot 1, odd get slot 2
 KLING_SLOT_BY_WEEKDAY = {0: 1, 1: 2, 2: 1, 3: 2, 4: 1, 5: 2, 6: 1}
