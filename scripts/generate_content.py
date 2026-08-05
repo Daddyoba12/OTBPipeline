@@ -449,6 +449,12 @@ BootHop doesn't sell delivery. BootHop unlocks unused human movement.
 Every day, millions of people are already travelling between UK and Nigeria.
 BootHop gives those journeys a second purpose.
 
+BootHop doesn't just deliver parcels. It rescues moments.
+The real competitor isn't DHL — it's a WhatsApp message: "Is anyone going to Lagos?"
+BootHop gives that informal network a platform, a price, and a guarantee.
+
+When time matters more than distance, BootHop finds another way.
+
 Signature line: "Movement already exists. BootHop makes it useful."
 {pov_block}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -533,8 +539,25 @@ FORMAT 3 — CINEMATIC STATEMENT (specific moment or number, immediate tension):
   "The ceremony was Saturday. The parcel was still in Leeds on Thursday night."
   Rule: opens with a concrete moment or number. No brand name. Pure tension.
 
+FORMAT 4 — THIS ALMOST DIDN'T ARRIVE (series format — zero setup, pure crisis):
+  "This almost missed the graduation."
+  "This almost didn't make the wedding."
+  "Three days before the ceremony. Still in Birmingham."
+  "His visa interview was tomorrow. The parcel hadn't left London."
+  Rule: drop the viewer into the crisis immediately. No "Imagine". No setup. Works best for
+  wedding dresses, graduation certificates, visa documents, medication, birthday gifts arriving
+  on the day itself. The story immediately answers: what almost didn't arrive, and who rescued it.
+
+HOOK TIMING RULE: the hook must do its job in 0-2 seconds.
+  ✗ WRONG: "Imagine you needed to send something urgent to Lagos…"
+  ✓ RIGHT: "The courier said 10 days. She had 3."
+  ✓ RIGHT: "Her graduation was on Saturday."
+  ✓ RIGHT: "He almost didn't open the app."
+  Immediacy is the hook. Every word earns its place or gets cut.
+
 Then IMMEDIATELY continue with the named character (Emeka, Sade, Sarah, James, Tunde, Emma etc.)
 
+✗ NEVER start with "Imagine" — it signals a slow hook
 ✗ NEVER start with a BootHop name or price in the hook
 ✗ NEVER reuse an opener from the HOOKS USED IN LAST 14 DAYS list below
 ✗ "Would you trust a stranger" is OVERUSED — avoid unless it genuinely fits best
@@ -542,14 +565,15 @@ Then IMMEDIATELY continue with the named character (Emeka, Sade, Sarah, James, T
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ITEMS — use variety, NEVER default to tablets or medication
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Gifts:        birthday gift, graduation gift, wedding present, baby shower hamper
-Clothing:     aso-oke fabric, agbada, jordans/trainers, nursing scrubs, school uniform, used clothes
+Gifts:        birthday gift, graduation gift, wedding present, baby shower hamper, anniversary gift
+Clothing:     aso-oke fabric, agbada, jordans/trainers, nursing scrubs, school uniform, wedding dress fabric, used clothes
 Electronics:  laptop, phone charger, tablet, headphones, smart watch, gaming controller
-Professional: medical stethoscope, exam certificate, portfolio prints, visa documents
-School:       textbooks, school shoes, stationery pack, school uniform
+Professional: medical stethoscope, exam certificate, portfolio prints, visa documents, university acceptance letter
+School:       textbooks, school shoes, stationery pack, school uniform, WAEC result certificate
 Keepsakes:    framed family photo, handmade jewellery, signed sports shirt, handwritten letter
 Baby items:   baby clothes, baby shoes, toys, formula tin
-Food (sealed only): Nigerian spices, stockfish, Indomie noodles, shea butter
+Food (sealed only): Nigerian spices, jollof rice spice mix, stockfish, Indomie noodles, shea butter
+Emergency:    prescription medication, hospital discharge paperwork, legal documents, passport copy
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RELATIONSHIP VARIETY — never default to dad/mum
@@ -600,6 +624,13 @@ BRAND CLOSING LINES — lesson MUST use one of these EXACTLY
 3. "Someone was already flying. BootHop connected the dots."
 4. "The journey already existed. The parcel just joined it."
 5. "Every journey has value."
+6. "When time matters more than distance, BootHop finds another way."
+
+SOCIAL PROOF — add one specific verifiable fact in RESOLUTION or LESSON when it fits naturally:
+  Timing: "Matched in 18 minutes." / "Delivered in 41 hours." / "She replied in eight seconds."
+  Price:  "She paid £14." / "£11 total." / "A fraction of what the courier wanted."
+  Scale:  "Thousands of travellers make this route every week."
+  One fact makes the story feel real. Do not stack multiple stats — one lands harder than three.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BEAT RULES (on-screen video text / voice over — SHORT is essential, text gets cut off if too long)
@@ -619,18 +650,47 @@ LESSON:     max 10 words. Use ONE closing line from the brand language bank abov
 THE STORY MUST PASS THIS TEST: read all 5 beats in order. Does it tell the WHOLE story in 10 seconds?
 Can a 10-year-old understand it? If yes, it's ready. If not, simplify.
 
+VIDEO TIMING GUIDE (30-second TikTok/Reels format — write to these windows):
+  0-2s   HOOK reads. Viewer decides to keep watching. Immediate crisis or specific fact.
+  2-8s   PROBLEM + STAKES combined. Tension is locked in. Viewer is now invested.
+  8-15s  MOVEMENT beat. Someone was already going. Hope appears.
+  15-25s RESOLUTION + unexpected moment. Relief, surprise, emotion.
+  Last 5s LESSON. Viewer should want to comment.
+
+RESOLUTION — add a verifiable, specific fact here whenever possible:
+  "Matched in 18 minutes." / "Delivered in 41 hours." / "She paid £14 total."
+  "The parcel arrived before the courier had even sent a confirmation email."
+  A concrete number in the resolution makes the whole story feel true.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PLATFORM CAPTIONS (go in the app caption field — NOT on the video screen)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 The caption is NOT a story summary and NOT a repeat of the hook.
-The video tells the story. The caption is the BRAND STATEMENT that makes the brand stick.
+The video tells the story. The caption drives the NEXT ACTION.
 
-CAPTION STYLE — short, bold, brand-positioning. Think viral TikTok energy.
-Each post must pick ONE style family and write a FRESH, ORIGINAL caption inspired by it.
-DO NOT copy the examples verbatim. Use them only as tone/direction references.
-ROTATE through all four styles — never default to the same one twice in a row.
+CAPTION STYLE — pick the correct style based on SLOT (defined below).
+DO NOT copy the examples verbatim. Write a FRESH, ORIGINAL line each time.
 
-The four style families (with tone references — write something NEW each time):
+SLOT 2 (afternoon, 14:00) — ALWAYS use BOOKING CTA style. No exceptions.
+ALL OTHER SLOTS — rotate through the four brand styles below (never use Booking CTA).
+
+━━ BOOKING CTA STYLE (SLOT 2 ONLY) ━━
+  Goal: get someone with a parcel RIGHT NOW to post a job at boothop.com.
+  Tone: direct, specific, urgent. Talks to someone who has a problem today.
+  Rules:
+    - Name the action ("Post your parcel", "List your job", "Post it free")
+    - Name the destination or route ("to Nigeria", "Lagos or Abuja", "to Naija")
+    - Include "boothop.com" — not as a brand mention, as the destination of the action
+    - Give a reason to do it NOW (free, fast, takes 60 seconds, someone already flying)
+    - Max 130 chars. No hashtags.
+  Examples (write something NEW — do not copy):
+    "Got something to send to Nigeria this week? Post it free at boothop.com — someone's already flying."
+    "Stop refreshing courier sites. Post your parcel to Lagos free → boothop.com"
+    "Sending to Naija? Takes 60 seconds. Post your job free at boothop.com and let us match you."
+    "Someone flies London→Lagos every single day. Your parcel should be on that flight. boothop.com"
+    "£12 to Lagos. Not £75. Post your parcel free at boothop.com and we'll find your traveller."
+
+━━ BRAND STYLES (all other slots — rotate, never repeat same style twice in a row) ━━
 
   BRAND IDENTITY (tone: confident, owning the space):
     Ref: "BootHop. Your courier plug." / "The Rolls Royce of cargo." /
@@ -656,23 +716,30 @@ The four style families (with tone references — write something NEW each time)
          "The moment you realised BootHop existed."
     → Write a fresh 1-line that puts the viewer in the moment of discovering BootHop.
 
-caption_tiktok  (max 150 chars): ONE original line in one of the styles above. No story. Max 1 emoji.
+caption_tiktok  (max 150 chars): ONE original line in the correct style for this slot. No story. Max 1 emoji.
                                  No hashtags — keep it clean and confident.
-caption_instagram (max 200 chars): Same original line, slightly expanded if it adds impact. Add "boothop.com" at the end.
+caption_instagram (max 200 chars): Same original line, slightly expanded if it adds impact. ALWAYS end with "boothop.com".
+                                   If slot 2, the booking CTA already has the URL — make it land harder.
                                    Max 2 hashtags. Nothing else.
 youtube_title   (max 60 chars): The POV question from the hook. Human, no BootHop name.
 youtube_description: 2 sentences max. First: the story in one line. Second: "boothop.com"
-engagement      (max 10 words): One question that opens a real conversation.
+engagement      (max 10 words): One question that triggers comments. Best openers:
+                               "What would you have done?" / "Would you trust a verified traveller?"
+                               "Has this happened to you?" / "Tell me you've done this."
+                               Never repeat the same opener two days in a row.
 top_caption     (max 9 words): A conversational scene-setter shown at the very top of the
                                video screen throughout every clip — like a TikTok thought bubble.
                                It draws the viewer into the feeling BEFORE the story begins.
-                               Start with Imagine, What if, Picture this, Ever wondered, or similar.
+                               Openers: "What if", "Picture this", "Ever wondered", "POV:", or a
+                               single crisis statement like "When time runs out." or "This almost didn't arrive."
+                               Do NOT use "Imagine" — it signals a slow hook.
                                Do NOT mention BootHop or prices. Must feel like a real person typed it.
                                Examples:
-                                 "Imagine sending a gift home for a tenner."
                                  "What if your parcel beat the courier to Lagos?"
                                  "Picture this — a stranger carries your mums birthday gift."
                                  "Ever sent something home and wished it could go tonight?"
+                                 "POV: you just found the cheapest way to send home."
+                                 "This almost didn't make it in time."
 
 {_get_trend_context()}
 {_hook_intelligence_block()}
@@ -732,14 +799,24 @@ _DAILY_POV = [
         "RESOLUTION: the match on BootHop, the handover, the £XX earned before boarding.\n"
         "LESSON: this journey was going to happen anyway. BootHop made it count twice.",
     ),
-    (  # 3 — Thursday: Sender's long frustration solved
-        "THE SENDER — Years of Overpaying, Now Solved",
-        "Tell this from the sender's perspective, but with a deeper emotional arc: this isn't the first time.\n"
+    (  # 3 — Thursday: Sender's long frustration solved / lighter discovery moment
+        "THE SENDER — Years of Overpaying, Now Solved (or: Funny Discovery Moment)",
+        "Tell this from the sender's perspective. Two options — pick the tone that fits the pillar:\n"
+        "\n"
+        "OPTION A — EMOTIONAL ARC (heavier pillar like family, logistics_stories):\n"
         "They've been sending things the expensive way for years — accepting it as the cost of diaspora life.\n"
         "HOOK: opens with a past moment of frustration — 'Every year at this time, the same problem.'\n"
         "PROBLEM: years of overpaying hits differently when they calculate the total they've wasted.\n"
         "RESOLUTION: BootHop doesn't just solve today's problem — it changes how they'll think about this forever.\n"
-        "LESSON: they'll never go back. And they told everyone they know.",
+        "LESSON: they'll never go back. And they told everyone they know.\n"
+        "\n"
+        "OPTION B — LIGHTER / RELATABLE (works on any pillar, best for Thursday when humour travels):\n"
+        "Lean into the absurdity — the ridiculous price, the unnecessary panic, the 'why did nobody tell me' moment.\n"
+        "HOOK: something they actually said in the courier queue, or the look on their face when they saw the price.\n"
+        "PROBLEM: the exact number they were quoted — and their actual physical reaction.\n"
+        "RESOLUTION: they found BootHop, it cost a fraction, and they laughed about it for a week.\n"
+        "LESSON: light, self-aware. They're part of the community now.\n"
+        "Thursday content that makes someone laugh or share is more valuable than content that makes them nod.",
     ),
     (  # 4 — Friday: Cinematic Traveller
         "THE TRAVELLER — Cinematic, Aspirational",
@@ -1038,6 +1115,12 @@ _PILLAR_ANGLES = {
         "  Instagram tone ref: 'Parcels AND cheap flights. One platform. You knew, right? boothop.com 🛫'\n"
         "  Do NOT copy the tone refs above — write something original in that spirit."
     ),
+
+    # ── Saturday — Humans of BootHop (Format 5, documentary style, does not sell) ─
+    "humans_of_boothop": "__DYNAMIC__",  # prompt built by _build_humans_of_boothop_prompt()
+
+    # ── Sunday — Founder Story (Format 6, first-person, fictionalized, does not sell) ─
+    "founder_story": "__DYNAMIC__",     # prompt built by _build_founder_story_prompt()
 }
 
 
@@ -1108,6 +1191,13 @@ _TH_ITEMS = [
     ("a driving licence renewal form",  "that had to be submitted in person in Lagos"),
     ("a limited-edition perfume",       "sold out in Nigeria, her grandmother's favourite"),
     ("crutches and a knee brace",       "her brother had torn his ACL and had no physio access"),
+    ("visa application documents",      "needed at the embassy in Lagos within 72 hours"),
+    ("a wedding dress",                 "sewn in Manchester, the ceremony was on Saturday"),
+    ("a jollof rice spice kit",         "her mother had been asking for it since Christmas"),
+    ("graduation photographs",          "printed in London, needed for the family ceremony album"),
+    ("prescription heart medication",   "her grandmother was running low and couldn't get the same formula locally"),
+    ("a university scholarship letter", "original document required for enrolment on Monday"),
+    ("an interview outfit",             "bought at Marks and Spencer, the interview was on Thursday"),
 ]
 
 _TH_COMPLICATIONS = [
@@ -1126,6 +1216,12 @@ _TH_COMPLICATIONS = [
     "She needed it there in 48 hours. Every courier wanted 5-7 days.",
     "He was already at the airport when a stranger in the queue told him about BootHop.",
     "The item had been sitting packaged in her hallway for a month — she kept putting it off.",
+    "The courier said {days} days. She had three.",
+    "His visa interview was tomorrow. A reputable courier quoted {days} business days.",
+    "The ceremony was Saturday. The item was still in Birmingham on Wednesday night.",
+    "She found out 48 hours before. Every courier she called was either fully booked or too slow.",
+    "He almost left it behind entirely — the flight was in four hours when he remembered.",
+    "The sender had been quoted £{price} before. She had accepted it as the cost of caring from a distance.",
 ]
 
 _TH_ANGLES = [
@@ -1251,6 +1347,59 @@ _TH_EARN_AMOUNTS = [45, 55, 65, 72, 80, 85, 48, 60, 90, 38]
 _TH_DELIVERY_HOURS = [18, 22, 28, 14, 36, 20, 24]
 
 
+# ── Humans of BootHop — Saturday documentary format data seed ─────────────────
+# Each tuple: (name, context/action, human_detail_that_isn't_logistics)
+_HUMANS_OF_BOOTHOP = [
+    ("Sade",  "sent a wedding dress to Lagos with three days to spare",
+              "her mum cried when she opened the door and saw the dress inside"),
+    ("Tunde", "carried a parcel on a flight he'd already booked to see his family",
+              "he earned £190 without changing a single one of his plans"),
+    ("Grace", "needed her son's inhaler delivered the same day",
+              "the traveller waited by the gate to hand it over in person — not just to a doorstep"),
+    ("Emeka", "was flying home for his sister's celebration and had space in his case",
+              "he was matched with someone sending aso-oke fabric within 20 minutes of posting"),
+    ("Amara", "sent her grandmother's heart medication when the pharmacy ran out locally",
+              "her grandmother sent back a voice note just saying thank you — nothing else"),
+    ("James", "needed his graduation gown delivered before the ceremony started",
+              "the traveller was already at the airport and detoured to drop it at the venue"),
+    ("Funmi", "sent her son's football boots before a trial he almost missed",
+              "he made the trial, and the boots arrived with an hour to spare"),
+    ("Dami",  "sent her father's chieftaincy outfit from Birmingham to Lagos",
+              "her father wore it the same day it arrived — he didn't tell anyone it had nearly not made it"),
+    ("Kola",  "was flying home and took a parcel for a stranger he'd never met",
+              "the stranger turned out to live two streets away from his family in Ibadan"),
+    ("Yemi",  "sent her daughter's university acceptance letter by hand",
+              "her daughter called from the registrar's office in tears — she'd been accepted, the letter confirmed it"),
+]
+
+
+# ── Founder Story — Sunday first-person format data seed ─────────────────────
+# FICTIONALIZED/COMPOSITE founder stories for Sunday content.
+# These are NOT the founder's real biography. They are believable, human-scale
+# composite scenarios written to feel authentic. Keep them specific and small-scale.
+# Each tuple: (the_moment, the_realisation, the_decision)
+_FOUNDER_MOMENTS = [
+    ("I once paid £70 to send a phone charger to Lagos.",
+     "Meanwhile someone I knew was flying that exact route with an empty suitcase.",
+     "So I built the thing I wished had existed already."),
+    ("A family friend missed her own sister's traditional wedding because a parcel took nine days to clear.",
+     "Everyone on that flight had spare luggage space. Nobody had a way to connect it to her.",
+     "I realised the movement already existed — it just had no structure around it."),
+    ("Someone once asked in a family WhatsApp group, 'is anyone travelling to Lagos this week?' — and got seven replies.",
+     "That's when it hit me: people already trust strangers with their parcels every day, informally.",
+     "I just gave that trust a platform, a price, and a guarantee."),
+    ("I had no idea if anyone would actually agree to carry something for a stranger.",
+     "Turns out people already did — they just needed somewhere safer to do it than a group chat.",
+     "That doubt is gone now. It happens every day."),
+    ("I watched my cousin refresh a courier tracking page for four days straight.",
+     "The parcel was sitting in a sorting centre twenty miles from the airport. Someone was flying that route that morning.",
+     "I kept thinking: there has to be a better way than this."),
+    ("Someone once told me the real competition wasn't DHL. It was a WhatsApp message: 'Is anyone going to Lagos?'",
+     "They were right. The informal network already existed. It just had no safety, no price, no guarantee.",
+     "BootHop is what that WhatsApp message looks like with a platform built around it."),
+]
+
+
 def _build_travel_hacks_angle() -> str:
     """Build a unique story direction by randomly drawing from ingredient pools."""
     protagonist = random.choice(_TH_PROTAGONISTS)
@@ -1307,6 +1456,142 @@ def _build_travel_hacks_angle() -> str:
         f"- NEVER write about hotel booking, flight reservations, packing tips, or general travel advice\n"
         f"- This story is about peer-to-peer delivery discovered at exactly the right moment"
     )
+
+
+def _build_humans_of_boothop_prompt() -> str:
+    """Build a Humans of BootHop (Format 5 — Saturday) prompt. Does NOT sell."""
+    name, context, human_detail = random.choice(_HUMANS_OF_BOOTHOP)
+    return f"""You write a single "Humans of BootHop" video — a weekly documentary-style piece that builds brand recognition, not sales.
+
+BootHop = peer-to-peer parcel delivery. Travellers ALREADY flying between UK and Nigeria carry parcels for senders.
+LANGUAGE RULE: British English only.
+
+TODAY'S STORY SEED:
+  Name: {name}
+  What they did: {name} {context}
+  Human detail (the beat that makes people share): {human_detail}
+
+FORMAT 5 — HUMANS OF BOOTHOP (does NOT sell — no prices, no CTAs, no "sign up today"):
+
+This format breaks every rule the other formats follow, deliberately.
+It is not trying to convert. Its job is brand memory — the one video each week that feels like a mini-documentary.
+
+FIXED STRUCTURE (follow exactly):
+  HOOK (0-3s)     → NAME CARD. Real name + one-line context. No BootHop branding yet. No music swell. Just the fact.
+                    Write it like a caption on a photograph: "{name}. [brief specific action in 5-7 words]."
+                    Max 10 words total.
+  PROBLEM (3-10s) → THEIR VOICE. Paraphrased first-person — must sound like something a real person said, not marketing.
+                    Express doubt, surprise, or quiet emotion — NOT urgency. Max 18 words.
+  STAKES (10-20s) → WHAT HAPPENED. The match, the handover, the outcome. Told plainly.
+                    No countdown language. No "urgent." This already happened — tell it to a friend. Max 22 words.
+  RESOLUTION      → THE HUMAN DETAIL. One moment with nothing to do with logistics.
+                    Use this seed: "{human_detail}"
+                    This is the beat that makes people share or screenshot. It must feel earned. Max 20 words.
+  LESSON          → SERIES STAMP. Write EXACTLY: "Humans of BootHop." — no variation, no additions, no CTA.
+
+RULES:
+- NEVER include a price, a stat, or a call to action anywhere in any beat
+- NEVER use the words "urgent," "courier," or "delivery" in the HOOK, PROBLEM, or STAKES
+- BootHop appears naturally in STAKES — it connected them — but is NOT the subject of the story
+- The LESSON field must contain exactly: "Humans of BootHop."
+
+CAPTIONS:
+- caption_tiktok: warm, quietly confident. No hashtags. No price. Feel: "Every delivery carries a story. This one's {name}'s." Max 120 chars.
+- caption_instagram: same line, slightly expanded. End with "boothop.com". Max 180 chars.
+- youtube_title: episode title format — "{name}. [2-3 word summary]." Max 60 chars.
+- youtube_description: one sentence, no sell. "A story about {name}, a traveller, and the moment in between. boothop.com"
+- top_caption: quiet, cinematic. Max 8 words. No "Imagine." No prices. Feel: "Some deliveries carry more than a parcel."
+- engagement: return "" — this format does NOT end with a question.
+
+Return ONLY valid JSON (no markdown):
+{{
+  "story_anchor": {{
+    "character": "{name}",
+    "item": "{context}",
+    "moment": "the human moment at the heart of this story",
+    "obstacle": "",
+    "movement": "how BootHop connected them"
+  }},
+  "hook": "...",
+  "problem": "...",
+  "stakes": "...",
+  "resolution": "...",
+  "lesson": "Humans of BootHop.",
+  "top_caption": "...",
+  "caption_tiktok": "...",
+  "caption_instagram": "...",
+  "youtube_title": "...",
+  "youtube_description": "...",
+  "engagement": ""
+}}"""
+
+
+def _build_founder_story_prompt() -> str:
+    """Build a Founder Story (Format 6 — Sunday) prompt. First-person, fictionalized, no sell."""
+    moment, realisation, decision = random.choice(_FOUNDER_MOMENTS)
+    return f"""You write a single "Founder Story" video — a weekly first-person piece from BootHop's founder that builds trust through honesty, not sales.
+
+BootHop = peer-to-peer parcel delivery. Travellers ALREADY flying between UK and Nigeria carry parcels for senders.
+LANGUAGE RULE: British English only.
+
+TODAY'S FOUNDER MEMORY (composite/fictionalized — treat as true for storytelling purposes):
+  The moment: "{moment}"
+  The realisation: "{realisation}"
+  The decision: "{decision}"
+
+FORMAT 6 — FOUNDER STORY (does NOT sell — no CTAs, no "sign up," no pitch-deck language):
+
+FIXED STRUCTURE (follow exactly):
+  HOOK (0-3s)     → THE MOMENT. A single specific memory. Must be a concrete moment, not a mission statement.
+                    NEVER open with "I believe..." or "I started BootHop because I'm passionate about..."
+                    Use the seed moment as your foundation. First person. Vivid. Max 15 words.
+  PROBLEM (3-12s) → THE REALISATION. What that moment made obvious.
+                    This is where "unlocking unused human movement" lives — the founder noticing the
+                    movement already existed, it just had no structure around it. Max 22 words.
+  STAKES (12-20s) → THE DECISION. Plain, undramatic. No "hustle story" language.
+                    One honest admission of doubt if possible — this is what separates founder content from a pitch.
+                    Use the seed decision. Max 20 words.
+  RESOLUTION      → WHERE IT IS NOW. One grounded, human-scale, current fact.
+                    Not hype. Not metrics. A directional truth: "Now people use it every single day for exactly what I built it for." Max 15 words.
+  LESSON          → CLOSING LINE. Reflective — never a CTA.
+                    Options: "This is why BootHop exists." / "That's the whole idea, really." /
+                    "The movement already existed. I just gave it a home." — pick the one that fits the memory.
+
+RULES:
+- NEVER use: "disrupt," "scale," "solve a massive problem," "market opportunity," "passionate about"
+- Keep it personal-scale. One memory → one realisation → one decision. That is the whole video.
+- No CTA, no question ending, no "sign up" — this format earns trust by NOT selling
+- BootHop is the thing the founder built, not the subject of a pitch
+
+CAPTIONS:
+- caption_tiktok: reflective, no sell. "The reason I built BootHop was simpler than you'd think." Feel. Max 120 chars.
+- caption_instagram: same, slightly expanded. End with "boothop.com". Max 180 chars.
+- youtube_title: "Why I built BootHop." or a variation using the memory as the hook. Max 60 chars.
+- youtube_description: one sentence. "The moment that started BootHop. boothop.com"
+- top_caption: quiet and cinematic. Max 8 words. No "Imagine." Feel: "This is why it exists."
+- engagement: return "" — this format does NOT end with a question.
+
+Return ONLY valid JSON (no markdown):
+{{
+  "story_anchor": {{
+    "character": "BootHop founder",
+    "item": "the moment that started it all",
+    "moment": "founding realisation",
+    "obstacle": "the gap that needed a platform",
+    "movement": "human movement that already existed"
+  }},
+  "hook": "...",
+  "problem": "...",
+  "stakes": "...",
+  "resolution": "...",
+  "lesson": "...",
+  "top_caption": "...",
+  "caption_tiktok": "...",
+  "caption_instagram": "...",
+  "youtube_title": "...",
+  "youtube_description": "...",
+  "engagement": ""
+}}"""
 
 
 class ContentDuplicateError(Exception):
@@ -1408,19 +1693,27 @@ def generate_content(slot: int, pillar: str, bucket: str) -> dict:
     if pillar == "travel_hacks":
         pillar_angle = _build_travel_hacks_angle()
 
-    # ── Stage 0: News Editor — find today's top story ─────────────────────────
-    print("  [NewsEditor] Searching for today's top story...")
-    try:
-        news_context = find_top_story(pillar)
-    except Exception as _ne:
-        print(f"  [NewsEditor] Failed: {_ne} — continuing without news context")
-        news_context = None
+    # ── Stage 0: News Editor — skipped for documentary/founder formats ─────────
+    news_context = None
+    if pillar not in ("humans_of_boothop", "founder_story"):
+        print("  [NewsEditor] Searching for today's top story...")
+        try:
+            news_context = find_top_story(pillar)
+        except Exception as _ne:
+            print(f"  [NewsEditor] Failed: {_ne} — continuing without news context")
 
     # ── Stage 1: Story Writer ─────────────────────────────────────────────────
-    story_prompt = _build_story_prompt(
-        slot, pillar, bucket, pillar_label, pillar_angle, day_name, month_name,
-        news_context=news_context,
-    )
+    if pillar == "humans_of_boothop":
+        print("  [StoryWriter] Format 5 — Humans of BootHop")
+        story_prompt = _build_humans_of_boothop_prompt()
+    elif pillar == "founder_story":
+        print("  [StoryWriter] Format 6 — Founder Story")
+        story_prompt = _build_founder_story_prompt()
+    else:
+        story_prompt = _build_story_prompt(
+            slot, pillar, bucket, pillar_label, pillar_angle, day_name, month_name,
+            news_context=news_context,
+        )
     raw = _call_story_ai(story_prompt, v2=False)
     data = _parse_json(raw)
 
@@ -1506,6 +1799,7 @@ RULES FOR V2:
     "Someone was already flying. BootHop connected the dots."
     "The journey already existed. The parcel just joined it."
     "Every journey has value."
+    "When time matters more than distance, BootHop finds another way."
 - NEVER use "unchanged", "same", or copy V1 text
 
 COURIER RULE: NEVER name DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS.

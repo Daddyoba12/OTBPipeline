@@ -325,6 +325,25 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         except Exception as _fe:
             _log(f"Product funnel skipped: {_fe}")
 
+    # ── 0c. Kling video production (otb_midas only, alternating slots) ──────────
+    try:
+        from config import KLING_ENABLED_SLUGS, KLING_SLOT_BY_WEEKDAY, KLING_API_KEY
+        _today_wd  = datetime.now().weekday()
+        _kling_slot = KLING_SLOT_BY_WEEKDAY.get(_today_wd, 1)
+        if PIPELINE_SLUG in KLING_ENABLED_SLUGS and slot == _kling_slot:
+            _step(f"slot{slot}: kling production")
+            _log(f"[Kling] Weekday {_today_wd} — running Kling slot {_kling_slot}")
+            from generate_kling import run_kling_production
+            _kling_out = run_kling_production(slot=_kling_slot)
+            if _kling_out:
+                _log(f"[Kling] Video ready: {_kling_out}")
+                _tg_send(f"🎬 Kling video ready:\n{Path(_kling_out).name}\nReview and post manually.")
+            else:
+                _log("[Kling] Production failed — continuing normal pipeline")
+                _tg_send("⚠️ Kling video failed — running normal pipeline content instead")
+    except Exception as _ke:
+        _log(f"[Kling] Skipped: {_ke}")
+
     # ── 1. Determine pillar + bucket ──────────────────────────────────────────
     _step(f"slot{slot}: pillar selection")
     from generate_content import get_pillar_for_slot, get_bucket
