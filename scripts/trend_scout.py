@@ -29,7 +29,7 @@ BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 from config import (
     DATA, CREDS_PATH, YOUTUBE_API_KEY,
-    PERPLEXITY_KEY, OPENAI_API_KEY,
+    PERPLEXITY_KEY, OPENAI_API_KEY, GEMINI_API_KEY,
 )
 
 TREND_REPORT = DATA / "trend_report.json"
@@ -298,28 +298,23 @@ Extract and return as JSON ONLY (no markdown):
 
     try:
         r = requests.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
-                "Content-Type":  "application/json",
-            },
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
             json={
-                "model":       "gpt-4o-mini",
-                "messages":    [{"role": "user", "content": prompt}],
-                "max_tokens":  800,
-                "temperature": 0.3,
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 800, "temperature": 0.3},
             },
             timeout=30,
         )
         r.raise_for_status()
-        raw = r.json()["choices"][0]["message"]["content"].strip()
+        raw = r.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         m = re.search(r"\{[\s\S]*\}", raw)
         if m:
             patterns = json.loads(m.group())
             print(f"  [TrendScout/Patterns] Extracted {len(patterns.get('top_10_hook_patterns', []))} hook patterns")
             return patterns
     except Exception as e:
-        print(f"  [TrendScout/Patterns] GPT error: {e}")
+        print(f"  [TrendScout/Patterns] Gemini error: {e}")
 
     return _fallback_patterns(yt_videos, ig_posts)
 

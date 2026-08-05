@@ -333,19 +333,8 @@ def run_slot(slot: int, force: bool = False):
         platform_videos = render_for_platforms(content, slot, str(video_file), tiktok_ig_only=True)
         _log(f"Variants: {list(platform_videos.keys())}")
 
-        # ── Voice-over ────────────────────────────────────────────────────────
-        _step(f"slot{slot}: voiceover")
-        try:
-            from voiceover import add_voiceover_to_video
-            _log("Generating voice-over narration (OpenAI TTS)...")
-            voiced = add_voiceover_to_video(content, str(video_file), mix_into_video=True)
-            if voiced:
-                _log(f"Voice-over ready: {voiced}")
-                content["voiced_video"] = voiced
-            else:
-                _log("Voice-over generation skipped (no key or API error)")
-        except Exception as _ve:
-            _log(f"Voice-over failed: {_ve} — continuing without narration")
+        # Voice-over is baked into the video by render_video.py (slot 1 only).
+        # No second TTS call needed here.
 
         video_path = str(video_file)
 

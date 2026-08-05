@@ -13,6 +13,10 @@ cat > /tmp/newcron << 'CRON'
 0 15 * * * cd /opt/otb_pipeline && OTB_CLIENT_BASE=/opt/g_inspired python3 pipeline_g_inspired.py --slot 1 >> /home/ubuntu/g_inspired.log 2>&1
 0 19 * * * cd /opt/otb_pipeline && OTB_CLIENT_BASE=/opt/g_inspired python3 pipeline_g_inspired.py --slot 1 >> /home/ubuntu/g_inspired.log 2>&1
 0 10 * * 2,5 cd /opt/otb_pipeline && OTB_CLIENT_BASE=/opt/g_inspired python3 pipeline_g_inspired.py --slot 4 >> /home/ubuntu/g_inspired.log 2>&1
+# Engagement bot — reply to comments every 2h
+0 */2 * * * cd /opt/otb_pipeline && python3 scripts/engage.py >> /home/ubuntu/engage.log 2>&1
+# TikTok analytics sync — daily at 09:00 UTC
+0 9 * * * cd /opt/otb_pipeline && python3 scripts/sync_tiktok_analytics.py >> /home/ubuntu/tiktok_analytics.log 2>&1
 CRON
 crontab /tmp/newcron
 echo "Crontab installed:"

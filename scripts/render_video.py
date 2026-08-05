@@ -359,44 +359,44 @@ BEATS = [
 # color     : hex string, no '#'
 BEAT_STYLE = {
     "hook": {
-        "size": 78, "size_cont": 60,
+        "size": 82, "size_cont": 64,
         "color": "FFE600",
         "y_start": 1280,  # lower third: face fills top, text below it
-        "line_gap": 84,
-        "max_chars": 20,
-        "max_lines": 4,
+        "line_gap": 90,
+        "max_chars": 18,
+        "max_lines": 3,
         "title_font": True,
     },
     "problem": {
-        "size": 52, "color": "FFFFFF",
-        "y_start": 780,   # shifted up 40px to fit 4th line
-        "line_gap": 70,
-        "max_chars": 26,
-        "max_lines": 4,
+        "size": 72, "color": "FFFFFF",
+        "y_start": 750,
+        "line_gap": 88,
+        "max_chars": 20,
+        "max_lines": 3,
         "title_font": False,
     },
     "stakes": {
-        "size": 58, "color": "FF8C00",
-        "y_start": 730,   # shifted up 50px to fit 4th line
-        "line_gap": 78,
-        "max_chars": 22,
-        "max_lines": 4,
+        "size": 72, "color": "FF8C00",
+        "y_start": 740,
+        "line_gap": 88,
+        "max_chars": 18,
+        "max_lines": 3,
         "title_font": True,
     },
     "resolution": {
-        "size": 52, "color": "FFFFFF",
-        "y_start": 780,   # shifted up 40px to fit 4th line
-        "line_gap": 70,
-        "max_chars": 26,
-        "max_lines": 4,
+        "size": 72, "color": "FFFFFF",
+        "y_start": 750,
+        "line_gap": 88,
+        "max_chars": 20,
+        "max_lines": 3,
         "title_font": False,
     },
     "lesson_pre": {
-        "size": 48, "color": "FFFFFF",
-        "y_start": 780,   # shifted up 40px to fit 4th line
-        "line_gap": 65,
-        "max_chars": 28,
-        "max_lines": 4,
+        "size": 68, "color": "FFFFFF",
+        "y_start": 760,
+        "line_gap": 84,
+        "max_chars": 20,
+        "max_lines": 3,
         "title_font": False,
     },
 }
@@ -563,8 +563,8 @@ def _drawtext_filters(text: str, beat: str, style_override: dict | None = None) 
             f"fontcolor=0x{color}:"
             f"x=(w-text_w)/2:"
             f"y={y}:"
-            f"box=1:boxcolor=0x000000@0.72:boxborderw=18:"
-            f"shadowx=3:shadowy=3:shadowcolor=0x000000"
+            f"box=1:boxcolor=0x000000@0.45:boxborderw=10:"
+            f"shadowx=4:shadowy=4:shadowcolor=0x000000"
         )
     return ",".join(parts)
 
@@ -580,7 +580,7 @@ def _apply_caption_overlay(clip: Path, text: str) -> None:
         draw  = ImageDraw.Draw(img)
         draw.rectangle([(0, 0), (W, CAP_H)], fill=(0, 0, 0, 160))
 
-        font = _load_pil_font("body", 36)
+        font = _load_pil_font("body", 48)
         words = text.split()
         lines: list[str] = []
         cur: list[str]   = []
@@ -619,7 +619,7 @@ def _apply_caption_overlay(clip: Path, text: str) -> None:
         # story header appears on its own line below it, not overlapping.
         ok  = _ff(
             "-i", str(clip), "-i", str(cap_png),
-            "-filter_complex", "[0:v][1:v]overlay=0:130",
+            "-filter_complex", "[0:v][1:v]overlay=0:192",
             "-c:v", "libx264", "-crf", "18", "-preset", "fast",
             "-pix_fmt", "yuv420p", "-an", str(tmp),
         )
@@ -1268,7 +1268,7 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
         ft_lesson    = _load_pil_font("title", 66)
         n            = len(lesson_lines)
         line_gap     = 90
-        y_lesson     = int(H * 0.12)
+        y_lesson     = int(H * 0.22)
         for i, ln in enumerate(lesson_lines):
             _pil_draw_centered(draw, ln, y_lesson + i * line_gap, ft_lesson, tc, shadow=True)
 
