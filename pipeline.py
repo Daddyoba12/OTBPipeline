@@ -388,7 +388,32 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _log("Rendering (gold palette — Pexels/Pixabay primary)...")
 
         from render_video import render_video, render_for_platforms
-        ok, used_ids = render_video(content, slot, str(video_file), version="v1")
+
+        # ── Hook engine: 2-second cinematic visual + Gen-Z dialogue opener ───
+        _hook_clip  = None
+        _hook_audio = None
+        try:
+            from generate_hook import generate_hook
+            _log("Generating dynamic hook clip (Pexels/DALL-E + gTTS)...")
+            _hr = generate_hook(client=PIPELINE_SLUG, slot=slot)
+            if _hr.get("success"):
+                _hook_clip  = _hr.get("video_path")
+                _hook_audio = _hr.get("audio_path")
+                _log(f"Hook ready: '{_hr.get('dialogue','')[:60]}'")
+            else:
+                _log("Hook engine: no visual found — standard text-card hook will be used")
+        except Exception as _hke:
+            _log(f"[Hook] Skipped: {_hke}")
+
+        ok, used_ids = render_video(content, slot, str(video_file), version="v1",
+                                     hook_clip=_hook_clip, hook_audio=_hook_audio)
+
+        # Clean up hook temp files after render completes
+        for _hf in filter(None, [_hook_clip, _hook_audio]):
+            try:
+                Path(_hf).unlink(missing_ok=True)
+            except Exception:
+                pass
 
         if not ok or not video_file.exists():
             _crash(f"Render failed for slot {slot}")
