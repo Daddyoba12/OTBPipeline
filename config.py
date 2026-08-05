@@ -60,6 +60,7 @@ if True:
         INSTAGRAM_ACCOUNT_ID  = _env_pairs.get("INSTAGRAM_ACCOUNT_ID",   os.environ.get("INSTAGRAM_ACCOUNT_ID",   ""))
         GMAIL_USER            = _env_pairs.get("GMAIL_USER",              os.environ.get("GMAIL_USER",             ""))
         GMAIL_APP_PASSWORD= _env_pairs.get("GMAIL_APP_PASSWORD",os.environ.get("GMAIL_APP_PASSWORD",""))
+        KLING_API_KEY         = _env_pairs.get("KLING_API_KEY",            os.environ.get("KLING_API_KEY",           ""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -78,6 +79,7 @@ if True:
             ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
+            KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")
         except Exception:
             ANTHROPIC_API_KEY      = os.environ.get("ANTHROPIC_API_KEY",      "")
             PEXELS_KEY             = os.environ.get("PEXELS_KEY",             "")
@@ -90,6 +92,7 @@ if True:
             ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
+            KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
@@ -97,6 +100,16 @@ TELEGRAM_CHAT_ID = "8641867751"
 # "zernio" = managed OAuth via Zernio API (current)
 # "direct" = TikTok Content Posting API v2 (legacy, kept in post_tiktok.py)
 TIKTOK_POSTER = "zernio"
+
+# ── Kling AI video production ──────────────────────────────────────────────────
+# One 30-40s Kling video per day, alternating morning/afternoon slots.
+# Client gate: only slugs in this list get Kling videos.
+KLING_API_BASE        = "https://api.klingai.com"
+KLING_ENABLED_SLUGS   = ["otb_midas"]
+# slot 1 = morning run (Mon, Wed, Fri…), slot 2 = afternoon run (Tue, Thu, Sat…)
+# Weekday 0=Mon,1=Tue,… — even weekdays get slot 1, odd get slot 2
+KLING_SLOT_BY_WEEKDAY = {0: 1, 1: 2, 2: 1, 3: 2, 4: 1, 5: 2, 6: 1}
+BOOTHOP_JOURNEYS_API  = "https://boothop.com/api/journeys"
 
 # ── AI model selection ─────────────────────────────────────────────────────────
 # STORY_MODEL: which AI writes the narrative (Stage 1 — Story Writer)
@@ -130,8 +143,8 @@ SLOT_PLATFORMS = {
 # ── Content pillars per slot — 7-day rotation (indexed by weekday: 0=Mon … 6=Sun)
 # No pillar appears twice on the same day. Each angle repeats once per week per slot.
 SLOT_PILLARS = {
-    #              Mon                   Tue                   Wed                   Thu                   Fri (alternates weekly)            Sat (alternates weekly)                 Sun (alternates weekly)
-    1: ["cost_pain",        "personal_shopper", "airport",          "smart",            ["urgent_medical",   "faith_friday"],     ["community",    "celebration_weekend"], ["cultural_earn", "faith_friday"]],
+    #              Mon                   Tue                   Wed                   Thu                   Fri (alternates weekly)            Sat                    Sun
+    1: ["family",           "travel_hacks",     "airport",          "cost_pain",        ["community",        "faith_friday"],     "humans_of_boothop",   "founder_story"],
     2: ["courier_business", "airport_deliveries","personal_shopper","community",         "multi_courier",     "airport",           "family"],
     3: ["urgent_medical",   "travel_hacks",     "cultural_earn",    "airport_deliveries","smart",             "cost_pain",         "family"],
     4: "brand_authority",   # LinkedIn/blog — consistent thought-leadership angle
@@ -164,17 +177,29 @@ PILLAR_LABELS = {
     "faith_friday":           "Faith & Prayer",
     "celebration_weekend":    "Weekend Celebration",
     "flight_discovery":       "Flight Discovery",
+    "humans_of_boothop":      "Humans of BootHop",
+    "founder_story":          "Founder Story",
+    "urgent_family":          "Urgent Family",
+    "traveller_earnings":     "Traveller Earnings",
+    "funny":                  "Relatable & Funny",
+}
+
+# Pillars that route to specific platforms only (never TikTok for B2B/business content)
+PILLAR_PLATFORM_OVERRIDES = {
+    "business":        ["linkedin", "youtube"],
+    "courier_business": ["instagram"],           # already in INSTAGRAM_ONLY_PILLARS, kept for clarity
+    "multi_courier":   ["instagram"],
 }
 
 # Day-of-week content bucket (affects hook tone and visual style)
 DAY_BUCKETS = {
-    0: "business",   # Monday
-    1: "family",     # Tuesday
-    2: "airport",    # Wednesday
-    3: "smart",      # Thursday
-    4: "cinematic",  # Friday
-    5: "community",  # Saturday
-    6: "community",  # Sunday
+    0: "family",     # Monday   — urgent family stories (care packages, last-minute gifts)
+    1: "earning",    # Tuesday  — traveller earns (empty luggage allowance, BootHop income)
+    2: "airport",    # Wednesday — business/airport movement stories
+    3: "viral",      # Thursday — lighter, relatable, humour-forward (price shock, funny discoveries)
+    4: "cinematic",  # Friday   — community connection, cinematic feel
+    5: "community",  # Saturday — real moments, reviews, word-of-mouth
+    6: "community",  # Sunday   — family reunion, recipient POV
 }
 
 # ── Video spec ─────────────────────────────────────────────────────────────────
