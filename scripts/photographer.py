@@ -79,7 +79,33 @@ def _parse_json(raw: str) -> dict:
     return json.loads(m.group())
 
 
-def generate_image_prompts(story: dict, scene_queries: list[str], pillar: str) -> dict:
+# ── Character cast rotation ───────────────────────────────────────────────────
+# Rotates by day so the same visual archetype never dominates the grid.
+# PAUSED: shocked woman / hand-over-mouth / wide-eyes / phone-staring pose.
+_CHARACTER_CAST = [
+    "40-year-old Nigerian man, business professional, sharp suit, calm confident expression",
+    "28-year-old British-Nigerian woman, casual smart, natural smile, relaxed",
+    "55-year-old Nigerian woman, warm maternal energy, modest clothing, gentle expression",
+    "32-year-old Black British man, streetwear, laughing or mid-conversation",
+    "22-year-old Nigerian female student, university setting, curious attentive look",
+    "48-year-old Nigerian man, slightly tired but relieved expression, everyday clothing",
+    "35-year-old mixed-heritage woman, airport smart-casual, purposeful stride",
+    "60-year-old Nigerian grandfather, dignified, proud expression, traditional or neat dress",
+    "26-year-old Black British couple (man and woman), laughing together, casual",
+    "38-year-old Nigerian woman, entrepreneur energy, blazer, focused expression",
+]
+
+_VISUAL_BANNED = (
+    "BANNED visual poses (never generate these):\n"
+    "- Shocked woman with hand over mouth\n"
+    "- Extreme wide eyes staring at phone\n"
+    "- Open-mouth surprise expressions\n"
+    "- Any character repeated from a previous video\n"
+    "Use natural, subtle reactions: a quiet smile, a raised eyebrow, a nod, relief, pride."
+)
+
+
+def generate_image_prompts(story: dict, scene_queries: list[str], pillar: str, day_index: int = 0) -> dict:
     """
     Stage 4: Photographer agent.
     Takes the approved story and basic scene queries.
@@ -89,6 +115,8 @@ def generate_image_prompts(story: dict, scene_queries: list[str], pillar: str) -
     blueprint = PILLAR_BLUEPRINTS.get(pillar, PILLAR_BLUEPRINTS["supply_chain"])
     blueprint_lines = "\n".join(f"  Scene {i}: {desc}" for i, desc in enumerate(blueprint))
     queries_text = "\n".join(f"  Scene {i}: {q}" for i, q in enumerate(scene_queries))
+
+    cast_today = _CHARACTER_CAST[day_index % len(_CHARACTER_CAST)]
 
     prompt = f"""You are the Photographer for BootHop's video pipeline. Your job is to upgrade basic scene search queries into highly specific descriptions.
 
@@ -100,6 +128,14 @@ STORY:
   Lesson: {story.get('lesson', '')}
   Pillar: {pillar}
 
+TODAY'S LEAD CHARACTER — use this archetype for the main person in this video:
+  {cast_today}
+  This character must look visually different from a shocked woman staring at a phone.
+  Keep this same character consistent across all 8 scenes of THIS video.
+  But this archetype rotates daily — tomorrow's video will cast a different person entirely.
+
+{_VISUAL_BANNED}
+
 SCENE BLUEPRINT:
 {blueprint_lines}
 
@@ -110,22 +146,22 @@ YOUR JOB — for each of the 8 scenes produce TWO things:
 
 1. pexels_query (max 8 words): A highly specific Pexels search query.
    Include: character description + location + action + shot type
-   Example: "nigerian woman london flat phone charger worried medium shot"
+   Example: "40-year-old nigerian man airport departure confident medium shot"
    NOT: "woman apartment medium shot"
 
 2. ai_image_prompt (max 60 words): A detailed prompt for AI image generation.
    Include: age, ethnicity, gender, exact location, specific prop or action,
    lighting, shot type, emotion, format.
-   Example: "Photorealistic. 35-year-old Nigerian woman sitting on a grey sofa in a modern
-   London apartment. She holds a small USB phone charger and looks worried at her phone.
-   Warm natural window light. Medium shot. No text. No logos. Vertical 9:16 portrait."
+   Example: "Photorealistic. 40-year-old Nigerian man in a business suit at Heathrow departures.
+   He checks his phone with a calm, confident expression. Warm terminal lighting. Medium shot.
+   No text. No logos. Vertical 9:16 portrait."
    NOT: "woman in apartment"
 
 RULES FOR BOTH:
 - Medium shot or wide shot ONLY — no close-ups
 - No animals, no food, no Christmas, no Halloween
 - No courier brand names (DHL, FedEx, Royal Mail, Hermes)
-- Characters must be consistent across scenes (same woman, same story)
+- Characters must be consistent across scenes (same person as cast above, same story)
 - Location must make sense for the story pillar: {pillar}
 
 Return ONLY valid JSON:
