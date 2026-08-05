@@ -1561,6 +1561,96 @@ def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
         return False
 
 
+_HOOK_DUR          = 2   # seconds — the clean cinematic hook opening
+_HOOK_STORY_N      = 3   # story clips rendered when hook engine is active
+# When hook is active: 2s hook + 3×4s story + 10s end = 24s total
+
+
+def _find_music_track(slot: int | None, exclude_track: Path | None) -> Path | None:
+    """Locate a music track (slot-specific daily -> any daily -> archive)."""
+    if slot:
+        slot_track = MUSIC_DIR / f"track_{slot}.mp3"
+        if (slot_track.exists() and slot_track.stat().st_size > 50_000
+                and (exclude_track is None or slot_track.resolve() != exclude_track.resolve())
+                and _track_has_audio(slot_track)):
+            return slot_track
+    daily = [t for t in (list(MUSIC_DIR.glob("*.mp3")) + list(MUSIC_DIR.glob("*.m4a")))
+             if t.stat().st_size > 50_000 and "_tmp" not in str(t)
+             and (exclude_track is None or t.resolve() != exclude_track.resolve())
+             and _track_has_audio(t)]
+    if daily:
+        return random.choice(daily)
+    archive = [t for t in (list(MUSIC_ARCHIVE.glob("*.mp3")) + list(MUSIC_ARCHIVE.glob("*.m4a")))
+               if (exclude_track is None or t.resolve() != exclude_track.resolve())
+               and _track_has_audio(t)]
+    if archive:
+        recent_stems = _recently_used_music_stems(days=2)
+        fresh = [t for t in archive if t.stem.lower() not in recent_stems]
+        return random.choice(fresh) if fresh else random.choice(archive)
+    return None
+
+
+def _add_hook_audio_and_music(
+    src: Path, dest: Path,
+    hook_audio: Path | None,
+    total_dur: float,
+    slot: int | None = None,
+    exclude_track: Path | None = None,
+) -> Path | None:
+    """
+    Add music to a hook-engine video.
+
+    When hook_audio is provided: music is ducked to 20% for the first 2 seconds
+    while the dialogue plays, then rises to 85% for the rest of the video.
+    """
+    import shutil
+    track = _find_music_track(slot, exclude_track)
+    if track is None:
+        shutil.copy(src, dest)
+        return None
+
+    print(f"    [Music/Hook] Using: {track.name}")
+
+    if hook_audio and hook_audio.exists():
+        ok = _ff(
+            "-i", str(src),
+            "-stream_loop", "-1", "-i", str(track),
+            "-i", str(hook_audio),
+            "-filter_complex",
+            (
+                f"[1:a]afade=t=out:st={total_dur - 3}:d=3,"
+                f"volume='if(lt(t,2),0.18,0.85)':eval=frame[mus];"
+                f"[2:a]volume=1.6[dial];"
+                f"[mus][dial]amix=inputs=2:duration=first:normalize=0[aout]"
+            ),
+            "-map", "0:v", "-map", "[aout]",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            "-t", str(total_dur),
+            str(dest),
+        )
+        if ok and dest.exists() and dest.stat().st_size > 200_000:
+            if track.parent in (MUSIC_ARCHIVE.resolve(), MUSIC_ARCHIVE):
+                _log_music_used(track)
+            return track
+        print("    [Music/Hook] Dialogue mix failed — falling back to music-only")
+        dest.unlink(missing_ok=True)
+
+    # Music only (no hook audio or mix failed)
+    _ff(
+        "-i", str(src),
+        "-stream_loop", "-1", "-i", str(track),
+        "-filter_complex",
+        f"[1:a]afade=t=out:st={total_dur - 3}:d=3,volume=0.85[aout]",
+        "-map", "0:v", "-map", "[aout]",
+        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+        "-t", str(total_dur),
+        str(dest),
+    )
+    if track.parent in (MUSIC_ARCHIVE.resolve(), MUSIC_ARCHIVE):
+        _log_music_used(track)
+    return track
+
+
 def _concat_clips(clip_paths: list, dest: Path) -> bool:
     """Concatenate processed clips using FFmpeg concat demuxer."""
     list_path = dest.parent / f"concat_{dest.stem}.txt"
@@ -1578,7 +1668,9 @@ def _concat_clips(clip_paths: list, dest: Path) -> bool:
 
 
 def render_video(content: dict, slot: int, output_path: str,
-                 version: str = "v1", exclude_ids: set | None = None) -> tuple[bool, set]:
+                 version: str = "v1", exclude_ids: set | None = None,
+                 hook_clip: str | None = None,
+                 hook_audio: str | None = None) -> tuple[bool, set]:
     """
     Full render pipeline.
     version:     "v1" (gold palette, primary queries) or "v2" (cyan palette, alt queries, diff music)
@@ -1603,6 +1695,17 @@ def render_video(content: dict, slot: int, output_path: str,
     _is_car     = (_client == "g-inspired")
     _is_boothop = (_client == "boothop" or not _client)
     _car_data   = content.get("car", {})
+
+    # ── Hook engine setup ────────────────────────────────────────────────────
+    # When a hook_clip is supplied the video starts with a 2-second clean visual,
+    # then only 3 story clips are rendered — total target: ~24 seconds.
+    _has_hook       = bool(hook_clip and Path(hook_clip).exists())
+    _hook_clip_path = Path(hook_clip) if _has_hook else None
+    _hook_audio_pth = Path(hook_audio) if (hook_audio and Path(hook_audio).exists()) else None
+    _n_clips_eff    = _HOOK_STORY_N if _has_hook else N_CLIPS   # 3 or 8
+    _total_dur_eff  = float(_HOOK_DUR + _HOOK_STORY_N * CLIP_DUR + LESSON_DUR + BRAND_DUR) if _has_hook else float(TOTAL_DUR)
+    if _has_hook:
+        print(f"  [Render] Hook engine active — {_HOOK_DUR}s cinematic opening, {_n_clips_eff} story clips, target {_total_dur_eff:.0f}s")
 
     # user_clips_disabled: skip assets/user_clips folder entirely for this client.
     # Set "user_clips_disabled": true in client_profile.json to stop repeating
@@ -1654,7 +1757,12 @@ def render_video(content: dict, slot: int, output_path: str,
     print(f"\n  [Render-{version.upper()}] Hook: {hook[:60]}")
     print(f"  [Render] Pillar: {pillar} | Slot: {slot} | Version: {version}")
 
-    for i in range(N_CLIPS):
+    # When hook engine is active: skip clip 0 (text card), render clips 1-3 only.
+    # Clip 0 is replaced by the 2-second cinematic hook_clip prepended at concat time.
+    _clip_start = 1 if _has_hook else 0
+    _clip_end   = _clip_start + _n_clips_eff
+
+    for i in range(_clip_start, _clip_end):
         query  = _guard_query(queries[i], i)
         # Clips 0-1: close-up face grabs attention (face at top, hook text at bottom)
         # Clip 4: stakes beat — tight stressed shot at peak tension
@@ -1927,6 +2035,11 @@ def render_video(content: dict, slot: int, output_path: str,
     else:
         print("    WARNING: end card failed — omitting from concat")
 
+    # Prepend hook clip (2s clean visual, no text) when hook engine supplied one
+    if _has_hook and _hook_clip_path and _hook_clip_path.exists():
+        proc_clips.insert(0, str(_hook_clip_path))
+        print(f"    Hook clip prepended: {_hook_clip_path.name}")
+
     # Safety: remove any paths that don't exist before concat
     proc_clips = [p for p in proc_clips if Path(p).exists() and Path(p).stat().st_size > 5000]
 
@@ -1938,7 +2051,7 @@ def render_video(content: dict, slot: int, output_path: str,
     print("    Concatenating clips...")
     if not _concat_clips(proc_clips, joined):
         print("  [Render] Concat failed")
-        return False
+        return False, set()
 
     print("    Adding progress bar...")
     _add_progress_bar(joined, with_bar)
@@ -1953,34 +2066,49 @@ def render_video(content: dict, slot: int, output_path: str,
         import shutil
         shutil.move(str(with_bar), str(with_logo))
 
-    tts_path = TEMP / f"{prefix}_tts.mp3"
-    if slot == 1:
-        print("    Generating voiceover (slot 1 only)...")
-        tts_ok = _tts_narration(content, tts_path)
-    else:
-        print("    Skipping voiceover (slot 2/3)...")
-        tts_ok = False
-
     exclude_music = content.get("_v1_music_track")
     print("    Adding music...")
-    if tts_ok and tts_path.exists():
-        print("    [TTS] Mixing narration + music")
+
+    if _has_hook:
+        # Hook engine: use dedicated mixer that ducks music during 2-second dialogue.
+        # Skip regular TTS narration (hook dialogue already baked in as hook_audio).
         with_audio = TEMP / f"{prefix}_audio.mp4"
-        used_track = _add_music_with_voiceover(
-            with_logo, with_audio, tts_path,
-            slot=slot,
-            exclude_track=Path(exclude_music) if exclude_music else None,
+        used_track = _add_hook_audio_and_music(
+            with_logo, with_audio,
+            hook_audio  = _hook_audio_pth,
+            total_dur   = _total_dur_eff,
+            slot        = slot,
+            exclude_track = Path(exclude_music) if exclude_music else None,
         )
-        tts_path.unlink(missing_ok=True)
         with_logo.unlink(missing_ok=True)
         import shutil
         shutil.move(str(with_audio), output_path)
     else:
-        if tts_path.exists():
+        tts_path = TEMP / f"{prefix}_tts.mp3"
+        if slot == 1:
+            print("    Generating voiceover (slot 1 only)...")
+            tts_ok = _tts_narration(content, tts_path)
+        else:
+            print("    Skipping voiceover (slot 2/3)...")
+            tts_ok = False
+        if tts_ok and tts_path.exists():
+            print("    [TTS] Mixing narration + music")
+            with_audio = TEMP / f"{prefix}_audio.mp4"
+            used_track = _add_music_with_voiceover(
+                with_logo, with_audio, tts_path,
+                slot=slot,
+                exclude_track=Path(exclude_music) if exclude_music else None,
+            )
             tts_path.unlink(missing_ok=True)
-        used_track = _add_music(with_logo, Path(output_path), slot=slot,
-                                exclude_track=Path(exclude_music) if exclude_music else None)
-        with_logo.unlink(missing_ok=True)
+            with_logo.unlink(missing_ok=True)
+            import shutil
+            shutil.move(str(with_audio), output_path)
+        else:
+            if tts_path.exists():
+                tts_path.unlink(missing_ok=True)
+            used_track = _add_music(with_logo, Path(output_path), slot=slot,
+                                    exclude_track=Path(exclude_music) if exclude_music else None)
+            with_logo.unlink(missing_ok=True)
 
     # Store which track was used so pipeline can pass it as exclude for V2
     if used_track:
