@@ -517,22 +517,28 @@ AIRPORT PILLAR — MANDATORY (if pillar is airport or airport_deliveries):
     "airport arrivals hall Nigerian family reunion smiling wide shot"
 
 OPENING SCENE RULES (scenes 0 and 1 — the hook):
-  The first 2 seconds must STOP THE SCROLL. Use a cinematic establishing shot or a lifestyle
-  moment — NOT a close-up face. Close-up faces attract random stock results including children.
-  BANNED for scenes 0–1: close-up face, shocked expression, child, baby, toddler, kid.
-  REQUIRED for scenes 0–1: visually striking, aspirational or dramatic. Choose from:
-    - A luxury or aspirational environment (upscale bar, airport lounge, modern flat)
-    - A purposeful person mid-action (striding through departures, opening a door, checking phone calmly)
-    - A cinematic wide or medium shot with energy or movement
-    - An object close-up that tells a story (suitcase being zipped, phone notification, parcel being handed over)
+  The first 2 seconds must STOP THE SCROLL. ROTATE the opening type — do not always use
+  the same style. Pick one of these approaches each time:
+    - A casual conversation or reaction (two people talking, someone laughing, a natural exchange)
+    - A lifestyle or aspirational moment (airport lounge, upscale setting, stylish arrival)
+    - An action shot (person striding, handing over a parcel, opening a door)
+    - A cinematic object close-up (suitcase, phone notification, parcel being handed over)
+
+  ALWAYS BANNED for ALL scenes:
+    - Shocked expression, hand over mouth, wide eyes, extreme surprise
+    - Children, babies, toddlers, kids — never use child faces
+    - The same face/archetype repeated from a previous scene or video
+
+  Face shots ARE allowed — but the expression must be natural: smiling, mid-conversation,
+  calm, curious, relieved, proud. Never shocked or dramatic.
 
 CORRECT examples:
-  Scene 0 or 1 (hook — cinematic, NO close-up face):
-    "stylish Nigerian woman airport departures hall confident medium shot"
-    "Black British man luxury car arrival night upscale medium shot"
-    "African traveller suitcase airport lounge premium wide shot"
-    "close up suitcase zipper hand stylish luggage cinematic"
-    "phone screen notification earnings app dramatic close up"
+  Scene 0 or 1 (hook — varied, natural):
+    "stylish Nigerian woman airport lounge laughing phone medium shot"
+    "two Black British friends casual conversation coffee shop medium shot"
+    "African man confident smile departures hall medium shot"
+    "close up suitcase being zipped hand airport cinematic"
+    "Nigerian woman calm relieved expression phone notification medium shot"
   Scenes 2–7 (medium/wide required):
     "Nigerian woman post office counter medium shot"
     "African man train station parcel handover wide shot"
