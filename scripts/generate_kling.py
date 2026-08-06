@@ -110,6 +110,22 @@ def _genz_text(origin: str, dest: str) -> str:
     return random.choice(_GENZ[market])
 
 
+def _wrap_genz(text: str, max_chars: int = 30) -> tuple[str, str]:
+    """Split Gen-Z hook text into up to 2 lines. Returns (line1, line2); line2 may be empty."""
+    if len(text) <= max_chars:
+        return text, ""
+    # Prefer splitting at natural punctuation so the break feels intentional
+    for punct in ["?", ".", "!", "—"]:
+        idx = text.find(punct, 12)
+        if 12 <= idx <= max_chars + 8:
+            return text[:idx + 1].strip(), text[idx + 1:].strip()
+    # Fall back to last word boundary before max_chars
+    split_at = text.rfind(" ", 0, max_chars)
+    if split_at == -1:
+        split_at = max_chars
+    return text[:split_at].strip(), text[split_at:].strip()
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # SECTION 2 — Daily hook concepts (15-second Kling scenes)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -566,12 +582,35 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
     dest       = _clean_city(dest_raw).upper()
     price      = journey.get("price")
     price_str  = _ffmpeg_text(f"From GBP {int(price)}" if price else "Competitive rates")
-    genz       = _ffmpeg_text(_genz_text(origin_raw, dest_raw))
+    genz_raw   = _ffmpeg_text(_genz_text(origin_raw, dest_raw))
+    genz_l1, genz_l2 = _wrap_genz(genz_raw)
     route      = _ffmpeg_text(f"{origin}  to  {dest}")
 
     photo = _fetch_landmark_photo(journey.get("destinationCity") or dest)
     font  = _ffmpeg_font(_safe_font())
     out_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Build text overlay chain dynamically so Gen-Z text wraps cleanly
+    def _dt(text: str, size: int, color: str, y: str, sx: int = 2, sy: int = 2) -> str:
+        return (
+            f"drawtext=fontfile='{font}':fontsize={size}:fontcolor={color}:"
+            f"text='{text}':x=(w-text_w)/2:y={y}:"
+            f"shadowcolor=black:shadowx={sx}:shadowy={sy}"
+        )
+
+    text_layers = [_dt(route, 82, "white", "h*0.25", sx=3, sy=3)]
+    if genz_l2:
+        text_layers += [
+            _dt(genz_l1, 36, "#FFCC00", "h*0.37"),
+            _dt(genz_l2, 36, "#FFCC00", "h*0.46"),
+        ]
+    else:
+        text_layers.append(_dt(genz_l1, 40, "#FFCC00", "h*0.42"))
+    text_layers += [
+        _dt(price_str, 52, "white", "h*0.62"),
+        _dt("BootHop.com", 34, "#FF6A00", "h*0.92", sx=1, sy=1),
+    ]
+    text_chain = ",".join(text_layers)
 
     if photo and Path(photo).exists():
         # Background: photo scaled + dark overlay + text
@@ -579,16 +618,7 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
             f"[0:v]scale={CARD_W}:{CARD_H}:force_original_aspect_ratio=increase,"
             f"crop={CARD_W}:{CARD_H},setsar=1,"
             f"colorchannelmixer=rr=0.3:gg=0.3:bb=0.3:aa=1[bg];"
-            f"[bg]"
-            f"drawtext=fontfile='{font}':fontsize=88:fontcolor=white:"
-            f"text='{route}':x=(w-text_w)/2:y=h*0.28:shadowcolor=black:shadowx=3:shadowy=3,"
-            f"drawtext=fontfile='{font}':fontsize=44:fontcolor=#FFCC00:"
-            f"text='{genz}':x=(w-text_w)/2:y=h*0.42:shadowcolor=black:shadowx=2:shadowy=2,"
-            f"drawtext=fontfile='{font}':fontsize=56:fontcolor=white:"
-            f"text='{price_str}':x=(w-text_w)/2:y=h*0.62:shadowcolor=black:shadowx=2:shadowy=2,"
-            f"drawtext=fontfile='{font}':fontsize=36:fontcolor=#FF6A00:"
-            f"text='BootHop.com':x=(w-text_w)/2:y=h*0.92:shadowcolor=black:shadowx=1:shadowy=1"
-            f"[out]"
+            f"[bg]{text_chain}[out]"
         )
         _ffmpeg(
             "-loop", "1", "-i", photo,
@@ -603,16 +633,7 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
         # Fallback: coloured card when photo unavailable
         filtergraph = (
             f"color=c=0x0d0d18:s={CARD_W}x{CARD_H}:r=30[bg];"
-            f"[bg]"
-            f"drawtext=fontfile='{font}':fontsize=88:fontcolor=white:"
-            f"text='{route}':x=(w-text_w)/2:y=h*0.28:shadowcolor=black:shadowx=3:shadowy=3,"
-            f"drawtext=fontfile='{font}':fontsize=44:fontcolor=#FFCC00:"
-            f"text='{genz}':x=(w-text_w)/2:y=h*0.42:shadowcolor=black:shadowx=2:shadowy=2,"
-            f"drawtext=fontfile='{font}':fontsize=56:fontcolor=white:"
-            f"text='{price_str}':x=(w-text_w)/2:y=h*0.62,"
-            f"drawtext=fontfile='{font}':fontsize=36:fontcolor=#FF6A00:"
-            f"text='BootHop.com':x=(w-text_w)/2:y=h*0.92"
-            f"[out]"
+            f"[bg]{text_chain}[out]"
         )
         _ffmpeg(
             "-f", "lavfi", "-i", f"color=c=0x0d0d18:s={CARD_W}x{CARD_H}:r=30",
@@ -645,35 +666,59 @@ def _pick_music() -> str | None:
 # SECTION 8 — Narrator script builder
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _narrator_script(journeys: list[dict]) -> str:
+def _narrator_script(journeys: list[dict], day_index: int = 0) -> str:
     """
-    Claude-authored voiceover for the 15-40s journey cards section.
-    Reads naturally over the landmark cards. Warm, direct, Gen-Z tone.
+    Voiceover for the journey cards section. Rotates between 3 angles so the same
+    script never plays two days running. Warm, direct, TikTok-paced.
     """
     if not journeys:
         return (
-            "BootHop connects verified travellers with people who need items delivered — "
-            "safely, quickly, at a fraction of courier prices. "
-            "Real people. Real routes. Real prices. "
-            "Register at BootHop dot com and turn your journey into income."
+            "BootHop connects verified travellers with people who need items delivered. "
+            "Real people. Real routes. A fraction of courier prices. "
+            "Register at BootHop dot com."
         )
+
+    j0 = journeys[0]
+    dest1  = j0.get("destinationCity", "Lagos")
+    orig1  = j0.get("originCity", "London")
+    price1 = j0.get("price")
+    p1_str = f"from just GBP {int(price1)}" if price1 else "at competitive rates"
 
     route_lines = []
     for j in journeys[:3]:
         o = j.get("originCity", "")
         d = j.get("destinationCity", "")
         p = j.get("price")
-        price_str = f"from just £{int(p)}" if p else "at competitive rates"
-        route_lines.append(f"{o} to {d}, {price_str}.")
+        route_lines.append(f"{o} to {d}, GBP {int(p)}" if p else f"{o} to {d}")
+    routes_str = ". ".join(route_lines) + "."
 
-    routes = "  ".join(route_lines)
-    return (
-        f"These are live journeys available right now on BootHop. "
-        f"{routes}  "
-        "Verified travellers. No hidden fees. No courier delays. "
-        "Your journey can earn — or your package can move today. "
-        "Register at BootHop dot com."
-    )
+    template = day_index % 3
+
+    if template == 0:
+        # Earner angle — speaks to the traveller
+        return (
+            f"Flying to {dest1} soon? "
+            f"Your empty luggage could be earning. "
+            f"Verified senders waiting — {p1_str} per delivery. "
+            f"No middleman. No hassle. "
+            f"Register at BootHop dot com in minutes."
+        )
+    elif template == 1:
+        # Sender angle — speaks to the sender
+        return (
+            f"Someone is heading to {dest1} — with space for your parcel. "
+            f"{p1_str}. No courier. No delays. "
+            f"BootHop connects you with verified travellers already going your way. "
+            f"Book at BootHop dot com today."
+        )
+    else:
+        # Discovery angle — announces live routes
+        return (
+            f"Live on BootHop right now. {routes_str} "
+            f"Real travellers. Verified community. "
+            f"Skip the courier — send smarter. "
+            f"BootHop dot com."
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -816,7 +861,7 @@ def run_kling_production(slot: int = 1) -> str | None:
         return None
 
     # ── 5. Build narrator script + voiceover
-    script = _narrator_script(journeys)
+    script = _narrator_script(journeys, day_index=day_index)
     print(f"[Kling] Narrator script: {script[:80]}…")
     voiceover = _kling_tts(script) or _gtts_fallback(script)
     if voiceover:
@@ -834,6 +879,7 @@ def run_kling_production(slot: int = 1) -> str | None:
     # ── 7. Assemble final video
     final_out = OUTPUT / f"kling_{today.strftime('%Y%m%d')}_{concept['style']}.mp4"
     print(f"[Kling] Assembling final video -> {final_out.name}")
+    result = None
     try:
         result = _assemble(
             hook_video=hook_video,
@@ -843,10 +889,19 @@ def run_kling_production(slot: int = 1) -> str | None:
             out_path=final_out,
         )
         print(f"[Kling] Done — {result}")
-        return result
     except Exception as e:
         print(f"[Kling] Assembly failed: {e}")
-        return None
+
+    if result:
+        size_mb = Path(result).stat().st_size / (1024 * 1024)
+        print(f"[Kling] Final output: {size_mb:.1f}MB")
+        if size_mb < 5.0:
+            print(
+                f"[Kling] WARNING: Output is very small ({size_mb:.1f}MB). "
+                "Hook video may have failed — check Kling API response above."
+            )
+
+    return result
 
 
 if __name__ == "__main__":

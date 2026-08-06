@@ -338,9 +338,29 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
             _log(f"[Kling] Weekday {_today_wd} — running Kling slot {_kling_slot}")
             from generate_kling import run_kling_production
             _kling_out = run_kling_production(slot=_kling_slot)
-            if _kling_out:
+            if _kling_out and Path(_kling_out).exists():
                 _log(f"[Kling] Video ready: {_kling_out}")
-                _tg_send(f"🎬 Kling video ready:\n{Path(_kling_out).name}\nReview and post manually.")
+                # Send the actual video file to Telegram for review
+                try:
+                    import requests as _rq
+                    _kling_path = Path(_kling_out)
+                    _caption = (
+                        f"🎬 Kling review — {_kling_path.stem}\n"
+                        f"Slot {slot} · {datetime.now().strftime('%d %b %H:%M')}\n"
+                        "Review before posting. Do NOT auto-post."
+                    )
+                    with open(_kling_path, "rb") as _vf:
+                        _rq.post(
+                            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo",
+                            data={"chat_id": TELEGRAM_CHAT_ID, "caption": _caption,
+                                  "supports_streaming": "true"},
+                            files={"video": (_kling_path.name, _vf, "video/mp4")},
+                            timeout=180,
+                        )
+                    _log("[Kling] Video sent to Telegram for review")
+                except Exception as _tge:
+                    _log(f"[Kling] Telegram send failed: {_tge}")
+                    _tg_send(f"🎬 Kling ready (upload failed): {Path(_kling_out).name}")
             else:
                 _log("[Kling] Production failed — continuing normal pipeline")
                 _tg_send("⚠️ Kling video failed — running normal pipeline content instead")
