@@ -63,6 +63,39 @@ def _save_offset(offset: int):
         pass
 
 
+def _is_commander_running() -> bool:
+    """Return True if a separate commander process is already running (checked via PID file)."""
+    try:
+        if not _PID_FILE.exists():
+            return False
+        pid = int(_PID_FILE.read_text().strip())
+        if pid == os.getpid():
+            return False  # we ARE the commander
+        import platform
+        if platform.system() == "Windows":
+            import subprocess as _sp
+            r = _sp.run(
+                ["tasklist", "/FI", f"PID eq {pid}", "/NH", "/FO", "CSV"],
+                capture_output=True, text=True, timeout=5,
+            )
+            return str(pid) in r.stdout
+        else:
+            os.kill(pid, 0)
+            return True
+    except Exception:
+        return False
+
+
+def _write_web_approval(slot: int, decision: str):
+    """Write an approval decision file so poll_for_decision can pick it up."""
+    try:
+        f = DATA / f"web_approval_{slot}.json"
+        f.write_text(json.dumps({"decision": decision, "source": "telegram_button"}))
+        print(f"[Cmdr] Approval written → {decision} (Slot {slot})")
+    except Exception as e:
+        print(f"[Cmdr] Could not write approval file: {e}")
+
+
 def _log_message(msg_id: int):
     try:
         log = json.loads(MSG_LOG_FILE.read_text(encoding="utf-8")) if MSG_LOG_FILE.exists() else []
@@ -1012,12 +1045,21 @@ def send_video_preview(video_path: str, caption: str, slot: int, content: dict,
 
 def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
     """
-    Poll Telegram for Post / Skip / Regen callback on this slot.
+    Poll for Post / Skip / Regen decision on this slot.
     Returns "post" | "skip" | "regen" | "timeout"
+
+    If the commander process is running, it owns the Telegram update queue — we
+    must NOT poll Telegram here or we race it and steal callbacks it needs.
+    Instead we write a pending_approval file and the commander writes
+    web_approval_{slot}.json when it receives the button tap.
     """
-    start  = time.time()
-    offset = _load_offset()
-    print(f"[Cmdr] Polling for Slot {slot} decision ({timeout_sec//60}min window)…")
+    start             = time.time()
+    offset            = _load_offset()
+    cmdr_running      = _is_commander_running()
+    print(
+        f"[Cmdr] Polling for Slot {slot} decision ({timeout_sec//60}min window) "
+        f"— commander {'RUNNING (file mode)' if cmdr_running else 'not running (TG mode)'}…"
+    )
     _pa = DATA / f"pending_approval_{slot}.json"
     _pa.write_text(json.dumps({"slot": slot, "since": datetime.now().isoformat()}),
                    encoding="utf-8")
@@ -1075,6 +1117,12 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
             pass
         except Exception as _se:
             print(f"[Cmdr] Supabase poll error: {_se}")
+
+        # Only poll Telegram directly if the commander is NOT running.
+        # If it IS running, it owns the update queue — let it write web_approval files.
+        if cmdr_running:
+            time.sleep(5)
+            continue
 
         try:
             r = requests.get(
@@ -1371,6 +1419,22 @@ def _poll_once(offset: int) -> int:
                 part = data.split("_")[-1]
                 if part.isdigit():
                     _edit_cancel(int(part))
+
+            # Approval buttons from send_video_preview (post_N, skip_N, regen_N).
+            # Write to file so poll_for_decision picks it up without competing with us.
+            elif not data.startswith("post_revoiced_") and (
+                data.startswith("post_") or data.startswith("skip_") or data.startswith("regen_")
+            ):
+                _decision = data.split("_")[0]
+                _slot_str = data.split("_")[1] if "_" in data else ""
+                if _slot_str.isdigit():
+                    _write_web_approval(int(_slot_str), _decision)
+                    _msgs = {
+                        "post":  f"✅ Slot {_slot_str} — posting now!",
+                        "skip":  f"⏭ Slot {_slot_str} — skipped.",
+                        "regen": f"🔄 Slot {_slot_str} — regenerating…",
+                    }
+                    _send(_msgs.get(_decision, f"OK: {data}"))
 
             continue
 
