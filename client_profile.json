@@ -19,12 +19,12 @@
     "Your parcel. Their journey. Problem solved."
   ],
   "end_card_palettes": [
-    {"bg": "4F46E5", "title": "FFE600", "body": "FFFFFF"},
-    {"bg": "7C3AED", "title": "FFE600", "body": "FFFFFF"},
-    {"bg": "0369A1", "title": "FFE600", "body": "FFFFFF"},
-    {"bg": "047857", "title": "FFE600", "body": "FFFFFF"},
-    {"bg": "DC2626", "title": "FFE600", "body": "FFFFFF"},
-    {"bg": "0F172A", "title": "FFE600", "body": "FFFFFF"}
+    {"bg": "0A0A0A", "title": "FF6A00", "body": "FFFFFF"},
+    {"bg": "0F172A", "title": "FF6A00", "body": "FFFFFF"},
+    {"bg": "1A0A2E", "title": "FFE600", "body": "FFFFFF"},
+    {"bg": "0D1B2A", "title": "00CFFF", "body": "FFFFFF"},
+    {"bg": "1C1C1C", "title": "E8C96D", "body": "CCCCCC"},
+    {"bg": "0B3D2E", "title": "FFE600", "body": "FFFFFF"}
   ],
   "schedule": {
     "timezone": "Europe/London",

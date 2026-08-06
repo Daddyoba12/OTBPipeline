@@ -516,12 +516,25 @@ AIRPORT PILLAR — MANDATORY (if pillar is airport or airport_deliveries):
     "Black traveller airport departure gate cabin luggage medium shot"
     "airport arrivals hall Nigerian family reunion smiling wide shot"
 
+OPENING SCENE RULES (scenes 0 and 1 — the hook):
+  The first 2 seconds must STOP THE SCROLL. Use a cinematic establishing shot or a lifestyle
+  moment — NOT a close-up face. Close-up faces attract random stock results including children.
+  BANNED for scenes 0–1: close-up face, shocked expression, child, baby, toddler, kid.
+  REQUIRED for scenes 0–1: visually striking, aspirational or dramatic. Choose from:
+    - A luxury or aspirational environment (upscale bar, airport lounge, modern flat)
+    - A purposeful person mid-action (striding through departures, opening a door, checking phone calmly)
+    - A cinematic wide or medium shot with energy or movement
+    - An object close-up that tells a story (suitcase being zipped, phone notification, parcel being handed over)
+
 CORRECT examples:
-  Scene 0 or 1 (hook — close-up required):
-    "Black British woman close up face shocked phone"
-    "Nigerian woman shocked face expensive price close up"
+  Scene 0 or 1 (hook — cinematic, NO close-up face):
+    "stylish Nigerian woman airport departures hall confident medium shot"
+    "Black British man luxury car arrival night upscale medium shot"
+    "African traveller suitcase airport lounge premium wide shot"
+    "close up suitcase zipper hand stylish luggage cinematic"
+    "phone screen notification earnings app dramatic close up"
   Scenes 2–7 (medium/wide required):
-    "Nigerian woman post office counter shocked medium shot"
+    "Nigerian woman post office counter medium shot"
     "African man train station parcel handover wide shot"
     "Black traveller plane window seat medium shot"
     "Nigerian woman door smiling parcel medium shot"
