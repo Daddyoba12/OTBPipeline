@@ -363,9 +363,14 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
                     _tg_send(f"🎬 Kling ready (upload failed): {Path(_kling_out).name}")
             else:
                 _log("[Kling] Production failed — continuing normal pipeline")
-                _tg_send("⚠️ Kling video failed — running normal pipeline content instead")
+                _tg_send(
+                    "⚠️ Kling video failed — check logs.\n"
+                    "If balance error: top up at klingai.com then /rerun"
+                )
     except Exception as _ke:
         _log(f"[Kling] Skipped: {_ke}")
+        if "balance" in str(_ke).lower() or "1102" in str(_ke):
+            _tg_send("💳 Kling account has no credits. Top up at klingai.com")
 
     # ── 1. Determine pillar + bucket ──────────────────────────────────────────
     _step(f"slot{slot}: pillar selection")
