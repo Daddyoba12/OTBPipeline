@@ -313,6 +313,13 @@ def _kling_generate_video(prompt: str, negative_prompt: str = "") -> str | None:
             json=payload,
             timeout=30,
         )
+        if r.status_code == 429:
+            body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
+            msg  = body.get("message", r.text[:120])
+            print(f"[Kling] ⚠️ ACCOUNT ISSUE ({r.status_code}): {msg}")
+            if "balance" in msg.lower():
+                print("[Kling] → Top up at: https://klingai.com (check wallet)")
+            return None
         r.raise_for_status()
         task_id = r.json().get("data", {}).get("task_id")
         if not task_id:
