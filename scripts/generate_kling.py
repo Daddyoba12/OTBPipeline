@@ -22,7 +22,7 @@ sys.path.insert(0, str(BASE))
 
 from config import (
     KLING_API_KEY, KLING_API_BASE,
-    PEXELS_KEY, PIXABAY_KEY, ANTHROPIC_API_KEY,
+    PEXELS_KEY, PIXABAY_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY,
     MUSIC_DIR, MUSIC_ARCHIVE,
     ASSETS, TEMP, OUTPUT,
     FONT_TITLE, FONT_BODY, FONT_TITLE_FB, FONT_BODY_FB,
@@ -367,6 +367,100 @@ def _kling_poll(task_id: str, max_wait: int = 600) -> str | None:
 
     print("[Kling] Timed out waiting for video")
     return None
+
+
+def _sora_generate_video(prompt: str) -> str | None:
+    """
+    Generate a short hook video via OpenAI Sora-2.
+    Fallback when Kling API has no credits.
+    Returns local .mp4 path or None.
+
+    API: POST /v1/videos  →  poll GET /v1/videos/{id}  →  GET /v1/videos/{id}/content
+    Supported seconds: 4 | 8 | 12.  Default size: 720x1280 (9:16 portrait).
+    """
+    if not OPENAI_API_KEY:
+        return None
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+    try:
+        # Submit generation job — request 8s for a richer hook
+        r = requests.post(
+            "https://api.openai.com/v1/videos",
+            headers=headers,
+            json={
+                "model":   "sora-2",
+                "prompt":  prompt,
+                "seconds": "8",
+                "size":    "720x1280",
+            },
+            timeout=30,
+        )
+        if not r.ok:
+            print(f"[Sora] Submit error {r.status_code}: {r.text[:200]}")
+            return None
+
+        vid_id = r.json().get("id")
+        if not vid_id:
+            print(f"[Sora] No video ID in response: {r.text[:200]}")
+            return None
+
+        print(f"[Sora] Job submitted: {vid_id} — polling…")
+
+        # Poll until complete (max 10 min)
+        deadline = time.time() + 600
+        while time.time() < deadline:
+            poll = requests.get(
+                f"https://api.openai.com/v1/videos/{vid_id}",
+                headers=headers,
+                timeout=20,
+            )
+            data   = poll.json()
+            status = data.get("status", "")
+            prog   = data.get("progress", 0)
+            print(f"[Sora] {status} {prog}%")
+
+            if status == "completed":
+                # Download the video binary
+                dl = requests.get(
+                    f"https://api.openai.com/v1/videos/{vid_id}/content",
+                    headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+                    timeout=120,
+                    stream=True,
+                )
+                dl.raise_for_status()
+                out = TEMP / f"sora_hook_{vid_id[:20]}.mp4"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                with open(out, "wb") as f:
+                    for chunk in dl.iter_content(65536):
+                        f.write(chunk)
+                size_mb = out.stat().st_size / (1024 * 1024)
+                print(f"[Sora] Downloaded: {out.name} ({size_mb:.1f}MB)")
+                # Scale to full 1080x1920 for consistency with the rest of the pipeline
+                scaled = TEMP / f"sora_hook_scaled_{vid_id[:20]}.mp4"
+                _ffmpeg(
+                    "-i", str(out),
+                    "-vf", f"scale={VIDEO_W}:{VIDEO_H}:force_original_aspect_ratio=increase,"
+                           f"crop={VIDEO_W}:{VIDEO_H},setsar=1",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+                    "-pix_fmt", "yuv420p", "-an", str(scaled),
+                    timeout=120,
+                )
+                return str(scaled)
+
+            if status in ("failed", "cancelled"):
+                print(f"[Sora] Job {status}: {data.get('error', '')}")
+                return None
+
+            time.sleep(15)
+
+        print("[Sora] Timed out waiting for video")
+        return None
+
+    except Exception as e:
+        print(f"[Sora] Error: {e}")
+        return None
 
 
 def _kling_tts(text: str) -> str | None:
@@ -922,12 +1016,17 @@ def run_kling_production(slot: int = 1) -> str | None:
     print(f"[Kling] Submitting hook prompt to API…")
     hook_video = _kling_generate_video(kling_prompt, negative_prompt=_NEGATIVE_PROMPT)
     if not hook_video:
-        print("[Kling] Hook video unavailable — trying Pexels video fallback…")
-        hook_video = _pexels_hook_fallback(concept, day_index)
+        print("[Kling] Kling API unavailable — trying Sora-2 fallback…")
+        hook_video = _sora_generate_video(kling_prompt)
         if hook_video:
-            print(f"[Kling] Pexels hook fallback ready: {Path(hook_video).name}")
+            print(f"[Kling] Sora-2 hook ready: {Path(hook_video).name}")
         else:
-            print("[Kling] No hook — cards-only composition")
+            print("[Kling] Sora unavailable — trying Pexels video fallback…")
+            hook_video = _pexels_hook_fallback(concept, day_index)
+            if hook_video:
+                print(f"[Kling] Pexels hook ready: {Path(hook_video).name}")
+            else:
+                print("[Kling] No hook available — cards-only composition")
 
     # ── 3. Fetch live journeys
     journeys = _fetch_journeys(limit=4)
