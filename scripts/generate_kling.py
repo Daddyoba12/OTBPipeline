@@ -517,6 +517,81 @@ def _fetch_photo_pixabay(query: str) -> str | None:
         return None
 
 
+def _fetch_pexels_video(query: str, dest: Path, min_duration: int = 15) -> str | None:
+    """Download a portrait-orientation Pexels video clip and trim to 15s."""
+    if not PEXELS_KEY:
+        return None
+    try:
+        for _attempt in range(3):
+            r = requests.get(
+                "https://api.pexels.com/videos/search",
+                headers={"Authorization": PEXELS_KEY},
+                params={"query": query, "per_page": 15, "orientation": "portrait"},
+                timeout=15,
+            )
+            if r.status_code == 401:
+                time.sleep(8)
+                continue
+            break
+        r.raise_for_status()
+        videos = [
+            v for v in r.json().get("videos", [])
+            if v.get("duration", 0) >= min_duration
+        ]
+        if not videos:
+            return None
+        vid  = random.choice(videos[:5])
+        # Prefer HD portrait file
+        files = sorted(
+            [f for f in vid.get("video_files", [])
+             if f.get("quality") in ("hd", "sd") and f.get("height", 0) >= f.get("width", 1)],
+            key=lambda f: f.get("height", 0), reverse=True,
+        )
+        if not files:
+            return None
+        raw = _download_file(files[0]["link"], dest.with_suffix(".raw.mp4"))
+        # Trim to exactly 15 seconds, scale to 1080x1920
+        trimmed = str(dest)
+        _ffmpeg(
+            "-ss", "0", "-i", raw,
+            "-t", "15",
+            "-vf", f"scale={VIDEO_W}:{VIDEO_H}:force_original_aspect_ratio=increase,"
+                   f"crop={VIDEO_W}:{VIDEO_H},setsar=1",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "22",
+            "-pix_fmt", "yuv420p", "-an", trimmed,
+            timeout=120,
+        )
+        try:
+            Path(raw).unlink(missing_ok=True)
+        except Exception:
+            pass
+        return trimmed
+    except Exception as e:
+        print(f"[Kling] Pexels video fallback error: {e}")
+        return None
+
+
+# Concept → Pexels query map for the hook fallback
+_CONCEPT_PEXELS = {
+    "airport_earner":   "traveller airport departure lounge stylish",
+    "lagos_business":   "business professional Lagos Nigeria city",
+    "glamour_bar":      "upscale bar nightlife friends laughing Nigeria",
+    "parcel_unboxing":  "family unboxing parcel excited home",
+    "comedy_wife":      "couple living room laughing surprise",
+}
+
+def _pexels_hook_fallback(concept: dict, day_index: int) -> str | None:
+    """Return a trimmed Pexels video to use as the hook when Kling API is unavailable."""
+    style   = concept.get("style", "")
+    query   = _CONCEPT_PEXELS.get(style) or f"Nigerian lifestyle airport travel {style}"
+    dest    = TEMP / f"kling_hook_pexels_{day_index}.mp4"
+    result  = _fetch_pexels_video(query, dest)
+    if not result:
+        # Generic fallback query
+        result = _fetch_pexels_video("airport departure lounge traveller", dest)
+    return result
+
+
 def _fetch_landmark_photo(city: str) -> str | None:
     q = _landmark_query(city)
     photo = _fetch_photo_pexels(q) or _fetch_photo_pixabay(q)
@@ -847,7 +922,12 @@ def run_kling_production(slot: int = 1) -> str | None:
     print(f"[Kling] Submitting hook prompt to API…")
     hook_video = _kling_generate_video(kling_prompt, negative_prompt=_NEGATIVE_PROMPT)
     if not hook_video:
-        print("[Kling] Hook video unavailable — will produce cards-only composition")
+        print("[Kling] Hook video unavailable — trying Pexels video fallback…")
+        hook_video = _pexels_hook_fallback(concept, day_index)
+        if hook_video:
+            print(f"[Kling] Pexels hook fallback ready: {Path(hook_video).name}")
+        else:
+            print("[Kling] No hook — cards-only composition")
 
     # ── 3. Fetch live journeys
     journeys = _fetch_journeys(limit=4)
