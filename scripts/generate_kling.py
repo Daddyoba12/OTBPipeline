@@ -842,6 +842,17 @@ def _pick_music() -> str | None:
 # SECTION 8 — Narrator script builder
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _hook_narrator_script(concept: dict) -> str:
+    """Build spoken narration from the concept's timing dialogue for TTS over the hook section."""
+    import re as _re
+    lines = []
+    for _time, dialogue in concept.get("timing", []):
+        quotes = _re.findall(r'"([^"]+)"', dialogue)
+        if quotes:
+            lines.extend(quotes)
+    return " ".join(lines)
+
+
 def _narrator_script(journeys: list[dict], day_index: int = 0) -> str:
     """
     Voiceover for the journey cards section. Rotates between 3 angles so the same
@@ -902,22 +913,28 @@ def _narrator_script(journeys: list[dict], day_index: int = 0) -> str:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def _assemble(
-    hook_video:     str | None,
-    card_paths:     list[str],
-    music_path:     str | None,
-    voiceover_path: str | None,
-    out_path:       Path,
+    hook_video:      str | None,
+    card_paths:      list[str],
+    music_path:      str | None,
+    voiceover_path:  str | None,
+    out_path:        Path,
+    hook_audio_path: str | None = None,
 ):
     """
     Assemble final 30-40s video:
       [hook_video 15s] + [card_1] + [card_2] + [card_3] + [card_4]
-      Music starts at 15s under the cards.
-      Voiceover layered over the cards at lower volume.
-    """
-    inputs  = []
-    parts   = []
 
-    if hook_video and Path(hook_video).exists():
+    Audio layers:
+      - Music: plays from t=0 throughout at low volume
+      - Hook dialogue TTS: plays from t=0 over the Kling hook section
+      - Journey narrator: plays from t=15s over the journey cards
+    """
+    inputs = []
+    parts  = []
+
+    has_hook_vid = bool(hook_video and Path(hook_video).exists())
+
+    if has_hook_vid:
         inputs += ["-i", hook_video]
         parts.append(f"[{len(inputs)//2 - 1}:v]scale={CARD_W}:{CARD_H},setsar=1[hook]")
 
@@ -925,6 +942,10 @@ def _assemble(
         if Path(cp).exists():
             inputs += ["-i", cp]
             parts.append(f"[{len(inputs)//2 - 1}:v]scale={CARD_W}:{CARD_H},setsar=1[c{i}]")
+
+    music_idx    = None
+    vo_idx       = None
+    hook_aud_idx = None
 
     if music_path and Path(music_path).exists():
         inputs += ["-i", music_path]
@@ -934,9 +955,13 @@ def _assemble(
         inputs += ["-i", voiceover_path]
         vo_idx = len(inputs) // 2 - 1
 
-    # Build concat list
+    if hook_audio_path and Path(hook_audio_path).exists() and has_hook_vid:
+        inputs += ["-i", hook_audio_path]
+        hook_aud_idx = len(inputs) // 2 - 1
+
+    # Build video concat
     video_labels = []
-    if hook_video and Path(hook_video).exists():
+    if has_hook_vid:
         video_labels.append("[hook]")
     for i in range(len(card_paths)):
         if Path(card_paths[i]).exists():
@@ -947,33 +972,32 @@ def _assemble(
     filter_chain = ";".join(parts)
     filter_chain += f";{concat_input}concat=n={n}:v=1:a=0[vout]"
 
-    # Audio: mix music + voiceover, music fades in at 15s
-    music_offset = 15 if (hook_video and Path(hook_video).exists()) else 0
+    # Build audio mix: music (full video) + hook TTS (0-15s) + narrator (15s+)
+    cards_offset  = 15 if has_hook_vid else 0
     audio_filters = []
+    audio_labels  = []
 
-    if music_path and Path(music_path).exists():
+    if music_idx is not None:
+        audio_filters.append(f"[{music_idx}:a]volume=0.25[music]")
+        audio_labels.append("[music]")
+
+    if hook_aud_idx is not None:
+        audio_filters.append(f"[{hook_aud_idx}:a]volume=1.0[hvo]")
+        audio_labels.append("[hvo]")
+
+    if vo_idx is not None:
         audio_filters.append(
-            f"[{music_idx}:a]adelay={music_offset * 1000}|{music_offset * 1000},"
-            f"volume=0.6[music]"
+            f"[{vo_idx}:a]adelay={cards_offset * 1000}|{cards_offset * 1000},volume=1.0[vo]"
         )
+        audio_labels.append("[vo]")
 
-    if voiceover_path and Path(voiceover_path).exists():
-        audio_filters.append(
-            f"[{vo_idx}:a]adelay={music_offset * 1000}|{music_offset * 1000},"
-            f"volume=1.0[vo]"
-        )
+    if audio_labels:
+        n_aud = len(audio_labels)
+        filter_chain += ";" + ";".join(audio_filters)
+        mix_input = "".join(audio_labels)
+        filter_chain += f";{mix_input}amix=inputs={n_aud}:duration=longest:normalize=0[aout]"
 
-    if audio_filters:
-        if len(audio_filters) == 2:
-            filter_chain += ";" + audio_filters[0]
-            filter_chain += ";" + audio_filters[1]
-            filter_chain += ";[music][vo]amix=inputs=2:duration=shortest[aout]"
-        elif len(audio_filters) == 1:
-            filter_chain += ";" + audio_filters[0]
-            a_label = audio_filters[0].split("[")[-1].rstrip("]")
-            filter_chain += f";[{a_label}]acopy[aout]"
-
-    has_audio = bool(audio_filters)
+    has_audio = bool(audio_labels)
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     cmd = [
@@ -1006,6 +1030,13 @@ def run_kling_production(slot: int = 1) -> str | None:
     print("[Kling] Starting production run…")
     today = datetime.now()
     day_index = today.weekday() * 2 + (0 if slot == 1 else 1)
+
+    # ── Guard: skip if another machine already ran Kling today ────────────────
+    today_str = today.strftime("%Y%m%d")
+    existing = list(OUTPUT.glob(f"kling_{today_str}_*.mp4"))
+    if existing:
+        print(f"[Kling] Already ran today: {existing[0].name} — skipping duplicate run")
+        return str(existing[0])
 
     # ── 1. Pick concept
     concept = _pick_concept(day_index)
@@ -1046,14 +1077,26 @@ def run_kling_production(slot: int = 1) -> str | None:
         print("[Kling] No cards rendered — aborting")
         return None
 
-    # ── 5. Build narrator script + voiceover
+    # ── 5. Build narrator script + journey cards voiceover
     script = _narrator_script(journeys, day_index=day_index)
-    print(f"[Kling] Narrator script: {script[:80]}…")
+    print(f"[Kling] Journey narrator: {script[:80]}…")
     voiceover = _kling_tts(script) or _gtts_fallback(script)
     if voiceover:
-        print("[Kling] Voiceover ready")
+        print("[Kling] Journey voiceover ready")
     else:
-        print("[Kling] No voiceover — continuing without")
+        print("[Kling] No journey voiceover — continuing without")
+
+    # ── 5b. Generate hook dialogue audio (actors' dialogue as TTS over 0-15s)
+    hook_audio = None
+    if hook_video:
+        hook_script = _hook_narrator_script(concept)
+        if hook_script:
+            print(f"[Kling] Hook dialogue: {hook_script[:80]}…")
+            hook_audio = _kling_tts(hook_script) or _gtts_fallback(hook_script)
+            if hook_audio:
+                print("[Kling] Hook audio ready")
+            else:
+                print("[Kling] Hook audio unavailable — hook section will use music only")
 
     # ── 6. Pick music
     music = _pick_music()
@@ -1073,6 +1116,7 @@ def run_kling_production(slot: int = 1) -> str | None:
             music_path=music,
             voiceover_path=voiceover,
             out_path=final_out,
+            hook_audio_path=hook_audio,
         )
         print(f"[Kling] Done — {result}")
     except Exception as e:
