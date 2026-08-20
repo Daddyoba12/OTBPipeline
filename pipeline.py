@@ -248,7 +248,56 @@ def _tg_send(text: str) -> None:
         pass
 
 
-def run_slot(slot: int, force: bool = False, no_post: bool = False):
+def _get_next_version(slot: int) -> str:
+    """
+    Determine whether this slot should run V1 (Pexels 25s) or V2 (Kling 15s).
+
+    Logic:
+      - Read version_state.json for this slot
+      - If last post was < V2_GRACE_MINUTES ago → same version as last time (re-run / manual send)
+      - Otherwise → flip to the other version
+      - Default (no history): V1
+    """
+    from config import V2_GRACE_MINUTES
+    state_path = DATA / "version_state.json"
+    if not state_path.exists():
+        return "v1"
+    try:
+        state  = json.loads(state_path.read_text(encoding="utf-8"))
+        slot_s = state.get(f"slot{slot}", {})
+        if not slot_s:
+            return "v1"
+        last_posted = slot_s.get("last_posted_at", "")
+        if last_posted:
+            from datetime import timedelta
+            dt   = datetime.fromisoformat(last_posted)
+            mins = (datetime.now() - dt).total_seconds() / 60
+            if mins < V2_GRACE_MINUTES:
+                # Within grace window — repeat same version
+                return slot_s.get("last_version", "v1")
+        return slot_s.get("next_version", "v1")
+    except Exception:
+        return "v1"
+
+
+def _mark_v1_posted(slot: int):
+    """Update version_state after a successful V1 post."""
+    state_path = DATA / "version_state.json"
+    state = {}
+    if state_path.exists():
+        try:
+            state = json.loads(state_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    state[f"slot{slot}"] = {
+        "last_version":  "v1",
+        "last_posted_at": datetime.now().isoformat(),
+        "next_version":  "v2",
+    }
+    state_path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str | None = None):
     """Run a full pipeline slot: generate → render → approve → post."""
     _log(f"{'='*56}")
     _log(f"OTB_Pipeline — Slot {slot} — {date.today()}")
@@ -257,6 +306,25 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
     DATA.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)
     TEMP.mkdir(exist_ok=True)
+
+    # ── Version routing: V1 (Pexels 25s) or V2 (Kling 15s) ──────────────────
+    chosen_version = version or _get_next_version(slot)
+    _log(f"Version: {chosen_version.upper()}")
+
+    if chosen_version == "v2" and slot in (1, 2, 3):
+        _log(f"Routing slot {slot} to V2 (Kling) pipeline")
+        try:
+            from pipeline_kling import run_v2
+            ok = run_v2(slot=slot, force=force)
+            if ok:
+                _log(f"V2 slot {slot} completed successfully")
+                return
+            else:
+                _log(f"V2 slot {slot} failed — falling back to V1")
+        except Exception as _v2e:
+            _log(f"V2 pipeline error: {_v2e} — falling back to V1")
+
+    # ── V1 continues below (original pipeline) ─────────────────────────────────
 
     # On Windows backup runs: pull Oracle's latest data first so dedup logs are current
     import platform as _plat
@@ -329,11 +397,15 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
             _log(f"Product funnel skipped: {_fe}")
 
     # ── 0c. Kling video production (otb_midas only, alternating slots) ──────────
+    # Kling review runs on the Windows laptop only — Oracle backup skips this stage
+    # to avoid sending duplicate review clips to Telegram.
     try:
+        import os as _os_kling
         from config import KLING_ENABLED_SLUGS, KLING_SLOT_BY_WEEKDAY, KLING_API_KEY
-        _today_wd  = datetime.now().weekday()
+        _today_wd   = datetime.now().weekday()
         _kling_slot = KLING_SLOT_BY_WEEKDAY.get(_today_wd, 1)
-        if PIPELINE_SLUG in KLING_ENABLED_SLUGS and slot == _kling_slot:
+        _is_laptop  = _os_kling.name == "nt"
+        if PIPELINE_SLUG in KLING_ENABLED_SLUGS and slot == _kling_slot and _is_laptop:
             _step(f"slot{slot}: kling production")
             _log(f"[Kling] Weekday {_today_wd} — running Kling slot {_kling_slot}")
             from generate_kling import run_kling_production
@@ -481,20 +553,6 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _log("Creating platform variants (IG warm grade)...")
         platform_videos = render_for_platforms(content, slot, str(video_file), tiktok_ig_only=True)
         _log(f"Variants: {list(platform_videos.keys())}")
-
-        # ── Voice-over ────────────────────────────────────────────────────────
-        _step(f"slot{slot}: voiceover")
-        try:
-            from voiceover import add_voiceover_to_video
-            _log("Generating voice-over narration (OpenAI TTS)...")
-            voiced = add_voiceover_to_video(content, str(video_file), mix_into_video=True)
-            if voiced:
-                _log(f"Voice-over ready: {voiced}")
-                content["voiced_video"] = voiced
-            else:
-                _log("Voice-over generation skipped (no key or API error)")
-        except Exception as _ve:
-            _log(f"Voice-over failed: {_ve} — continuing without narration")
 
         video_path = str(video_file)
 
@@ -655,6 +713,8 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
     # ── Log + notify ───────────────────────────────────────────────────────────
     _mark_ran_today(slot)
     _push_ran_signal_to_oracle()   # tell Oracle backup cron laptop already handled this slot
+    if any(results.values()) and slot in (1, 2, 3):
+        _mark_v1_posted(slot)      # flip next version to V2
     send_result(slot, results, content=content)
 
     # Write run summary so the other machine sees what happened
@@ -724,10 +784,22 @@ if __name__ == "__main__":
                         help="Force run even if slot already ran today")
     parser.add_argument("--no-post", action="store_true",
                         help="Generate + render only — skip Telegram approval and posting")
+    parser.add_argument("--version", choices=["v1", "v2"], default=None,
+                        help="Override version: v1=Pexels 25s, v2=Kling 15s (default: auto-alternate)")
     args = parser.parse_args()
 
+    # Respect schedule.active flag unless --force is explicitly passed
+    if not args.force:
+        try:
+            _cp = json.loads((BASE / "client_profile.json").read_text(encoding="utf-8"))
+            if not _cp.get("schedule", {}).get("active", True):
+                print("[pipeline] schedule.active = false — pipeline is paused. Use --force to override.")
+                sys.exit(0)
+        except Exception:
+            pass
+
     try:
-        run_slot(args.slot, force=args.force, no_post=args.no_post)
+        run_slot(args.slot, force=args.force, no_post=args.no_post, version=args.version)
     except Exception as exc:
         _crash(f"UNHANDLED: {exc}")
         _tg_send(f"💥 OTB Slot {args.slot} crashed: {exc}")
