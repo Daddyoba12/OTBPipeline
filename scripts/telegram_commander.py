@@ -4,8 +4,8 @@ Ported from BootHopPipeline commander, adapted for OTB slot-based pipeline.
 
 Approval flow:   send_video_preview / poll_for_decision / send_result  (called by pipeline.py)
 Revoice Studio:  /revoice [2|3|4] → record voice → pick music → bake → post
-Commands:        /menu  /status  /rerun [slot]  /revoice [slot]  /story  /music  /block
-Natural lang:    "rerun", "status", "what's running", "get music", etc.
+Commands:        /menu  /status  /pause  /resume  /rerun [slot]  /revoice [slot]  /story  /music  /block
+Natural lang:    "pause", "resume", "rerun", "status", "what's running", "get music", etc.
 Pending queue:   pending_newspaper.json / pending_story.json / pending_linkedin.json
 Cleanup:         48-hour message deletion (runs automatically on startup)
 """
@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import (
     TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, DATA, BASE, OUTPUT,
     MUSIC_DIR, MUSIC_ARCHIVE,
+    ORACLE_IP, ORACLE_USER, ORACLE_KEY,
 )
 
 import requests
@@ -276,38 +277,112 @@ def _find_latest_video(slot: int) -> tuple:
     return video, data
 
 
+def _find_latest_v2_base(slot: int) -> str | None:
+    """Return the base filename (no platform/extension) for the most recent V2 slot sidecar."""
+    sidecars = sorted(
+        OUTPUT.glob(f"otb_v2_slot{slot}_*.json"),
+        key=lambda f: f.stat().st_mtime,
+        reverse=True,
+    )
+    return sidecars[0].stem if sidecars else None
+
+
 # ── Revoice Studio flow ───────────────────────────────────────────────────────
 
 def do_revoice(slot: int):
     video, data = _find_latest_video(slot)
-    if not video:
+    v2_base     = _find_latest_v2_base(slot)
+    if not video and not v2_base:
         _send(f"❌ No Slot {slot} video found in output. Run /rerun {slot} first.")
         return
-    hook     = data.get("hook", "(hook not available — record freely)")
-    caption  = data.get("caption", hook)
 
-    _rs_save({
-        "step":          "idle",
-        "slot":          slot,
-        "video_path":    str(video),
-        "hook":          hook,
-        "caption":       caption,
-        "music_path":    "",
-        "trim_seconds":  30,
-        "recorded_path": None,
-        "expires":       time.time() + 3600,
-    })
+    hook    = data.get("hook", "(hook not available — record freely)")
+    caption = data.get("caption", hook)
+    label   = _SLOT_LABELS.get(slot, f"Slot {slot}")
 
-    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    if video:
+        _rs_save({
+            "step":          "idle",
+            "slot":          slot,
+            "video_path":    str(video),
+            "hook":          hook,
+            "caption":       caption,
+            "music_path":    "",
+            "trim_seconds":  30,
+            "recorded_path": None,
+            "expires":       time.time() + 3600,
+        })
+
+    buttons = []
+    if video:
+        buttons.append({"text": "🎤 Record voice", "callback_data": "rs_record"})
+    if v2_base:
+        buttons.append({"text": "🤖 Auto TTS", "callback_data": f"cmd_autorevoice_{slot}"})
+    buttons.append({"text": "⏭ Skip", "callback_data": "rs_skip_studio"})
+
+    v2_note = f"\n<i>V2 available: {v2_base}</i>" if v2_base else ""
     _send(
         f"🎬 <b>Re-voice — {label}</b>\n\n"
-        f"<b>Script to read:</b>\n<i>{hook[:300]}</i>\n\n"
-        f"Tap Record, then send a voice note:",
-        reply_markup={"inline_keyboard": [[
-            {"text": "🎤 Record", "callback_data": "rs_record"},
-            {"text": "⏭ Skip",   "callback_data": "rs_skip_studio"},
-        ]]},
+        f"<b>Script:</b>\n<i>{hook[:300]}</i>{v2_note}\n\n"
+        f"🎤 Record = send your own voice note\n"
+        f"🤖 Auto TTS = AI generates the narration automatically",
+        reply_markup={"inline_keyboard": [buttons]},
     )
+
+
+def do_autorevoice(slot: int):
+    """Run revoice_v2.py in background for the latest V2 video on this slot."""
+    base = _find_latest_v2_base(slot)
+    if not base:
+        _send(f"❌ No V2 video found for Slot {slot}. Run /rerun {slot} first.")
+        return
+    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    _send(
+        f"🤖 <b>Auto TTS — {label}</b>\n\n"
+        f"Generating narration for:\n<code>{base}</code>\n\n"
+        f"~30 seconds — a preview will follow…"
+    )
+
+    revoice_script = BASE / "revoice_v2.py"
+    try:
+        result = subprocess.run(
+            [PYTHON, str(revoice_script), base],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(BASE),
+        )
+        if result.returncode != 0:
+            _send(f"❌ Auto TTS failed:\n<code>{result.stderr[-300:]}</code>")
+            return
+    except Exception as e:
+        _send(f"❌ Auto TTS error: {e}")
+        return
+
+    # Send the re-voiced tiktok variant as preview
+    tiktok_path = OUTPUT / f"{base}_tiktok.mp4"
+    if tiktok_path.exists():
+        result_vid = _send_video(
+            tiktok_path,
+            caption=f"🤖 Auto TTS — {label}\n<code>{base}</code>",
+            reply_markup={"inline_keyboard": [
+                [
+                    {"text": "🚀 Post TikTok", "callback_data": f"post_revoiced_{slot}_tiktok"},
+                    {"text": "📸 Post IG",     "callback_data": f"post_revoiced_{slot}_ig"},
+                ],
+                [{"text": "⏭ Done", "callback_data": "rs_skip_studio"}],
+            ]},
+        )
+        try:
+            LATEST_REVOICED.write_text(json.dumps({
+                "path":      str(tiktok_path),
+                "hook":      base,
+                "slot":      slot,
+                "has_music": True,
+                "timestamp": datetime.now().isoformat(),
+            }), encoding="utf-8")
+        except Exception:
+            pass
+    else:
+        _send(f"✅ Re-voiced (file: {base}_tiktok.mp4 — check output folder)")
 
 
 def _rs_handle_voice_received(file_id: str, st: dict):
@@ -682,7 +757,138 @@ def _skip_linkedin():
     _send("⏭ LinkedIn post skipped.")
 
 
+# ── Pause / Resume ────────────────────────────────────────────────────────────
+
+_PIPELINES = {
+    "boothop": {
+        "label":         "BootHop",
+        "local_profile": BASE / "client_profile.json",
+        "oracle_profile": "/opt/otb_pipeline/client_profile.json",
+        "tasks":         [],
+    },
+    "g_inspired": {
+        "label":         "G-Inspired",
+        "local_profile": BASE.parent / "g_inspired" / "client_profile.json",
+        "oracle_profile": "/opt/g_inspired/client_profile.json",
+        "tasks":         [],
+    },
+    "newsflash": {
+        "label":         "NewsFlash",
+        "local_profile": None,
+        "oracle_profile": None,
+        "tasks":         ["OTB-NewsFlash"],
+    },
+    "d818": {
+        "label":         "D818",
+        "local_profile": None,
+        "oracle_profile": None,
+        "tasks":         ["D818-Morning", "D818-Afternoon", "D818-Evening",
+                          "D818-Weekend", "D818-Weekly", "D818-ApprovalCheck"],
+    },
+}
+_NEWSFLASH_TASK = "OTB-NewsFlash"
+
+
+def _set_profile_active(path, active: bool):
+    if path is None or not Path(path).exists():
+        return
+    p = json.loads(Path(path).read_text(encoding="utf-8"))
+    p.setdefault("schedule", {})["active"] = active
+    Path(path).write_text(json.dumps(p, indent=2), encoding="utf-8")
+
+
+def _set_oracle_profile_active(oracle_path: str, active: bool) -> str:
+    if not oracle_path:
+        return "skipped"
+    val = "true" if active else "false"
+    cmd = [
+        "ssh", "-i", str(ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+        "-o", "ConnectTimeout=10", f"{ORACLE_USER}@{ORACLE_IP}",
+        f"python3 -c \"import json; p=json.load(open('{oracle_path}')); "
+        f"p.setdefault('schedule', {{}})['active']={val}; "
+        f"json.dump(p, open('{oracle_path}','w'), indent=2); print('ok')\""
+    ]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+        return "ok" if r.returncode == 0 else r.stderr.strip()[:80]
+    except Exception as e:
+        return str(e)[:80]
+
+
+def _set_tasks(task_names: list, enable: bool):
+    action = "Enable" if enable else "Disable"
+    for name in task_names:
+        try:
+            subprocess.run(
+                ["powershell", "-Command",
+                 f"{action}-ScheduledTask -TaskName '{name}'"],
+                capture_output=True, timeout=10,
+            )
+        except Exception:
+            pass
+
+
+def _pause_resume_pipeline(pipeline_key: str, active: bool):
+    done  = "resumed" if active else "paused"
+    icon  = "▶️" if active else "⏸"
+    keys  = list(_PIPELINES.keys()) if pipeline_key == "all" else [pipeline_key]
+    lines = [f"<b>{icon} {done.capitalize()}…</b>"]
+
+    for key in keys:
+        cfg   = _PIPELINES[key]
+        label = cfg["label"]
+        if cfg["tasks"]:
+            _set_tasks(cfg["tasks"], active)
+            lines.append(f"• {label} tasks — {done}")
+        else:
+            _set_profile_active(cfg["local_profile"], active)
+            lines.append(f"• {label} local — {done}")
+            ores  = _set_oracle_profile_active(cfg["oracle_profile"], active)
+            ostat = "✅" if ores == "ok" else f"⚠️ {ores}"
+            lines.append(f"• {label} Oracle — {ostat}")
+
+    hint = "Send <b>resume</b> or tap ▶️ Resume to restart." if not active else "Next run at the next scheduled slot."
+    lines.append(f"\n{hint}")
+    _send("\n".join(lines), reply_markup=_control_panel_keyboard())
+
+
+def _pause_picker_keyboard(action: str) -> dict:
+    icon = "⏸" if action == "pause" else "▶️"
+    return {
+        "inline_keyboard": [
+            [
+                {"text": f"{icon} BootHop",    "callback_data": f"cmd_{action}_boothop"},
+                {"text": f"{icon} G-Inspired", "callback_data": f"cmd_{action}_g_inspired"},
+            ],
+            [
+                {"text": f"{icon} NewsFlash",  "callback_data": f"cmd_{action}_newsflash"},
+                {"text": f"{icon} D818",       "callback_data": f"cmd_{action}_d818"},
+            ],
+            [
+                {"text": f"{icon} All",        "callback_data": f"cmd_{action}_all"},
+            ],
+        ]
+    }
+
+
+def do_pause_picker():
+    _send("Which pipeline to pause?", reply_markup=_pause_picker_keyboard("pause"))
+
+
+def do_resume_picker():
+    _send("Which pipeline to resume?", reply_markup=_pause_picker_keyboard("resume"))
+
+
+def do_pause(pipeline: str = "all"):
+    _pause_resume_pipeline(pipeline, False)
+
+
+def do_resume(pipeline: str = "all"):
+    _pause_resume_pipeline(pipeline, True)
+
+
 # ── Main commands ─────────────────────────────────────────────────────────────
+
 
 def do_menu():
     _send(
@@ -748,7 +954,7 @@ def do_status():
     _send("\n".join(lines), reply_markup=_control_panel_keyboard())
 
 
-def do_rerun(slot: int = None):
+def do_rerun(slot: int = None, version: str = None):
     if slot is None:
         _send(
             "Which slot to rerun?",
@@ -760,10 +966,14 @@ def do_rerun(slot: int = None):
             ]]},
         )
         return
-    _send(f"🔄 Rerunning Slot {slot}…\nThis takes ~10 minutes. Watch for the preview.")
+    ver_label = f" ({version.upper()})" if version else ""
+    _send(f"🔄 Rerunning Slot {slot}{ver_label}…\nThis takes ~10 minutes. Watch for the preview.")
     try:
+        cmd = [PYTHON, str(BASE / "pipeline.py"), "--slot", str(slot), "--force"]
+        if version:
+            cmd += ["--version", version]
         proc = subprocess.Popen(
-            [PYTHON, str(BASE / "pipeline.py"), "--slot", str(slot), "--force"],
+            cmd,
             cwd=str(BASE),
             creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
         )
@@ -776,6 +986,26 @@ def do_rerun(slot: int = None):
         )
     except Exception as e:
         _send(f"❌ Failed to start pipeline: {e}")
+
+
+def do_force_version(slot: int, version: str):
+    """Force a specific version (v1 or v2) for the next slot run."""
+    from pathlib import Path as _P
+    state_path = BASE / "data" / "version_state.json"
+    try:
+        state = {}
+        if state_path.exists():
+            import json as _j
+            state = _j.loads(state_path.read_text(encoding="utf-8"))
+        state[f"slot{slot}"] = {
+            "last_version":   "v1" if version == "v2" else "v2",
+            "last_posted_at": "2000-01-01T00:00:00",  # force grace window to be expired
+            "next_version":   version,
+        }
+        state_path.write_text(__import__("json").dumps(state, indent=2), encoding="utf-8")
+        _send(f"✅ Slot {slot} forced to {version.upper()} for next run.\nSend /rerun {slot} to run it now.")
+    except Exception as e:
+        _send(f"❌ Could not update version state: {e}")
 
 
 def do_story(slot_label: str = "pm"):
@@ -1203,6 +1433,10 @@ def _control_panel_keyboard() -> dict:
     return {
         "inline_keyboard": [
             [
+                {"text": "⏸ Pause…",            "callback_data": "cmd_pause_pick"},
+                {"text": "▶️ Resume…",           "callback_data": "cmd_resume_pick"},
+            ],
+            [
                 {"text": "📊 Status",          "callback_data": "cmd_status"},
                 {"text": "🔄 Re-run Slot…",    "callback_data": "cmd_rerun_pick"},
             ],
@@ -1226,12 +1460,31 @@ def _control_panel_keyboard() -> dict:
 # ── Command map (static callbacks) ────────────────────────────────────────────
 
 _CMD_MAP = {
-    "cmd_status":        lambda: do_status(),
+    "cmd_pause_pick":           lambda: do_pause_picker(),
+    "cmd_resume_pick":          lambda: do_resume_picker(),
+    "cmd_pause_boothop":        lambda: do_pause("boothop"),
+    "cmd_pause_g_inspired":     lambda: do_pause("g_inspired"),
+    "cmd_pause_newsflash":      lambda: do_pause("newsflash"),
+    "cmd_pause_d818":           lambda: do_pause("d818"),
+    "cmd_pause_all":            lambda: do_pause("all"),
+    "cmd_resume_boothop":       lambda: do_resume("boothop"),
+    "cmd_resume_g_inspired":    lambda: do_resume("g_inspired"),
+    "cmd_resume_newsflash":     lambda: do_resume("newsflash"),
+    "cmd_resume_d818":          lambda: do_resume("d818"),
+    "cmd_resume_all":           lambda: do_resume("all"),
+    "cmd_status":               lambda: do_status(),
     "cmd_rerun_pick":    lambda: do_rerun(None),
     "cmd_rerun_1":       lambda: do_rerun(1),
     "cmd_rerun_2":       lambda: do_rerun(2),
     "cmd_rerun_3":       lambda: do_rerun(3),
     "cmd_rerun_4":       lambda: do_rerun(4),
+    # V1 / V2 version override buttons
+    "cmd_v1_1":  lambda: (do_force_version(1, "v1"), do_rerun(1, version="v1")),
+    "cmd_v1_2":  lambda: (do_force_version(2, "v1"), do_rerun(2, version="v1")),
+    "cmd_v1_3":  lambda: (do_force_version(3, "v1"), do_rerun(3, version="v1")),
+    "cmd_v2_1":  lambda: (do_force_version(1, "v2"), do_rerun(1, version="v2")),
+    "cmd_v2_2":  lambda: (do_force_version(2, "v2"), do_rerun(2, version="v2")),
+    "cmd_v2_3":  lambda: (do_force_version(3, "v2"), do_rerun(3, version="v2")),
     "cmd_story_pm":      lambda: do_story("pm"),
     "cmd_story_eve":     lambda: do_story("evening"),
     "cmd_music_prompt":  lambda: do_music(""),
@@ -1279,6 +1532,12 @@ def dispatch(text_lower: str):
     if text_lower.startswith("/menu") or any(w in text_lower for w in ("menu", "help", "commands", "options")):
         do_menu()
 
+    elif text_lower.startswith("/pause") or any(w in text_lower for w in ("pause", "stop pipeline", "halt pipeline", "pause pipeline", "pause all", "stop all", "pause everything")):
+        do_pause_picker()
+
+    elif text_lower.startswith("/resume") or any(w in text_lower for w in ("resume", "start pipeline", "resume pipeline", "resume all", "unpause", "turn on pipeline", "restart pipeline")):
+        do_resume_picker()
+
     elif text_lower.startswith("/status") or any(w in text_lower for w in ("status", "what's running", "whats running", "how's it", "hows it")):
         do_status()
 
@@ -1289,6 +1548,28 @@ def dispatch(text_lower: str):
             _send("Usage: /rerun 1|2|3|4")
             return
         do_rerun(slot)
+
+    elif text_lower.startswith("/v1") or text_lower.startswith("/v2"):
+        # /v1 [slot]  or  /v2 [slot]  — force a version for the next run
+        ver   = "v1" if text_lower.startswith("/v1") else "v2"
+        parts = text_lower.split()
+        slot  = None
+        for p in parts[1:]:
+            if p.isdigit() and int(p) in (1, 2, 3):
+                slot = int(p)
+                break
+        if slot is None:
+            _send(
+                f"Which slot should run as {ver.upper()}?",
+                reply_markup={"inline_keyboard": [[
+                    {"text": "Slot 1", "callback_data": f"cmd_{ver}_1"},
+                    {"text": "Slot 2", "callback_data": f"cmd_{ver}_2"},
+                    {"text": "Slot 3", "callback_data": f"cmd_{ver}_3"},
+                ]]},
+            )
+        else:
+            do_force_version(slot, ver)
+            do_rerun(slot, version=ver)
 
     elif any(w in text_lower for w in ("run pipeline", "run it", "start pipeline", "restart", "rerun", "re run", "run today")):
         do_rerun(None)
@@ -1398,6 +1679,12 @@ def _poll_once(offset: int) -> int:
                 part = data.split("_")[-1]
                 if part.isdigit():
                     do_revoice(int(part))
+
+            # Dynamic: cmd_autorevoice_2, cmd_autorevoice_3, cmd_autorevoice_4
+            elif data.startswith("cmd_autorevoice_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    do_autorevoice(int(part))
 
             # Dynamic: post_revoiced_2_tiktok, post_revoiced_3_ig
             elif data.startswith("post_revoiced_"):
