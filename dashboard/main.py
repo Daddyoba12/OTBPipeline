@@ -29,6 +29,16 @@ CO_DIR      = BASE_DIR / "companies"
 DB_PATH     = BASE_DIR / "otb.db"
 CO_DIR.mkdir(exist_ok=True)
 
+# Load keys.env into environment if variables aren't already set
+_keys_env = PIPELINE / "keys.env"
+if _keys_env.exists():
+    for _line in _keys_env.read_text(encoding="utf-8").splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith("#") and "=" in _line:
+            _k, _, _v = _line.partition("=")
+            if _k.strip() and _k.strip() not in os.environ:
+                os.environ[_k.strip()] = _v.strip()
+
 ADMIN_PASSWORD  = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
 PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")
 BASE_PATH       = os.environ.get("BASE_PATH", "")
@@ -163,7 +173,20 @@ _VIDEO_ORDER = [
     "tiktok_v3", "youtube",
     "linkedin", "story_am",
 ]
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
+# Fall back to config.py constants when not in environment
+_TELEGRAM_TOKEN_FALLBACK = ""
+_TELEGRAM_CHAT_FALLBACK  = ""
+try:
+    import importlib.util as _ilu
+    _cspec = _ilu.spec_from_file_location("_cfg", str(PIPELINE / "config.py"))
+    _cfg   = _ilu.module_from_spec(_cspec)
+    _cspec.loader.exec_module(_cfg)
+    _TELEGRAM_TOKEN_FALLBACK = getattr(_cfg, "TELEGRAM_TOKEN", "")
+    _TELEGRAM_CHAT_FALLBACK  = getattr(_cfg, "TELEGRAM_CHAT_ID", "")
+except Exception:
+    pass
+
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", _TELEGRAM_TOKEN_FALLBACK)
 FFMPEG         = shutil.which("ffmpeg") or "ffmpeg"
 FFPROBE        = shutil.which("ffprobe") or "ffprobe"
 ADMIN_PREFIX   = os.environ.get("ADMIN_PREFIX", "/admin")   # /onboard/admin when behind Vercel proxy
@@ -413,8 +436,10 @@ def _duration(path: str) -> float:
 # ── Telegram send ──────────────────────────────────────────────────────────────
 
 def _tg_send_video(chat_id: str, path: str, caption: str = ""):
-    if not TELEGRAM_TOKEN or not chat_id:
+    effective_chat = chat_id or _TELEGRAM_CHAT_FALLBACK
+    if not TELEGRAM_TOKEN or not effective_chat:
         return
+    chat_id = effective_chat
     try:
         import requests as _r
         with open(path, "rb") as f:
@@ -747,6 +772,31 @@ async def dashboard(request: Request, session_token: str | None = Cookie(None)):
         for f in sorted(all_mp4, key=_sort_key)
     ]
 
+    # Prepend latest pipeline output videos (Slot 1/2/3 V1 + V2)
+    _SLOT_NAMES = {1: "Slot 1 · Morning", 2: "Slot 2 · Afternoon",
+                   3: "Slot 3 · Evening",  4: "Slot 4 · Weekly"}
+    if OUTPUT_DIR.exists():
+        seen: set = set()
+        pipeline_vids: list = []
+        for f in sorted(OUTPUT_DIR.glob("*.mp4"), key=lambda f: f.stat().st_mtime, reverse=True):
+            m1 = _V1_STEM_RE.match(f.stem)
+            m2 = _V2_TIKTOK_RE.match(f.stem)
+            if m1:
+                key = f"v1_{m1.group(1)}"
+                if key not in seen:
+                    seen.add(key)
+                    sn = _SLOT_NAMES.get(int(m1.group(1)), f"Slot {m1.group(1)}")
+                    pipeline_vids.append({"path": str(f), "name": f.name,
+                                          "label": f"▶ {sn} — V1"})
+            elif m2:
+                key = f"v2_{m2.group(1)}"
+                if key not in seen:
+                    seen.add(key)
+                    sn = _SLOT_NAMES.get(int(m2.group(1)), f"Slot {m2.group(1)}")
+                    pipeline_vids.append({"path": str(f), "name": f.name,
+                                          "label": f"▶ {sn} — V2"})
+        videos = pipeline_vids + videos
+
     return templates.TemplateResponse("dashboard.html", {
         "request":      request,
         "company":      sess,
@@ -758,18 +808,27 @@ async def dashboard(request: Request, session_token: str | None = Cookie(None)):
 
 @app.get("/api/video-file")
 async def serve_video_file(path: str, session_token: str | None = Cookie(None)):
-    """Serve a pipeline video by absolute path — restricted to this company's directory."""
+    """Serve a video — allowed from company directory or pipeline output directory."""
     sess = _get_sess(session_token)
     if not sess:
         raise HTTPException(401)
     file_path = Path(path)
     if not file_path.exists():
         raise HTTPException(404)
+    in_co  = False
+    in_out = False
     try:
-        file_path.relative_to(CO_DIR)
+        file_path.relative_to(CO_DIR);  in_co  = True
     except ValueError:
-        raise HTTPException(403, "Access outside company directory denied")
-    return FileResponse(str(file_path), media_type="video/mp4")
+        pass
+    try:
+        file_path.relative_to(OUTPUT_DIR); in_out = True
+    except ValueError:
+        pass
+    if not in_co and not in_out:
+        raise HTTPException(403, "Access denied")
+    return FileResponse(str(file_path), media_type="video/mp4",
+                        headers={"Accept-Ranges": "bytes"})
 
 
 @app.post("/api/upload-video")
@@ -799,18 +858,42 @@ async def bake(
     sess = _auth_or_secret(session_token, request)
     if not sess:
         raise HTTPException(401)
-    if not Path(video_path).exists():
+
+    cdir = _co_dir(sess["slug"])
+
+    # Resolve video — accept local path (company dir or pipeline output) or HTTP URL
+    video_local = video_path
+    if video_path.startswith("http://") or video_path.startswith("https://"):
+        import requests as _r
+        tmp_vid = cdir / f"video_{int(time.time())}.mp4"
+        try:
+            resp = _r.get(video_path, stream=True, timeout=120)
+            resp.raise_for_status()
+            with open(tmp_vid, "wb") as fh:
+                for chunk in resp.iter_content(1 << 20):
+                    fh.write(chunk)
+            video_local = str(tmp_vid)
+        except Exception as e:
+            raise HTTPException(400, f"Failed to download video: {e}")
+    elif not Path(video_local).exists():
         raise HTTPException(400, "Video file not found on server")
 
-    cdir       = _co_dir(sess["slug"])
     voice_dest = cdir / f"voice_{int(time.time())}.ogg"
     voice_dest.write_bytes(await voice.read())
+
+    tg_chat = sess.get("tg_chat_id", "")
+    if not tg_chat:
+        with _db() as c:
+            row = c.execute("SELECT tg_chat_id FROM companies WHERE slug=?",
+                            (sess.get("slug", ""),)).fetchone()
+            if row:
+                tg_chat = row["tg_chat_id"] or ""
 
     with _db() as c:
         cur     = c.execute(
             "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
             "VALUES (?,?,?,?,'processing')",
-            (sess["company_id"], video_path, str(voice_dest), music_path or "")
+            (sess.get("company_id", -1), video_local, str(voice_dest), music_path or "")
         )
         bake_id = cur.lastrowid
 
@@ -819,8 +902,8 @@ async def bake(
         _jobs[job_id] = {"status": "processing"}
 
     background.add_task(
-        _bake_worker, job_id, bake_id, video_path, str(voice_dest),
-        music_path or None, sess.get("tg_chat_id", ""), cdir
+        _bake_worker, job_id, bake_id, video_local, str(voice_dest),
+        _resolve_music(music_path) if music_path else None, tg_chat, cdir
     )
     return {"job_id": job_id, "bake_id": bake_id}
 
@@ -855,6 +938,42 @@ def _smart_music_query(raw: str) -> str:
     if not any(w in low for w in ("music", "official", "lyrics", "audio", "song", "feat", "ft.", "remix")):
         raw = raw + " official audio"
     return f"ytsearch1:{raw}"
+
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+_TTS_VOICES = ["nova", "alloy", "echo", "fable", "onyx", "shimmer"]
+
+
+@app.post("/api/tts")
+async def generate_tts(
+    request:       Request,
+    text:          str = Form(...),
+    voice:         str = Form("nova"),
+    session_token: str | None = Cookie(None),
+):
+    """Generate TTS MP3 from text and return it as audio/mpeg."""
+    if not _auth_or_secret(session_token, request):
+        raise HTTPException(401)
+    if not text.strip():
+        raise HTTPException(400, "text is required")
+    voice = voice if voice in _TTS_VOICES else "nova"
+    if not OPENAI_API_KEY:
+        raise HTTPException(503, "OpenAI API key not configured")
+    import requests as _r
+    try:
+        resp = _r.post(
+            "https://api.openai.com/v1/audio/speech",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+            json={"model": "tts-1", "input": text.strip(), "voice": voice},
+            timeout=30,
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        raise HTTPException(502, f"TTS generation failed: {e}")
+    from fastapi.responses import Response
+    return Response(content=resp.content, media_type="audio/mpeg",
+                    headers={"Content-Disposition": f"inline; filename=tts_{voice}.mp3"})
 
 
 @app.post("/api/youtube-music")
@@ -1031,26 +1150,47 @@ def _today_str() -> str:
     return datetime.now().strftime("%Y-%m-%d")
 
 
+_V1_STEM_RE = re.compile(r"^otb_slot(\d+)_\d{8}_\d{6}$")
+_V2_TIKTOK_RE = re.compile(r"^otb_v2_slot(\d+)_\d{8}_\d{6}_tiktok$")
+
+
 def _list_slot_videos() -> dict:
     result = {}
     for slot in (1, 2, 3, 4):
         v1 = v2 = None
         data: dict = {}
-        for f in sorted(OUTPUT_DIR.glob(f"otb_slot{slot}_v1_*.mp4"),
-                        key=lambda f: f.stat().st_mtime, reverse=True):
-            sidecar = f.with_suffix(".json")
+
+        # V1: otb_slot{slot}_YYYYMMDD_HHMMSS.mp4 (no platform suffix)
+        v1_cands = sorted(
+            [f for f in OUTPUT_DIR.glob(f"otb_slot{slot}_*.mp4")
+             if _V1_STEM_RE.match(f.stem)],
+            key=lambda f: f.stat().st_mtime, reverse=True,
+        )
+        if v1_cands:
+            v1 = v1_cands[0]
+            sidecar = v1.with_suffix(".json")
             if sidecar.exists():
-                v1 = f
                 try:
                     data = json.loads(sidecar.read_text(encoding="utf-8"))
                 except Exception:
                     pass
-                break
-        if v1:
-            ts = "_".join(v1.stem.split("_")[-2:])
-            v2c = OUTPUT_DIR / f"otb_slot{slot}_v2_{ts}.mp4"
-            if v2c.exists():
-                v2 = v2c
+
+        # V2: otb_v2_slot{slot}_YYYYMMDD_HHMMSS_tiktok.mp4
+        v2_cands = sorted(
+            [f for f in OUTPUT_DIR.glob(f"otb_v2_slot{slot}_*_tiktok.mp4")
+             if _V2_TIKTOK_RE.match(f.stem)],
+            key=lambda f: f.stat().st_mtime, reverse=True,
+        )
+        if v2_cands:
+            v2 = v2_cands[0]
+            # Merge V2 sidecar data if no V1 sidecar yet
+            v2_sidecar = v2.parent / (v2.stem.replace("_tiktok", "") + ".json")
+            if v2_sidecar.exists() and not data:
+                try:
+                    data = json.loads(v2_sidecar.read_text(encoding="utf-8"))
+                except Exception:
+                    pass
+
         pa_file = DATA / f"pending_approval_{slot}.json"
         is_pending = False
         if pa_file.exists():
@@ -1562,6 +1702,16 @@ async def cmdr_bake_alias(
         except Exception as e:
             raise HTTPException(400, f"Failed to download video: {e}")
     music_resolved = _resolve_music(music) if music else None
+
+    # Look up tg_chat_id for this slug
+    tg_chat = sess.get("tg_chat_id", "")
+    if not tg_chat and sess.get("slug"):
+        with _db() as c:
+            row = c.execute("SELECT tg_chat_id FROM companies WHERE slug=?",
+                            (sess["slug"],)).fetchone()
+            if row:
+                tg_chat = row["tg_chat_id"] or ""
+
     with _db() as c:
         cur = c.execute(
             "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
@@ -1573,7 +1723,7 @@ async def cmdr_bake_alias(
     with _jlock:
         _jobs[job_id] = {"status": "pending", "bake_id": bake_id}
     background.add_task(_bake_worker, job_id, bake_id, video_local, str(vp),
-                        music_resolved, "", co)
+                        music_resolved, tg_chat, co)
     return {"job_id": job_id, "bake_id": bake_id}
 
 

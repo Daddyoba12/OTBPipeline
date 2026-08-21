@@ -10,7 +10,7 @@ Pending queue:   pending_newspaper.json / pending_story.json / pending_linkedin.
 Cleanup:         48-hour message deletion (runs automatically on startup)
 """
 
-import json, os, subprocess, sys, tempfile, time
+import json, os, subprocess, sys, tempfile, threading, time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -190,7 +190,10 @@ def _get_audio_duration(path: str) -> float:
 
 # ── Music helpers ─────────────────────────────────────────────────────────────
 
-def _list_music_tracks(max_tracks: int = 4) -> list:
+_MUSIC_PAGE_SIZE = 6  # tracks shown per page
+
+
+def _list_music_tracks(max_tracks: int = 999) -> list:
     seen, tracks = set(), []
     for folder in [MUSIC_DIR, MUSIC_ARCHIVE, BASE / "music" / "yt_downloads"]:
         if not folder.exists():
@@ -204,16 +207,64 @@ def _list_music_tracks(max_tracks: int = 4) -> list:
     return tracks
 
 
-def _music_keyboard() -> dict:
-    tracks = _list_music_tracks(4)
+def _music_page_keyboard(page: int = 0, prefix: str = "rs") -> dict:
+    """Paged music browser. Each track has a ▶️ preview button.
+    prefix: 'rs' for revoice studio, 'ms' for swap-music standalone."""
+    tracks   = _list_music_tracks()
+    total    = len(tracks)
+    pages    = max(1, (total + _MUSIC_PAGE_SIZE - 1) // _MUSIC_PAGE_SIZE)
+    page     = max(0, min(page, pages - 1))
+    start    = page * _MUSIC_PAGE_SIZE
+    chunk    = tracks[start:start + _MUSIC_PAGE_SIZE]
+
     rows = []
-    for i, t in enumerate(tracks):
-        rows.append([{"text": f"🎵 {t.stem[:28]}", "callback_data": f"rs_music_{i}"}])
+    for i, t in enumerate(chunk):
+        abs_i = start + i
+        rows.append([{"text": f"▶️  {t.stem[:34]}", "callback_data": f"{prefix}_mpreview_{abs_i}"}])
+
+    nav = []
+    if page > 0:
+        nav.append({"text": "◀️ Prev", "callback_data": f"{prefix}_mpage_{page - 1}"})
+    nav.append({"text": f"{page + 1}/{pages}", "callback_data": "rs_noop"})
+    if page < pages - 1:
+        nav.append({"text": "Next ▶️", "callback_data": f"{prefix}_mpage_{page + 1}"})
+    rows.append(nav)
+
     rows.append([
-        {"text": "📺 YouTube",   "callback_data": "rs_music_yt"},
-        {"text": "🔇 No music",  "callback_data": "rs_music_none"},
+        {"text": "📺 Download from YouTube", "callback_data": f"{prefix}_music_yt"},
+        {"text": "🔇 No music",              "callback_data": f"{prefix}_music_none"},
     ])
     return {"inline_keyboard": rows}
+
+
+def _music_keyboard() -> dict:
+    return _music_page_keyboard(0, "rs")
+
+
+def _send_music_preview(track: Path):
+    """Extract first 30s of a track and send as playable audio to Telegram."""
+    tmp = TEMP / f"mpreview_{track.stem[:20]}.mp3"
+    try:
+        subprocess.run(
+            [FFMPEG, "-y", "-i", str(track), "-t", "30", "-q:a", "4", str(tmp)],
+            capture_output=True, timeout=20
+        )
+        if tmp.exists():
+            with open(tmp, "rb") as f:
+                requests.post(
+                    f"{BASE_URL}/sendAudio",
+                    data={"chat_id": TELEGRAM_CHAT_ID,
+                          "caption": f"🎵 Preview: {track.stem}",
+                          "title": track.stem, "performer": "BootHop Music"},
+                    files={"audio": f}, timeout=30
+                )
+    except Exception as e:
+        _send(f"⚠️ Preview error: {e}")
+    finally:
+        try:
+            tmp.unlink(missing_ok=True)
+        except Exception:
+            pass
 
 
 def _trim_keyboard() -> dict:
@@ -297,10 +348,20 @@ def do_revoice(slot: int):
         _send(f"❌ No Slot {slot} video found in output. Run /rerun {slot} first.")
         return
 
-    hook    = data.get("hook", "(hook not available — record freely)")
+    hook    = data.get("hook", "")
     caption = data.get("caption", hook)
     label   = _SLOT_LABELS.get(slot, f"Slot {slot}")
 
+    # Determine preview video (prefer V2 tiktok, fall back to V1)
+    preview_path = None
+    if v2_base:
+        p = OUTPUT / f"{v2_base}_tiktok.mp4"
+        if p.exists():
+            preview_path = p
+    if not preview_path and video and video.exists():
+        preview_path = video
+
+    # Save studio state (needed for record flow)
     if video:
         _rs_save({
             "step":          "idle",
@@ -313,57 +374,158 @@ def do_revoice(slot: int):
             "recorded_path": None,
             "expires":       time.time() + 3600,
         })
+    elif v2_base:
+        _rs_save({
+            "step":    "idle",
+            "slot":    slot,
+            "v2_base": v2_base,
+            "hook":    hook,
+            "expires": time.time() + 3600,
+        })
 
-    buttons = []
+    # ── Step 1: Send the current video so user knows what they're working with
+    if preview_path:
+        _send_video(preview_path, caption=f"📺 <b>{label}</b> — current video")
+
+    # ── Step 2: Show action menu
+    rows = []
+    action_row = []
     if video:
-        buttons.append({"text": "🎤 Record voice", "callback_data": "rs_record"})
+        action_row.append({"text": "🎤 Record Voice", "callback_data": "rs_record"})
     if v2_base:
-        buttons.append({"text": "🤖 Auto TTS", "callback_data": f"cmd_autorevoice_{slot}"})
-    buttons.append({"text": "⏭ Skip", "callback_data": "rs_skip_studio"})
+        action_row.append({"text": "🤖 Auto TTS",     "callback_data": f"cmd_autorevoice_{slot}"})
+    if action_row:
+        rows.append(action_row)
+    rows.append([
+        {"text": "🎵 Swap Music Only", "callback_data": f"cmd_swapmusic_{slot}"},
+        {"text": "⏭ Cancel",           "callback_data": "rs_skip_studio"},
+    ])
 
-    v2_note = f"\n<i>V2 available: {v2_base}</i>" if v2_base else ""
+    script_note = f"\n\n<b>Script to record:</b>\n<i>{hook[:280]}</i>" if hook else ""
     _send(
-        f"🎬 <b>Re-voice — {label}</b>\n\n"
-        f"<b>Script:</b>\n<i>{hook[:300]}</i>{v2_note}\n\n"
-        f"🎤 Record = send your own voice note\n"
-        f"🤖 Auto TTS = AI generates the narration automatically",
-        reply_markup={"inline_keyboard": [buttons]},
+        f"🎬 <b>Re-voice Studio — {label}</b>{script_note}\n\n"
+        f"🎤 <b>Record Voice</b> — hold Telegram mic, record, release. Bot collects it.\n"
+        f"🤖 <b>Auto TTS</b> — AI generates narration, you hear it first before baking.\n"
+        f"🎵 <b>Swap Music</b> — change background music only, no new voice.",
+        reply_markup={"inline_keyboard": rows},
     )
 
 
-def do_autorevoice(slot: int):
-    """Run revoice_v2.py in background for the latest V2 video on this slot."""
+_TTS_VOICES = ["nova", "alloy", "echo", "fable", "onyx", "shimmer"]
+
+
+def do_autorevoice(slot: int, voice: str = "nova"):
+    """Preview TTS narration as audio first, then let user confirm before baking."""
     base = _find_latest_v2_base(slot)
     if not base:
         _send(f"❌ No V2 video found for Slot {slot}. Run /rerun {slot} first.")
         return
     label = _SLOT_LABELS.get(slot, f"Slot {slot}")
-    _send(
-        f"🤖 <b>Auto TTS — {label}</b>\n\n"
-        f"Generating narration for:\n<code>{base}</code>\n\n"
-        f"~30 seconds — a preview will follow…"
-    )
+
+    # Build narration text from sidecar
+    sidecar = OUTPUT / f"{base}.json"
+    story   = {}
+    if sidecar.exists():
+        try:
+            story = json.loads(sidecar.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    hook    = story.get("hook", "").strip()
+    lesson  = story.get("lesson", "").strip()
+    narr    = " ".join(p for p in [hook, lesson, "Download BootHop and connect with travellers today."] if p)
+
+    _send(f"🤖 Generating <b>{voice}</b> voice preview for {label}…  (~5 seconds)")
+
+    # Generate TTS preview audio
+    from config import OPENAI_API_KEY as _OAI_KEY
+    narr_tmp = TEMP / f"tts_preview_slot{slot}.mp3"
+    tts_ok = False
+    if _OAI_KEY:
+        try:
+            r = requests.post(
+                "https://api.openai.com/v1/audio/speech",
+                headers={"Authorization": f"Bearer {_OAI_KEY}"},
+                json={"model": "tts-1", "input": narr, "voice": voice},
+                timeout=30,
+            )
+            r.raise_for_status()
+            narr_tmp.write_bytes(r.content)
+            tts_ok = True
+        except Exception as e:
+            _send(f"⚠️ TTS preview failed: {e}. Baking directly…")
+
+    if tts_ok and narr_tmp.exists():
+        # Send audio preview
+        try:
+            with open(narr_tmp, "rb") as f:
+                requests.post(
+                    f"{BASE_URL}/sendAudio",
+                    data={"chat_id": TELEGRAM_CHAT_ID,
+                          "caption": f"🎧 <b>{voice}</b> narration preview — {label}\n<i>{narr[:100]}…</i>",
+                          "parse_mode": "HTML",
+                          "title": f"Narration - {label}", "performer": "BootHop AI"},
+                    files={"audio": f}, timeout=30
+                )
+        except Exception:
+            pass
+
+        # Save state so confirm knows what to bake
+        _rs_save({
+            "step":     "tts_preview",
+            "slot":     slot,
+            "v2_base":  base,
+            "voice":    voice,
+            "narr_path": str(narr_tmp),
+            "expires":  time.time() + 1800,
+        })
+
+        vi = _TTS_VOICES.index(voice) if voice in _TTS_VOICES else 0
+        next_voice = _TTS_VOICES[(vi + 1) % len(_TTS_VOICES)]
+        _send(
+            f"🎧 <b>Narration preview above</b> — happy with the <b>{voice}</b> voice?",
+            reply_markup={"inline_keyboard": [
+                [
+                    {"text": "✅ Bake it in",         "callback_data": f"rs_tts_confirm_{slot}"},
+                    {"text": f"🔄 Try {next_voice}",  "callback_data": f"rs_tts_voice_{slot}_{next_voice}"},
+                ],
+                [
+                    {"text": "🎤 Record instead",     "callback_data": "rs_record"},
+                    {"text": "❌ Cancel",              "callback_data": "rs_skip_studio"},
+                ],
+            ]},
+        )
+    else:
+        # No preview possible — bake directly
+        _do_bake_autorevoice(slot, base, voice)
+
+
+def _do_bake_autorevoice(slot: int, base: str, voice: str = "nova"):
+    """Run revoice_v2.py to bake TTS into the V2 video, then send result. Runs in background thread."""
+    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    _send(f"⏳ Baking {label} — adding narration + music… ~30 seconds")
+    threading.Thread(target=_bake_autorevoice_bg, args=(slot, base, voice, label), daemon=True).start()
+
+
+def _bake_autorevoice_bg(slot: int, base: str, voice: str, label: str):
 
     revoice_script = BASE / "revoice_v2.py"
     try:
         result = subprocess.run(
             [PYTHON, str(revoice_script), base],
-            capture_output=True, text=True, timeout=120,
-            cwd=str(BASE),
+            capture_output=True, text=True, timeout=120, cwd=str(BASE),
         )
         if result.returncode != 0:
-            _send(f"❌ Auto TTS failed:\n<code>{result.stderr[-300:]}</code>")
+            _send(f"❌ Bake failed:\n<code>{result.stderr[-300:]}</code>")
             return
     except Exception as e:
-        _send(f"❌ Auto TTS error: {e}")
+        _send(f"❌ Bake error: {e}")
         return
 
-    # Send the re-voiced tiktok variant as preview
     tiktok_path = OUTPUT / f"{base}_tiktok.mp4"
     if tiktok_path.exists():
-        result_vid = _send_video(
+        _send_video(
             tiktok_path,
-            caption=f"🤖 Auto TTS — {label}\n<code>{base}</code>",
+            caption=f"✅ <b>Done — {label}</b>",
             reply_markup={"inline_keyboard": [
                 [
                     {"text": "🚀 Post TikTok", "callback_data": f"post_revoiced_{slot}_tiktok"},
@@ -371,23 +533,22 @@ def do_autorevoice(slot: int):
                 ],
                 [
                     {"text": "🎵 Swap Music",  "callback_data": f"cmd_swapmusic_{slot}"},
-                    {"text": "📝 Post Blog",   "callback_data": f"cmd_blog_{slot}"},
+                    {"text": "📝 Blog",        "callback_data": f"cmd_blog_{slot}"},
                 ],
                 [{"text": "⏭ Done", "callback_data": "rs_skip_studio"}],
             ]},
         )
         try:
             LATEST_REVOICED.write_text(json.dumps({
-                "path":      str(tiktok_path),
-                "hook":      base,
-                "slot":      slot,
-                "has_music": True,
+                "path": str(tiktok_path), "hook": base,
+                "slot": slot, "has_music": True,
                 "timestamp": datetime.now().isoformat(),
             }), encoding="utf-8")
         except Exception:
             pass
     else:
-        _send(f"✅ Re-voiced (file: {base}_tiktok.mp4 — check output folder)")
+        _send(f"⚠️ Baked but tiktok file missing — check output/")
+    _rs_clear()
 
 
 def _rs_handle_voice_received(file_id: str, st: dict):
@@ -538,9 +699,27 @@ def _rs_set_record():
     if not st:
         _send("⚠️ No active studio session. Tap Re-voice from /menu first.")
         return
+    hook = st.get("hook", "")
     st["step"] = "awaiting_record"
     _rs_save(st)
-    _send("🎤 Ready — send your voice note now.")
+    script_block = f"\n\n📄 <b>Read this script:</b>\n<i>{hook}</i>" if hook else ""
+    _send(
+        f"🎙️ <b>HOW TO RECORD IN TELEGRAM</b>{script_block}\n\n"
+        f"<b>On your phone (iOS / Android):</b>\n"
+        f"• Look at the message input bar at the bottom of this chat\n"
+        f"• <b>Press and HOLD the 🎤 microphone icon</b> on the right\n"
+        f"• Speak your script clearly while holding\n"
+        f"• <b>Release</b> the mic — the voice note sends automatically\n"
+        f"• (Slide left while holding to cancel if you stumble)\n\n"
+        f"<b>On Telegram Desktop (Windows/Mac):</b>\n"
+        f"• Click the 🎤 mic icon once to start recording\n"
+        f"• Speak your script\n"
+        f"• Click the ✅ send button (or press Enter) to send\n\n"
+        f"<i>Once sent, the bot plays it back here so you can approve or re-record.</i>",
+        reply_markup={"inline_keyboard": [[
+            {"text": "❌ Cancel — go back", "callback_data": "rs_skip_studio"},
+        ]]},
+    )
 
 
 def _rs_keep():
@@ -550,7 +729,12 @@ def _rs_keep():
         return
     st["step"] = "awaiting_music"
     _rs_save(st)
-    _send("🎵 Choose your music track:", reply_markup=_music_keyboard())
+    total = len(_list_music_tracks())
+    _send(
+        f"🎵 <b>Pick your music</b> ({total} tracks available)\n"
+        f"Tap ▶️ on any track to hear a 30-second preview first.",
+        reply_markup=_music_page_keyboard(0, "rs"),
+    )
 
 
 def _rs_record_again():
@@ -570,21 +754,88 @@ def _rs_record_again():
     _send("🎤 OK — send a new voice note now.")
 
 
-def _rs_pick_music(idx: int):
-    st = _rs_load()
-    if not st or st.get("step") != "awaiting_music":
-        _send("⚠️ Not in music selection step.")
-        return
-    tracks = _list_music_tracks(4)
+def _rs_preview_music(idx: int):
+    """Send 30s audio preview of track[idx], then show Use/Back buttons."""
+    tracks = _list_music_tracks()
     if idx >= len(tracks):
-        _send("⚠️ Track not found — try again.")
+        _send("⚠️ Track not found.")
+        return
+    track = tracks[idx]
+    _send(f"⏳ Generating 30s preview of <b>{track.stem}</b>…")
+    threading.Thread(target=_send_music_preview, args=(track,), daemon=True).start()
+    _send(
+        f"🎵 <b>{track.stem}</b>\n\nUse this track?",
+        reply_markup={"inline_keyboard": [
+            [
+                {"text": "✅ Use this track", "callback_data": f"rs_mpick_{idx}"},
+                {"text": "↩️ Back to list",   "callback_data": "rs_mshow_0"},
+            ],
+            [{"text": "🔇 No music",          "callback_data": "rs_music_none"}],
+        ]},
+    )
+
+
+def _rs_confirm_music(idx: int):
+    """Pick a track (after preview) and move to trim step."""
+    st = _rs_load()
+    if not st:
+        _send("⚠️ No active studio session.")
+        return
+    tracks = _list_music_tracks()
+    if idx >= len(tracks):
+        _send("⚠️ Track not found.")
         return
     st["music_path"] = str(tracks[idx])
     st["step"]       = "awaiting_trim"
     _rs_save(st)
     _send(
-        f"🎵 Selected: <i>{tracks[idx].stem}</i>\n\nHow long should the music run?",
+        f"✅ <b>{tracks[idx].stem}</b> selected.\n\nHow long should the music play?",
         reply_markup=_trim_keyboard(),
+    )
+
+
+def _rs_show_music_page(page: int):
+    """Navigate to a different page of the music browser."""
+    total = len(_list_music_tracks())
+    _send(
+        f"🎵 <b>Pick your music</b> ({total} tracks)\n"
+        f"Tap ▶️ to hear 30s preview before picking.",
+        reply_markup=_music_page_keyboard(page, "rs"),
+    )
+
+
+def _ms_preview_music(idx: int):
+    """Swap Music: preview track, then show Use/Back/Cancel."""
+    try:
+        sess = json.loads(SWAPMUSIC_SESSION.read_text(encoding="utf-8"))
+    except Exception:
+        _send("⚠️ No active swap session. Use Swap Music again.")
+        return
+    tracks = _list_music_tracks()
+    if idx >= len(tracks):
+        _send("⚠️ Track not found.")
+        return
+    track = tracks[idx]
+    _send(f"⏳ Generating 30s preview of <b>{track.stem}</b>…")
+    threading.Thread(target=_send_music_preview, args=(track,), daemon=True).start()
+    _send(
+        f"🎵 <b>{track.stem}</b>\n\nSwap to this track?",
+        reply_markup={"inline_keyboard": [
+            [
+                {"text": "✅ Use this track", "callback_data": f"ms_pick_{idx}"},
+                {"text": "↩️ Back to list",   "callback_data": "ms_mshow_0"},
+            ],
+            [{"text": "❌ Cancel", "callback_data": "ms_cancel"}],
+        ]},
+    )
+
+
+def _ms_show_page(page: int):
+    total = len(_list_music_tracks())
+    _send(
+        f"🎵 <b>Swap Music</b> ({total} tracks)\n"
+        f"Tap ▶️ to hear 30s preview before picking.",
+        reply_markup=_ms_keyboard(page),
     )
 
 
@@ -606,7 +857,7 @@ def _rs_music_none():
     st["step"]       = "baking"
     _rs_save(st)
     _send("⏳ No music — baking voice only…")
-    _rs_bake(st)
+    threading.Thread(target=_rs_bake, args=(st,), daemon=True).start()
 
 
 def _rs_set_trim_and_bake(trim_sec: int):
@@ -619,7 +870,7 @@ def _rs_set_trim_and_bake(trim_sec: int):
     _rs_save(st)
     slot = st.get("slot", 2)
     _send(f"⏳ Baking Slot {slot} — voice + music ({trim_sec}s)… ~30 seconds")
-    _rs_bake(st)
+    threading.Thread(target=_rs_bake, args=(st,), daemon=True).start()
 
 
 def _rs_skip_studio():
@@ -639,21 +890,16 @@ def do_swapmusic(slot: int):
     SWAPMUSIC_SESSION.write_text(json.dumps({
         "slot": slot, "base": base, "expires": time.time() + 1800,
     }), encoding="utf-8")
+    total = len(_list_music_tracks())
     _send(
-        f"🎵 <b>Music Swap — {label}</b>\n\n"
-        f"Pick a track — it replaces the music on all 3 platform variants:",
-        reply_markup=_ms_keyboard(),
+        f"🎵 <b>Music Swap — {label}</b> ({total} tracks)\n"
+        f"Tap ▶️ on any track to hear a 30s preview before picking.",
+        reply_markup=_ms_keyboard(0),
     )
 
 
-def _ms_keyboard() -> dict:
-    tracks = _list_music_tracks(4)
-    rows   = [[{"text": f"🎵 {t.stem[:30]}", "callback_data": f"ms_pick_{i}"}] for i, t in enumerate(tracks)]
-    rows.append([
-        {"text": "📺 Download from YouTube", "callback_data": "ms_yt"},
-        {"text": "❌ Cancel",                "callback_data": "ms_cancel"},
-    ])
-    return {"inline_keyboard": rows}
+def _ms_keyboard(page: int = 0) -> dict:
+    return _music_page_keyboard(page, "ms")
 
 
 def _ms_pick(idx: int):
@@ -710,6 +956,123 @@ def _ms_do_swap(slot: int, base: str, track: Path):
         _send(f"✅ Music swapped on {ok_count}/3 {label} variants\n🎵 {track.stem}")
     else:
         _send("❌ Music swap failed — check that the V2 files still exist in output/")
+
+
+# ── Kling ad text editor ──────────────────────────────────────────────────────
+
+_KLING_TEXTS_FILE = DATA / "kling_custom_texts.json"
+_KLINGTEXT_POOLS  = ("opening", "how", "cta")
+
+
+def _load_kling_texts() -> dict:
+    try:
+        if _KLING_TEXTS_FILE.exists():
+            return json.loads(_KLING_TEXTS_FILE.read_text(encoding="utf-8"))
+    except Exception:
+        pass
+    return {}
+
+
+def _save_kling_texts(d: dict):
+    _KLING_TEXTS_FILE.write_text(json.dumps(d, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def do_klingtext(args: str = ""):
+    """
+    /klingtext            — show all current ad texts
+    /klingtext opening    — show only opening pool
+    /klingtext how        — show only how-it-works pool
+    /klingtext cta        — show only CTA pool
+    /klingtext add opening <text>   — add a line to the opening pool
+    /klingtext add how <text>       — add a line to how-it-works pool
+    /klingtext add cta <text>       — add a line to CTA pool
+    /klingtext clear opening        — reset pool to default
+    /klingtext clear all            — reset all pools to default
+    """
+    from config import DATA as _DATA
+    parts = args.strip().split(None, 2)
+    texts = _load_kling_texts()
+
+    # ── add opening/how/cta <text> ────────────────────────────────────────────
+    if parts and parts[0] == "add" and len(parts) >= 3:
+        pool, new_line = parts[1].lower(), parts[2].strip()
+        if pool not in _KLINGTEXT_POOLS:
+            _send(f"⚠️ Unknown pool '{pool}'. Use: opening / how / cta")
+            return
+        texts.setdefault(pool, []).append(new_line)
+        _save_kling_texts(texts)
+        _send(f"✅ Added to <b>{pool}</b>:\n<i>{new_line}</i>")
+        return
+
+    # ── clear pool ────────────────────────────────────────────────────────────
+    if parts and parts[0] == "clear":
+        target = parts[1].lower() if len(parts) > 1 else "all"
+        if target == "all":
+            _KLING_TEXTS_FILE.unlink(missing_ok=True)
+            _send("✅ All ad text pools reset to defaults.")
+        elif target in _KLINGTEXT_POOLS:
+            texts.pop(target, None)
+            if texts:
+                _save_kling_texts(texts)
+            else:
+                _KLING_TEXTS_FILE.unlink(missing_ok=True)
+            _send(f"✅ <b>{target}</b> pool reset to defaults.")
+        else:
+            _send(f"⚠️ Unknown pool '{target}'.")
+        return
+
+    # ── show pools ────────────────────────────────────────────────────────────
+    _DEFAULT_OPENING = [
+        "Already flying to Nigeria? Earn from it.",
+        "Why pay £60 when a traveller charges £15?",
+        "Your spare luggage space is worth money.",
+        "Sending something home? There is a smarter way.",
+        "Real travellers. Real savings. Real fast.",
+        "The app that turns flights into deliveries.",
+        "Same flight. Extra income. Zero effort.",
+        "Senders meet travellers. Everyone wins.",
+    ]
+    _DEFAULT_HOW = [
+        "Match a traveller going your way.",
+        "They carry your parcel. You save 70%.",
+        "Peer-to-peer delivery — UK to Nigeria.",
+        "One match. Same-day agreement. Done.",
+        "Already going. Already earning.",
+    ]
+    _DEFAULT_CTA = [
+        "Download free — boothop.com",
+        "Sign up today — boothop.com",
+        "iOS and Android — boothop.com",
+        "Join free at boothop.com",
+        "Get started — boothop.com",
+    ]
+
+    show_pool = parts[0].lower() if parts else "all"
+
+    def _fmt_pool(name: str, default: list) -> str:
+        custom = texts.get(name)
+        items  = custom if custom else default
+        tag    = " <i>(custom)</i>" if custom else " <i>(default)</i>"
+        lines  = "\n".join(f"  {i+1}. {t}" for i, t in enumerate(items))
+        return f"<b>{name.upper()}{tag}</b>\n{lines}"
+
+    if show_pool in _KLINGTEXT_POOLS:
+        defaults = {"opening": _DEFAULT_OPENING, "how": _DEFAULT_HOW, "cta": _DEFAULT_CTA}
+        _send(_fmt_pool(show_pool, defaults[show_pool]))
+    else:
+        msg = (
+            "📝 <b>Kling Ad Text Pools</b>\n\n"
+            + _fmt_pool("opening", _DEFAULT_OPENING) + "\n\n"
+            + _fmt_pool("how",     _DEFAULT_HOW)     + "\n\n"
+            + _fmt_pool("cta",     _DEFAULT_CTA)     + "\n\n"
+            "<b>Commands:</b>\n"
+            "<code>/klingtext add opening Your new hook text here</code>\n"
+            "<code>/klingtext add how How it works text</code>\n"
+            "<code>/klingtext add cta Sign up — boothop.com</code>\n"
+            "<code>/klingtext clear opening</code> — reset to defaults\n"
+            "<code>/klingtext clear all</code> — reset everything"
+        )
+        _send(msg)
 
 
 # ── Blog post from commander ──────────────────────────────────────────────────
@@ -1601,7 +1964,7 @@ def _control_panel_keyboard() -> dict:
                 {"text": "🔄 Re-run Slot…",    "callback_data": "cmd_rerun_pick"},
             ],
             [
-                {"text": "🎤 Re-voice S2",     "callback_data": "cmd_revoice_2"},
+                {"text": "🎤 Re-voice S1",     "callback_data": "cmd_revoice_1"},
                 {"text": "🎤 Re-voice S3",     "callback_data": "cmd_revoice_3"},
                 {"text": "🎤 Re-voice S4",     "callback_data": "cmd_revoice_4"},
             ],
@@ -1610,7 +1973,7 @@ def _control_panel_keyboard() -> dict:
                 {"text": "📱 Story (8:30pm)",  "callback_data": "cmd_story_eve"},
             ],
             [
-                {"text": "🎵 Swap Music S2",  "callback_data": "cmd_swapmusic_2"},
+                {"text": "🎵 Swap Music S1",  "callback_data": "cmd_swapmusic_1"},
                 {"text": "🎵 Swap Music S3",  "callback_data": "cmd_swapmusic_3"},
                 {"text": "🎵 Swap Music S4",  "callback_data": "cmd_swapmusic_4"},
             ],
@@ -1673,23 +2036,17 @@ _CMD_MAP = {
     "rs_record":         lambda: _rs_set_record(),
     "rs_keep":           lambda: _rs_keep(),
     "rs_record_again":   lambda: _rs_record_again(),
-    "rs_music_0":        lambda: _rs_pick_music(0),
-    "rs_music_1":        lambda: _rs_pick_music(1),
-    "rs_music_2":        lambda: _rs_pick_music(2),
-    "rs_music_3":        lambda: _rs_pick_music(3),
     "rs_music_yt":       lambda: _rs_music_yt(),
     "rs_music_none":     lambda: _rs_music_none(),
     "rs_trim_15":        lambda: _rs_set_trim_and_bake(15),
     "rs_trim_30":        lambda: _rs_set_trim_and_bake(30),
     "rs_trim_45":        lambda: _rs_set_trim_and_bake(45),
     "rs_skip_studio":    lambda: _rs_skip_studio(),
+    "rs_noop":           lambda: None,
     # Music swap
-    "ms_pick_0":  lambda: _ms_pick(0),
-    "ms_pick_1":  lambda: _ms_pick(1),
-    "ms_pick_2":  lambda: _ms_pick(2),
-    "ms_pick_3":  lambda: _ms_pick(3),
-    "ms_yt":      lambda: do_music(""),
-    "ms_cancel":  lambda: (SWAPMUSIC_SESSION.unlink(missing_ok=True), _send("❌ Swap cancelled.")),
+    "ms_music_yt":   lambda: do_music(""),
+    "ms_music_none": lambda: (SWAPMUSIC_SESSION.unlink(missing_ok=True), _send("❌ No music — swap cancelled.")),
+    "ms_cancel":     lambda: (SWAPMUSIC_SESSION.unlink(missing_ok=True), _send("❌ Swap cancelled.")),
 }
 
 
@@ -1756,11 +2113,20 @@ def dispatch(text_lower: str):
 
     elif text_lower.startswith("/revoice"):
         parts = text_lower.split()
-        slot  = 2
+        slot  = None
         for p in parts[1:]:
             if p.isdigit() and int(p) in (1, 2, 3, 4):
                 slot = int(p)
                 break
+        if slot is None:
+            # Auto-detect: pick slot with the most recent V2 video
+            best, best_slot = None, 3
+            for s in [1, 2, 3, 4]:
+                sids = sorted(OUTPUT.glob(f"otb_v2_slot{s}_*.json"),
+                              key=lambda f: f.stat().st_mtime, reverse=True)
+                if sids and (best is None or sids[0].stat().st_mtime > best):
+                    best, best_slot = sids[0].stat().st_mtime, s
+            slot = best_slot
         do_revoice(slot)
 
     elif text_lower.startswith("/story"):
@@ -1885,13 +2251,13 @@ def _poll_once(offset: int) -> int:
                 if part.isdigit():
                     do_revoice(int(part))
 
-            # Dynamic: cmd_autorevoice_2, cmd_autorevoice_3, cmd_autorevoice_4
+            # Dynamic: cmd_autorevoice_2, cmd_autorevoice_3 etc.
             elif data.startswith("cmd_autorevoice_"):
                 part = data.split("_")[-1]
                 if part.isdigit():
                     do_autorevoice(int(part))
 
-            # Dynamic: cmd_swapmusic_2, cmd_swapmusic_3, cmd_swapmusic_4
+            # Dynamic: cmd_swapmusic_1, cmd_swapmusic_3 etc.
             elif data.startswith("cmd_swapmusic_"):
                 part = data.split("_")[-1]
                 if part.isdigit():
@@ -1902,6 +2268,75 @@ def _poll_once(offset: int) -> int:
                 part = data.split("_")[-1]
                 if part.isdigit():
                     do_blog(int(part))
+
+            # ── Revoice Studio music browser ──────────────────────────────────
+            # rs_mpreview_12  → preview track 12 (30s clip)
+            elif data.startswith("rs_mpreview_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _rs_preview_music(int(part))
+
+            # rs_mpick_12  → pick track 12 after preview
+            elif data.startswith("rs_mpick_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _rs_confirm_music(int(part))
+
+            # rs_mpage_2  → navigate to page 2
+            elif data.startswith("rs_mpage_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _rs_show_music_page(int(part))
+
+            # rs_mshow_0  → back to music browser page 0
+            elif data.startswith("rs_mshow_"):
+                part = data.split("_")[-1]
+                page = int(part) if part.isdigit() else 0
+                _rs_show_music_page(page)
+
+            # ── Auto TTS confirm / voice retry ───────────────────────────────
+            # rs_tts_confirm_3  → bake the TTS that was previewed
+            elif data.startswith("rs_tts_confirm_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    st = _rs_load()
+                    base = st.get("v2_base", _find_latest_v2_base(int(part)) or "")
+                    voice = st.get("voice", "nova")
+                    if base:
+                        _do_bake_autorevoice(int(part), base, voice)
+                    else:
+                        _send("⚠️ No V2 base found — run /rerun first.")
+
+            # rs_tts_voice_3_alloy  → retry TTS with a different voice
+            elif data.startswith("rs_tts_voice_"):
+                parts = data.split("_")  # ["rs","tts","voice","3","alloy"]
+                if len(parts) >= 5 and parts[3].isdigit():
+                    do_autorevoice(int(parts[3]), parts[4])
+
+            # ── Swap Music browser ────────────────────────────────────────────
+            # ms_mpreview_12  → preview track 12 for music swap
+            elif data.startswith("ms_mpreview_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _ms_preview_music(int(part))
+
+            # ms_pick_12  → pick track 12 for swap (after preview)
+            elif data.startswith("ms_pick_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _ms_pick(int(part))
+
+            # ms_mpage_2  → swap music browser page 2
+            elif data.startswith("ms_mpage_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    _ms_show_page(int(part))
+
+            # ms_mshow_0  → back to swap music browser
+            elif data.startswith("ms_mshow_"):
+                part = data.split("_")[-1]
+                page = int(part) if part.isdigit() else 0
+                _ms_show_page(page)
 
             # Dynamic: post_revoiced_2_tiktok, post_revoiced_3_ig
             elif data.startswith("post_revoiced_"):
