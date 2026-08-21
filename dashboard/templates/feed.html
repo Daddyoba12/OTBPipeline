@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>48h Feed — OTB Pipeline</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+    padding: 20px 24px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+  .header-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .header h1 { font-size: 1.25rem; font-weight: 700; color: #fff; }
+  .header-meta { font-size: 0.75rem; color: #93c5fd; }
+  .refresh-btn {
+    background: rgba(255,255,255,0.15);
+    border: none; border-radius: 8px;
+    color: #fff; font-size: 0.8rem; padding: 6px 12px; cursor: pointer;
+  }
+  .refresh-btn:hover { background: rgba(255,255,255,0.25); }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    padding: 20px 24px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+  }
+  .stat-card {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .stat-number { font-size: 1.8rem; font-weight: 800; color: #38bdf8; line-height: 1; }
+  .stat-label  { font-size: 0.68rem; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ── Platform pills ── */
+  .platform-row {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 14px 24px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+  }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600;
+    background: #1e3a8a; color: #93c5fd;
+  }
+  .pill.tiktok    { background: #0d1117; color: #f8f8f8; }
+  .pill.instagram { background: #831843; color: #fda4af; }
+  .pill.youtube   { background: #7f1d1d; color: #fca5a5; }
+  .pill.linkedin  { background: #1e3a5f; color: #93c5fd; }
+  .pill.blog      { background: #14532d; color: #86efac; }
+  .pill.newsflash { background: #44400c; color: #fef08a; }
+
+  /* ── Section titles ── */
+  .section-title {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #475569;
+    padding: 16px 24px 8px;
+  }
+
+  /* ── Timeline ── */
+  .timeline { padding: 0 16px 80px; }
+
+  .event-card {
+    display: flex; gap: 14px;
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid transparent;
+    transition: transform 0.1s;
+  }
+  .event-card:hover { transform: translateX(2px); }
+
+  .event-card.tiktok    { border-color: #f8f8f8; }
+  .event-card.instagram { border-color: #ec4899; }
+  .event-card.youtube   { border-color: #ef4444; }
+  .event-card.linkedin  { border-color: #3b82f6; }
+  .event-card.blog      { border-color: #22c55e; }
+  .event-card.newsflash { border-color: #eab308; }
+
+  .event-icon { font-size: 1.4rem; flex-shrink: 0; width: 32px; text-align: center; margin-top: 2px; }
+
+  .event-body  { flex: 1; min-width: 0; }
+  .event-top   { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .event-plat  { font-size: 0.75rem; font-weight: 700; text-transform: capitalize; color: #94a3b8; }
+  .event-slot  { font-size: 0.65rem; background: #334155; color: #94a3b8; padding: 1px 6px; border-radius: 10px; }
+  .event-time  { font-size: 0.68rem; color: #475569; flex-shrink: 0; }
+  .event-hook  { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; word-break: break-word; }
+  .event-url   { font-size: 0.7rem; color: #38bdf8; margin-top: 4px; text-decoration: none; display: block; }
+  .event-url:hover { text-decoration: underline; }
+
+  /* ── Music row ── */
+  .music-section { padding: 0 16px 16px; }
+  .music-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .music-chip {
+    background: #1e293b;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    border: 1px solid #334155;
+  }
+  .music-chip strong { color: #e2e8f0; display: block; }
+
+  /* ── Empty state ── */
+  .empty {
+    text-align: center; padding: 60px 20px; color: #475569;
+    font-size: 0.9rem;
+  }
+  .empty .big { font-size: 3rem; margin-bottom: 12px; }
+
+  /* ── Back link ── */
+  .back-link {
+    display: inline-block; margin: 16px 24px 0;
+    font-size: 0.8rem; color: #38bdf8; text-decoration: none;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  /* ── Countdown ── */
+  #countdown { font-size: 0.7rem; color: #64748b; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <h1>📡 48h Activity Feed</h1>
+      <div class="header-meta">Updated {{ feed.generated_at }} &nbsp;·&nbsp; <span id="countdown"></span></div>
+    </div>
+    <button class="refresh-btn" onclick="location.reload()">↻ Refresh</button>
+  </div>
+</div>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat-card">
+    <div class="stat-number">{{ feed.posts_today }}</div>
+    <div class="stat-label">Today</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ feed.total_48h }}</div>
+    <div class="stat-label">Last 48h</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ feed.by_platform | length }}</div>
+    <div class="stat-label">Platforms</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number">{{ feed.slots_used | length }}</div>
+    <div class="stat-label">Slots ran</div>
+  </div>
+</div>
+
+<!-- Platform breakdown pills -->
+{% if feed.by_platform %}
+<div class="platform-row">
+  {% for plat, count in feed.by_platform.items() | sort %}
+  <span class="pill {{ plat }}">
+    {% if plat == 'tiktok' %}🎵
+    {% elif plat == 'instagram' %}📸
+    {% elif plat == 'youtube' %}▶️
+    {% elif plat == 'linkedin' %}💼
+    {% elif plat == 'blog' %}📝
+    {% elif plat == 'newsflash' %}⚡
+    {% else %}📤{% endif %}
+    {{ plat }} &nbsp;×&nbsp; {{ count }}
+  </span>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Timeline -->
+<div class="section-title">Timeline</div>
+
+<div class="timeline">
+  {% if feed.events %}
+    {% for e in feed.events %}
+    <div class="event-card {{ e.platform }}">
+      <div class="event-icon">{{ e.icon }}</div>
+      <div class="event-body">
+        <div class="event-top">
+          <div style="display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;">
+            <span class="event-plat">{{ e.platform }}</span>
+            {% if e.slot %}<span class="event-slot">S{{ e.slot }}</span>{% endif %}
+            {% if e.type == 'newsflash' and e.route %}<span class="event-slot">{{ e.route }}</span>{% endif %}
+          </div>
+          <span class="event-time">{{ e.ts_fmt }}</span>
+        </div>
+        {% if e.hook %}
+        <div class="event-hook">{{ e.hook }}</div>
+        {% endif %}
+        {% if e.url %}
+        <a class="event-url" href="{{ e.url }}" target="_blank" rel="noopener">↗ View post</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty">
+    <div class="big">📭</div>
+    Nothing posted in the last 48 hours.<br>Run a slot to see activity here.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Music section -->
+{% if feed.music_recent %}
+<div class="section-title">Music used recently</div>
+<div class="music-section">
+  <div class="music-row">
+    {% for m in feed.music_recent %}
+    <div class="music-chip">
+      <strong>{{ m.title }}</strong>
+      {% if m.artist and m.artist != m.title %}{{ m.artist }}{% endif %}
+      &nbsp;·&nbsp; {{ m.ts_fmt }}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<a href="/admin" class="back-link">← Back to dashboard</a>
+
+<script>
+  // Auto-refresh countdown
+  let secs = 120;
+  const el = document.getElementById('countdown');
+  function tick() {
+    if (!el) return;
+    if (secs <= 0) { location.reload(); return; }
+    el.textContent = `auto-refresh in ${secs}s`;
+    secs--;
+    setTimeout(tick, 1000);
+  }
+  tick();
+</script>
+</body>
+</html>

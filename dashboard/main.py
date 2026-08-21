@@ -30,8 +30,104 @@ DB_PATH     = BASE_DIR / "otb.db"
 CO_DIR.mkdir(exist_ok=True)
 
 ADMIN_PASSWORD  = os.environ.get("ADMIN_PASSWORD", "otb-admin-2026")
-PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")  # shared secret for server-to-server calls from web commander
-BASE_PATH       = os.environ.get("BASE_PATH", "")  # e.g. "/videoEditor" when proxied through Next.js
+PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")
+BASE_PATH       = os.environ.get("BASE_PATH", "")
+
+# ── Oracle SSH ─────────────────────────────────────────────────────────────────
+_ORACLE_IP   = "140.238.73.32"
+_ORACLE_USER = "ubuntu"
+_ORACLE_KEY  = Path.home() / ".ssh" / "oracle_boothop.pem"
+_G_INS_LOCAL = PIPELINE.parent / "g_inspired" / "client_profile.json"
+
+_D818_TASKS = ["D818-Morning", "D818-Afternoon", "D818-Evening",
+               "D818-Weekend", "D818-Weekly", "D818-ApprovalCheck"]
+
+_SCHEDULE_PIPELINES = {
+    "boothop": {
+        "label":         "BootHop",
+        "local_profile": PIPELINE / "client_profile.json",
+        "oracle_profile": "/opt/otb_pipeline/client_profile.json",
+        "tasks":         [],
+    },
+    "g_inspired": {
+        "label":         "G-Inspired",
+        "local_profile": _G_INS_LOCAL,
+        "oracle_profile": "/opt/g_inspired/client_profile.json",
+        "tasks":         [],
+    },
+    "newsflash": {
+        "label":         "NewsFlash",
+        "local_profile": None,
+        "oracle_profile": None,
+        "tasks":         ["OTB-NewsFlash"],
+    },
+    "d818": {
+        "label":         "D818",
+        "local_profile": None,
+        "oracle_profile": None,
+        "tasks":         _D818_TASKS,
+    },
+}
+
+
+def _profile_active(path) -> bool | None:
+    try:
+        if path and Path(path).exists():
+            return json.loads(Path(path).read_text())["schedule"]["active"]
+    except Exception:
+        pass
+    return None
+
+
+def _set_profile_active(path, active: bool):
+    if not path or not Path(path).exists():
+        return
+    p = json.loads(Path(path).read_text(encoding="utf-8"))
+    p.setdefault("schedule", {})["active"] = active
+    Path(path).write_text(json.dumps(p, indent=2), encoding="utf-8")
+
+
+def _oracle_set_active(oracle_path: str, active: bool) -> str:
+    val = "true" if active else "false"
+    cmd = [
+        "ssh", "-i", str(_ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+        "-o", "ConnectTimeout=10", f"{_ORACLE_USER}@{_ORACLE_IP}",
+        f"python3 -c \"import json; p=json.load(open('{oracle_path}')); "
+        f"p.setdefault('schedule', {{}})['active']={val}; "
+        f"json.dump(p, open('{oracle_path}','w'), indent=2); print('ok')\""
+    ]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+        return "ok" if r.returncode == 0 else r.stderr.strip()[:120]
+    except Exception as e:
+        return str(e)[:120]
+
+
+def _set_tasks(task_names: list, enable: bool):
+    action = "Enable" if enable else "Disable"
+    for name in task_names:
+        try:
+            subprocess.run(
+                ["powershell", "-Command",
+                 f"{action}-ScheduledTask -TaskName '{name}'"],
+                capture_output=True, timeout=10,
+            )
+        except Exception:
+            pass
+
+
+def _tasks_enabled(task_names: list) -> bool:
+    if not task_names:
+        return False
+    try:
+        r = subprocess.run(
+            ["powershell", "-Command",
+             f"(Get-ScheduledTask -TaskName '{task_names[0]}').State"],
+            capture_output=True, text=True, timeout=10,
+        )
+        return r.stdout.strip() == "Ready"
+    except Exception:
+        return False
 
 # ── Supabase constants ─────────────────────────────────────────────────────────
 _SB_URL = "https://zwgngbzbdvnrdnanjded.supabase.co"
@@ -88,18 +184,22 @@ def _init_db():
     with _db() as c:
         c.executescript("""
         CREATE TABLE IF NOT EXISTS companies (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            slug       TEXT UNIQUE NOT NULL,
-            name       TEXT NOT NULL,
-            email      TEXT DEFAULT '',
-            contact    TEXT DEFAULT '',
-            plan       TEXT DEFAULT 'basic',
-            password_h TEXT NOT NULL,
-            api_key    TEXT UNIQUE,
-            tg_chat_id TEXT DEFAULT '',
-            whatsapp   TEXT DEFAULT '',
-            created_at TEXT DEFAULT (datetime('now')),
-            active     INTEGER DEFAULT 1
+            id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug               TEXT UNIQUE NOT NULL,
+            name               TEXT NOT NULL,
+            email              TEXT DEFAULT '',
+            contact            TEXT DEFAULT '',
+            plan               TEXT DEFAULT 'basic',
+            password_h         TEXT NOT NULL,
+            api_key            TEXT UNIQUE,
+            tg_chat_id         TEXT DEFAULT '',
+            whatsapp           TEXT DEFAULT '',
+            created_at         TEXT DEFAULT (datetime('now')),
+            active             INTEGER DEFAULT 1,
+            platforms_enabled  TEXT DEFAULT '[]',
+            credentials_json   TEXT DEFAULT '{}',
+            digest_email       TEXT DEFAULT '',
+            digest_frequency   TEXT DEFAULT ''
         );
         CREATE TABLE IF NOT EXISTS sessions (
             token      TEXT PRIMARY KEY,
@@ -124,6 +224,23 @@ def _init_db():
 
 
 _init_db()
+
+def _migrate_db():
+    """Add new columns to existing databases without dropping data."""
+    migrations = [
+        "ALTER TABLE companies ADD COLUMN platforms_enabled TEXT DEFAULT '[]'",
+        "ALTER TABLE companies ADD COLUMN credentials_json  TEXT DEFAULT '{}'",
+        "ALTER TABLE companies ADD COLUMN digest_email      TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN digest_frequency  TEXT DEFAULT ''",
+    ]
+    with _db() as c:
+        for sql in migrations:
+            try:
+                c.execute(sql)
+            except Exception:
+                pass  # column already exists
+
+_migrate_db()
 
 # ── Auth ───────────────────────────────────────────────────────────────────────
 
@@ -395,37 +512,139 @@ async def onboard_page(request: Request):
         {"request": request, "success": False, "slug": "", "error": ""})
 
 
+_FREE_EMAIL_DOMAINS = {
+    "gmail.com", "yahoo.com", "yahoo.co.uk", "hotmail.com", "hotmail.co.uk",
+    "outlook.com", "outlook.co.uk", "icloud.com", "me.com", "aol.com",
+    "protonmail.com", "proton.me", "mail.com", "ymail.com", "live.com",
+}
+
+def _is_business_email(email: str) -> bool:
+    if not email or "@" not in email:
+        return False
+    domain = email.strip().lower().split("@")[-1]
+    return domain not in _FREE_EMAIL_DOMAINS
+
+
 @app.post("/onboard", response_class=HTMLResponse)
 async def onboard_submit(
-    request:      Request,
-    company_name: str = Form(...),
-    contact_name: str = Form(""),
-    email:        str = Form(""),
-    password:     str = Form(...),
-    tg_chat_id:   str = Form(""),
-    whatsapp:     str = Form(""),
-    plan:         str = Form("basic"),
+    request:           Request,
+    company_name:      str = Form(...),
+    contact_name:      str = Form(""),
+    email:             str = Form(""),
+    password:          str = Form(...),
+    tg_chat_id:        str = Form(""),
+    whatsapp:          str = Form(""),
+    plan:              str = Form("basic"),
+    # Platform toggles
+    platform_tiktok:   str = Form(""),
+    platform_instagram:str = Form(""),
+    platform_youtube:  str = Form(""),
+    platform_linkedin: str = Form(""),
+    platform_blog:     str = Form(""),
+    platform_email:    str = Form(""),
+    # TikTok
+    tt_handle:         str = Form(""),
+    tt_client_key:     str = Form(""),
+    tt_client_secret:  str = Form(""),
+    # Instagram
+    ig_username:       str = Form(""),
+    ig_app_id:         str = Form(""),
+    ig_app_secret:     str = Form(""),
+    ig_access_token:   str = Form(""),
+    ig_user_id:        str = Form(""),
+    # YouTube
+    yt_channel_url:    str = Form(""),
+    yt_api_key:        str = Form(""),
+    # LinkedIn
+    li_profile_url:    str = Form(""),
+    li_client_id:      str = Form(""),
+    li_client_secret:  str = Form(""),
+    li_access_token:   str = Form(""),
+    # Blog
+    blog_platform:     str = Form(""),
+    blog_url:          str = Form(""),
+    blog_id:           str = Form(""),
+    blog_refresh_token:str = Form(""),
+    # Digest
+    digest_email:      str = Form(""),
+    digest_frequency:  str = Form("daily"),
 ):
     raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
     slug = re.sub(r"[\s_]+", "-", raw)[:30]
     if not slug:
         return templates.TemplateResponse("onboard.html",
             {"request": request, "success": False, "slug": "", "error": "Invalid company name."})
+
+    # Validate digest email must be official business domain
+    if digest_email.strip() and not _is_business_email(digest_email.strip()):
+        return templates.TemplateResponse("onboard.html",
+            {"request": request, "success": False, "slug": "",
+             "error": "Daily digest email must be an official business email (no Gmail, Yahoo, Hotmail, etc.)."})
+
+    # Build platforms list
+    platforms = [p for p, v in [
+        ("tiktok", platform_tiktok), ("instagram", platform_instagram),
+        ("youtube", platform_youtube), ("linkedin", platform_linkedin),
+        ("blog", platform_blog), ("email", platform_email),
+    ] if v]
+
+    # Build credentials object — never logged, stored separately
+    credentials = {}
+    if "tiktok" in platforms:
+        credentials["tiktok"] = {
+            "handle":        tt_handle.strip(),
+            "client_key":    tt_client_key.strip(),
+            "client_secret": tt_client_secret.strip(),
+            "access_token":  "",
+        }
+    if "instagram" in platforms:
+        credentials["instagram"] = {
+            "username":     ig_username.strip(),
+            "app_id":       ig_app_id.strip(),
+            "app_secret":   ig_app_secret.strip(),
+            "access_token": ig_access_token.strip(),
+            "ig_user_id":   ig_user_id.strip(),
+        }
+    if "youtube" in platforms:
+        credentials["youtube"] = {
+            "channel_url": yt_channel_url.strip(),
+            "api_key":     yt_api_key.strip(),
+        }
+    if "linkedin" in platforms:
+        credentials["linkedin"] = {
+            "profile_url":   li_profile_url.strip(),
+            "client_id":     li_client_id.strip(),
+            "client_secret": li_client_secret.strip(),
+            "access_token":  li_access_token.strip(),
+        }
+    if "blog" in platforms:
+        credentials["blog"] = {
+            "platform":      blog_platform.strip(),
+            "blog_url":      blog_url.strip(),
+            "blog_id":       blog_id.strip(),
+            "refresh_token": blog_refresh_token.strip(),
+        }
+
     try:
         with _db() as c:
             c.execute(
-                "INSERT INTO companies (slug,name,email,contact,plan,password_h,api_key,tg_chat_id,whatsapp) "
-                "VALUES (?,?,?,?,?,?,?,?,?)",
+                "INSERT INTO companies "
+                "(slug,name,email,contact,plan,password_h,api_key,tg_chat_id,whatsapp,"
+                " platforms_enabled,credentials_json,digest_email,digest_frequency) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (slug, company_name, email, contact_name, plan,
-                 _hash(password), secrets.token_hex(16), tg_chat_id, whatsapp)
+                 _hash(password), secrets.token_hex(16), tg_chat_id, whatsapp,
+                 json.dumps(platforms), json.dumps(credentials),
+                 digest_email.strip(), digest_frequency.strip()),
             )
         _co_dir(slug)
         return templates.TemplateResponse("onboard.html",
-            {"request": request, "success": True, "slug": slug, "error": ""})
+            {"request": request, "success": True, "slug": slug,
+             "platforms": platforms, "has_digest": bool(digest_email), "error": ""})
     except sqlite3.IntegrityError:
         return templates.TemplateResponse("onboard.html",
             {"request": request, "success": False, "slug": "",
-             "error": f"'{company_name}' is already registered. Try a different name."})
+             "error": f"'{company_name}' is already registered. Try a different name.", "platforms": []})
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -614,6 +833,30 @@ async def job_status(request: Request, job_id: str, session_token: str | None = 
         return _jobs.get(job_id, {"status": "unknown"})
 
 
+def _smart_music_query(raw: str) -> str:
+    """Normalise any freetext music query to a yt-dlp search target."""
+    raw = raw.strip()
+    if not raw:
+        return ""
+    if raw.lower().startswith("http"):
+        return raw
+    low = raw.lower()
+    for prefix in (
+        "lyrics: ", "lyrics:", "lyrics ",
+        "written by ", "songwriter: ", "songwriter ",
+        "by ", "artist: ", "artist ",
+        "song: ", "song ", "track: ", "track ",
+        "singer: ", "singer ",
+    ):
+        if low.startswith(prefix):
+            raw = raw[len(prefix):].strip()
+            low = raw.lower()
+            break
+    if not any(w in low for w in ("music", "official", "lyrics", "audio", "song", "feat", "ft.", "remix")):
+        raw = raw + " official audio"
+    return f"ytsearch1:{raw}"
+
+
 @app.post("/api/youtube-music")
 async def yt_music(
     request:       Request,
@@ -626,7 +869,7 @@ async def yt_music(
     dl_dir = MUSIC_DIR / "yt_downloads"
     dl_dir.mkdir(parents=True, exist_ok=True)
     safe   = re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
-    target = query if query.startswith("http") else f"ytsearch1:{query}"
+    target = _smart_music_query(query)
     raw_t  = str(dl_dir / f"{safe}_raw.%(ext)s")
     final  = dl_dir / f"{safe}_0s.mp3"
 
@@ -986,6 +1229,61 @@ async def approve_slot(
     return {"ok": True}
 
 
+@app.get("/api/pipeline/schedule-status")
+async def schedule_status_api(session_token: str | None = Cookie(None)):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    result = {}
+    for key, cfg in _SCHEDULE_PIPELINES.items():
+        if cfg["tasks"]:
+            active = _tasks_enabled(cfg["tasks"])
+        else:
+            active = _profile_active(cfg["local_profile"])
+        result[key] = {"label": cfg["label"], "active": active}
+    return result
+
+
+def _apply_schedule_action(pipeline: str, active: bool) -> dict:
+    keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
+    results = {}
+    for key in keys:
+        cfg = _SCHEDULE_PIPELINES[key]
+        if cfg["tasks"]:
+            _set_tasks(cfg["tasks"], active)
+            results[key] = "ok"
+        else:
+            _set_profile_active(cfg["local_profile"], active)
+            ores = _oracle_set_active(cfg["oracle_profile"], active) if cfg["oracle_profile"] else "skipped"
+            results[key] = ores
+    return results
+
+
+@app.post("/api/pipeline/pause")
+async def pause_pipeline_api(
+    pipeline:      str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
+    if not all(k in _SCHEDULE_PIPELINES for k in keys):
+        raise HTTPException(400, "unknown pipeline")
+    return {"ok": True, "results": _apply_schedule_action(pipeline, False)}
+
+
+@app.post("/api/pipeline/resume")
+async def resume_pipeline_api(
+    pipeline:      str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    if not _get_sess(session_token):
+        raise HTTPException(401)
+    keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
+    if not all(k in _SCHEDULE_PIPELINES for k in keys):
+        raise HTTPException(400, "unknown pipeline")
+    return {"ok": True, "results": _apply_schedule_action(pipeline, True)}
+
+
 @app.post("/api/pipeline/edit-field")
 async def edit_field_api(
     slot:          int = Form(...),
@@ -1064,6 +1362,147 @@ async def weekly_report_api(session_token: str | None = Cookie(None)):
         "by_platform":    by_platform,
         "by_slot":        by_slot,
         "newsflash_week": len(nf_week),
+    }
+
+
+@app.get("/feed", response_class=HTMLResponse)
+async def feed_page(request: Request, session_token: str | None = Cookie(None)):
+    """48-hour activity feed — read-only overview of everything that went out."""
+    if not _get_sess(session_token):
+        return RedirectResponse("/login", status_code=303)
+    feed = _build_feed(hours=48)
+    return templates.TemplateResponse("feed.html", {"request": request, "feed": feed})
+
+
+@app.get("/api/feed")
+async def api_feed(request: Request, hours: int = 48, session_token: str | None = Cookie(None)):
+    if not _auth_or_secret(session_token, request):
+        raise HTTPException(401)
+    return _build_feed(hours=hours)
+
+
+def _fmt_ts(ts: str) -> str:
+    try:
+        dt  = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        now = datetime.now(dt.tzinfo) if dt.tzinfo else datetime.now()
+        diff = now - dt
+        mins = int(diff.total_seconds() // 60)
+        if mins < 1:   return "just now"
+        if mins < 60:  return f"{mins}m ago"
+        if mins < 120: return f"{mins // 60}h {mins % 60}m ago"
+        if mins < 1440: return f"{mins // 60}h ago"
+        return dt.strftime("%-d %b %H:%M")
+    except Exception:
+        return ts[:16] if ts else ""
+
+
+_PLATFORM_ICONS = {
+    "tiktok":    "🎵",
+    "instagram": "📸",
+    "youtube":   "▶️",
+    "linkedin":  "💼",
+    "blog":      "📝",
+    "newsflash": "⚡",
+    "newspaper": "📰",
+}
+
+
+def _build_feed(hours: int = 48) -> dict:
+    cutoff     = datetime.now() - timedelta(hours=hours)
+    cutoff_iso = cutoff.isoformat()
+    cutoff_day = cutoff.strftime("%Y-%m-%d")
+    events     = []
+
+    # Social posts
+    for e in _load_json(DATA / "post_log.json", []):
+        ts = e.get("posted_at", "")
+        if ts < cutoff_iso:
+            continue
+        events.append({
+            "type":     "post",
+            "platform": e.get("platform", "?"),
+            "slot":     e.get("slot"),
+            "hook":     e.get("hook", "")[:120],
+            "url":      e.get("url") or e.get("video_url") or "",
+            "ts":       ts,
+            "ts_fmt":   _fmt_ts(ts),
+            "icon":     _PLATFORM_ICONS.get(e.get("platform", ""), "📤"),
+        })
+
+    # Newsflash posts
+    nf = _load_json(DATA / "newsflash_log.json", {})
+    for e in nf.get("posts", []):
+        ts = e.get("date", "")
+        if ts < cutoff_day:
+            continue
+        events.append({
+            "type":     "newsflash",
+            "platform": "newsflash",
+            "slot":     None,
+            "hook":     e.get("hook", "")[:120],
+            "route":    e.get("route", ""),
+            "url":      "",
+            "ts":       ts + "T00:00:00",
+            "ts_fmt":   ts,
+            "icon":     "⚡",
+        })
+
+    # Blog posts
+    blog_posted = PIPELINE / "blog" / "posted"
+    if blog_posted.exists():
+        for f in sorted(blog_posted.glob("*.json"), key=lambda x: x.stat().st_mtime, reverse=True):
+            try:
+                meta = json.loads(f.read_text(encoding="utf-8"))
+                ts   = meta.get("posted_at", "")
+                if ts < cutoff_iso:
+                    continue
+                events.append({
+                    "type":     "post",
+                    "platform": "blog",
+                    "slot":     4,
+                    "hook":     meta.get("title", "Blog post")[:120],
+                    "url":      "",
+                    "ts":       ts,
+                    "ts_fmt":   _fmt_ts(ts),
+                    "icon":     "📝",
+                })
+            except Exception:
+                pass
+
+    events.sort(key=lambda e: e["ts"], reverse=True)
+
+    # Stats
+    by_platform: dict[str, int] = {}
+    slots_used: set = set()
+    for e in events:
+        p = e.get("platform", "?")
+        by_platform[p] = by_platform.get(p, 0) + 1
+        if e.get("slot"):
+            slots_used.add(e["slot"])
+
+    # Music recently used
+    music_recent = []
+    for m in _load_json(DATA / "music_log.json", []):
+        if m.get("logged_at", "") >= cutoff_iso:
+            music_recent.append({
+                "title":  m.get("title", "?"),
+                "artist": m.get("artist", ""),
+                "ts_fmt": _fmt_ts(m.get("logged_at", "")),
+            })
+    music_recent = music_recent[-6:]
+
+    today_str = datetime.now().strftime("%Y-%m-%d")
+    posts_today = [e for e in events if e["ts"].startswith(today_str) and e["type"] == "post"]
+
+    return {
+        "events":       events,
+        "by_platform":  by_platform,
+        "slots_used":   sorted(slots_used),
+        "music_recent": music_recent,
+        "total_48h":    len([e for e in events if e["type"] == "post"]),
+        "posts_today":  len(posts_today),
+        "hours":        hours,
+        "generated_at": datetime.now().strftime("%H:%M, %d %b"),
     }
 
 
@@ -1221,7 +1660,7 @@ async def cmdr_yt_music_alias(
     dl_dir = MUSIC_DIR / "yt_downloads"
     dl_dir.mkdir(parents=True, exist_ok=True)
     safe   = re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
-    target = query if query.startswith("http") else f"ytsearch1:{query}"
+    target = _smart_music_query(query)
     # Output template without extension — yt-dlp appends .mp3 after audio extraction
     out_tmpl = str(dl_dir / safe) + ".%(ext)s"
     final    = dl_dir / f"{safe}.mp3"

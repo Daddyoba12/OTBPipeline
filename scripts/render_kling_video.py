@@ -207,41 +207,41 @@ def _subtitle_filter(segments: list[dict], time_offset: float, font: str) -> str
 
 # ── hook text overlay ─────────────────────────────────────────────────────────
 
-_HOOK_TEXTS = {
-    "tiktok": [
-        "Travelling soon? Watch this 👀",
-        "Your journey could make you money",
-        "Why travel with empty luggage?",
-        "Already going that way? 👇",
-        "Your empty luggage space has value",
-    ],
-    "instagram": [
-        "Send smarter with BootHop",
-        "A smarter way to send items",
-        "Already going that way?",
-        "Sending something abroad?",
-        "Your journey can earn",
-    ],
-    "youtube": [
-        "This is how BootHop works",
-        "Send items abroad via travellers",
-        "A smarter way to send home",
-        "Earn money on your next trip",
-        "BootHop — peer delivery explained",
-    ],
-}
+# ── Text overlays for Kling library videos ───────────────────────────────────
+# Original Kling audio is kept exactly as-is. These text layers are the only
+# messaging added — no music, no voiceover, no audio changes whatsoever.
 
-_BRAND_MSGS = [
-    "Send smarter with BootHop",
-    "Same journey. Extra earning.",
-    "Connecting senders with travellers",
-    "Travelling anyway? Earn from it.",
-    "Your journey can earn.",
+_AD_OPENING = [
+    "Already flying to Nigeria? Earn from it.",
+    "Why pay £60 when a traveller charges £15?",
+    "Your spare luggage space is worth money.",
+    "Sending something home? There is a smarter way.",
+    "Real travellers. Real savings. Real fast.",
+    "The app that turns flights into deliveries.",
+    "Same flight. Extra income. Zero effort.",
+    "Senders meet travellers. Everyone wins.",
 ]
 
-_CTA_TRAVELLER = "Already travelling? Earn with BootHop."
-_CTA_SENDER    = "Need to send it? Find a traveller at boothop.com"
-_CTA_GENERAL   = "Download BootHop today — boothop.com"
+_AD_HOW_IT_WORKS = [
+    "Match a traveller going your way",
+    "They carry your parcel. You save 70%.",
+    "Peer-to-peer delivery — UK to Nigeria.",
+    "One match. Same-day agreement. Done.",
+    "Already going. Already earning.",
+]
+
+_AD_CTA = [
+    "Download free — boothop.com",
+    "Sign up today — boothop.com",
+    "iOS and Android — boothop.com",
+    "Join free at boothop.com",
+    "Get started — boothop.com",
+]
+
+# Legacy aliases kept for compatibility
+_HOOK_TEXTS  = {"tiktok": _AD_OPENING, "instagram": _AD_OPENING, "youtube": _AD_OPENING}
+_BRAND_MSGS  = _AD_CTA
+_CTA_GENERAL = "Download BootHop — boothop.com"
 
 
 # ── core render ───────────────────────────────────────────────────────────────
@@ -460,51 +460,50 @@ def _render_platform(
     sub_filter, music, font, platform, run_id,
     clip_dur: float, total_dur: float,
 ) -> bool:
-    """Add text overlays + background music to the merged clip+CTA video."""
-
-    hook_y  = {"tiktok": "h*0.12", "instagram": "h*0.10", "youtube": "h*0.12"}.get(platform, "h*0.12")
-    brand_y = "h*0.78"
-
-    hook_end = min(V2_HOOK_OVERLAY, clip_dur * 0.25)
-    hook_filter = (
-        f"drawtext=fontfile='{_esc(font)}':text='{_esc(hook_text)}'"
-        f":fontsize=56:fontcolor=white:bordercolor=black:borderw=4"
-        f":x=(w-text_w)/2:y={hook_y}"
+    """
+    Add brand text overlays to the Kling clip video.
+    Audio: original Kling clip audio kept exactly as-is — no music added, no voiceover.
+    Three text layers: opening hook (top) → how it works (middle) → CTA (bottom).
+    """
+    # ── Three ad text layers ──────────────────────────────────────────────────
+    # Layer 1 — opening hook at top, shown first 40% of clip
+    hook_end  = min(clip_dur * 0.40, 4.0)
+    opening   = random.choice(_AD_OPENING)
+    layer1 = (
+        f"drawtext=fontfile='{_esc(font)}':text='{_esc(opening)}'"
+        f":fontsize=52:fontcolor=white:bordercolor=black:borderw=4"
+        f":x=(w-text_w)/2:y=h*0.08"
         f":enable='between(t\\,0\\,{hook_end:.2f})'"
     )
 
-    brand_start = max(0.0, clip_dur - V2_BRAND_OVERLAY)
-    brand_end   = clip_dur
-    brand_filter = (
-        f"drawtext=fontfile='{_esc(font)}':text='{_esc(brand_msg)}'"
-        f":fontsize=50:fontcolor=white:bordercolor=black:borderw=3"
-        f":x=(w-text_w)/2:y={brand_y}"
-        f":enable='between(t\\,{brand_start:.2f}\\,{brand_end:.2f})'"
+    # Layer 2 — how it works in middle, shown mid-clip
+    mid_start = clip_dur * 0.30
+    mid_end   = clip_dur * 0.72
+    how_text  = random.choice(_AD_HOW_IT_WORKS)
+    layer2 = (
+        f"drawtext=fontfile='{_esc(font)}':text='{_esc(how_text)}'"
+        f":fontsize=46:fontcolor=white:bordercolor=black:borderw=3"
+        f":x=(w-text_w)/2:y=(h-text_h)/2"
+        f":enable='between(t\\,{mid_start:.2f}\\,{mid_end:.2f})'"
     )
 
-    vf_parts = [hook_filter, brand_filter]
-    if sub_filter:
-        vf_parts.append(sub_filter)
-    vf = ",".join(vf_parts)
+    # Layer 3 — download CTA at bottom, shown last third of clip
+    cta_start = clip_dur * 0.65
+    cta_text  = random.choice(_AD_CTA)
+    layer3 = (
+        f"drawtext=fontfile='{_esc(font)}':text='{_esc(cta_text)}'"
+        f":fontsize=50:fontcolor=white:bordercolor=black:borderw=4"
+        f":x=(w-text_w)/2:y=h*0.82"
+        f":enable='between(t\\,{cta_start:.2f}\\,{clip_dur:.2f})'"
+    )
 
-    fade_out_start = max(0.0, total_dur - 1.0)
+    vf = ",".join([layer1, layer2, layer3])
 
-    # ── Audio mixing ─────────────────────────────────────────────────────────
-    music_input = ["-i", str(music)] if music else []
-    has_music   = bool(music)
-
-    if has_music:
-        audio_filter = (
-            f"[1:a]volume=0.13,afade=t=in:st=0:d=0.5,"
-            f"afade=t=out:st={fade_out_start:.2f}:d=0.8[mus];"
-            "[0:a][mus]amix=inputs=2:duration=first:weights=1 0.13[outa]"
-        )
-        cmd = [FFMPEG, "-y", "-i", str(story_mp4)] + music_input + ["-vf", vf]
-        cmd += ["-filter_complex", audio_filter, "-map", "0:v", "-map", "[outa]"]
-    else:
-        cmd = [FFMPEG, "-y", "-i", str(story_mp4)] + ["-vf", vf, "-c:a", "copy"]
-
-    cmd += [
+    # ── Audio: keep original Kling clip audio, add nothing ───────────────────
+    cmd = [
+        FFMPEG, "-y", "-i", str(story_mp4),
+        "-vf", vf,
+        "-map", "0:v", "-map", "0:a",
         "-c:v", "libx264", "-preset", "fast", "-crf", "20",
         "-c:a", "aac", "-ar", "44100", "-ac", "2",
         str(out_path)

@@ -1,33 +1,84 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Get Started — BootHop Pipeline</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#08080f;--card:#121220;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--r:14px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:32px 20px}
-.logo{font-size:1.1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
-.wrap{max-width:480px;margin:0 auto}
-h1{font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:6px}
-.sub{color:var(--muted);font-size:.88rem;text-align:center;margin-bottom:28px}
-.card{background:var(--card);border:1px solid #ffffff12;border-radius:var(--r);padding:32px 28px;margin-bottom:16px}
-label{display:block;font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;margin-top:14px}
-label:first-child{margin-top:0}
-input,select{width:100%;background:#1a1a2e;border:1px solid #ffffff18;border-radius:8px;padding:11px 14px;color:var(--text);font-size:.9rem;outline:none}
-input:focus,select:focus{border-color:var(--or)}
-.hint{font-size:.73rem;color:var(--muted);margin-top:4px}
-.btn{width:100%;padding:13px;background:var(--gr);color:#000;font-weight:800;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;margin-top:20px}
-.err{background:#ff404020;border:1px solid #ff404040;border-radius:8px;padding:10px 14px;color:var(--red);font-size:.83rem;margin-bottom:16px}
-.success{background:#00e67615;border:1px solid #00e67640;border-radius:var(--r);padding:28px;text-align:center}
-.success h2{color:var(--green);font-size:1.3rem;margin-bottom:12px}
-.success p{color:var(--muted);font-size:.88rem;margin-bottom:6px}
-.success .slug-box{background:#1a1a2e;border:1px solid #ffffff18;border-radius:8px;padding:10px 16px;font-family:monospace;font-size:1rem;color:var(--text);margin:12px 0}
-.success a{display:inline-block;margin-top:16px;padding:12px 28px;background:var(--gr);color:#000;font-weight:800;border-radius:8px;text-decoration:none}
+:root{
+  --bg:#08080f;--card:#121220;--card2:#0e0e1c;
+  --or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);
+  --text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;
+  --blue:#38bdf8;--r:14px;--border:#ffffff14;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:28px 16px 60px}
+.logo{font-size:1.1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:6px}
+.wrap{max-width:560px;margin:0 auto}
+h1{font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:4px}
+.sub{color:var(--muted);font-size:.86rem;text-align:center;margin-bottom:24px}
+
+/* ── Section cards ── */
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px 22px;margin-bottom:14px}
+.section-title{font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title span{font-size:1rem}
+
+/* ── Inputs ── */
+label{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:4px;margin-top:14px;text-transform:uppercase;letter-spacing:.05em}
+label:first-of-type{margin-top:0}
+input,select,textarea{width:100%;background:#1a1a2e;border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-size:.88rem;outline:none;transition:border-color .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--or)}
+.hint{font-size:.69rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.hint a{color:var(--blue);text-decoration:none}
+.hint a:hover{text-decoration:underline}
+input[type=password]{letter-spacing:.1em}
+
+/* ── Platform toggle row ── */
+.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.plat-toggle{position:relative}
+.plat-toggle input[type=checkbox]{position:absolute;opacity:0;width:0;height:0}
+.plat-toggle label{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:#1a1a2e;border:2px solid var(--border);border-radius:10px;
+  padding:14px 8px 10px;cursor:pointer;transition:all .2s;
+  text-transform:none;letter-spacing:0;font-size:.78rem;font-weight:600;color:var(--muted);
+  gap:5px;margin:0;min-height:72px;
+}
+.plat-toggle label .icon{font-size:1.5rem;line-height:1}
+.plat-toggle input:checked + label{border-color:var(--or);background:#1f150a;color:var(--text)}
+
+/* ── Platform credential panels ── */
+.plat-section{display:none;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:18px 16px;margin-top:12px}
+.plat-section.visible{display:block}
+.plat-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--or);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.optional-badge{font-size:.6rem;background:#ffffff12;color:var(--muted);padding:2px 6px;border-radius:8px;text-transform:lowercase;font-weight:400;letter-spacing:0}
+
+/* ── Buttons ── */
+.btn{width:100%;padding:13px;background:var(--gr);color:#000;font-weight:800;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;margin-top:20px;transition:opacity .15s}
+.btn:hover{opacity:.9}
+.btn-outline{background:transparent;border:1px solid var(--or);color:var(--or);margin-top:10px}
+
+/* ── Messages ── */
+.err{background:#ff404018;border:1px solid #ff404040;border-radius:8px;padding:10px 14px;color:var(--red);font-size:.83rem;margin-bottom:16px}
+.success-card{background:#00e67610;border:1px solid #00e67635;border-radius:var(--r);padding:28px;text-align:center}
+.success-card h2{color:var(--green);font-size:1.3rem;margin-bottom:10px}
+.success-card p{color:var(--muted);font-size:.86rem;margin-bottom:6px}
+.slug-box{background:#1a1a2e;border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-family:monospace;font-size:1rem;color:var(--text);margin:12px 0;letter-spacing:.05em}
+.success-card a.btn-link{display:inline-block;margin-top:16px;padding:12px 28px;background:var(--gr);color:#000;font-weight:800;border-radius:8px;text-decoration:none}
+.plat-done{display:inline-flex;align-items:center;gap:5px;background:#00e67618;border:1px solid #00e67630;border-radius:6px;padding:3px 9px;font-size:.72rem;color:var(--green);margin:4px}
+
+/* ── Security notice ── */
+.security-note{background:#1e1e3a;border:1px solid #3b3b6a;border-radius:8px;padding:10px 14px;font-size:.75rem;color:#a0a0cc;display:flex;gap:8px;align-items:flex-start;margin-bottom:18px}
+.security-note .lock{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* ── Misc ── */
 a{color:var(--or);text-decoration:none}
-.back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);margin-bottom:24px;opacity:.7}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted);margin-bottom:22px;opacity:.7}
 .back:hover{opacity:1;color:var(--text)}
-.login-link{text-align:center;margin-top:16px;font-size:.82rem;color:var(--muted)}
+.login-link{text-align:center;margin-top:14px;font-size:.82rem;color:var(--muted)}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:420px){.row2{grid-template-columns:1fr}.platform-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -35,53 +86,266 @@ a{color:var(--or);text-decoration:none}
   <a href="https://boothop.com" class="back">← boothop.com</a>
   <div class="logo">⚡ BootHop Pipeline</div>
   <h1>Create your account</h1>
-  <p class="sub">Set up your private dashboard in 30 seconds</p>
+  <p class="sub">Set up your content pipeline in minutes</p>
 
   {% if success %}
-  <div class="success">
-    <h2>✅ You're in!</h2>
-    <p>Your company ID is:</p>
+  <!-- ── Success ── -->
+  <div class="success-card">
+    <h2>✅ You're all set!</h2>
+    <p>Your company login ID:</p>
     <div class="slug-box">{{ slug }}</div>
     <p>Use this + your password to sign in.</p>
-    <a href="/login">Go to Login →</a>
+    {% if platforms %}
+    <div style="margin-top:14px">
+      <p style="margin-bottom:8px;font-size:.78rem;color:var(--muted)">Platforms enabled:</p>
+      {% for p in platforms %}
+      <span class="plat-done">
+        {% if p == 'tiktok' %}🎵{% elif p == 'instagram' %}📸{% elif p == 'youtube' %}▶️{% elif p == 'linkedin' %}💼{% elif p == 'blog' %}📝{% elif p == 'email' %}📧{% endif %}
+        {{ p.title() }}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if has_digest %}
+    <p style="margin-top:12px;font-size:.78rem;color:var(--muted)">📧 Daily digest email configured</p>
+    {% endif %}
+    <a class="btn-link" href="/login">Go to Dashboard →</a>
   </div>
+
   {% else %}
 
-  {% if error %}<div class="err">{{ error }}</div>{% endif %}
+  {% if error %}<div class="err">⚠️ {{ error }}</div>{% endif %}
 
-  <div class="card">
-    <form method="post" action="/onboard">
+  <div class="security-note">
+    <span class="lock">🔒</span>
+    <span>This form is secured with HTTPS. Your API keys and credentials are stored privately in your company vault and are never shared or logged. You can update them anytime from your dashboard.</span>
+  </div>
+
+  <form method="post" action="/onboard" id="onboard-form">
+
+    <!-- ── SECTION 1: Account ── -->
+    <div class="section">
+      <div class="section-title"><span>👤</span> Your Account</div>
+
       <label>Company / Business Name *</label>
-      <input name="company_name" placeholder="e.g. Acme Media" required>
-      <div class="hint">This becomes your login ID (e.g. acme-media)</div>
+      <input name="company_name" placeholder="e.g. Acme Media" required maxlength="60">
+      <div class="hint">This becomes your login ID — letters, numbers, hyphens only (e.g. acme-media)</div>
 
-      <label>Your Name</label>
-      <input name="contact_name" placeholder="John Smith">
-
-      <label>Email</label>
-      <input type="email" name="email" placeholder="john@acmemedia.com">
+      <div class="row2" style="margin-top:0">
+        <div>
+          <label>Your Full Name</label>
+          <input name="contact_name" placeholder="Jane Smith">
+        </div>
+        <div>
+          <label>Account Email</label>
+          <input type="email" name="email" placeholder="you@company.com">
+        </div>
+      </div>
 
       <label>Password *</label>
-      <input type="password" name="password" required placeholder="Choose a strong password">
+      <input type="password" name="password" required placeholder="Choose a strong password" minlength="8">
 
-      <label>Telegram Chat ID <span style="color:var(--muted);font-weight:400">(optional — for video delivery)</span></label>
-      <input name="tg_chat_id" placeholder="e.g. 123456789">
-      <div class="hint">Find yours by messaging @userinfobot on Telegram</div>
+      <hr class="divider">
 
-      <label>WhatsApp Number <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-      <input name="whatsapp" placeholder="e.g. 447900123456">
+      <div class="row2">
+        <div>
+          <label>Telegram Chat ID <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input name="tg_chat_id" placeholder="e.g. 123456789">
+          <div class="hint">Message <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> to find yours</div>
+        </div>
+        <div>
+          <label>WhatsApp Number <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input name="whatsapp" placeholder="e.g. 447900123456">
+          <div class="hint">Full international format, no spaces</div>
+        </div>
+      </div>
 
       <label>Plan</label>
       <select name="plan">
-        <option value="basic">Basic</option>
-        <option value="pro">Pro</option>
+        <option value="basic">Basic — Core posting (TikTok, IG, YouTube)</option>
+        <option value="pro">Pro — All platforms + Blog + LinkedIn + Digest</option>
       </select>
+    </div>
 
-      <button class="btn">Create Account →</button>
-    </form>
-  </div>
+    <!-- ── SECTION 2: Platform Selection ── -->
+    <div class="section">
+      <div class="section-title"><span>📡</span> Which platforms do you want?</div>
+      <div class="hint" style="margin-bottom:14px">Tick every platform you post to. You can add or remove later from your dashboard.</div>
+
+      <div class="platform-grid">
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_tiktok" id="pt_tt" value="on" onchange="togglePlat('tt',this.checked)">
+          <label for="pt_tt"><span class="icon">🎵</span> TikTok</label>
+        </div>
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_instagram" id="pt_ig" value="on" onchange="togglePlat('ig',this.checked)">
+          <label for="pt_ig"><span class="icon">📸</span> Instagram</label>
+        </div>
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_youtube" id="pt_yt" value="on" onchange="togglePlat('yt',this.checked)">
+          <label for="pt_yt"><span class="icon">▶️</span> YouTube</label>
+        </div>
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_linkedin" id="pt_li" value="on" onchange="togglePlat('li',this.checked)">
+          <label for="pt_li"><span class="icon">💼</span> LinkedIn</label>
+        </div>
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_blog" id="pt_bl" value="on" onchange="togglePlat('bl',this.checked)">
+          <label for="pt_bl"><span class="icon">📝</span> Blog</label>
+        </div>
+        <div class="plat-toggle">
+          <input type="checkbox" name="platform_email" id="pt_em" value="on" onchange="togglePlat('em',this.checked)">
+          <label for="pt_em"><span class="icon">📧</span> Email Digest</label>
+        </div>
+      </div>
+
+      <!-- TikTok credentials -->
+      <div class="plat-section" id="ps_tt">
+        <div class="plat-section-title">🎵 TikTok <span class="optional-badge">credentials optional — add later</span></div>
+        <label>TikTok Account Handle</label>
+        <input name="tt_handle" placeholder="@your-handle">
+        <label>TikTok Client Key</label>
+        <input name="tt_client_key" placeholder="sbaw7re...">
+        <div class="hint">From your <a href="https://developers.tiktok.com" target="_blank">TikTok Developer Portal</a> → App → Keys & Tokens</div>
+        <label>TikTok Client Secret</label>
+        <input type="password" name="tt_client_secret" placeholder="••••••••••••">
+        <div class="hint">Access token is generated separately after setup — we'll walk you through it.</div>
+      </div>
+
+      <!-- Instagram credentials -->
+      <div class="plat-section" id="ps_ig">
+        <div class="plat-section-title">📸 Instagram <span class="optional-badge">credentials optional — add later</span></div>
+        <label>Instagram Username</label>
+        <input name="ig_username" placeholder="@your.handle">
+        <div class="row2">
+          <div>
+            <label>Facebook App ID</label>
+            <input name="ig_app_id" placeholder="1310582...">
+            <div class="hint"><a href="https://developers.facebook.com/apps" target="_blank">Facebook Developers</a> → App → Settings → Basic</div>
+          </div>
+          <div>
+            <label>Facebook App Secret</label>
+            <input type="password" name="ig_app_secret" placeholder="••••••••••••">
+          </div>
+        </div>
+        <label>Long-lived Access Token</label>
+        <input name="ig_access_token" placeholder="IGAAg...">
+        <div class="hint">Generate from Graph API Explorer. Long-lived tokens last ~60 days — refresh monthly.</div>
+        <label>Instagram Business Account ID</label>
+        <input name="ig_user_id" placeholder="27317804164491362">
+        <div class="hint">Find at <a href="https://graph.facebook.com/me?fields=id,name" target="_blank">graph.facebook.com/me</a> when authenticated</div>
+      </div>
+
+      <!-- YouTube credentials -->
+      <div class="plat-section" id="ps_yt">
+        <div class="plat-section-title">▶️ YouTube <span class="optional-badge">credentials optional — add later</span></div>
+        <label>YouTube Channel URL</label>
+        <input name="yt_channel_url" placeholder="https://youtube.com/@your-channel">
+        <label>YouTube API Key</label>
+        <input name="yt_api_key" placeholder="AIzaSy...">
+        <div class="hint">From <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> → APIs & Services → Credentials</div>
+        <div class="hint" style="margin-top:8px;background:#1e2a1e;border-radius:6px;padding:8px 10px;color:#86efac">
+          ℹ️ Full YouTube OAuth (for posting) is set up after onboarding — we'll send you a setup link.
+        </div>
+      </div>
+
+      <!-- LinkedIn credentials -->
+      <div class="plat-section" id="ps_li">
+        <div class="plat-section-title">💼 LinkedIn <span class="optional-badge">credentials optional — add later</span></div>
+        <label>Your LinkedIn Profile URL</label>
+        <input name="li_profile_url" placeholder="https://linkedin.com/in/your-name">
+        <div class="row2">
+          <div>
+            <label>LinkedIn Client ID</label>
+            <input name="li_client_id" placeholder="78jsqe...">
+            <div class="hint"><a href="https://www.linkedin.com/developers/apps" target="_blank">LinkedIn Developers</a> → App → Auth</div>
+          </div>
+          <div>
+            <label>LinkedIn Client Secret</label>
+            <input type="password" name="li_client_secret" placeholder="••••••••••••">
+          </div>
+        </div>
+        <label>LinkedIn Access Token</label>
+        <input name="li_access_token" placeholder="AQW2GV8...">
+        <div class="hint">Tokens last ~60 days. Refresh monthly via your LinkedIn app settings.</div>
+      </div>
+
+      <!-- Blog credentials -->
+      <div class="plat-section" id="ps_bl">
+        <div class="plat-section-title">📝 Blog <span class="optional-badge">credentials optional — add later</span></div>
+        <label>Blog Platform</label>
+        <select name="blog_platform">
+          <option value="">— Select —</option>
+          <option value="blogger">Google Blogger</option>
+          <option value="wordpress">WordPress</option>
+        </select>
+        <label>Blog URL</label>
+        <input name="blog_url" placeholder="https://yourblog.blogspot.com  or  https://yourdomain.com/blog">
+        <label>Blogger Blog ID <span style="font-weight:400;text-transform:none;font-size:.65rem">(Blogger only)</span></label>
+        <input name="blog_id" placeholder="1234567890">
+        <div class="hint">From your Blogger dashboard URL: blogger.com/blog/posts/<b>YOUR-BLOG-ID</b></div>
+        <label>Google Refresh Token <span style="font-weight:400;text-transform:none;font-size:.65rem">(Blogger only)</span></label>
+        <input type="password" name="blog_refresh_token" placeholder="1//0g...">
+        <div class="hint">Generated via Google OAuth. Run <code style="background:#ffffff10;padding:2px 4px;border-radius:4px">python blog/setup_blogger.py</code> to get this.</div>
+      </div>
+
+      <!-- Email Digest -->
+      <div class="plat-section" id="ps_em">
+        <div class="plat-section-title">📧 Daily Email Digest</div>
+        <label>Official Business Email *</label>
+        <input type="email" name="digest_email" id="digest_email_field" placeholder="reports@yourcompany.com">
+        <div class="hint" id="email-hint">Must be a business email — Gmail, Yahoo, Hotmail etc. are not accepted.</div>
+        <label>Frequency</label>
+        <select name="digest_frequency">
+          <option value="daily">Daily — 7am summary</option>
+          <option value="weekly">Weekly — Monday morning</option>
+          <option value="both">Both — daily + weekly</option>
+        </select>
+        <div class="hint" style="margin-top:8px">
+          Each digest includes: posts sent, platforms hit, engagement summary, next slot preview.
+        </div>
+      </div>
+
+    </div><!-- end platform section -->
+
+    <!-- ── Submit ── -->
+    <button type="submit" class="btn">Create Account →</button>
+  </form>
+
   <div class="login-link">Already have an account? <a href="/login">Sign in</a></div>
+
   {% endif %}
 </div>
+
+<script>
+function togglePlat(code, show) {
+  var el = document.getElementById('ps_' + code);
+  if (el) el.classList.toggle('visible', show);
+}
+
+// Live email domain validation for digest field
+var digestField = document.getElementById('digest_email_field');
+var emailHint   = document.getElementById('email-hint');
+var freeList = ['gmail.com','yahoo.com','yahoo.co.uk','hotmail.com','hotmail.co.uk',
+                'outlook.com','outlook.co.uk','icloud.com','me.com','aol.com',
+                'protonmail.com','proton.me','mail.com','ymail.com','live.com'];
+if (digestField) {
+  digestField.addEventListener('input', function() {
+    var val = this.value.trim().toLowerCase();
+    if (!val) { emailHint.style.color = ''; return; }
+    var domain = val.split('@')[1] || '';
+    if (freeList.indexOf(domain) !== -1) {
+      emailHint.textContent = '⛔ ' + domain + ' is a personal email — please use your business address.';
+      emailHint.style.color = '#ff4040';
+    } else if (domain.indexOf('.') !== -1) {
+      emailHint.textContent = '✅ Looks good — business email accepted.';
+      emailHint.style.color = '#00e676';
+    } else {
+      emailHint.textContent = 'Must be a business email — Gmail, Yahoo, Hotmail etc. are not accepted.';
+      emailHint.style.color = '';
+    }
+  });
+}
+</script>
 </body>
 </html>

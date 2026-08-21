@@ -529,16 +529,13 @@ def _render(content: dict, deal: dict) -> Path | None:
     route_key = (deal.get("origin", ""), deal.get("destination", ""))
     route_lbl = _ROUTE_LABELS.get(route_key, deal.get("route", "UK-Nigeria")).replace(" ", "-").lower()
 
-    # Build visual queries: airport scenes for this corridor
+    # Build visual queries: 5 airport scenes for this corridor (one per beat)
     content["visual_queries"] = [
-        f"airport departure gate passengers boarding",
-        f"London Heathrow airport terminal crowded",
-        f"traveller packing bag suitcase home",
-        f"Lagos Murtala Mohammed airport arrivals",
-        f"parcel wrapped gift delivery handoff",
-        f"airport runway plane taking off",
-        f"family reunion greeting airport arrivals emotional",
-        f"smartphone app booking sending parcel",
+        f"airport departure gate passengers boarding",        # hook
+        f"London Heathrow airport terminal crowded",          # problem
+        f"traveller packing bag suitcase home",               # stakes
+        f"Lagos Murtala Mohammed airport arrivals",           # resolution
+        f"family reunion greeting airport arrivals smiling",  # lesson
     ]
 
     out_path = OUTPUT / f"newsflash_{route_lbl}_{date.today().isoformat()}.mp4"

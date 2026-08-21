@@ -108,7 +108,7 @@ def _remix_audio(video_in: Path, narr: Path | None, music: Path | None, video_ou
             f"afade=t=out:st={fade_out_start:.2f}:d=0.8[narr];"
             f"[2:a]volume=0.10,afade=t=in:st=0:d=0.5,"
             f"afade=t=out:st={fade_out_start:.2f}:d=0.8[mus];"
-            "[narr][mus]amix=inputs=2:duration=longest:normalize=0[outa]"
+            "[narr][mus]amix=inputs=2:duration=first:normalize=0[outa]"
         )
         cmd = (
             [FFMPEG, "-y", "-i", str(video_in)] + narr_input + music_input +

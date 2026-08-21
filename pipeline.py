@@ -66,6 +66,22 @@ def _log(msg: str):
     print(f"[{ts}] {msg}")
 
 
+def _git_pull():
+    """Pull latest code from origin so Oracle always runs the newest version."""
+    try:
+        import subprocess as _sp
+        r = _sp.run(
+            ["git", "pull", "origin", "main", "--ff-only"],
+            capture_output=True, text=True, timeout=30, cwd=str(BASE)
+        )
+        if r.returncode == 0:
+            _log(f"[git] {r.stdout.strip() or 'Already up to date.'}")
+        else:
+            _log(f"[git] Pull skipped: {r.stderr.strip()[:120]}")
+    except Exception as e:
+        _log(f"[git] Pull error (continuing anyway): {e}")
+
+
 def _crash(msg: str):
     try:
         with open(CRASH_LOG, "a", encoding="utf-8", errors="replace") as f:
@@ -302,6 +318,8 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
     _log(f"{'='*56}")
     _log(f"OTB_Pipeline — Slot {slot} — {date.today()}")
     _log(f"{'='*56}")
+
+    _git_pull()  # always sync latest code before running
 
     DATA.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)

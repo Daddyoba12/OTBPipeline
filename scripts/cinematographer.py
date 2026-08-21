@@ -131,6 +131,7 @@ RULES:
 - No close-ups, no extreme face shots
 - Keep characters consistent with the story (same person, same location)
 - Each clip must visually advance the story
+- ABSOLUTE BAN: No animals, pets, wildlife, or creatures of any kind in any prompt
 
 Return ONLY valid JSON:
 {{

@@ -336,13 +336,13 @@ def _guard_query(query: str, clip_index: int = 0) -> str:
         return safe
     return query
 
-# Beat timing (seconds within the 32s content section)
+# Beat timing (seconds within the 15s content section)
 BEATS = [
-    (0,   8,  "hook"),       # clips 0-1
-    (8,   16, "problem"),    # clips 2-3
-    (16,  20, "stakes"),     # clip  4
-    (20,  28, "resolution"), # clips 5-6
-    (28,  32, "lesson_pre"), # clip  7 (leads into lesson card)
+    (0,   3,  "hook"),        # clip 0
+    (3,   6,  "problem"),     # clip 1
+    (6,   9,  "stakes"),      # clip 2
+    (9,   12, "resolution"),  # clip 3
+    (12,  15, "lesson_pre"),  # clip 4
 ]
 
 # Beat text layout " one entry per beat type.
@@ -412,11 +412,11 @@ BEAT_STYLE_V2 = {
 }
 
 CLIP_BEAT = [
-    "hook", "hook",          # clips 0-1  ' Hook
-    "problem", "problem",    # clips 2-3  ' Problem
-    "stakes",                # clip  4    ' Stakes
-    "resolution", "resolution",  # clips 5-6  ' Resolution
-    "lesson_pre",            # clip  7    ' Lesson lead-in
+    "hook",        # clip 0
+    "problem",     # clip 1
+    "stakes",      # clip 2
+    "resolution",  # clip 3
+    "lesson_pre",  # clip 4
 ]
 
 
@@ -1562,8 +1562,8 @@ def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
 
 
 _HOOK_DUR          = 2   # seconds — the clean cinematic hook opening
-_HOOK_STORY_N      = 3   # story clips rendered when hook engine is active
-# When hook is active: 2s hook + 3×4s story + 10s end = 24s total
+_HOOK_STORY_N      = 4   # story clips rendered when hook engine is active
+# When hook is active: 2s hook + 4×3s story + 10s end = 24s total
 
 
 def _find_music_track(slot: int | None, exclude_track: Path | None) -> Path | None:
@@ -1739,10 +1739,10 @@ def render_video(content: dict, slot: int, output_path: str,
     beat_style = BEAT_STYLE_V2 if is_v2 else None   # None = use default BEAT_STYLE
 
     beat_texts = [
-        hook, hook,
-        problem, problem,
+        hook,
+        problem,
         stakes,
-        resolution, resolution,
+        resolution,
         lesson,
     ]
 
@@ -1764,14 +1764,12 @@ def render_video(content: dict, slot: int, output_path: str,
 
     for i in range(_clip_start, _clip_end):
         query  = _guard_query(queries[i], i)
-        # Clips 0-1: close-up face grabs attention (face at top, hook text at bottom)
-        # Clip 4: stakes beat — tight stressed shot at peak tension
-        if i == 0:
-            query = "Black woman close up face shocked expression phone screen"
-        elif i == 1:
-            query = "Nigerian woman shocked face expensive price reaction close up"
-        elif i == 4:
-            query = "Black woman stressed worried phone bills money close up"
+        # Slot 1 only: close-up face for hook and problem beats
+        if slot == 1:
+            if i == 0:
+                query = "Black woman close up face shocked expression phone screen"
+            elif i == 1:
+                query = "Nigerian woman stressed worried close up face phone"
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
         raw    = TEMP / f"{prefix}_raw_{i}.mp4"
@@ -1786,8 +1784,8 @@ def render_video(content: dict, slot: int, output_path: str,
 
         # ── Clip 0: Text-card hook (proven TikTok format) ─────────────────────
         # Dark branded background + hook text centered — native feel, no stock footage.
-        # Text baked in by _text_card_clip (PIL), so _process_clip is NOT called.
-        if i == 0:
+        # Skipped for newsflash (slot >= 5) so text overlays on actual footage instead.
+        if i == 0 and slot < 5:
             if _text_card_clip(text, proc):
                 got_video = True
                 if top_caption and proc.exists():
