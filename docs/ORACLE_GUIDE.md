@@ -236,13 +236,211 @@ sudo systemctl start otb-commander
 | `/pause boothop` | Pauses BootHop pipeline (sets `active: false` in profile) |
 | `/pause g-inspired` | Pauses G-Inspired pipeline on Oracle |
 | `/pause all` | Pauses everything |
-| `/revoice 3` | Opens revoice studio for slot 3 (record voice or auto TTS) |
+| `/revoice 3` | Opens Revoice Studio for slot 3 (record voice or auto TTS) |
 | `/v2 3` | Forces V2 Kling video for slot 3 next run |
-| `/music <query>` | Downloads music from YouTube |
-| Send voice note | Saved as revoice recording |
+| `/music <query>` | Downloads music from YouTube by any query type |
+| `/swapmusic 2` | Swaps music on an existing V2 video (no re-recording needed) |
+| `/blog 1` | Generates and publishes a blog post for slot 1 content |
+| Send voice note | Saved as revoice recording for the active session |
 | Send video/photo | Saved to `user_clips/` as priority footage |
 
 The laptop's pipeline (`pipeline.py`) checks for a running commander before polling Telegram — it uses file-based approval (`web_approval_{slot}.json`) to avoid conflicts. Oracle and laptop never fight over the Telegram queue.
+
+---
+
+## Revoice Studio — How It Works
+
+Revoice Studio is the tool for replacing the AI voice on any generated video with your own recording or a new auto TTS narration.
+
+### Starting a session
+
+```
+/revoice 3
+```
+
+This opens an interactive session for Slot 3. You can also tap **🎙 Revoice S1/S2/S3** buttons in the `/menu` control panel.
+
+### Session flow
+
+```
+You tap /revoice 3
+    ↓
+Bot shows the video for slot 3 (30-second preview)
+    ↓
+Choose: 🎤 Record Voice  OR  🤖 Auto TTS
+    ↓  (if Record Voice)                        ↓  (if Auto TTS)
+Send a voice note to Telegram            Bot reads the script aloud
+    ↓                                          using OpenAI nova TTS
+Choose music duration: 15s / 30s / 45s         (falls back to gTTS)
+    ↓
+Pick a background music track
+    ↓
+Bot bakes: voice + music trimmed to duration + fade-out
+    ↓
+Previews the result — you choose: Post TikTok / Post IG / Swap Music / Post Blog / Done
+```
+
+### Music trim selector
+
+When recording your own voice, you pick how long the background music plays: **15s / 30s / 45s**. The music is trimmed to that duration with a fade-out in the final 1.5s. The voice track always plays for the full video length.
+
+### After revoice preview — action buttons
+
+After a successful bake, four action buttons appear under the preview video:
+
+| Button | What it does |
+|--------|-------------|
+| 🚀 Post TikTok | Posts the revoiced video directly to TikTok |
+| 📸 Post IG | Posts to Instagram |
+| 🎵 Swap Music | Replaces the background music without re-recording |
+| 📝 Post Blog | Generates a blog post from this slot's content |
+| ⏭ Done | Exits the studio |
+
+---
+
+## Music Swap — Standalone Track Replacement
+
+Music Swap lets you replace the background music on any existing V2 video without recording a new voice. It replaces the track on all 3 platform variants (TikTok, Instagram, YouTube) at once.
+
+### Via Telegram command
+
+```
+/swapmusic 2
+```
+
+Or tap **🎵 Swap Music S2 / S3 / S4** buttons in the `/menu` control panel.
+
+### How it works
+
+1. Bot finds the latest V2 base for that slot
+2. Shows a music picker with your saved library tracks
+3. You pick a track (or choose YouTube search)
+4. FFmpeg strips the original audio and layers in the new track at 13% volume with fade in/out
+5. All 3 platform variants are overwritten in-place
+6. Original video stream is re-used without re-encoding (fast — ~10 seconds)
+
+The swap session expires after 30 minutes. If no V2 video exists for the slot, the bot tells you to `/rerun` first.
+
+---
+
+## Blog Post Command
+
+The pipeline can publish a blog post to your configured Blogger account using the content from any slot.
+
+### Via Telegram
+
+```
+/blog 1
+```
+
+Or tap **📝 Blog S1 / S4** in the `/menu` control panel. After revoice, the **📝 Post Blog** button appears directly in the preview.
+
+### How it works
+
+1. Reads the slot's content data (hook, script, topic)
+2. Calls `scripts/post_blog.py` which generates a full HTML blog article using Claude
+3. Publishes directly to Blogger via the Google API
+4. If Blogger posting fails, the HTML is saved to `blog/pending/` for manual upload
+
+### What you need configured
+
+| Setting | Where |
+|---------|-------|
+| Blogger Blog ID | `config.py` → `BLOGGER_BLOG_ID` |
+| Google refresh token | `config.py` → `BLOGGER_REFRESH_TOKEN` |
+| Google client ID/secret | `config.py` → `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` |
+
+---
+
+## Music Search — Smart Query
+
+The `/music` command accepts any form of music description. You do not need to type a specific format.
+
+### Accepted formats
+
+```
+/music Savage by Megan Thee Stallion
+/music written by Pharrell Williams
+/music lyrics: started from the bottom
+/music artist: Burna Boy
+/music Drake official audio
+/music https://www.youtube.com/watch?v=...
+```
+
+All these are normalised to the best YouTube search automatically. The normaliser:
+- Strips prefixes like `by`, `written by`, `lyrics:`, `artist:`, `song:`, `singer:`, etc.
+- Adds "official audio" if no audio-type keyword is present
+- Passes URLs through directly without modification
+
+The same normalisation applies to music searches from the web dashboard at `/commander`.
+
+---
+
+## 48h Activity Feed
+
+A live read-only feed showing everything posted in the last 48 hours.
+
+### Access
+
+- **URL:** `https://boothop.com/feed`
+- **From admin dashboard:** Click the **📡 48h Feed** button in the top nav bar
+- **API:** `GET /api/feed?hours=48` (requires auth cookie or `X-Secret` header)
+
+### What it shows
+
+- **Stats bar:** posts today, total 48h count, platform count, slots that ran
+- **Platform pills:** per-platform post counts (TikTok, Instagram, YouTube, LinkedIn, Blog, Newsflash)
+- **Timeline:** every post in reverse-chronological order with platform icon, slot badge, hook text, and a link to the live post if available
+- **Music section:** tracks used recently with timestamps
+- Auto-refreshes every 120 seconds
+
+### Data sources
+
+| Source | File |
+|--------|------|
+| Social posts | `data/post_log.json` (list of dicts) |
+| Newsflash posts | `data/newsflash_log.json` (dict with `"posts"` key) |
+| Music used | `data/music_log.json` (list) |
+| Blog posts | `blog/posted/*.json` (individual metadata files) |
+
+---
+
+## Client Onboarding — boothop.com/onboard
+
+New clients self-onboard at `https://boothop.com/onboard`. The form collects everything needed to configure a client in one session.
+
+### What the form collects
+
+**Account basics**
+- Company / business name (becomes the login slug)
+- Contact name + email
+- Password
+- Telegram Chat ID (optional — for Telegram notifications)
+- WhatsApp number (optional)
+- Plan (Basic / Pro)
+
+**Platform selection** — client ticks which platforms they post to:
+
+| Platform | Credentials collected |
+|----------|--------------------|
+| TikTok | Handle, Client Key, Client Secret |
+| Instagram | Username, Facebook App ID, App Secret, Long-lived Access Token, IG Business Account ID |
+| YouTube | Channel URL, API Key (OAuth set up post-onboard) |
+| LinkedIn | Profile URL, Client ID, Client Secret, Access Token |
+| Blog | Platform (Blogger / WordPress), Blog URL, Blog ID, Refresh Token |
+| Email Digest | Business email address, frequency (daily / weekly / both) |
+
+Credential sections are hidden by default and appear only when the platform is ticked. All credentials are stored in the `credentials_json` column and never logged.
+
+**Business email validation**
+
+The Daily Email Digest field requires an official business email. Free providers are rejected server-side (Gmail, Yahoo, Hotmail, Outlook, iCloud, ProtonMail, AOL, etc.). The form also validates this live in the browser as you type.
+
+### After onboarding
+
+Credentials are stored in the database and associated with the company slug. The admin can view all companies at `/admin`. Platform-specific posting is activated as each credential set is verified.
+
+---
 
 ---
 
@@ -409,8 +607,15 @@ Or SSH: `grep "posted" /home/ubuntu/otb_pipeline.log | tail -10`
 | Always-on Telegram bot | ✅ Primary | ❌ (off when lid closed) |
 | Pipeline backup (if laptop off) | ✅ Yes | ❌ |
 | Kling review video generation | ❌ Disabled | ✅ Only |
+| Revoice Studio (voice bake) | ✅ | ✅ |
+| Auto TTS revoice | ✅ | ✅ |
+| Music swap (/swapmusic) | ✅ | ✅ |
+| Blog post (/blog) | ✅ | ✅ |
+| 48h feed dashboard | ✅ boothop.com/feed | ✅ localhost |
+| Dynamic music search | ✅ | ✅ |
 | Local video preview | ❌ | ✅ |
 | Code development | ❌ | ✅ |
 | Git push / deploy | ❌ | ✅ Primary |
 | Emergency manual run | ✅ `--force` flag | ✅ |
 | Multi-client support | ✅ All clients | ✅ BootHop only |
+| Client self-onboarding | ✅ boothop.com/onboard | ❌ |

@@ -442,6 +442,8 @@ Lock into this POV from hook to lesson — never switch perspectives mid-story.
 
 LANGUAGE RULE — CRITICAL: British English only. No Yoruba, Pidgin, Igbo, Hausa, or any other language — not even single words or phrases.
 
+ABSOLUTE BAN — NO ANIMALS: Do not include any animal, pet, wildlife, or creature of any kind in any scene, story beat, character description, or visual suggestion. No dogs, cats, birds, horses, fish, livestock, or any other animal. Any story that references an animal in any context is immediately rejected.
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BRAND PHILOSOPHY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

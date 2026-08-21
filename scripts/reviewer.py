@@ -139,6 +139,8 @@ SCORE EACH DIMENSION 0-10:
 
 OVERALL = (sum of all 7 scores / 7) × 10. Round to nearest integer.
 
+ANIMAL BAN (hard rule, checked before scoring): If any beat or scene description contains any animal, pet, wildlife, bird, dog, cat, horse, fish, or creature of any kind — immediately rewrite that beat. No animals anywhere, no exceptions.
+
 IF OVERALL < {PASS_THRESHOLD}:
   - Identify every weak dimension (score < 8)
   - Rewrite ONLY the weak beats. For beats you keep unchanged, set their field to "" (empty string).

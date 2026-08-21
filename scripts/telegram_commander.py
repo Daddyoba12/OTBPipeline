@@ -33,6 +33,7 @@ PENDING_STORY     = DATA / "pending_story.json"
 PENDING_LINKEDIN  = DATA / "pending_linkedin.json"
 REVOICE_STUDIO    = DATA / "revoice_studio.json"
 EDIT_SESSION_FILE = DATA / "edit_session.json"
+SWAPMUSIC_SESSION = DATA / "swapmusic_session.json"
 
 PYTHON    = sys.executable
 FFMPEG    = "ffmpeg"
@@ -368,6 +369,10 @@ def do_autorevoice(slot: int):
                     {"text": "🚀 Post TikTok", "callback_data": f"post_revoiced_{slot}_tiktok"},
                     {"text": "📸 Post IG",     "callback_data": f"post_revoiced_{slot}_ig"},
                 ],
+                [
+                    {"text": "🎵 Swap Music",  "callback_data": f"cmd_swapmusic_{slot}"},
+                    {"text": "📝 Post Blog",   "callback_data": f"cmd_blog_{slot}"},
+                ],
                 [{"text": "⏭ Done", "callback_data": "rs_skip_studio"}],
             ]},
         )
@@ -422,7 +427,7 @@ def _rs_handle_voice_received(file_id: str, st: dict):
 
 def _rs_bake(st: dict):
     video_path    = Path(st.get("video_path", ""))
-    recorded_path = Path(st.get("recorded_path", ""))
+    recorded_path = Path(st.get("recorded_path") or "")
     music_path    = st.get("music_path", "")
     trim_sec      = int(st.get("trim_seconds", 30))
     slot          = st.get("slot", 2)
@@ -450,12 +455,16 @@ def _rs_bake(st: dict):
         fade_st = max(0, dur - 2.0)
 
         if has_music:
+            music_end  = min(float(trim_sec), dur)
+            music_fade = max(0.0, music_end - 1.5)
             subprocess.run(
                 [FFMPEG, "-y",
                  "-i", str(recorded_path), "-stream_loop", "-1", "-i", music_path,
                  "-filter_complex",
-                 f"[1:a]volume=0.18[m];[0:a][m]amix=inputs=2:duration=longest:normalize=0[mx];"
-                 f"[mx]afade=t=out:st={fade_st}:d=2[out]",
+                 f"[1:a]atrim=end={music_end:.2f},asetpts=PTS-STARTPTS,volume=0.18,"
+                 f"afade=t=out:st={music_fade:.2f}:d=1.5[m];"
+                 f"[0:a][m]amix=inputs=2:duration=first:normalize=0[mx];"
+                 f"[mx]afade=t=out:st={fade_st:.2f}:d=2[out]",
                  "-map", "[out]", "-t", str(dur),
                  "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2", str(tmp_audio)],
                 check=True, capture_output=True,
@@ -616,6 +625,120 @@ def _rs_set_trim_and_bake(trim_sec: int):
 def _rs_skip_studio():
     _rs_clear()
     _send("⏭ Studio session ended.")
+
+
+# ── Standalone music swap ─────────────────────────────────────────────────────
+
+def do_swapmusic(slot: int):
+    """Swap background music on all 3 V2 platform variants without re-recording voice."""
+    base  = _find_latest_v2_base(slot)
+    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    if not base:
+        _send(f"❌ No V2 video found for Slot {slot}. Run /rerun {slot} first.")
+        return
+    SWAPMUSIC_SESSION.write_text(json.dumps({
+        "slot": slot, "base": base, "expires": time.time() + 1800,
+    }), encoding="utf-8")
+    _send(
+        f"🎵 <b>Music Swap — {label}</b>\n\n"
+        f"Pick a track — it replaces the music on all 3 platform variants:",
+        reply_markup=_ms_keyboard(),
+    )
+
+
+def _ms_keyboard() -> dict:
+    tracks = _list_music_tracks(4)
+    rows   = [[{"text": f"🎵 {t.stem[:30]}", "callback_data": f"ms_pick_{i}"}] for i, t in enumerate(tracks)]
+    rows.append([
+        {"text": "📺 Download from YouTube", "callback_data": "ms_yt"},
+        {"text": "❌ Cancel",                "callback_data": "ms_cancel"},
+    ])
+    return {"inline_keyboard": rows}
+
+
+def _ms_pick(idx: int):
+    try:
+        sess = json.loads(SWAPMUSIC_SESSION.read_text(encoding="utf-8"))
+    except Exception:
+        _send("⚠️ No active swap session. Use /swapmusic again."); return
+    if time.time() > sess.get("expires", 0):
+        _send("⚠️ Session expired. Use /swapmusic again."); return
+    tracks = _list_music_tracks(4)
+    if idx >= len(tracks):
+        _send("⚠️ Track not found."); return
+    _ms_do_swap(sess["slot"], sess["base"], tracks[idx])
+
+
+def _ms_do_swap(slot: int, base: str, track: Path):
+    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    _send(f"⏳ Swapping music on {label}…")
+    ok_count = 0
+    for platform in ["tiktok", "instagram", "youtube"]:
+        vid = OUTPUT / f"{base}_{platform}.mp4"
+        if not vid.exists():
+            continue
+        probe = subprocess.run(
+            [FFPROBE, "-v", "quiet", "-print_format", "json", "-show_format", str(vid)],
+            capture_output=True, text=True,
+        )
+        try:
+            dur = float(json.loads(probe.stdout).get("format", {}).get("duration", 15))
+        except Exception:
+            dur = 15.0
+        fade_out = max(0.0, dur - 1.0)
+        tmp = vid.with_suffix(".swaptmp.mp4")
+        r = subprocess.run(
+            [FFMPEG, "-y", "-i", str(vid), "-stream_loop", "-1", "-i", str(track),
+             "-filter_complex",
+             f"[1:a]volume=0.13,afade=t=in:st=0:d=0.5,"
+             f"afade=t=out:st={fade_out:.2f}:d=0.8[mus]",
+             "-map", "0:v", "-map", "[mus]",
+             "-c:v", "copy", "-c:a", "aac", "-ar", "44100", "-ac", "2",
+             "-t", str(dur), "-movflags", "+faststart", str(tmp)],
+            capture_output=True, timeout=60,
+        )
+        if tmp.exists() and tmp.stat().st_size > 50_000:
+            tmp.replace(vid)
+            ok_count += 1
+        else:
+            tmp.unlink(missing_ok=True)
+    try:
+        SWAPMUSIC_SESSION.unlink(missing_ok=True)
+    except Exception:
+        pass
+    if ok_count:
+        _send(f"✅ Music swapped on {ok_count}/3 {label} variants\n🎵 {track.stem}")
+    else:
+        _send("❌ Music swap failed — check that the V2 files still exist in output/")
+
+
+# ── Blog post from commander ──────────────────────────────────────────────────
+
+def do_blog(slot: int):
+    """Generate + post a blog article from the latest content for this slot."""
+    _, data = _find_latest_video(slot)
+    if not data:
+        base = _find_latest_v2_base(slot)
+        if base:
+            try:
+                data = json.loads((OUTPUT / f"{base}.json").read_text(encoding="utf-8"))
+            except Exception:
+                data = {}
+    if not data:
+        _send(f"⚠️ No content found for Slot {slot}. Run /rerun {slot} first.")
+        return
+    label = _SLOT_LABELS.get(slot, f"Slot {slot}")
+    _send(f"📝 Generating blog post for {label}…  (~20 seconds)")
+    try:
+        sys.path.insert(0, str(BASE / "scripts"))
+        from post_blog import post_blog
+        ok = post_blog(data, slot)
+        if ok:
+            _send(f"✅ Blog post published!\n<i>Check your Blogger dashboard.</i>")
+        else:
+            _send(f"⚠️ Blog generated but Blogger post failed — HTML saved to <code>blog/pending/</code>")
+    except Exception as e:
+        _send(f"❌ Blog error: {e}")
 
 
 def _post_revoiced(slot: int, platform: str = "tiktok"):
@@ -1024,24 +1147,61 @@ def do_story(slot_label: str = "pm"):
         _send(f"❌ Story error: {e}")
 
 
+def _normalise_music_query(raw: str) -> str:
+    """
+    Convert a freetext music request into a yt-dlp target.
+    Accepts: URLs, song names, artist names, songwriter credit, lyrics snippets.
+    """
+    raw = raw.strip()
+    if not raw:
+        return ""
+    if raw.lower().startswith("http"):
+        return raw
+    low = raw.lower()
+    # Strip intent prefixes — keep the meaningful part
+    for prefix in (
+        "lyrics: ", "lyrics:", "lyrics ",
+        "written by ", "songwriter: ", "songwriter ",
+        "by ", "artist: ", "artist ",
+        "song: ", "song ", "track: ", "track ",
+        "singer: ", "singer ",
+    ):
+        if low.startswith(prefix):
+            raw = raw[len(prefix):].strip()
+            low = raw.lower()
+            break
+    # Add "official audio" if the query has no music-specific qualifier,
+    # so yt-dlp returns a proper music result rather than a random video.
+    if not any(w in low for w in (
+        "music", "official", "lyrics", "audio", "song", "feat", "ft.", "remix", "mix"
+    )):
+        raw = raw + " official audio"
+    return f"ytsearch1:{raw}"
+
+
 def do_music(query: str):
     if not query.strip():
         _send(
             "🎵 <b>Music download</b>\n\n"
-            "Send a YouTube URL or search term:\n"
+            "Search by <b>anything</b> — all of these work:\n"
+            "  <code>/music Shape of You</code>\n"
+            "  <code>/music by Ed Sheeran</code>\n"
+            "  <code>/music written by Pharrell Williams</code>\n"
+            "  <code>/music we found love in a hopeless place</code>\n"
             "  <code>/music lofi chill hip hop</code>\n"
             "  <code>/music https://youtu.be/...</code>\n\n"
-            "Track is trimmed to 60s and saved for your next revoice bake."
+            "Track is trimmed to 60s and saved to your music library."
         )
         return
 
-    _send(f"⬇️ Downloading: <i>{query}</i>  (~15–30 seconds…)")
-
     import re as _re
+    target   = _normalise_music_query(query)
+    display  = query if query.startswith("http") else f'"{query}"'
+    _send(f"⬇️ Searching: <i>{display}</i>  (~15–30 seconds…)")
+
     try:
         dl_dir = BASE / "music" / "yt_downloads"
         dl_dir.mkdir(parents=True, exist_ok=True)
-        target   = query if query.startswith("http") else f"ytsearch1:{query}"
         safe     = _re.sub(r"[^\w\-]", "_", query[:38]).strip("_") or "yt_track"
         raw_tmpl = str(dl_dir / f"{safe}_raw.%(ext)s")
         final    = dl_dir / f"{safe}_0s.mp3"
@@ -1450,7 +1610,16 @@ def _control_panel_keyboard() -> dict:
                 {"text": "📱 Story (8:30pm)",  "callback_data": "cmd_story_eve"},
             ],
             [
+                {"text": "🎵 Swap Music S2",  "callback_data": "cmd_swapmusic_2"},
+                {"text": "🎵 Swap Music S3",  "callback_data": "cmd_swapmusic_3"},
+                {"text": "🎵 Swap Music S4",  "callback_data": "cmd_swapmusic_4"},
+            ],
+            [
+                {"text": "📝 Blog S1",         "callback_data": "cmd_blog_1"},
+                {"text": "📝 Blog S4",         "callback_data": "cmd_blog_4"},
                 {"text": "🎵 Get Music (YT)",  "callback_data": "cmd_music_prompt"},
+            ],
+            [
                 {"text": "📈 Weekly Report",   "callback_data": "cmd_report"},
             ],
         ]
@@ -1514,6 +1683,13 @@ _CMD_MAP = {
     "rs_trim_30":        lambda: _rs_set_trim_and_bake(30),
     "rs_trim_45":        lambda: _rs_set_trim_and_bake(45),
     "rs_skip_studio":    lambda: _rs_skip_studio(),
+    # Music swap
+    "ms_pick_0":  lambda: _ms_pick(0),
+    "ms_pick_1":  lambda: _ms_pick(1),
+    "ms_pick_2":  lambda: _ms_pick(2),
+    "ms_pick_3":  lambda: _ms_pick(3),
+    "ms_yt":      lambda: do_music(""),
+    "ms_cancel":  lambda: (SWAPMUSIC_SESSION.unlink(missing_ok=True), _send("❌ Swap cancelled.")),
 }
 
 
@@ -1601,6 +1777,35 @@ def dispatch(text_lower: str):
                                         "download music", "youtube music", "yt music")):
         do_music("")
 
+    elif text_lower.startswith("/swapmusic") or any(w in text_lower for w in ("swap music", "change music", "music swap")):
+        parts = text_lower.split()
+        slot  = int(parts[-1]) if len(parts) > 1 and parts[-1].isdigit() else None
+        if slot:
+            do_swapmusic(slot)
+        else:
+            _send(
+                "Which slot to swap music on?",
+                reply_markup={"inline_keyboard": [[
+                    {"text": "Slot 2", "callback_data": "cmd_swapmusic_2"},
+                    {"text": "Slot 3", "callback_data": "cmd_swapmusic_3"},
+                    {"text": "Slot 4", "callback_data": "cmd_swapmusic_4"},
+                ]]},
+            )
+
+    elif text_lower.startswith("/blog") or any(w in text_lower for w in ("post blog", "blog post", "generate blog", "write blog")):
+        parts = text_lower.split()
+        slot  = int(parts[-1]) if len(parts) > 1 and parts[-1].isdigit() else None
+        if slot:
+            do_blog(slot)
+        else:
+            _send(
+                "Which slot to generate a blog post from?",
+                reply_markup={"inline_keyboard": [[
+                    {"text": "Slot 1", "callback_data": "cmd_blog_1"},
+                    {"text": "Slot 4", "callback_data": "cmd_blog_4"},
+                ]]},
+            )
+
     elif text_lower.startswith("/block"):
         parts    = text_lower.split()
         is_photo = "photo" in text_lower
@@ -1685,6 +1890,18 @@ def _poll_once(offset: int) -> int:
                 part = data.split("_")[-1]
                 if part.isdigit():
                     do_autorevoice(int(part))
+
+            # Dynamic: cmd_swapmusic_2, cmd_swapmusic_3, cmd_swapmusic_4
+            elif data.startswith("cmd_swapmusic_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    do_swapmusic(int(part))
+
+            # Dynamic: cmd_blog_1, cmd_blog_4
+            elif data.startswith("cmd_blog_"):
+                part = data.split("_")[-1]
+                if part.isdigit():
+                    do_blog(int(part))
 
             # Dynamic: post_revoiced_2_tiktok, post_revoiced_3_ig
             elif data.startswith("post_revoiced_"):

@@ -163,6 +163,13 @@ select:focus{border-color:var(--or)}
       <div class="stat-pill"><div class="sdot sdot-muted"></div>Loading…</div>
     </div>
 
+    <div class="card" id="schedule-card">
+      <div class="card-title">Pipeline Schedule Control</div>
+      <div id="schedule-rows" style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+        <div style="color:var(--muted);font-size:.82rem">Loading…</div>
+      </div>
+    </div>
+
     <div class="card" id="today-card" style="display:none">
       <div class="card-title">Today's Posts</div>
       <div id="today-posts"></div>
@@ -310,6 +317,56 @@ let _slotsData    = {};
 
 function esc(s) {
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Schedule Control ────────────────────────────────────────────
+async function loadScheduleStatus() {
+  try {
+    const s = await fetch(BASE + '/api/pipeline/schedule-status').then(r => r.json());
+    const container = document.getElementById('schedule-rows');
+    const pipelineOrder = ['boothop','g_inspired','newsflash','d818'];
+    const rows = pipelineOrder.map(key => {
+      const p = s[key]; if (!p) return '';
+      const active = p.active;
+      const dot    = active ? '#00e676' : '#ff4040';
+      const status = active ? 'Active' : 'Paused';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #ffffff08">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:9px;height:9px;border-radius:50%;background:${dot};flex-shrink:0"></div>
+          <span style="font-weight:700;font-size:.88rem">${esc(p.label)}</span>
+          <span style="font-size:.76rem;color:var(--muted)">${status}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-skip" onclick="scheduleAction('pause','${key}')" ${!active?'disabled':''} style="padding:5px 10px;font-size:.72rem">⏸ Pause</button>
+          <button class="btn btn-run"  onclick="scheduleAction('resume','${key}')" ${active?'disabled':''} style="padding:5px 10px;font-size:.72rem">▶ Resume</button>
+        </div>
+      </div>`;
+    }).join('');
+    const allActive = pipelineOrder.every(k => s[k] && s[k].active);
+    const allPaused = pipelineOrder.every(k => s[k] && !s[k].active);
+    container.innerHTML = rows + `
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-skip" onclick="scheduleAction('pause','all')" ${allPaused?'disabled':''} style="flex:1">⏸ Pause All</button>
+        <button class="btn btn-run"  onclick="scheduleAction('resume','all')" ${allActive?'disabled':''} style="flex:1">▶ Resume All</button>
+      </div>`;
+  } catch(e) {
+    document.getElementById('schedule-rows').innerHTML = '<span style="color:var(--muted);font-size:.82rem">Could not load schedule status</span>';
+  }
+}
+
+async function scheduleAction(action, pipeline) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '…';
+  try {
+    const fd = new FormData();
+    fd.append('pipeline', pipeline);
+    await fetch(BASE + `/api/pipeline/${action}`, {method:'POST', body:fd});
+    await loadScheduleStatus();
+  } catch(e) {
+    btn.textContent = 'Error';
+    setTimeout(() => loadScheduleStatus(), 2000);
+  }
 }
 
 // ── Status ──────────────────────────────────────────────────────
@@ -582,8 +639,10 @@ function setMsg(el, text, color) { if(el){el.textContent=text; el.style.color=co
 
 // ── Init ─────────────────────────────────────────────────────────
 (async function(){
+  await loadScheduleStatus();
   await loadStatus();
   await loadSlots();
+  setInterval(loadScheduleStatus, 30000);
   setInterval(loadStatus, 10000);
   setInterval(loadSlots,  30000);
 })();

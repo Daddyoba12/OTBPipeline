@@ -206,11 +206,21 @@ DAY_BUCKETS = {
 VIDEO_W     = 1080
 VIDEO_H     = 1920
 VIDEO_FPS   = 30
-CLIP_DUR    = 4          # seconds per content clip
-N_CLIPS     = 8          # content clips
+CLIP_DUR    = 3          # seconds per content clip
+N_CLIPS     = 5          # content clips — one per beat (hook/problem/stakes/resolution/lesson)
 LESSON_DUR  = 5          # lesson card duration
 BRAND_DUR   = 5          # brand end card duration
-TOTAL_DUR   = N_CLIPS * CLIP_DUR + LESSON_DUR + BRAND_DUR  # 42 seconds
+TOTAL_DUR   = N_CLIPS * CLIP_DUR + LESSON_DUR + BRAND_DUR  # 25 seconds
+
+# ── V2 (Kling) video spec ──────────────────────────────────────────────────────
+KLING_LIBRARY      = BASE / "kling_library"          # raw Kling clips folder
+KLING_CLIP_COOLDOWN_DAYS = 14                        # same clip not reused within 14 days
+V2_TOTAL_DUR       = 15                              # seconds
+V2_HOOK_DUR        = 2                               # opening hook card
+V2_STORY_DUR       = 9                               # main Kling clips window (0:02–0:11)
+V2_BRAND_DUR       = 1.5                             # brand message overlay
+V2_CTA_DUR         = 2.5                             # CTA end card
+V2_GRACE_MINUTES   = 30                              # after posting, re-runs within this window don't flip version
 
 # Progress bar
 PROGRESS_COLOR = "0x4F46E5"   # indigo
