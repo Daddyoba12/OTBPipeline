@@ -236,9 +236,29 @@ select:focus{border-color:var(--or)}
 
     <h2>2. Your Voice</h2>
     <div class="card">
-      <div class="card-title">Record or upload your voice</div>
-      <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">Start Recording</button>
-      <div class="rec-status" id="rec-status">Tap to start — read the script while recording</div>
+      <div class="card-title">Record, upload, or generate AI voice</div>
+
+      <!-- AI TTS option -->
+      <div style="margin-bottom:12px">
+        <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">🤖 Generate AI narration from the hook text</div>
+        <div style="display:flex;gap:8px;margin-bottom:6px">
+          <select id="tts-voice" style="flex:1;background:var(--card2);border:1px solid #ffffff18;border-radius:8px;padding:8px;color:var(--text);font-size:.82rem">
+            <option value="nova">Nova (female, warm)</option>
+            <option value="alloy">Alloy (neutral)</option>
+            <option value="echo">Echo (male)</option>
+            <option value="fable">Fable (British male)</option>
+            <option value="onyx">Onyx (male, deep)</option>
+            <option value="shimmer">Shimmer (female, soft)</option>
+          </select>
+          <button class="yt-btn" onclick="generateTTS()" id="tts-btn">Generate</button>
+        </div>
+        <div id="tts-status" style="font-size:.78rem;color:var(--muted)"></div>
+        <audio id="tts-preview" controls style="width:100%;margin-top:6px;display:none"></audio>
+      </div>
+
+      <div class="or-divider">— or record yourself —</div>
+      <button class="rec-btn" id="rec-btn" onclick="toggleRecord()">🎤 Start Recording</button>
+      <div class="rec-status" id="rec-status">Click Start — then read your script aloud — click Stop when done</div>
       <div class="or-divider">— or upload a file —</div>
       <label class="file-input-btn" for="voice-file">Choose audio file</label>
       <input type="file" id="voice-file" accept="audio/*" style="display:none" onchange="loadVoiceFile(this)">
@@ -486,6 +506,7 @@ function renderSlots(data) {
         <button class="btn btn-skip" onclick="approve(${n},'skip')" ${dis?'disabled':''}>Skip</button>
         <button class="btn btn-regen" onclick="approve(${n},'regen')" ${dis?'disabled':''}>Regen</button>
         <button class="btn btn-edit" onclick="toggleEdit(${n})" ${dis?'disabled':''}>Edit Text</button>
+        <button class="btn" style="background:#7c3aed" onclick="openRevoice(${n})" ${dis?'disabled':''}>Revoice</button>
       </div>
       <div class="slot-msg" id="sm-${n}"></div>
     </div>
@@ -712,6 +733,72 @@ function _startTimer(){_secs=0;_timerInt=setInterval(()=>{_secs++;document.getEl
 function loadVoiceFile(inp){const f=inp.files[0];if(!f)return;voiceBlob=f;document.getElementById('voice-name').textContent=f.name;document.getElementById('voice-name').style.color='var(--green)';}
 function selectMusic(sel){musicPath=sel.value;}
 
+// ── AI TTS ──────────────────────────────────────────────────────
+let ttsAudioBlob = null;
+
+async function generateTTS() {
+  const script = document.getElementById('rs-script-text') ? document.getElementById('rs-script-text').textContent.trim() : '';
+  const text = script || prompt('Enter the text to narrate:');
+  if (!text) return;
+  const voice = document.getElementById('tts-voice').value;
+  const btn = document.getElementById('tts-btn');
+  const status = document.getElementById('tts-status');
+  btn.disabled = true; status.textContent = 'Generating voice…'; status.style.color = 'var(--muted)';
+  try {
+    const fd = new FormData(); fd.append('text', text); fd.append('voice', voice);
+    const r = await fetch(BASE + '/api/tts', {method:'POST', body:fd});
+    if (!r.ok) throw await r.text();
+    const blob = await r.blob();
+    ttsAudioBlob = blob;
+    voiceBlob = blob;
+    const url = URL.createObjectURL(blob);
+    const audio = document.getElementById('tts-preview');
+    audio.src = url; audio.style.display = 'block'; audio.play();
+    status.textContent = '✅ AI voice ready — listen above, then click Bake Video';
+    status.style.color = 'var(--green)';
+    document.getElementById('voice-name').textContent = `AI voice: ${voice}`;
+    document.getElementById('voice-name').style.color = 'var(--green)';
+  } catch(e) {
+    status.textContent = 'Failed: ' + e; status.style.color = 'var(--red)';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Open Revoice Studio for a slot ──────────────────────────────
+function openRevoice(n) {
+  const s = _slotsData[String(n)];
+  if (!s) return;
+  // Switch to Revoice tab
+  switchTab('revoice', document.querySelector('.tab-btn:nth-child(2)'));
+  // Pre-fill the script display
+  const hook = s.hook || s.hook_v2 || '';
+  let scriptEl = document.getElementById('rs-script-text');
+  if (!scriptEl) {
+    const d = document.createElement('div');
+    d.id = 'rs-script-text';
+    d.style.cssText = 'font-size:.82rem;color:var(--muted);margin-bottom:10px;padding:8px;background:var(--card2);border-radius:6px;display:none';
+    document.querySelector('#tab-revoice').insertBefore(d, document.querySelector('#tab-revoice h2'));
+  }
+  scriptEl = document.getElementById('rs-script-text');
+  scriptEl.textContent = hook;
+  scriptEl.style.display = hook ? 'block' : 'none';
+  // Pre-select video from slots data (prefer V2, fall back to V1)
+  const path = s.v2 || s.v1;
+  const label = `Slot ${n} — ${s.v2 ? 'V2' : 'V1'}`;
+  if (path) {
+    videoPath = path;
+    document.getElementById('video-path').value = path;
+    document.getElementById('video-name').textContent = label;
+    document.getElementById('video-name').style.color = 'var(--or)';
+    const vid = document.getElementById('vid-preview');
+    vid.src = BASE + '/api/video-file?path=' + encodeURIComponent(path);
+    document.getElementById('vid-wrap').style.display = 'block';
+    const ua = document.getElementById('upload-area');
+    if (ua) ua.style.display = 'none';
+  }
+}
+
 function ytDownload(){
   const q=document.getElementById('yt-query').value.trim(); if(!q)return;
   document.getElementById('yt-status').textContent='Downloading… (~20 seconds)';
@@ -724,10 +811,12 @@ function ytDownload(){
 
 async function doBake(){
   if(!videoPath){alert('Please select or upload a video first.');return;}
-  if(!voiceBlob){alert('Please record or upload a voice first.');return;}
+  if(!voiceBlob){alert('Please record or upload a voice, or generate AI voice first.');return;}
   const fd=new FormData();
   fd.append('video_path',videoPath); fd.append('music_path',musicPath||'');
-  const ext=voiceBlob instanceof File?voiceBlob.name.split('.').pop():'webm';
+  let ext='webm';
+  if(voiceBlob instanceof File) ext=voiceBlob.name.split('.').pop();
+  else if(voiceBlob.type==='audio/mpeg') ext='mp3';
   fd.append('voice',voiceBlob,'voice.'+ext);
   document.getElementById('bake-btn').disabled=true;
   document.getElementById('bake-status').textContent='Baking your video…';
@@ -744,7 +833,7 @@ function pollBakeJob(jobId,bakeId){
   document.getElementById('bake-status').textContent='Processing… (~30 seconds)';
   const iv=setInterval(async()=>{
     const d=await fetch(BASE + '/api/job/'+jobId).then(r=>r.json());
-    if(d.status==='done'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='';document.getElementById('bake-result').style.display='block';document.getElementById('dl-link').innerHTML='<a class="dl-btn" href="/api/download-bake/'+bakeId+'">Download</a>';}
+    if(d.status==='done'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='✅ Done! Sent to Telegram. Download below.';document.getElementById('bake-status').style.color='var(--green)';document.getElementById('bake-result').style.display='block';document.getElementById('dl-link').innerHTML='<a class="dl-btn" href="'+BASE+'/api/download-bake/'+bakeId+'">⬇ Download Video</a>';}
     else if(d.status==='failed'){clearInterval(iv);document.getElementById('bake-btn').disabled=false;document.getElementById('bake-status').textContent='Failed: '+(d.error||'unknown error');document.getElementById('bake-status').style.color='var(--red)';}
   },3000);
 }
