@@ -517,7 +517,7 @@ footer{padding:40px 0 20px;text-align:center;color:var(--muted);font-size:.68rem
         <div style="display:grid;gap:8px">
           <div style="display:flex;justify-content:space-between;font-size:.83rem">
             <span style="color:var(--muted)">Login URL</span>
-            <code style="color:var(--or)">boothop.com/login</code>
+            <code style="color:var(--or)">boothop.com/pipeline-login</code>
           </div>
           <div style="display:flex;justify-content:space-between;font-size:.83rem">
             <span style="color:var(--muted)">Company ID</span>
@@ -942,7 +942,7 @@ function resetForm(){location.reload();}
 function copyCreds(){
   const slug=document.getElementById('cred-slug').textContent;
   const pw=document.getElementById('cred-pw').textContent;
-  const text=`BootHop Pipeline Login\nURL: https://boothop.com/login\nCompany ID: ${slug}\nTemp Password: ${pw}`;
+  const text=`BootHop Pipeline Login\nURL: https://boothop.com/pipeline-login\nCompany ID: ${slug}\nTemp Password: ${pw}`;
   navigator.clipboard.writeText(text).then(()=>alert('Credentials copied to clipboard!')).catch(()=>prompt('Copy these credentials:',text));
 }
 

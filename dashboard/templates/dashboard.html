@@ -147,13 +147,14 @@ select:focus{border-color:var(--or)}
     <div class="logo">OTB Pipeline</div>
     <div class="co-name">{{ company.name }}</div>
   </div>
-  <a href="{{ bp }}/logout" class="logout">Sign out</a>
+  <a href="/pipeline-logout" class="logout">Sign out</a>
 </nav>
 
 <div class="wrap">
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('control',this)">Pipeline Control</button>
     <button class="tab-btn" onclick="switchTab('revoice',this)">Revoice Studio</button>
+    <button class="tab-btn" onclick="switchTab('howto',this)">How it works</button>
   </div>
 
   <!-- ═══════════ PIPELINE CONTROL ═══════════ -->
@@ -307,6 +308,188 @@ select:focus{border-color:var(--or)}
     {% endif %}
 
   </div>
+
+  <!-- ═══════════ HOW IT WORKS ═══════════ -->
+  <div class="tab-pane" id="tab-howto">
+    <style>
+    .hw-section{margin-bottom:28px}
+    .hw-section h3{font-size:.95rem;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+    .hw-section h3 .hw-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#ff6b00,#ffb800);color:#000;font-size:.72rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .hw-card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:18px 20px;margin-bottom:10px}
+    .hw-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #ffffff08}
+    .hw-row:last-child{border-bottom:none;padding-bottom:0}
+    .hw-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center}
+    .hw-body{flex:1}
+    .hw-title{font-size:.84rem;font-weight:700;color:var(--text);margin-bottom:2px}
+    .hw-desc{font-size:.77rem;color:var(--muted);line-height:1.6}
+    .hw-desc code{background:#1a1a2e;border:1px solid #ffffff12;border-radius:4px;padding:1px 5px;font-size:.72rem;color:#ffb800}
+    .hw-tip{background:#ff6b0010;border:1px solid #ff6b0030;border-radius:8px;padding:12px 14px;font-size:.78rem;color:#ffb800;line-height:1.6;margin-top:10px}
+    .hw-tip strong{color:var(--or)}
+    .faq-item{border-bottom:1px solid #ffffff08}
+    .faq-q{padding:12px 0;font-size:.84rem;font-weight:700;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
+    .faq-q .arr{color:var(--muted);transition:transform .2s}
+    .faq-q.open .arr{transform:rotate(180deg)}
+    .faq-a{display:none;padding:0 0 14px;font-size:.78rem;color:var(--muted);line-height:1.7}
+    .faq-a.open{display:block}
+    .badge-or{display:inline-block;background:#ff6b0020;color:var(--or);border:1px solid #ff6b0040;border-radius:5px;padding:2px 8px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;vertical-align:middle}
+    .badge-green{display:inline-block;background:#00e67618;color:#00e676;border:1px solid #00e67635;border-radius:5px;padding:2px 8px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;vertical-align:middle}
+    .timeline{border-left:2px solid #ffffff12;padding-left:18px;margin:8px 0}
+    .tl-item{position:relative;margin-bottom:14px}
+    .tl-item::before{content:'';position:absolute;left:-22px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--or);border:2px solid var(--bg)}
+    .tl-title{font-size:.8rem;font-weight:700;color:var(--text)}
+    .tl-desc{font-size:.73rem;color:var(--muted);margin-top:2px;line-height:1.5}
+    </style>
+
+    <h2 style="margin-bottom:6px">How the BootHop Pipeline Works</h2>
+    <p style="font-size:.84rem;color:var(--muted);margin-bottom:22px;line-height:1.6">Your pipeline runs daily, creating professional social media content for your brand — automatically. Here's exactly what happens and how to use each feature.</p>
+
+    <!-- Section 1: The Pipeline -->
+    <div class="hw-section">
+      <h3><div class="hw-num">1</div>The Daily Content Pipeline</h3>
+      <div class="hw-card">
+        <div class="hw-row">
+          <div class="hw-icon">🎬</div>
+          <div class="hw-body">
+            <div class="hw-title">4 content slots per day</div>
+            <div class="hw-desc">Your pipeline generates up to 4 pieces of content daily — Morning, Afternoon, Evening, and a Weekly deep-dive. Each slot gets a unique video, script, and caption tailored to your brand.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">🤖</div>
+          <div class="hw-body">
+            <div class="hw-title">AI writes the script and hook</div>
+            <div class="hw-desc">Claude AI generates a short, punchy script based on your business, industry, and target audience. It rotates through content angles — awareness, social proof, tips, and offers — so posts never feel repetitive.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">🎵</div>
+          <div class="hw-body">
+            <div class="hw-title">Music and voiceover added automatically</div>
+            <div class="hw-desc">Each video gets background music and a professional AI voiceover narrating the hook. The final video is ready to post — no editing needed.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">📱</div>
+          <div class="hw-body">
+            <div class="hw-title">Posted to your platforms</div>
+            <div class="hw-desc">Once approved (or on auto-post), the video goes to TikTok, Instagram, LinkedIn, YouTube — whichever platforms you've connected. You get a Telegram notification with a preview when each one posts.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-title">Pipeline runs</div><div class="tl-desc">Script written, video rendered, voiceover added</div></div>
+        <div class="tl-item"><div class="tl-title">You get a Telegram preview</div><div class="tl-desc">Review the video — approve, reject, or re-voice</div></div>
+        <div class="tl-item"><div class="tl-title">Posted to all platforms</div><div class="tl-desc">Confirmation sent back to Telegram with platform links</div></div>
+      </div>
+    </div>
+
+    <!-- Section 2: Pipeline Control tab -->
+    <div class="hw-section">
+      <h3><div class="hw-num">2</div>Pipeline Control Tab</h3>
+      <div class="hw-card">
+        <div class="hw-row">
+          <div class="hw-icon">📊</div>
+          <div class="hw-body">
+            <div class="hw-title">See your slot status at a glance</div>
+            <div class="hw-desc">Each slot card shows the current status — <span class="badge-or">Pending</span> means it's scheduled, <span class="badge-green">Posted</span> means it went out. Expand a card to see the script, hook, and which platforms received it.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">▶️</div>
+          <div class="hw-body">
+            <div class="hw-title">Run a slot manually</div>
+            <div class="hw-desc">Hit <strong>Run Now</strong> on any slot to trigger it immediately — useful if the scheduled run missed or you want to push content at a specific time.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">📅</div>
+          <div class="hw-body">
+            <div class="hw-title">Schedule control</div>
+            <div class="hw-desc">The pipeline schedule shows the next post times for each slot. Contact BootHop to adjust your posting times.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Revoice Studio -->
+    <div class="hw-section">
+      <h3><div class="hw-num">3</div>Revoice Studio</h3>
+      <div class="hw-card">
+        <div class="hw-row">
+          <div class="hw-icon">🎤</div>
+          <div class="hw-body">
+            <div class="hw-title">What is Revoice Studio?</div>
+            <div class="hw-desc">Revoice Studio lets you swap the voiceover on any pipeline video — using AI text-to-speech or your own recorded voice — without re-running the whole pipeline. Great for personalising content or correcting a script.</div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">✍️</div>
+          <div class="hw-body">
+            <div class="hw-title">Option A — AI voice (easiest)</div>
+            <div class="hw-desc">
+              1. Pick a slot video from the dropdown (or upload your own)<br>
+              2. Type or paste new script text in the box<br>
+              3. Choose a voice (Alloy, Nova, Echo, Onyx…)<br>
+              4. Hit <strong>Generate Audio</strong> — listen to the preview<br>
+              5. Hit <strong>Bake Video</strong> — the new audio is merged into the video<br>
+              6. Download or it's sent straight to Telegram
+            </div>
+          </div>
+        </div>
+        <div class="hw-row">
+          <div class="hw-icon">🎙️</div>
+          <div class="hw-body">
+            <div class="hw-title">Option B — Your own voice</div>
+            <div class="hw-desc">Upload a <code>.mp3</code> or <code>.wav</code> recording from your phone or laptop instead of using AI. Same bake process — your voice, merged with the pipeline video.</div>
+          </div>
+        </div>
+      </div>
+      <div class="hw-tip">
+        <strong>Tip:</strong> To quickly revoice today's video — go to <strong>Pipeline Control</strong>, find the slot, and tap the <strong>Revoice</strong> button. It pre-loads that slot's video into Revoice Studio automatically.
+      </div>
+    </div>
+
+    <!-- Section 4: FAQ -->
+    <div class="hw-section">
+      <h3><div class="hw-num">4</div>Frequently Asked Questions</h3>
+      <div class="hw-card">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Why didn't my slot post today? <span class="arr">▾</span></div>
+          <div class="faq-a">The most common reasons: the pipeline schedule hasn't reached that slot time yet, or the slot ran but a platform credential expired. Check the slot status card — if it shows an error, contact BootHop. You can also hit <strong>Run Now</strong> to trigger it manually.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">Can I change the script before the video posts? <span class="arr">▾</span></div>
+          <div class="faq-a">Yes — use Revoice Studio to regenerate the audio with a new script before posting. The pipeline won't auto-post until you run the slot or it hits its scheduled time, giving you a window to review and revoice.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">How do I get my Telegram notifications? <span class="arr">▾</span></div>
+          <div class="faq-a">Your pipeline sends video previews and post confirmations to the Telegram chat ID registered on your account. Make sure you've started a chat with the BootHop bot — message it once to activate it. If you're not receiving messages, contact BootHop to verify your chat ID.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">What if I want to pause or skip a day? <span class="arr">▾</span></div>
+          <div class="faq-a">Contact BootHop directly — we can pause your schedule for specific dates or set slots to manual-only so nothing posts without your approval.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">How do I change my password? <span class="arr">▾</span></div>
+          <div class="faq-a">Contact BootHop and we'll reset it for you. A self-service password reset is coming soon.</div>
+        </div>
+
+        <div class="faq-item" style="border-bottom:none">
+          <div class="faq-q" onclick="toggleFaq(this)">Who do I contact for help? <span class="arr">▾</span></div>
+          <div class="faq-a">Reach out via Telegram to your BootHop account manager, or email <strong>support@boothop.com</strong>. We typically respond within a few hours.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /tab-howto -->
+
 </div>
 
 <script>
@@ -318,6 +501,12 @@ function switchTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
+}
+
+function toggleFaq(el) {
+  el.classList.toggle('open');
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('open');
 }
 
 // ── Slot labels ─────────────────────────────────────────────────
