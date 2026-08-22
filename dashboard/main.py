@@ -255,6 +255,28 @@ def _migrate_db():
         "ALTER TABLE companies ADD COLUMN credentials_json  TEXT DEFAULT '{}'",
         "ALTER TABLE companies ADD COLUMN digest_email      TEXT DEFAULT ''",
         "ALTER TABLE companies ADD COLUMN digest_frequency  TEXT DEFAULT ''",
+        # Business profile
+        "ALTER TABLE companies ADD COLUMN website_url      TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN youtube_url      TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN linkedin_url     TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN facebook_url     TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN tt_handle        TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN ig_handle        TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN business_type    TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN business_bio     TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN location         TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN area_covered     TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN target_audience  TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN marketing_focus  TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN content_tone     TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN visual_keywords  TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN brand_voice      TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN logo_path        TEXT DEFAULT ''",
+        # Pipeline schedule
+        "ALTER TABLE companies ADD COLUMN schedule_json    TEXT DEFAULT '{}'",
+        # Intake workflow
+        "ALTER TABLE companies ADD COLUMN intake_status    TEXT DEFAULT 'active'",
+        "ALTER TABLE companies ADD COLUMN intake_submitted TEXT DEFAULT ''",
     ]
     with _db() as c:
         for sql in migrations:
@@ -285,7 +307,7 @@ def _get_sess(token: str | None) -> dict | None:
         return None
     with _db() as c:
         row = c.execute(
-            "SELECT s.*,co.slug,co.name,co.tg_chat_id,co.whatsapp,co.email,co.plan "
+            "SELECT s.*,co.slug,co.name,co.tg_chat_id,co.whatsapp,co.email,co.plan,co.intake_status "
             "FROM sessions s JOIN companies co ON co.id=s.company_id "
             "WHERE s.token=? AND s.expires_at > datetime('now')", (token,)
         ).fetchone()
@@ -860,11 +882,12 @@ async def dashboard(request: Request, session_token: str | None = Cookie(None)):
         videos = pipeline_vids + videos
 
     return templates.TemplateResponse("dashboard.html", {
-        "request":      request,
-        "company":      sess,
-        "music_tracks": music,
-        "bakes":        [dict(b) for b in bakes],
-        "videos":       videos,
+        "request":        request,
+        "company":        sess,
+        "music_tracks":   music,
+        "bakes":          [dict(b) for b in bakes],
+        "videos":         videos,
+        "intake_status":  sess.get("intake_status", "active"),
     })
 
 
@@ -1128,6 +1151,216 @@ async def admin_logout(session_token: str | None = Cookie(None)):
     return resp
 
 
+# ── Client intake (Get Started) ────────────────────────────────────────────────
+
+@app.get("/get-started", response_class=HTMLResponse)
+async def get_started_page(request: Request):
+    return templates.TemplateResponse("get_started.html", {"request": request, "success": False, "error": ""})
+
+
+@app.post("/get-started", response_class=HTMLResponse)
+async def get_started_submit(
+    request:         Request,
+    company_name:    str = Form(...),
+    contact_name:    str = Form(""),
+    email:           str = Form(""),
+    password:        str = Form(...),
+    website_url:     str = Form(""),
+    business_type:   str = Form(""),
+    business_bio:    str = Form(""),
+    location:        str = Form(""),
+    area_covered:    str = Form(""),
+    target_audience: str = Form(""),
+    marketing_focus: str = Form("awareness_and_sales"),
+    content_tone:    str = Form("inspirational"),
+    visual_keywords: str = Form(""),
+    brand_voice:     str = Form(""),
+    tt_handle:       str = Form(""),
+    ig_handle:       str = Form(""),
+    youtube_url:     str = Form(""),
+    linkedin_url:    str = Form(""),
+    facebook_url:    str = Form(""),
+    platform_tiktok:    str = Form(""),
+    platform_instagram: str = Form(""),
+    platform_youtube:   str = Form(""),
+    platform_linkedin:  str = Form(""),
+    platform_blog:      str = Form(""),
+    tg_chat_id:      str = Form(""),
+    whatsapp:        str = Form(""),
+    plan:            str = Form("basic"),
+):
+    raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
+    slug = re.sub(r"[\s_]+", "-", raw)[:30]
+    if not slug:
+        return templates.TemplateResponse("get_started.html",
+            {"request": request, "success": False, "error": "Invalid company name."})
+
+    platforms = [p for p, v in [
+        ("tiktok", platform_tiktok), ("instagram", platform_instagram),
+        ("youtube", platform_youtube), ("linkedin", platform_linkedin),
+        ("blog", platform_blog),
+    ] if v]
+
+    try:
+        with _db() as c:
+            c.execute(
+                "INSERT INTO companies "
+                "(slug,name,email,contact,plan,password_h,api_key,tg_chat_id,whatsapp,"
+                " platforms_enabled,credentials_json,website_url,business_type,business_bio,"
+                " location,area_covered,target_audience,marketing_focus,content_tone,"
+                " visual_keywords,brand_voice,tt_handle,ig_handle,youtube_url,linkedin_url,"
+                " facebook_url,intake_status,intake_submitted) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (slug, company_name, email.strip(), contact_name.strip(), plan,
+                 _hash(password), secrets.token_hex(16), tg_chat_id.strip(), whatsapp.strip(),
+                 json.dumps(platforms), json.dumps({}),
+                 website_url.strip(), business_type.strip(), business_bio.strip(),
+                 location.strip(), area_covered.strip(), target_audience.strip(),
+                 marketing_focus, content_tone, visual_keywords.strip(), brand_voice.strip(),
+                 tt_handle.strip(), ig_handle.strip(), youtube_url.strip(),
+                 linkedin_url.strip(), facebook_url.strip(),
+                 "submitted", datetime.now().isoformat())
+            )
+        _co_dir(slug)
+        # Notify admin via Telegram
+        _notify_admin_new_intake(company_name, slug, email, platforms)
+        return templates.TemplateResponse("get_started.html",
+            {"request": request, "success": True, "slug": slug, "error": ""})
+    except sqlite3.IntegrityError:
+        return templates.TemplateResponse("get_started.html",
+            {"request": request, "success": False,
+             "error": f"'{company_name}' is already registered. Try a different company name."})
+
+
+def _notify_admin_new_intake(company: str, slug: str, email: str, platforms: list):
+    try:
+        import requests as _r
+        msg = (f"New pipeline intake submitted!\n\n"
+               f"Company: {company}\nSlug: {slug}\nEmail: {email or 'not provided'}\n"
+               f"Platforms: {', '.join(platforms) or 'none selected'}\n\n"
+               f"Review at: boothop.com/admin")
+        _r.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": TELEGRAM_CHAT_ID, "text": msg},
+            timeout=8,
+        )
+    except Exception:
+        pass
+
+
+# ── Logo upload / serve ────────────────────────────────────────────────────────
+
+@app.post("/api/upload-logo/{slug}")
+async def upload_logo(slug: str, file: UploadFile = File(...)):
+    co_dir = _co_dir(slug)
+    ext    = (file.filename or "logo.jpg").rsplit(".", 1)[-1].lower()
+    if ext not in {"png", "jpg", "jpeg", "webp", "gif"}:
+        ext = "jpg"
+    logo_path = co_dir / f"logo.{ext}"
+    content   = await file.read()
+    logo_path.write_bytes(content)
+    with _db() as c:
+        c.execute("UPDATE companies SET logo_path=? WHERE slug=?", (str(logo_path), slug))
+    return JSONResponse({"success": True, "url": f"/api/logo/{slug}"})
+
+
+@app.get("/api/logo/{slug}")
+async def serve_logo(slug: str):
+    co_dir = _co_dir(slug)
+    for ext in ("png", "jpg", "jpeg", "webp", "gif"):
+        p = co_dir / f"logo.{ext}"
+        if p.exists():
+            return FileResponse(str(p))
+    raise HTTPException(404, "No logo uploaded")
+
+
+# ── Admin — schedule + stage 2 + activate ─────────────────────────────────────
+
+@app.post("/admin/set-schedule/{company_id}")
+async def admin_set_schedule(
+    company_id: int,
+    slot1_time: str = Form(""),
+    slot2_time: str = Form(""),
+    slot3_time: str = Form(""),
+    slot4_time: str = Form(""),
+    active_days: list[str] = Form([]),
+    timezone:   str = Form("Europe/London"),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    schedule = {
+        "slot1": slot1_time, "slot2": slot2_time,
+        "slot3": slot3_time, "slot4": slot4_time,
+        "days": active_days, "timezone": timezone,
+    }
+    with _db() as c:
+        c.execute("UPDATE companies SET schedule_json=? WHERE id=?",
+                  (json.dumps(schedule), company_id))
+    return RedirectResponse(f"/admin/company/{company_id}?tab=schedule", status_code=303)
+
+
+@app.post("/admin/complete-intake/{company_id}")
+async def admin_complete_intake(
+    company_id: int,
+    request:    Request,
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    body = await request.form()
+    creds = {}
+    for key, val in body.items():
+        if key != "session_token" and val:
+            creds[key] = val
+    with _db() as c:
+        row = c.execute("SELECT credentials_json FROM companies WHERE id=?", (company_id,)).fetchone()
+        existing = json.loads(row["credentials_json"] or "{}") if row else {}
+        existing.update(creds)
+        c.execute("UPDATE companies SET credentials_json=?, intake_status=? WHERE id=?",
+                  (json.dumps(existing), "stage2", company_id))
+    return RedirectResponse(f"/admin/company/{company_id}?tab=credentials", status_code=303)
+
+
+@app.post("/admin/activate/{company_id}")
+async def admin_activate(company_id: int, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        c.execute("UPDATE companies SET intake_status='active', active=1 WHERE id=?", (company_id,))
+    return RedirectResponse(f"/admin/company/{company_id}", status_code=303)
+
+
+@app.post("/admin/pause/{company_id}")
+async def admin_pause(company_id: int, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        row = c.execute("SELECT active FROM companies WHERE id=?", (company_id,)).fetchone()
+        new_active = 0 if row and row["active"] else 1
+        c.execute("UPDATE companies SET active=? WHERE id=?", (new_active, company_id))
+    return RedirectResponse(f"/admin/company/{company_id}", status_code=303)
+
+
+@app.post("/admin/reset-password/{company_id}")
+async def admin_reset_password(
+    company_id: int,
+    new_password: str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        c.execute("UPDATE companies SET password_h=? WHERE id=?",
+                  (_hash(new_password), company_id))
+    return RedirectResponse(f"/admin/company/{company_id}?msg=password_reset", status_code=303)
+
+
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_dashboard(request: Request, session_token: str | None = Cookie(None)):
     sess = _get_sess(session_token)
@@ -1145,12 +1378,53 @@ async def admin_dashboard(request: Request, session_token: str | None = Cookie(N
         active_today = c.execute(
             "SELECT COUNT(DISTINCT company_id) FROM bakes WHERE created_at >= ?", (today,)
         ).fetchone()[0]
+        intake_pending = c.execute(
+            "SELECT COUNT(*) FROM companies WHERE intake_status IN ('submitted','stage2') AND id != -1"
+        ).fetchone()[0]
 
     return templates.TemplateResponse("admin.html", {
-        "request":      request,
-        "companies":    [dict(c) for c in companies],
-        "total_bakes":  total_bakes,
-        "active_today": active_today,
+        "request":        request,
+        "companies":      [dict(c) for c in companies],
+        "total_bakes":    total_bakes,
+        "active_today":   active_today,
+        "intake_pending": intake_pending,
+        "msg":            request.query_params.get("msg", ""),
+        "error":          request.query_params.get("error", ""),
+    })
+
+
+@app.get("/admin/company/{company_id}", response_class=HTMLResponse)
+async def admin_company_detail(
+    company_id: int,
+    request:    Request,
+    session_token: str | None = Cookie(None),
+    tab: str = "profile",
+    msg: str = "",
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        return RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
+    with _db() as c:
+        co    = c.execute("SELECT * FROM companies WHERE id=?", (company_id,)).fetchone()
+        bakes = c.execute(
+            "SELECT * FROM bakes WHERE company_id=? ORDER BY created_at DESC LIMIT 20",
+            (company_id,)
+        ).fetchall()
+    if not co:
+        raise HTTPException(404)
+    co_dict    = dict(co)
+    creds      = json.loads(co_dict.get("credentials_json") or "{}")
+    schedule   = json.loads(co_dict.get("schedule_json")    or "{}")
+    platforms  = json.loads(co_dict.get("platforms_enabled") or "[]")
+    return templates.TemplateResponse("admin_company.html", {
+        "request":  request,
+        "co":       co_dict,
+        "creds":    creds,
+        "schedule": schedule,
+        "platforms": platforms,
+        "bakes":    [dict(b) for b in bakes],
+        "tab":      tab,
+        "msg":      msg or request.query_params.get("msg", ""),
     })
 
 
