@@ -555,8 +555,7 @@ async def root(request: Request, session_token: str | None = Cookie(None)):
 
 @app.get("/onboard", response_class=HTMLResponse)
 async def onboard_page(request: Request):
-    return templates.TemplateResponse("onboard.html",
-        {"request": request, "success": False, "slug": "", "error": ""})
+    return RedirectResponse("/get-started", status_code=301)
 
 
 _FREE_EMAIL_DOMAINS = {
@@ -1331,7 +1330,47 @@ async def admin_activate(company_id: int, session_token: str | None = Cookie(Non
         raise HTTPException(403)
     with _db() as c:
         c.execute("UPDATE companies SET intake_status='active', active=1 WHERE id=?", (company_id,))
-    return RedirectResponse(f"/admin/company/{company_id}", status_code=303)
+        co = c.execute("SELECT * FROM companies WHERE id=?", (company_id,)).fetchone()
+    if co:
+        _notify_client_activated(dict(co))
+    return RedirectResponse(f"/admin/company/{company_id}?msg=activated", status_code=303)
+
+
+def _notify_client_activated(co: dict):
+    tg = co.get("tg_chat_id", "")
+    if not tg:
+        return
+    try:
+        import requests as _r
+        schedule = json.loads(co.get("schedule_json") or "{}")
+        slots = []
+        labels = {1: "Morning", 2: "Midday", 3: "Evening", 4: "Weekly"}
+        for i in range(1, 5):
+            t = schedule.get(f"slot{i}")
+            if t:
+                slots.append(f"  Slot {i} ({labels[i]}): {t}")
+        days = schedule.get("days", [])
+        days_str = ", ".join(d.capitalize() for d in days) if days else "Daily"
+        tz = schedule.get("timezone", "Europe/London")
+        sched_block = "\n".join(slots) if slots else "  Schedule not yet set — check with BootHop"
+        msg = (
+            f"Your BootHop pipeline is now LIVE!\n\n"
+            f"Welcome, {co.get('name', 'there')}.\n\n"
+            f"Your content schedule:\n{sched_block}\n"
+            f"Active: {days_str} ({tz})\n\n"
+            f"You will receive a Telegram video preview each time a slot runs. "
+            f"Reply to approve or use Revoice Studio to change the voiceover before it posts.\n\n"
+            f"Log in to your dashboard:\n"
+            f"boothop.com/pipeline-login\n"
+            f"Company ID: {co.get('slug', '')}"
+        )
+        _r.post(
+            f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+            json={"chat_id": tg, "text": msg},
+            timeout=10,
+        )
+    except Exception:
+        pass
 
 
 @app.post("/admin/pause/{company_id}")
