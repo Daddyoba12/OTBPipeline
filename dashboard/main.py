@@ -672,9 +672,45 @@ async def onboard_submit(
              "error": f"'{company_name}' is already registered. Try a different name.", "platforms": []})
 
 
+@app.get("/pipeline-login", response_class=HTMLResponse)
+async def pipeline_login_page(request: Request):
+    return templates.TemplateResponse("pipeline_login.html", {"request": request, "error": ""})
+
+
+@app.post("/pipeline-login")
+async def pipeline_login_submit(
+    request:  Request,
+    slug:     str = Form(...),
+    password: str = Form(...),
+):
+    with _db() as c:
+        row = c.execute(
+            "SELECT * FROM companies WHERE slug=? AND password_h=? AND active=1 AND id!=-1",
+            (slug.strip().lower(), _hash(password))
+        ).fetchone()
+    if not row:
+        return templates.TemplateResponse("pipeline_login.html",
+            {"request": request, "error": "Wrong company ID or password."})
+    token = _make_session(row["id"])
+    resp  = RedirectResponse("/dashboard", status_code=303)
+    resp.set_cookie("session_token", token, httponly=True, max_age=604800)
+    return resp
+
+
+@app.get("/pipeline-logout")
+async def pipeline_logout(session_token: str | None = Cookie(None)):
+    if session_token:
+        with _db() as c:
+            c.execute("DELETE FROM sessions WHERE token=?", (session_token,))
+    resp = RedirectResponse("/pipeline-login", status_code=303)
+    resp.delete_cookie("session_token")
+    return resp
+
+
+# Keep /login as an alias so existing bookmarks still work
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "error": ""})
+    return RedirectResponse("/pipeline-login", status_code=301)
 
 
 @app.post("/login")
@@ -689,7 +725,7 @@ async def login_submit(
             (slug.strip().lower(), _hash(password))
         ).fetchone()
     if not row:
-        return templates.TemplateResponse("login.html",
+        return templates.TemplateResponse("pipeline_login.html",
             {"request": request, "error": "Wrong company ID or password."})
     token = _make_session(row["id"])
     resp  = RedirectResponse("/dashboard", status_code=303)
@@ -702,7 +738,7 @@ async def logout(session_token: str | None = Cookie(None)):
     if session_token:
         with _db() as c:
             c.execute("DELETE FROM sessions WHERE token=?", (session_token,))
-    resp = RedirectResponse("/login", status_code=303)
+    resp = RedirectResponse("/pipeline-login", status_code=303)
     resp.delete_cookie("session_token")
     return resp
 
@@ -771,7 +807,7 @@ async def api_onboard(request: Request):
 async def dashboard(request: Request, session_token: str | None = Cookie(None)):
     sess = _get_sess(session_token)
     if not sess:
-        return RedirectResponse("/login", status_code=303)
+        return RedirectResponse("/pipeline-login", status_code=303)
     if sess["is_admin"]:
         return RedirectResponse("/admin", status_code=303)
 
@@ -1535,7 +1571,7 @@ async def weekly_report_api(session_token: str | None = Cookie(None)):
 async def feed_page(request: Request, session_token: str | None = Cookie(None)):
     """48-hour activity feed — read-only overview of everything that went out."""
     if not _get_sess(session_token):
-        return RedirectResponse("/login", status_code=303)
+        return RedirectResponse("/pipeline-login", status_code=303)
     feed = _build_feed(hours=48)
     return templates.TemplateResponse("feed.html", {"request": request, "feed": feed})
 
