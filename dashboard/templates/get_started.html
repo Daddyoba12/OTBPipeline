@@ -463,6 +463,25 @@ a{color:var(--or);text-decoration:none}
       </div>
     </div>
 
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
+    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px">Daily Email Digest <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Business Email for Reports</label>
+        <input type="email" name="digest_email" placeholder="reports@yourcompany.com">
+        <div class="hint">Receive a daily summary of posts sent, platforms hit, and what's scheduled next. Must be a business email — no Gmail/Yahoo.</div>
+      </div>
+      <div class="field">
+        <label>Digest Frequency</label>
+        <select name="digest_frequency">
+          <option value="daily">Daily — 7am summary</option>
+          <option value="weekly">Weekly — Monday morning</option>
+          <option value="both">Both — daily + weekly</option>
+        </select>
+      </div>
+    </div>
+
     <div class="btn-row">
       <button type="button" class="btn btn-ghost" onclick="goStep(4)">← Back</button>
       <button type="submit" class="btn btn-green">Submit Application →</button>
