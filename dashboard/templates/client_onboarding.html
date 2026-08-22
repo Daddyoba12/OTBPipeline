@@ -214,6 +214,33 @@ footer{padding:40px 0 20px;text-align:center;color:var(--muted);font-size:.68rem
       </div>
     </div>
 
+    <div class="field-row">
+      <div class="field">
+        <label>Contact Name</label>
+        <input type="text" id="f-contact" placeholder="e.g. John Obi">
+      </div>
+      <div class="field">
+        <label>Client Email</label>
+        <input type="email" id="f-email" placeholder="john@company.com">
+        <div class="field-hint">Used for login notifications — optional</div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Plan</label>
+        <select id="f-plan">
+          <option value="basic">Basic — Core posting</option>
+          <option value="pro">Pro — All platforms + Blog + Digest</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Telegram Chat ID <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.68rem">(optional)</span></label>
+        <input type="text" id="f-tg-chatid-s1" placeholder="e.g. 8641867751">
+        <div class="field-hint">Message <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> to find</div>
+      </div>
+    </div>
+
     <div class="field">
       <label>Industry / Business Type <span class="req">*</span></label>
       <div class="industry-grid" id="industry-grid"></div>
@@ -483,16 +510,38 @@ footer{padding:40px 0 20px;text-align:center;color:var(--muted);font-size:.68rem
       <div class="success-icon">🎉</div>
       <div class="success-title">Client Registered!</div>
       <div class="success-sub" id="success-msg">Pipeline wired and ready.</div>
+
+      <!-- Login credentials box -->
+      <div id="login-creds-box" style="display:none;background:#00e67612;border:1px solid #00e67640;border-radius:12px;padding:20px;max-width:420px;margin:16px auto;text-align:left">
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#00e676;margin-bottom:12px">Client Login Credentials</div>
+        <div style="display:grid;gap:8px">
+          <div style="display:flex;justify-content:space-between;font-size:.83rem">
+            <span style="color:var(--muted)">Login URL</span>
+            <code style="color:var(--or)">boothop.com/login</code>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.83rem">
+            <span style="color:var(--muted)">Company ID</span>
+            <code id="cred-slug" style="color:var(--text)"></code>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.83rem">
+            <span style="color:var(--muted)">Temp Password</span>
+            <code id="cred-pw" style="color:#ffb800;font-size:.9rem;letter-spacing:.05em"></code>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:.72rem;color:var(--muted);line-height:1.5">Send these to your client. They can change the password from their dashboard settings.</div>
+        <button onclick="copyCreds()" style="margin-top:10px;width:100%;padding:8px;background:#00e67622;border:1px solid #00e67640;border-radius:8px;color:#00e676;font-size:.78rem;font-weight:700;cursor:pointer">Copy Credentials</button>
+      </div>
+
       <div class="next-steps">
         <h4>Next Steps</h4>
-        <div class="next-step-item"><div class="ns-num">1</div><div>Send the downloaded <code>config.env</code> to the client — they put it in the same folder as <code>OTBCommander.exe</code>.</div></div>
-        <div class="next-step-item"><div class="ns-num">2</div><div>Send the Commander .exe — client double-clicks, browser opens at <code>localhost:1031</code>.</div></div>
-        <div class="next-step-item"><div class="ns-num">3</div><div>Their pipeline is accessible at <code>localhost:1031/c/<span id="ns-slug"></span></code> on this machine, or their own machine.</div></div>
-        <div class="next-step-item"><div class="ns-num">4</div><div>Verify first pipeline run — confirm Telegram/WhatsApp delivers the video + all platforms post successfully.</div></div>
+        <div class="next-step-item"><div class="ns-num">1</div><div>Send the client their login credentials above — Company ID + temp password.</div></div>
+        <div class="next-step-item"><div class="ns-num">2</div><div>Send the downloaded <code>config.env</code> to the client — they put it in the same folder as <code>OTBCommander.exe</code>.</div></div>
+        <div class="next-step-item"><div class="ns-num">3</div><div>Their dashboard is at <code>boothop.com/dashboard</code> — they log in with the credentials above.</div></div>
+        <div class="next-step-item"><div class="ns-num">4</div><div>Verify first pipeline run — confirm Telegram delivers the video + all platforms post.</div></div>
       </div>
       <div style="display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap">
-        <a href="/" style="text-decoration:none"><button class="btn btn-ghost">← Back to Dashboard</button></a>
-        <a href="/requirements" style="text-decoration:none"><button class="btn btn-ghost">📋 API Requirements Sheet</button></a>
+        <a href="/admin" style="text-decoration:none"><button class="btn btn-ghost">← Back to Admin</button></a>
+        <button class="btn btn-dl" onclick="downloadConfig()">Download config.env</button>
         <button class="btn btn-or" onclick="resetForm()">+ Onboard Another Client</button>
       </div>
     </div>
@@ -845,6 +894,10 @@ async function saveClient(){
 
   const payload={
     company, slug,
+    contact:  v('f-contact'),
+    email:    v('f-email'),
+    plan:     document.getElementById('f-plan').value,
+    tg_chat_id: v('f-tg-chatid-s1') || v('f-tg-chatid'),
     industry: ind.id, industry_name: ind.name,
     location: v('f-location'), area_covered: v('f-area'),
     target_audience: v('f-audience'),
@@ -866,8 +919,13 @@ async function saveClient(){
     const d=await r.json();
     if(d.success){
       document.getElementById('success-panel').style.display='block';
-      document.getElementById('success-msg').textContent=`Client "${company}" wired as /c/${slug}`;
-      document.getElementById('ns-slug').textContent=slug;
+      document.getElementById('success-msg').textContent=
+        d.note || `Client "${company}" registered — login active.`;
+      document.getElementById('cred-slug').textContent=slug;
+      if(d.temp_password){
+        document.getElementById('login-creds-box').style.display='block';
+        document.getElementById('cred-pw').textContent=d.temp_password;
+      }
       document.querySelector('.form-step.active')
         .querySelectorAll('button').forEach(b=>{if(!b.closest('#success-panel'))b.disabled=true});
     }else{
@@ -880,6 +938,13 @@ async function saveClient(){
 }
 
 function resetForm(){location.reload();}
+
+function copyCreds(){
+  const slug=document.getElementById('cred-slug').textContent;
+  const pw=document.getElementById('cred-pw').textContent;
+  const text=`BootHop Pipeline Login\nURL: https://boothop.com/login\nCompany ID: ${slug}\nTemp Password: ${pw}`;
+  navigator.clipboard.writeText(text).then(()=>alert('Credentials copied to clipboard!')).catch(()=>prompt('Copy these credentials:',text));
+}
 
 // ── Auto-slug from company name ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{

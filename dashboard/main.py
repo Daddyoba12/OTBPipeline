@@ -721,11 +721,12 @@ async def api_onboard(request: Request):
     except Exception:
         raise HTTPException(400, "Invalid JSON")
 
-    slug    = payload.get("slug", "").strip().lower()
+    slug    = re.sub(r"[^\w-]", "", payload.get("slug", "").strip().lower())[:30]
     company = payload.get("company", "").strip()
     if not slug or not company:
         return JSONResponse({"success": False, "error": "slug and company are required"})
 
+    # Save profile files
     profile_dir = BASE_DIR / "clients" / slug
     profile_dir.mkdir(parents=True, exist_ok=True)
     (profile_dir / "pipeline_profile.json").write_text(
@@ -734,7 +735,32 @@ async def api_onboard(request: Request):
     (profile_dir / "config.env").write_text(
         payload.get("raw_config", ""), encoding="utf-8"
     )
-    return JSONResponse({"success": True, "slug": slug})
+
+    # Register company in DB so client can log in
+    temp_pw    = secrets.token_urlsafe(10)
+    tg_chat_id = payload.get("tg_chat_id", "")
+    email      = payload.get("email", "")
+    contact    = payload.get("contact", "")
+    plan       = payload.get("plan", "basic")
+    platforms  = payload.get("platforms", {})
+    plat_list  = [p for p, v in platforms.items() if v]
+
+    try:
+        with _db() as c:
+            c.execute(
+                "INSERT INTO companies "
+                "(slug,name,email,contact,plan,password_h,api_key,tg_chat_id,platforms_enabled,credentials_json) "
+                "VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (slug, company, email, contact, plan,
+                 _hash(temp_pw), secrets.token_hex(16), tg_chat_id,
+                 json.dumps(plat_list), json.dumps({}))
+            )
+        _co_dir(slug)
+        return JSONResponse({"success": True, "slug": slug, "temp_password": temp_pw})
+    except sqlite3.IntegrityError:
+        # Already registered — just update the profile files
+        return JSONResponse({"success": True, "slug": slug, "temp_password": None,
+                             "note": "Company already registered — profile files updated."})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
