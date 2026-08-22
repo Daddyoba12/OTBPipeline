@@ -62,15 +62,61 @@ input:focus,select:focus{border-color:var(--or)}
   <!-- Onboard CTA -->
   <div style="margin:24px 0 8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
     <h2 style="margin:0">Overview</h2>
-    <a href="/client-onboarding" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#ff6b00,#ffb800);color:#000;font-weight:800;font-size:.85rem;border-radius:10px">
-      + Onboard New Client
-    </a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <a href="/get-started" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:transparent;border:1px solid #ff6b0050;color:var(--or);font-weight:700;font-size:.8rem;border-radius:9px">
+        View Intake Form
+      </a>
+      <a href="/client-onboarding" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:9px 20px;background:linear-gradient(135deg,#ff6b00,#ffb800);color:#000;font-weight:800;font-size:.82rem;border-radius:9px">
+        + Onboard New Client
+      </a>
+    </div>
   </div>
+
   <div class="stats-row">
-    <div class="stat"><div class="stat-val">{{ companies|length }}</div><div class="stat-lbl">Companies</div></div>
+    <div class="stat"><div class="stat-val">{{ companies|length }}</div><div class="stat-lbl">Total Clients</div></div>
     <div class="stat"><div class="stat-val">{{ total_bakes }}</div><div class="stat-lbl">Total Bakes</div></div>
     <div class="stat"><div class="stat-val">{{ active_today }}</div><div class="stat-lbl">Active Today</div></div>
+    <div class="stat" style="{% if intake_pending > 0 %}background:#ffb80012;border-color:#ffb80040{% endif %}">
+      <div class="stat-val" style="{% if intake_pending > 0 %}-webkit-text-fill-color:#ffcc55{% endif %}">{{ intake_pending }}</div>
+      <div class="stat-lbl">Intake Pending</div>
+    </div>
   </div>
+
+  {% if intake_pending > 0 %}
+  <!-- Intake queue -->
+  <h2>Intake Queue <span style="font-size:.75rem;font-weight:400;color:var(--muted)">({{ intake_pending }} awaiting setup)</span></h2>
+  <div class="card" style="border-color:#ffb80030">
+    <div class="card-title">New client applications — review and activate</div>
+    <table>
+      <thead>
+        <tr><th>Company</th><th>Email</th><th>Platforms</th><th>Submitted</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        {% for co in companies if co.intake_status in ('submitted','stage2') %}
+        <tr style="background:#ffb80008">
+          <td>
+            <div class="co-name">{{ co.name }}</div>
+            <div class="co-slug">{{ co.slug }}</div>
+          </td>
+          <td style="color:var(--muted);font-size:.78rem">{{ co.email or '—' }}</td>
+          <td style="font-size:.75rem;color:var(--muted)">{{ co.platforms_enabled | replace('["','') | replace('"]','') | replace('","',' · ') if co.platforms_enabled else '—' }}</td>
+          <td style="font-size:.75rem;color:var(--muted)">{{ co.intake_submitted[:10] if co.intake_submitted else '—' }}</td>
+          <td>
+            {% if co.intake_status == 'submitted' %}
+            <span style="background:#ffb80018;color:#ffcc55;border:1px solid #ffb80040;border-radius:5px;padding:2px 8px;font-size:.68rem;font-weight:700">Pending</span>
+            {% else %}
+            <span style="background:#5ba4e618;color:var(--blue);border:1px solid #5ba4e640;border-radius:5px;padding:2px 8px;font-size:.68rem;font-weight:700">Stage 2</span>
+            {% endif %}
+          </td>
+          <td>
+            <a class="view-btn" href="/admin/company/{{ co.id }}?tab=credentials">Set Up →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
 
   {% if msg %}<div class="ok">{{ msg }}</div>{% endif %}
   {% if error %}<div class="err">{{ error }}</div>{% endif %}
@@ -86,6 +132,7 @@ input:focus,select:focus{border-color:var(--or)}
           <th>Company</th>
           <th>Email</th>
           <th>Plan</th>
+          <th>Status</th>
           <th>Bakes</th>
           <th>Last Active</th>
           <th>Actions</th>
@@ -100,6 +147,17 @@ input:focus,select:focus{border-color:var(--or)}
           </td>
           <td style="color:var(--muted);font-size:.8rem">{{ co.email or '—' }}</td>
           <td><span class="plan-badge {% if co.plan=='pro' %}plan-pro{% endif %}">{{ co.plan }}</span></td>
+          <td style="font-size:.72rem">
+            {% if co.intake_status == 'active' or not co.intake_status %}
+            <span style="color:var(--green)">Active</span>
+            {% elif co.intake_status == 'submitted' %}
+            <span style="color:#ffcc55">Pending</span>
+            {% elif co.intake_status == 'stage2' %}
+            <span style="color:var(--blue)">Stage 2</span>
+            {% else %}
+            <span style="color:var(--muted)">{{ co.intake_status }}</span>
+            {% endif %}
+          </td>
           <td><span class="bake-count">{{ co.bake_count }}</span></td>
           <td class="last-active">{{ co.last_activity[:16] if co.last_activity else 'Never' }}</td>
           <td>

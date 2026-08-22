@@ -151,6 +151,16 @@ select:focus{border-color:var(--or)}
 </nav>
 
 <div class="wrap">
+  {% if intake_status and intake_status != 'active' %}
+  <div style="background:#ffb80012;border:1px solid #ffb80040;border-radius:10px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:12px">
+    <span style="font-size:1.2rem">⏳</span>
+    <div>
+      <div style="font-size:.82rem;font-weight:700;color:#ffcc55">Your pipeline is being set up</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-top:2px">BootHop will have your pipeline active within 24 hours. You can explore the dashboard in the meantime — check the <strong>How it works</strong> tab for a guide.</div>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('control',this)">Pipeline Control</button>
     <button class="tab-btn" onclick="switchTab('revoice',this)">Revoice Studio</button>

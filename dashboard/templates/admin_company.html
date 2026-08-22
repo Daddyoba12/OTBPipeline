@@ -2,124 +2,537 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{ company.name }} — Admin</title>
+<title>{{ co.name }} — Pipeline Admin</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--r:14px}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:60px}
-nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff10;position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
+:root{--bg:#08080f;--card:#121220;--card2:#1a1a2e;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#5ba4e6;--pu:#c080ff;--r:14px;--border:#ffffff12}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+nav{padding:14px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);position:sticky;top:0;background:#08080fdd;backdrop-filter:blur(12px);z-index:100}
 .logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.back{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid #ffffff15;border-radius:6px}
-.wrap{max-width:780px;margin:0 auto;padding:0 20px}
-h2{font-size:1.1rem;font-weight:800;margin:28px 0 12px}
-.co-header{margin:24px 0 16px}
-.co-header h1{font-size:1.5rem;font-weight:900}
-.co-header .slug{font-size:.82rem;color:var(--muted);font-family:monospace;margin-top:2px}
-.meta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
-.meta-chip{font-size:.75rem;background:var(--card);border:1px solid #ffffff10;padding:5px 12px;border-radius:7px;color:var(--muted)}
-.meta-chip b{color:var(--text)}
-.card{background:var(--card);border:1px solid #ffffff10;border-radius:var(--r);padding:20px;margin-bottom:16px}
-.card-title{font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.back{font-size:.78rem;color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:6px}
+.wrap{max-width:840px;margin:0 auto;padding:0 20px}
+h2{font-size:1rem;font-weight:800;margin:24px 0 12px}
+
+/* Status bar */
+.co-header{margin:24px 0 0;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.co-logo{width:64px;height:64px;border-radius:12px;object-fit:cover;background:var(--card2);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;overflow:hidden}
+.co-logo img{width:100%;height:100%;object-fit:cover}
+.co-meta{flex:1;min-width:0}
+.co-name{font-size:1.4rem;font-weight:900;margin-bottom:2px}
+.co-slug{font-size:.78rem;font-family:monospace;color:var(--muted);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-size:.72rem;background:var(--card);border:1px solid var(--border);padding:4px 10px;border-radius:6px;color:var(--muted)}
+.chip b{color:var(--text)}
+.chip.active-chip{background:#00e67612;border-color:#00e67630;color:var(--green)}
+.chip.pending-chip{background:#ffb80012;border-color:#ffb80040;color:#ffcc55}
+.chip.paused-chip{background:#ff404012;border-color:#ff404030;color:var(--red)}
+
+/* Action buttons */
+.action-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.btn{padding:8px 16px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:5px}
+.btn-or{background:var(--gr);color:#000}.btn-or:hover{filter:brightness(1.1)}
+.btn-green{background:linear-gradient(135deg,#00c853,#00e676);color:#000}
+.btn-red{background:#ff404020;border:1px solid #ff404040;color:var(--red)}.btn-red:hover{background:#ff404030}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{color:var(--text)}
+.btn-blue{background:#5ba4e620;border:1px solid #5ba4e640;color:var(--blue)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:20px 0 0;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab-btn{background:none;border:none;color:var(--muted);font-size:.82rem;font-weight:700;padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;transition:.15s}
+.tab-btn:hover{color:var(--text);background:#ffffff08}
+.tab-btn.active{color:var(--or);background:#ff6b0010;border-bottom:2px solid var(--or);margin-bottom:-1px}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.card-title{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+
+/* Info grid */
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(max-width:500px){.info-grid{grid-template-columns:1fr}}
 .info-item{background:var(--card2);border-radius:8px;padding:10px 14px}
-.info-key{font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
-.info-val{font-size:.88rem}
+.info-key{font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.info-val{font-size:.84rem;word-break:break-all}
+.info-val a{color:var(--blue);text-decoration:none}
+.info-val a:hover{text-decoration:underline}
+
+/* Form fields */
+label{display:block;font-size:.7rem;font-weight:700;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;margin-top:14px}
+label:first-child{margin-top:0}
+input,select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.84rem;outline:none}
+input:focus,select:focus{border-color:var(--or)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.field-row{grid-template-columns:1fr}}
+.hint{font-size:.68rem;color:var(--muted);margin-top:4px;line-height:1.5}
+.save-btn{margin-top:16px;padding:10px 22px;background:var(--gr);color:#000;font-weight:800;font-size:.82rem;border:none;border-radius:8px;cursor:pointer}
+
+/* Schedule */
+.day-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.day-chip{width:42px;height:42px;border-radius:8px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;cursor:pointer;transition:.15s;color:var(--muted)}
+.day-chip.on{border-color:var(--or);background:#ff6b0015;color:var(--or)}
+.cron-box{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:14px;margin-top:14px;font-family:monospace;font-size:.78rem;line-height:2;color:var(--text)}
+.cron-box .cmt{color:var(--muted)}
+.cron-box .cron-line{background:#ffffff08;border-radius:4px;padding:4px 8px;margin:2px 0;display:block}
+.copy-btn{margin-top:8px;padding:6px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.72rem;cursor:pointer}
+.copy-btn:hover{color:var(--text)}
+.cron-note{font-size:.72rem;color:var(--muted);margin-top:10px;line-height:1.6;background:#ffb80010;border:1px solid #ffb80030;border-radius:8px;padding:10px 12px}
+
+/* Credentials */
+.cred-section{margin-bottom:20px}
+.cred-section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.cred-dot{width:7px;height:7px;border-radius:50%}
+.cred-val-display{font-family:monospace;font-size:.78rem;background:var(--card2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--green);word-break:break-all}
+.cred-empty{color:var(--muted);font-size:.78rem;font-style:italic}
+
+/* Bake table */
 table{width:100%;border-collapse:collapse;font-size:.82rem}
-thead th{text-align:left;font-size:.7rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:5px 8px;border-bottom:1px solid #ffffff12}
-tbody tr{border-bottom:1px solid #ffffff08}
+thead th{text-align:left;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:5px 8px;border-bottom:1px solid var(--border)}
+tbody tr{border-bottom:1px solid #ffffff06}
 td{padding:9px 8px;vertical-align:middle}
-.status-done{color:var(--green);font-weight:700}
-.status-fail{color:var(--red)}
-.status-proc{color:var(--or)}
-.dl-link{color:var(--blue);font-size:.78rem;text-decoration:none}
+.s-done{color:var(--green);font-weight:700}
+.s-fail{color:var(--red)}
+.s-proc{color:var(--or)}
+.dl-link{color:var(--blue);font-size:.75rem;text-decoration:none}
+.empty{text-align:center;padding:24px;color:var(--muted);font-size:.84rem}
+
+/* Danger */
 .del-zone{background:#ff404010;border:1px solid #ff404020;border-radius:var(--r);padding:20px}
-.del-zone p{color:var(--muted);font-size:.83rem;margin-bottom:14px}
-.del-btn{padding:10px 22px;background:var(--red);color:#fff;font-weight:800;font-size:.85rem;border:none;border-radius:8px;cursor:pointer}
-.empty{text-align:center;padding:24px;color:var(--muted);font-size:.85rem}
+.del-zone p{color:var(--muted);font-size:.82rem;margin-bottom:14px}
+
+/* Flash */
+.flash-ok{background:#00e67612;border:1px solid #00e67635;border-radius:8px;padding:10px 14px;color:var(--green);font-size:.82rem;margin-bottom:14px}
 </style>
 </head>
 <body>
 <nav>
-  <div class="logo">⚡ BootHop Pipeline</div>
-  <a href="/admin" class="back">← All Companies</a>
+  <div class="logo">⚡ BootHop Pipeline Admin</div>
+  <a href="/admin" class="back">← All Clients</a>
 </nav>
 
 <div class="wrap">
 
-  <div class="co-header">
-    <h1>{{ co.name }}</h1>
-    <div class="slug">ID: {{ co.slug }}</div>
-    <div class="meta-row">
-      <span class="meta-chip">Plan: <b>{{ co.plan }}</b></span>
-      <span class="meta-chip">Bakes: <b>{{ bakes|length }}</b></span>
-      {% if co.tg_chat_id %}<span class="meta-chip">Telegram: <b>{{ co.tg_chat_id }}</b></span>{% endif %}
-      {% if co.whatsapp %}<span class="meta-chip">WhatsApp: <b>{{ co.whatsapp }}</b></span>{% endif %}
-      <span class="meta-chip">Joined: <b>{{ co.created_at[:10] }}</b></span>
+{% if msg %}
+<div class="flash-ok" style="margin-top:16px">
+  {% if msg == 'password_reset' %}Password reset successfully.
+  {% elif msg == 'schedule_saved' %}Schedule saved — update cron.org to apply.
+  {% elif msg == 'activated' %}Client pipeline activated.
+  {% elif msg == 'credentials_saved' %}Credentials saved.
+  {% else %}{{ msg }}{% endif %}
+</div>
+{% endif %}
+
+<!-- Company header -->
+<div class="co-header">
+  <div class="co-logo">
+    {% if co.logo_path %}<img src="/api/logo/{{ co.slug }}" alt="logo">{% else %}🏢{% endif %}
+  </div>
+  <div class="co-meta">
+    <div class="co-name">{{ co.name }}</div>
+    <div class="co-slug">{{ co.slug }}</div>
+    <div class="chips">
+      <span class="chip"><b>{{ co.plan|upper }}</b></span>
+      {% if co.intake_status == 'active' %}
+      <span class="chip active-chip">Active</span>
+      {% elif co.intake_status == 'submitted' %}
+      <span class="chip pending-chip">Intake Pending</span>
+      {% elif co.intake_status == 'stage2' %}
+      <span class="chip pending-chip">Stage 2 — Credentials Needed</span>
+      {% else %}
+      <span class="chip">{{ co.intake_status }}</span>
+      {% endif %}
+      {% if not co.active %}<span class="chip paused-chip">Paused</span>{% endif %}
+      {% if co.tg_chat_id %}<span class="chip">Telegram ✓</span>{% endif %}
+      {% if co.business_type %}<span class="chip">{{ co.business_type|title }}</span>{% endif %}
     </div>
   </div>
+</div>
 
-  <!-- Company info -->
-  <h2>Details</h2>
+<!-- Actions -->
+<div class="action-row">
+  {% if co.intake_status != 'active' %}
+  <form method="post" action="/admin/activate/{{ co.id }}" style="display:inline">
+    <button class="btn btn-green">Activate Pipeline</button>
+  </form>
+  {% endif %}
+  <form method="post" action="/admin/pause/{{ co.id }}" style="display:inline">
+    <button class="btn btn-ghost">{{ 'Unpause' if not co.active else 'Pause' }}</button>
+  </form>
+  <a href="/pipeline-login" class="btn btn-blue" target="_blank">View as Client</a>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab-btn {% if tab=='profile' %}active{% endif %}" onclick="switchTab('profile',this)">Profile</button>
+  <button class="tab-btn {% if tab=='schedule' %}active{% endif %}" onclick="switchTab('schedule',this)">Schedule</button>
+  <button class="tab-btn {% if tab=='credentials' %}active{% endif %}" onclick="switchTab('credentials',this)">Credentials</button>
+  <button class="tab-btn {% if tab=='bakes' %}active{% endif %}" onclick="switchTab('bakes',this)">Bakes ({{ bakes|length }})</button>
+  <button class="tab-btn" onclick="switchTab('danger',this)">Danger</button>
+</div>
+
+<!-- ── PROFILE TAB ── -->
+<div class="tab-pane {% if tab=='profile' or not tab %}active{% endif %}" id="tab-profile">
+
   <div class="card">
+    <div class="card-title">Business Info</div>
     <div class="info-grid">
       <div class="info-item"><div class="info-key">Contact</div><div class="info-val">{{ co.contact or '—' }}</div></div>
       <div class="info-item"><div class="info-key">Email</div><div class="info-val">{{ co.email or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Website</div><div class="info-val">{% if co.website_url %}<a href="{{ co.website_url }}" target="_blank">{{ co.website_url }}</a>{% else %}—{% endif %}</div></div>
+      <div class="info-item"><div class="info-key">Industry</div><div class="info-val">{{ co.business_type or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Location</div><div class="info-val">{{ co.location or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Area Covered</div><div class="info-val">{{ co.area_covered or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Target Audience</div><div class="info-val">{{ co.target_audience or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Marketing Focus</div><div class="info-val">{{ co.marketing_focus or '—' }}</div></div>
+      <div class="info-item"><div class="info-key">Content Tone</div><div class="info-val">{{ co.content_tone or '—' }}</div></div>
       <div class="info-item"><div class="info-key">Telegram Chat ID</div><div class="info-val">{{ co.tg_chat_id or '—' }}</div></div>
       <div class="info-item"><div class="info-key">WhatsApp</div><div class="info-val">{{ co.whatsapp or '—' }}</div></div>
-      <div class="info-item"><div class="info-key">Plan</div><div class="info-val">{{ co.plan }}</div></div>
-      <div class="info-item"><div class="info-key">Created</div><div class="info-val">{{ co.created_at[:16] }}</div></div>
+      <div class="info-item"><div class="info-key">Joined</div><div class="info-val">{{ co.created_at[:10] }}</div></div>
     </div>
-  </div>
-
-  <!-- Bake history -->
-  <h2>Bake History ({{ bakes|length }})</h2>
-  <div class="card">
-    {% if bakes %}
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Date</th>
-          <th>Status</th>
-          <th>Music</th>
-          <th>Download</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for b in bakes %}
-        <tr>
-          <td style="color:var(--muted)">{{ b.id }}</td>
-          <td>{{ b.created_at[:16] }}</td>
-          <td>
-            <span class="{% if b.status=='done' %}status-done{% elif b.status=='failed' %}status-fail{% else %}status-proc{% endif %}">
-              {{ b.status }}
-            </span>
-          </td>
-          <td style="color:var(--muted);font-size:.78rem">{% if b.music_path %}✓{% else %}—{% endif %}</td>
-          <td>
-            {% if b.status=='done' and b.output_path %}
-            <a class="dl-link" href="/api/download-bake/{{ b.id }}">⬇ Download</a>
-            {% else %}—{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <div class="empty">No bakes yet for this company.</div>
+    {% if co.business_bio %}
+    <div style="margin-top:12px;background:var(--card2);border-radius:8px;padding:12px 14px;font-size:.82rem;color:var(--muted);line-height:1.6">{{ co.business_bio }}</div>
+    {% endif %}
+    {% if co.brand_voice %}
+    <div style="margin-top:8px;background:var(--card2);border-radius:8px;padding:10px 14px">
+      <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:4px">Brand Voice</div>
+      <div style="font-size:.8rem;color:var(--text)">{{ co.brand_voice }}</div>
+    </div>
     {% endif %}
   </div>
 
-  <!-- Danger zone -->
-  <h2>Danger Zone</h2>
-  <div class="del-zone">
-    <p>Permanently delete this company and all their bake history. This cannot be undone.</p>
-    <form method="post" action="/admin/delete-company/{{ co.id }}" onsubmit="return confirm('Permanently delete {{ co.name }}?')">
-      <button class="del-btn">Delete Company</button>
+  <div class="card">
+    <div class="card-title">Social Handles</div>
+    <div class="info-grid">
+      {% if co.tt_handle %}<div class="info-item"><div class="info-key">TikTok</div><div class="info-val">{{ co.tt_handle }}</div></div>{% endif %}
+      {% if co.ig_handle %}<div class="info-item"><div class="info-key">Instagram</div><div class="info-val">{{ co.ig_handle }}</div></div>{% endif %}
+      {% if co.youtube_url %}<div class="info-item"><div class="info-key">YouTube</div><div class="info-val"><a href="{{ co.youtube_url }}" target="_blank">{{ co.youtube_url[:50] }}</a></div></div>{% endif %}
+      {% if co.linkedin_url %}<div class="info-item"><div class="info-key">LinkedIn</div><div class="info-val"><a href="{{ co.linkedin_url }}" target="_blank">{{ co.linkedin_url[:50] }}</a></div></div>{% endif %}
+      {% if co.facebook_url %}<div class="info-item"><div class="info-key">Facebook</div><div class="info-val"><a href="{{ co.facebook_url }}" target="_blank">{{ co.facebook_url[:50] }}</a></div></div>{% endif %}
+    </div>
+    {% if not co.tt_handle and not co.ig_handle and not co.youtube_url and not co.linkedin_url %}
+    <div class="empty">No social handles collected yet.</div>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reset Password</div>
+    <form method="post" action="/admin/reset-password/{{ co.id }}">
+      <div class="field-row">
+        <div>
+          <label>New Password</label>
+          <input type="text" name="new_password" placeholder="e.g. TempPass2026!" required>
+        </div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="save-btn" style="width:100%;margin-top:0">Reset Password</button>
+        </div>
+      </div>
+      <div class="hint">Client will need to use this new password to log in. Send it to them securely.</div>
     </form>
   </div>
 
 </div>
+
+<!-- ── SCHEDULE TAB ── -->
+<div class="tab-pane {% if tab=='schedule' %}active{% endif %}" id="tab-schedule">
+
+  <div class="card">
+    <div class="card-title">Pipeline Schedule</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Set when each pipeline slot runs for this client. Once saved, copy the generated cron expressions to <strong style="color:var(--text)">cron.org</strong> to activate the schedule.</p>
+
+    <form method="post" action="/admin/set-schedule/{{ co.id }}" id="schedule-form">
+
+      <div class="field-row">
+        <div>
+          <label>Slot 1 Time</label>
+          <input type="time" name="slot1_time" value="{{ schedule.slot1 or '09:00' }}" id="t1" oninput="buildCron()">
+          <div class="hint">Morning post</div>
+        </div>
+        <div>
+          <label>Slot 2 Time</label>
+          <input type="time" name="slot2_time" value="{{ schedule.slot2 or '12:00' }}" id="t2" oninput="buildCron()">
+          <div class="hint">Midday post</div>
+        </div>
+      </div>
+      <div class="field-row" style="margin-top:12px">
+        <div>
+          <label>Slot 3 Time</label>
+          <input type="time" name="slot3_time" value="{{ schedule.slot3 or '18:00' }}" id="t3" oninput="buildCron()">
+          <div class="hint">Evening post</div>
+        </div>
+        <div>
+          <label>Slot 4 Time <span style="color:var(--muted);font-weight:400;text-transform:none;font-size:.65rem">(optional)</span></label>
+          <input type="time" name="slot4_time" value="{{ schedule.slot4 or '' }}" id="t4" oninput="buildCron()">
+          <div class="hint">Weekly deep-dive (leave blank to disable)</div>
+        </div>
+      </div>
+
+      <label style="margin-top:18px">Active Days</label>
+      <div class="day-grid" id="day-grid">
+        {% for d in [('mon','Mo'),('tue','Tu'),('wed','We'),('thu','Th'),('fri','Fr'),('sat','Sa'),('sun','Su')] %}
+        <div class="day-chip {% if d[0] in (schedule.days or ['mon','tue','wed','thu','fri']) %}on{% endif %}"
+             data-day="{{ d[0] }}" onclick="toggleDay(this)">{{ d[1] }}</div>
+        {% endfor %}
+      </div>
+      <input type="hidden" name="active_days" id="h-days" value="{{ ','.join(schedule.days or ['mon','tue','wed','thu','fri']) }}">
+
+      <div style="margin-top:14px">
+        <label>Timezone</label>
+        <select name="timezone">
+          {% for tz in ['Europe/London','Africa/Lagos','America/New_York','America/Los_Angeles','Asia/Dubai','Asia/Singapore'] %}
+          <option value="{{ tz }}" {% if schedule.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit" class="save-btn">Save Schedule</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Generated cron.org Schedule</div>
+    <div class="cron-box" id="cron-output">—</div>
+    <button class="copy-btn" onclick="copyCron()">Copy All</button>
+    <div class="cron-note">
+      <strong style="color:#ffb800">To apply this schedule:</strong><br>
+      1. Go to <strong>cron.org</strong> and log in<br>
+      2. Create a new job for each slot above<br>
+      3. Set the schedule using the cron expressions shown<br>
+      4. Set the command / webhook URL to your pipeline trigger endpoint<br>
+      5. Each slot runs the pipeline with <code style="background:#ffffff10;padding:1px 4px;border-radius:3px">--slot N</code> argument
+    </div>
+  </div>
+
+</div>
+
+<!-- ── CREDENTIALS TAB ── -->
+<div class="tab-pane {% if tab=='credentials' %}active{% endif %}" id="tab-credentials">
+
+  <!-- Existing credentials display -->
+  {% if creds %}
+  <div class="card">
+    <div class="card-title">Stored Credentials</div>
+    {% for key, val in creds.items() %}
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff06;gap:12px">
+      <span style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;flex-shrink:0">{{ key }}</span>
+      <span class="cred-val-display" style="font-size:.75rem;max-width:60%">{{ val[:40] }}{% if val|length > 40 %}…{% endif %}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Stage 2 form -->
+  <div class="card">
+    <div class="card-title">Add / Update Credentials</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Fill these in after your onboarding call with the client. Only complete fields are saved — blank fields are ignored.</p>
+
+    <form method="post" action="/admin/complete-intake/{{ co.id }}">
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#00f2ea"></div>TikTok</div>
+        <label>TikTok Session ID</label>
+        <input type="text" name="tiktok_session_id" placeholder="Paste from browser cookies">
+        <div class="hint">Log into TikTok → F12 → Application → Cookies → tiktok.com → <strong>sessionid</strong></div>
+        <label>TikTok Client Key</label>
+        <input type="text" name="tiktok_client_key" placeholder="sbaw7re...">
+        <label>TikTok Client Secret</label>
+        <input type="password" name="tiktok_client_secret" placeholder="••••••••••••">
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#e1306c"></div>Instagram (via Facebook Graph API)</div>
+        <div class="field-row">
+          <div>
+            <label>Facebook App ID</label>
+            <input type="text" name="ig_app_id" placeholder="1310582...">
+          </div>
+          <div>
+            <label>Facebook App Secret</label>
+            <input type="password" name="ig_app_secret" placeholder="••••••••">
+          </div>
+        </div>
+        <label>Long-lived Access Token</label>
+        <input type="text" name="ig_access_token" placeholder="IGAAg...">
+        <div class="hint">Generate from Graph API Explorer. Long-lived tokens last ~60 days.</div>
+        <label>Instagram Business Account ID</label>
+        <input type="text" name="ig_user_id" placeholder="27317804164491362">
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#ff0000"></div>YouTube</div>
+        <div class="field-row">
+          <div>
+            <label>YouTube Data API Key</label>
+            <input type="text" name="yt_api_key" placeholder="AIzaSy...">
+          </div>
+          <div>
+            <label>YouTube Channel ID</label>
+            <input type="text" name="yt_channel_id" placeholder="UCxxxxxxxx">
+          </div>
+        </div>
+        <label>Google OAuth Refresh Token</label>
+        <input type="text" name="yt_refresh_token" placeholder="1//0g...">
+        <div class="hint">Run <code style="background:#ffffff10;padding:1px 4px;border-radius:3px">python scripts/setup_youtube.py</code> to generate this.</div>
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#0a66c2"></div>LinkedIn</div>
+        <div class="field-row">
+          <div>
+            <label>LinkedIn Client ID</label>
+            <input type="text" name="li_client_id" placeholder="78jsqe...">
+          </div>
+          <div>
+            <label>LinkedIn Client Secret</label>
+            <input type="password" name="li_client_secret" placeholder="••••••••">
+          </div>
+        </div>
+        <label>LinkedIn Access Token</label>
+        <input type="text" name="li_access_token" placeholder="AQW2GV8...">
+        <div class="hint">Tokens expire in ~60 days — set a monthly reminder to refresh.</div>
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#ff6b00"></div>Media APIs (Pexels / Pixabay)</div>
+        <div class="field-row">
+          <div>
+            <label>Pexels API Key</label>
+            <input type="text" name="pexels_api_key" placeholder="Leave blank to use BootHop default">
+            <div class="hint">Free at <a href="https://pexels.com" target="_blank" style="color:#38bdf8">pexels.com</a> → API. Used for stock video backgrounds.</div>
+          </div>
+          <div>
+            <label>Pixabay API Key</label>
+            <input type="text" name="pixabay_api_key" placeholder="Leave blank to use BootHop default">
+            <div class="hint">Free at <a href="https://pixabay.com" target="_blank" style="color:#38bdf8">pixabay.com</a> → API. Backup stock source.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#c080ff"></div>Blog (Blogger / WordPress)</div>
+        <div class="field-row">
+          <div>
+            <label>Platform</label>
+            <select name="blog_platform">
+              <option value="">— None —</option>
+              <option value="blogger">Google Blogger</option>
+              <option value="wordpress">WordPress</option>
+            </select>
+          </div>
+          <div>
+            <label>Blog ID (Blogger)</label>
+            <input type="text" name="blog_id" placeholder="1234567890">
+          </div>
+        </div>
+        <label>Google Refresh Token (Blogger)</label>
+        <input type="text" name="blog_refresh_token" placeholder="1//0g...">
+      </div>
+
+      <button type="submit" class="save-btn">Save Credentials</button>
+    </form>
+  </div>
+
+</div>
+
+<!-- ── BAKES TAB ── -->
+<div class="tab-pane {% if tab=='bakes' %}active{% endif %}" id="tab-bakes">
+  <div class="card">
+    <div class="card-title">Bake History</div>
+    {% if bakes %}
+    <table>
+      <thead><tr><th>#</th><th>Date</th><th>Status</th><th>Music</th><th>Download</th></tr></thead>
+      <tbody>
+      {% for b in bakes %}
+      <tr>
+        <td style="color:var(--muted)">{{ b.id }}</td>
+        <td>{{ b.created_at[:16] }}</td>
+        <td><span class="{% if b.status=='done' %}s-done{% elif b.status=='failed' %}s-fail{% else %}s-proc{% endif %}">{{ b.status }}</span></td>
+        <td style="color:var(--muted)">{% if b.music_path %}✓{% else %}—{% endif %}</td>
+        <td>{% if b.status=='done' and b.output_path %}<a class="dl-link" href="/api/download-bake/{{ b.id }}">Download</a>{% else %}—{% endif %}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}<div class="empty">No bakes yet.</div>{% endif %}
+  </div>
+</div>
+
+<!-- ── DANGER TAB ── -->
+<div class="tab-pane" id="tab-danger">
+  <div class="del-zone">
+    <p>Permanently delete this company and all their data. This cannot be undone.</p>
+    <form method="post" action="/admin/delete-company/{{ co.id }}" onsubmit="return confirm('Permanently delete {{ co.name }}?')">
+      <button class="btn btn-red">Delete Company</button>
+    </form>
+  </div>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const ACTIVE_TAB = '{{ tab or "profile" }}';
+
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  history.replaceState(null,'',location.pathname+'?tab='+id);
+}
+
+// Activate correct tab on load
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn = [...document.querySelectorAll('.tab-btn')].find(b=>b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+ACTIVE_TAB+"'"));
+  if(btn) btn.classList.add('active');
+  buildCron();
+  buildDays();
+});
+
+// Schedule / Cron
+function buildDays(){
+  const hidden = document.getElementById('h-days');
+  const on = [...document.querySelectorAll('.day-chip.on')].map(d=>d.dataset.day);
+  hidden.value = on.join(',');
+}
+
+function toggleDay(el){
+  el.classList.toggle('on');
+  buildDays();
+  buildCron();
+}
+
+function timeToHM(t){
+  if(!t) return null;
+  const [h,m] = t.split(':');
+  return {h:parseInt(h),m:parseInt(m)};
+}
+
+function daysToCron(){
+  const on = [...document.querySelectorAll('.day-chip.on')].map(d=>d.dataset.day);
+  if(on.length===7) return '*';
+  const map = {mon:'1',tue:'2',wed:'3',thu:'4',fri:'5',sat:'6',sun:'0'};
+  return on.map(d=>map[d]).join(',');
+}
+
+function buildCron(){
+  const dayPart = daysToCron();
+  const slots = [
+    {id:'t1',label:'Slot 1'},
+    {id:'t2',label:'Slot 2'},
+    {id:'t3',label:'Slot 3'},
+    {id:'t4',label:'Slot 4'},
+  ];
+  const lines = slots.map(s=>{
+    const el = document.getElementById(s.id);
+    if(!el||!el.value) return `<span class="cmt"># ${s.label}: disabled</span>`;
+    const {h,m} = timeToHM(el.value);
+    return `<span class="cron-line">${m} ${h} * * ${dayPart}   # ${s.label} — pipeline.py --slot ${s.id.replace('t','')}</span>`;
+  }).join('\n');
+  document.getElementById('cron-output').innerHTML = lines;
+}
+
+function copyCron(){
+  const text = [...document.querySelectorAll('.cron-line')].map(l=>l.textContent).join('\n');
+  navigator.clipboard.writeText(text).then(()=>alert('Cron schedule copied!')).catch(()=>prompt('Copy:',text));
+}
+</script>
 </body>
 </html>

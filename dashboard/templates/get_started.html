@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Get Started — BootHop Pipeline</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#08080f;--card:#121220;--card2:#0e0e1c;--or:#ff6b00;--gr:linear-gradient(135deg,#ff6b00,#ffb800);--text:#e0e0f0;--muted:#8888a8;--green:#00e676;--red:#ff4040;--blue:#38bdf8;--pu:#c080ff;--r:14px;--border:#ffffff14}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 80px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+
+header{background:#08080fcc;backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:14px 0;position:sticky;top:0;z-index:100}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+.hdr{display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;border-radius:7px;background:var(--gr);display:flex;align-items:center;justify-content:center;color:#000;font-size:.75rem;font-weight:900;-webkit-text-fill-color:#000;flex-shrink:0}
+.login-link{font-size:.78rem;color:var(--muted);text-decoration:none}
+.login-link:hover{color:var(--text)}
+
+.hero{padding:36px 0 24px;text-align:center}
+.hero h1{font-size:1.7rem;font-weight:900;background:var(--gr);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.hero p{font-size:.88rem;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.6}
+
+/* Progress bar */
+.progress-wrap{margin:0 0 28px;display:flex;align-items:center;gap:0}
+.prog-step{flex:1;text-align:center;position:relative}
+.prog-dot{width:28px;height:28px;border-radius:50%;border:2px solid #ffffff20;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:800;color:var(--muted);margin:0 auto 4px;transition:all .3s}
+.prog-dot.active{background:var(--gr);border-color:transparent;color:#000}
+.prog-dot.done{background:#00e67618;border-color:var(--green);color:var(--green)}
+.prog-dot.done::after{content:'✓';font-size:.75rem}
+.prog-label{font-size:.58rem;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.prog-label.active{color:var(--or)}
+.prog-line{flex:none;width:40px;height:2px;background:#ffffff10;margin-top:-18px;transition:background .3s}
+.prog-line.done{background:var(--green)}
+
+/* Card */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:28px 28px;margin-bottom:16px;position:relative;overflow:hidden}
+.form-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,#ffffff05,transparent 60%);pointer-events:none}
+.step{display:none}.step.active{display:block}
+.step-title{font-size:.7rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+
+/* Fields */
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.field label .opt{color:#ffffff30;font-weight:400;text-transform:none;letter-spacing:0;font-size:.65rem}
+.field input,.field select,.field textarea{width:100%;background:#0a0a14;border:1.5px solid #ffffff18;border-radius:9px;padding:10px 14px;color:var(--text);font-size:.84rem;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--or)}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted)}
+.field textarea{resize:vertical;min-height:80px}
+.field select option{background:#121220}
+.hint{font-size:.68rem;color:var(--muted);margin-top:5px;line-height:1.5}
+.hint a{color:var(--blue);text-decoration:none}
+.hint a:hover{text-decoration:underline}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.field-row{grid-template-columns:1fr}}
+
+/* Logo upload */
+.logo-upload{border:2px dashed #ffffff20;border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.logo-upload:hover{border-color:var(--or);background:#ff6b0008}
+.logo-upload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.logo-preview{width:72px;height:72px;border-radius:10px;object-fit:cover;display:none;margin:0 auto 8px}
+.logo-upload-text{font-size:.82rem;color:var(--muted)}
+.logo-upload-sub{font-size:.68rem;color:var(--muted);margin-top:4px}
+
+/* Industry grid */
+.industry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:6px}
+.ind-card{background:#0a0a14;border:1.5px solid #ffffff15;border-radius:9px;padding:11px 8px;cursor:pointer;text-align:center;transition:all .2s}
+.ind-card:hover{border-color:#ffffff25}
+.ind-card.selected{border-color:var(--or);background:#ff6b0010}
+.ind-icon{font-size:1.4rem;margin-bottom:3px}
+.ind-name{font-size:.68rem;font-weight:700;color:var(--text);line-height:1.3}
+
+/* Platform grid */
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:6px}
+.plat-card{background:#0a0a14;border:1.5px solid #ffffff15;border-radius:9px;padding:13px 10px;cursor:pointer;display:flex;align-items:center;gap:9px;transition:all .2s}
+.plat-card:hover{border-color:#ffffff25}
+.plat-card.on{border-color:var(--or);background:#ff6b0010}
+.plat-card.on .plat-chk{background:var(--or);border-color:var(--or)}
+.plat-icon{font-size:1.2rem;flex-shrink:0}
+.plat-info{flex:1;min-width:0}
+.plat-name{font-size:.76rem;font-weight:700;color:var(--text)}
+.plat-sub{font-size:.62rem;color:var(--muted)}
+.plat-chk{width:14px;height:14px;border-radius:3px;border:1.5px solid #ffffff25;flex-shrink:0;transition:all .2s}
+
+/* Why box */
+.why-box{background:#0a0a14;border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin-top:6px;font-size:.73rem;color:var(--muted);line-height:1.6}
+.why-box strong{color:var(--blue)}
+
+/* Tone / focus pickers */
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+.choice-card{background:#0a0a14;border:1.5px solid #ffffff15;border-radius:9px;padding:11px 13px;cursor:pointer;transition:all .2s}
+.choice-card:hover{border-color:#ffffff25}
+.choice-card.selected{border-color:var(--or);background:#ff6b0010}
+.choice-title{font-size:.78rem;font-weight:700;color:var(--text);margin-bottom:2px}
+.choice-desc{font-size:.67rem;color:var(--muted);line-height:1.4}
+
+/* Buttons */
+.btn-row{display:flex;gap:10px;justify-content:space-between;margin-top:22px;flex-wrap:wrap}
+.btn{padding:10px 22px;border-radius:9px;font-size:.82rem;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:inline-flex;align-items:center;gap:6px;letter-spacing:.02em}
+.btn-or{background:var(--gr);color:#000}.btn-or:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;border:1px solid #ffffff20;color:var(--muted)}.btn-ghost:hover{border-color:#ffffff35;color:var(--text)}
+.btn-green{background:linear-gradient(135deg,#00c853,#00e676);color:#000}.btn-green:hover{filter:brightness(1.05)}
+
+/* Success */
+.success-wrap{text-align:center;padding:32px 0}
+.success-icon{font-size:3rem;margin-bottom:12px}
+.success-title{font-size:1.3rem;font-weight:900;color:var(--green);margin-bottom:8px}
+.success-sub{font-size:.85rem;color:var(--muted);line-height:1.7;max-width:440px;margin:0 auto 24px}
+.cred-box{background:#00e67612;border:1px solid #00e67635;border-radius:10px;padding:18px;max-width:380px;margin:0 auto 20px;text-align:left}
+.cred-row{display:flex;justify-content:space-between;align-items:center;font-size:.82rem;padding:5px 0;border-bottom:1px solid #ffffff08}
+.cred-row:last-child{border-bottom:none}
+.cred-key{color:var(--muted)}
+.cred-val{font-family:monospace;color:var(--text);font-size:.84rem}
+
+/* Error */
+.err{background:#ff404018;border:1px solid #ff404040;border-radius:8px;padding:10px 14px;color:var(--red);font-size:.82rem;margin-bottom:16px}
+
+footer{text-align:center;padding:32px 0 0;font-size:.68rem;color:var(--muted)}
+a{color:var(--or);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hdr">
+    <div class="logo"><div class="logo-icon">B</div>BootHop Pipeline</div>
+    <a href="/pipeline-login" class="login-link">Already a client? Sign in →</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="hero">
+  <h1>Start your pipeline</h1>
+  <p>Tell us about your business — we'll set up your daily content pipeline and notify you within 24 hours.</p>
+</div>
+
+{% if success %}
+<!-- ── SUCCESS ── -->
+<div class="form-card">
+  <div class="success-wrap">
+    <div class="success-icon">🎉</div>
+    <div class="success-title">Application submitted!</div>
+    <div class="success-sub">
+      We've received your details and will have your pipeline ready within 24 hours.<br>
+      You can log in now — your dashboard will show a "Setting up…" status until we activate it.
+    </div>
+    <div class="cred-box">
+      <div style="font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:10px">Your login details</div>
+      <div class="cred-row"><span class="cred-key">Login URL</span><span class="cred-val">boothop.com/pipeline-login</span></div>
+      <div class="cred-row"><span class="cred-key">Company ID</span><span class="cred-val">{{ slug }}</span></div>
+      <div class="cred-row"><span class="cred-key">Password</span><span class="cred-val">The one you just set</span></div>
+    </div>
+    <a href="/pipeline-login" style="display:inline-block;padding:12px 28px;background:var(--gr);color:#000;font-weight:800;border-radius:9px;font-size:.88rem">Go to my dashboard →</a>
+    <div style="margin-top:16px;font-size:.75rem;color:var(--muted)">Keep your Company ID safe — you'll need it every time you log in.</div>
+  </div>
+</div>
+
+{% else %}
+
+{% if error %}<div class="err">{{ error }}</div>{% endif %}
+
+<!-- Progress -->
+<div class="progress-wrap" id="progress-wrap">
+  <div class="prog-step">
+    <div class="prog-dot active" id="dot-1">1</div>
+    <div class="prog-label active" id="lbl-1">Business</div>
+  </div>
+  <div class="prog-line" id="line-1"></div>
+  <div class="prog-step">
+    <div class="prog-dot" id="dot-2">2</div>
+    <div class="prog-label" id="lbl-2">Content</div>
+  </div>
+  <div class="prog-line" id="line-2"></div>
+  <div class="prog-step">
+    <div class="prog-dot" id="dot-3">3</div>
+    <div class="prog-label" id="lbl-3">Platforms</div>
+  </div>
+  <div class="prog-line" id="line-4"></div>
+  <div class="prog-step">
+    <div class="prog-dot" id="dot-4">4</div>
+    <div class="prog-label" id="lbl-4">Handles</div>
+  </div>
+  <div class="prog-line" id="line-5"></div>
+  <div class="prog-step">
+    <div class="prog-dot" id="dot-5">5</div>
+    <div class="prog-label" id="lbl-5">Account</div>
+  </div>
+</div>
+
+<form method="post" action="/get-started" enctype="multipart/form-data" id="gs-form">
+<input type="hidden" name="business_type"   id="h-business-type" value="logistics">
+<input type="hidden" name="marketing_focus" id="h-marketing-focus" value="awareness_and_sales">
+<input type="hidden" name="content_tone"    id="h-content-tone" value="inspirational">
+<input type="hidden" name="platform_tiktok"    id="h-tt" value="">
+<input type="hidden" name="platform_instagram" id="h-ig" value="">
+<input type="hidden" name="platform_youtube"   id="h-yt" value="">
+<input type="hidden" name="platform_linkedin"  id="h-li" value="">
+<input type="hidden" name="platform_blog"      id="h-bl" value="">
+
+<div class="form-card">
+
+  <!-- ── STEP 1: Business Identity ── -->
+  <div class="step active" id="step-1">
+    <div class="step-title">Step 1 — Your Business</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Company / Brand Name <span style="color:var(--red)">*</span></label>
+        <input type="text" name="company_name" id="f-company" placeholder="e.g. Acme Hospitality" required maxlength="60">
+      </div>
+      <div class="field">
+        <label>Website URL <span class="opt">(optional)</span></label>
+        <input type="url" name="website_url" placeholder="https://yoursite.com">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Industry / Business Type <span style="color:var(--red)">*</span></label>
+      <div class="industry-grid" id="industry-grid"></div>
+    </div>
+
+    <div class="field">
+      <label>What does your business do? <span style="color:var(--red)">*</span></label>
+      <textarea name="business_bio" placeholder="e.g. We place Nigerian job seekers into UK hospitality roles — hotels, restaurants, care homes. We handle visa guidance, interviews and employer matching." required></textarea>
+      <div class="hint">This goes directly into AI content generation — be specific and include your main USP.</div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Business Location <span style="color:var(--red)">*</span></label>
+        <input type="text" name="location" placeholder="e.g. London, UK" required>
+      </div>
+      <div class="field">
+        <label>Markets / Area Covered <span style="color:var(--red)">*</span></label>
+        <input type="text" name="area_covered" placeholder="e.g. UK and Nigeria" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Target Audience <span class="opt">(optional)</span></label>
+      <input type="text" name="target_audience" placeholder="e.g. Nigerian job seekers aged 21-35 looking for UK hospitality work">
+    </div>
+
+    <div class="field">
+      <label>Your Logo <span class="opt">(optional — upload later is fine)</span></label>
+      <div class="logo-upload" id="logo-drop">
+        <img class="logo-preview" id="logo-preview" src="" alt="logo preview">
+        <input type="file" name="logo_file" id="logo-file" accept="image/*" onchange="previewLogo(this)">
+        <div class="logo-upload-text" id="logo-text">Click to upload logo</div>
+        <div class="logo-upload-sub">PNG, JPG or WebP — max 2MB</div>
+      </div>
+    </div>
+
+    <div class="btn-row" style="justify-content:flex-end">
+      <button type="button" class="btn btn-or" onclick="goStep(2)">Next: Content Strategy →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Content Strategy ── -->
+  <div class="step" id="step-2">
+    <div class="step-title">Step 2 — Content Strategy</div>
+
+    <div class="field">
+      <label>Marketing Focus <span style="color:var(--red)">*</span></label>
+      <div class="choice-grid" id="focus-grid">
+        <div class="choice-card selected" data-val="awareness_and_sales" onclick="pick('focus',this,'h-marketing-focus')">
+          <div class="choice-title">Awareness + Sales</div>
+          <div class="choice-desc">Mix of brand building and conversion content — recommended for most businesses.</div>
+        </div>
+        <div class="choice-card" data-val="awareness" onclick="pick('focus',this,'h-marketing-focus')">
+          <div class="choice-title">Brand Awareness</div>
+          <div class="choice-desc">Build recognition and trust. Good for new brands.</div>
+        </div>
+        <div class="choice-card" data-val="sales" onclick="pick('focus',this,'h-marketing-focus')">
+          <div class="choice-title">Sales & Leads</div>
+          <div class="choice-desc">Direct response — CTAs, offers, urgency.</div>
+        </div>
+        <div class="choice-card" data-val="thought_leadership" onclick="pick('focus',this,'h-marketing-focus')">
+          <div class="choice-title">Thought Leadership</div>
+          <div class="choice-desc">Expert-positioning content. Strong for LinkedIn.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>Content Tone <span style="color:var(--red)">*</span></label>
+      <div class="choice-grid" id="tone-grid">
+        <div class="choice-card selected" data-val="inspirational" onclick="pick('tone',this,'h-content-tone')">
+          <div class="choice-title">Inspirational</div>
+          <div class="choice-desc">Empowering, motivational language. Speaks to ambition.</div>
+        </div>
+        <div class="choice-card" data-val="nigerian_street" onclick="pick('tone',this,'h-content-tone')">
+          <div class="choice-title">Nigerian / Pidgin</div>
+          <div class="choice-desc">Authentic Nigerian voice — relatable, culturally resonant.</div>
+        </div>
+        <div class="choice-card" data-val="professional" onclick="pick('tone',this,'h-content-tone')">
+          <div class="choice-title">Professional</div>
+          <div class="choice-desc">Clean, authoritative. Best for B2B and finance.</div>
+        </div>
+        <div class="choice-card" data-val="casual_friendly" onclick="pick('tone',this,'h-content-tone')">
+          <div class="choice-title">Casual & Friendly</div>
+          <div class="choice-desc">Warm, conversational. Good for lifestyle brands.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>Content Keywords <span class="opt">(optional — auto-set from industry)</span></label>
+      <input type="text" name="visual_keywords" id="f-keywords" placeholder="e.g. UK jobs, hospitality, career change, work visa">
+      <div class="hint">These guide what the AI focuses on. 5–8 keywords works best.</div>
+    </div>
+
+    <div class="field">
+      <label>Brand Voice Notes <span class="opt">(optional)</span></label>
+      <textarea name="brand_voice" placeholder="e.g. Always mention the UK-Nigeria connection. Avoid corporate language. Use 'you' a lot. Never say 'utilize'."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" onclick="goStep(1)">← Back</button>
+      <button type="button" class="btn btn-or" onclick="goStep(3)">Next: Platforms →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: Platform Selection ── -->
+  <div class="step" id="step-3">
+    <div class="step-title">Step 3 — Where do you post?</div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:16px;line-height:1.6">Select the platforms you post to. We'll set up posting for each one. You don't need to have all the API details now — that's covered in a setup call with BootHop after you submit.</p>
+
+    <div class="plat-grid" id="plat-grid">
+      <div class="plat-card on" data-plat="tt" onclick="togglePlat(this)">
+        <div class="plat-icon">🎵</div>
+        <div class="plat-info"><div class="plat-name">TikTok</div><div class="plat-sub">Short video</div></div>
+        <div class="plat-chk">✓</div>
+      </div>
+      <div class="plat-card on" data-plat="ig" onclick="togglePlat(this)">
+        <div class="plat-icon">📸</div>
+        <div class="plat-info"><div class="plat-name">Instagram</div><div class="plat-sub">Feed + Stories</div></div>
+        <div class="plat-chk">✓</div>
+      </div>
+      <div class="plat-card" data-plat="yt" onclick="togglePlat(this)">
+        <div class="plat-icon">▶️</div>
+        <div class="plat-info"><div class="plat-name">YouTube Shorts</div><div class="plat-sub">Short-form video</div></div>
+        <div class="plat-chk"></div>
+      </div>
+      <div class="plat-card" data-plat="li" onclick="togglePlat(this)">
+        <div class="plat-icon">💼</div>
+        <div class="plat-info"><div class="plat-name">LinkedIn</div><div class="plat-sub">B2B posts</div></div>
+        <div class="plat-chk"></div>
+      </div>
+      <div class="plat-card" data-plat="bl" onclick="togglePlat(this)">
+        <div class="plat-icon">📝</div>
+        <div class="plat-info"><div class="plat-name">Blog</div><div class="plat-sub">Blogger or WordPress</div></div>
+        <div class="plat-chk"></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" onclick="goStep(2)">← Back</button>
+      <button type="button" class="btn btn-or" onclick="goStep(4)">Next: Your Handles →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 4: Social Handles / URLs ── -->
+  <div class="step" id="step-4">
+    <div class="step-title">Step 4 — Your Social Handles</div>
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:18px;line-height:1.6">Just your public handles and profile URLs for now. API credentials and login details are collected separately in your onboarding call with BootHop.</p>
+
+    <div id="handle-tt">
+      <div class="field">
+        <label>TikTok Handle</label>
+        <input type="text" name="tt_handle" placeholder="@your-handle">
+      </div>
+    </div>
+
+    <div id="handle-ig">
+      <div class="field">
+        <label>Instagram Handle</label>
+        <input type="text" name="ig_handle" placeholder="@your.handle">
+      </div>
+    </div>
+
+    <div id="handle-yt">
+      <div class="field">
+        <label>YouTube Channel URL or ID</label>
+        <input type="text" name="youtube_url" placeholder="https://youtube.com/@yourchannel  or  UCxxxxxxxxxx">
+        <div class="hint">Find your channel ID at <a href="https://www.youtube.com/account_advanced" target="_blank">youtube.com/account_advanced</a></div>
+      </div>
+    </div>
+
+    <div id="handle-li">
+      <div class="field">
+        <label>LinkedIn Profile or Company Page URL</label>
+        <input type="url" name="linkedin_url" placeholder="https://linkedin.com/in/your-name  or  /company/your-company">
+      </div>
+    </div>
+
+    <div id="handle-bl" style="display:none">
+      <div class="field">
+        <label>Blog / Website URL</label>
+        <input type="url" name="facebook_url" placeholder="https://yourblog.com">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Facebook Page URL <span class="opt">(optional — needed if you use Instagram Graph API)</span></label>
+      <input type="url" name="facebook_url" placeholder="https://facebook.com/yourpage">
+      <div class="why-box">
+        <strong>Why Facebook?</strong> Instagram's official posting API (the one that doesn't get accounts flagged) runs through the Facebook Business platform. Your Facebook page is linked to your Instagram Business account — we need this to post reliably.
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" onclick="goStep(3)">← Back</button>
+      <button type="button" class="btn btn-or" onclick="goStep(5)">Next: Account Setup →</button>
+    </div>
+  </div>
+
+  <!-- ── STEP 5: Account + Notifications ── -->
+  <div class="step" id="step-5">
+    <div class="step-title">Step 5 — Your Account</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Your Full Name <span style="color:var(--red)">*</span></label>
+        <input type="text" name="contact_name" placeholder="Jane Smith" required>
+      </div>
+      <div class="field">
+        <label>Email Address <span style="color:var(--red)">*</span></label>
+        <input type="email" name="email" placeholder="you@company.com" required>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Password <span style="color:var(--red)">*</span></label>
+      <input type="password" name="password" placeholder="Choose a strong password" required minlength="8">
+      <div class="hint">Minimum 8 characters. You'll use this to log in at boothop.com/pipeline-login.</div>
+    </div>
+
+    <div class="field">
+      <label>Plan</label>
+      <select name="plan">
+        <option value="basic">Basic — Core posting (TikTok, Instagram, YouTube)</option>
+        <option value="pro">Pro — All platforms + Blog + LinkedIn + Reports</option>
+      </select>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
+
+    <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:14px">Notification Preferences</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>Telegram Chat ID <span class="opt">(recommended)</span></label>
+        <input type="text" name="tg_chat_id" placeholder="e.g. 8641867751">
+        <div class="hint">Your pipeline delivers video previews and post confirmations via Telegram. Message <a href="https://t.me/userinfobot" target="_blank">@userinfobot</a> to get your chat ID.</div>
+      </div>
+      <div class="field">
+        <label>WhatsApp Number <span class="opt">(optional)</span></label>
+        <input type="text" name="whatsapp" placeholder="+447900123456">
+        <div class="hint">International format. Backup notification channel.</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn btn-ghost" onclick="goStep(4)">← Back</button>
+      <button type="submit" class="btn btn-green">Submit Application →</button>
+    </div>
+  </div>
+
+</div><!-- /form-card -->
+</form>
+
+{% endif %}
+
+<footer><div class="wrap">BootHop Pipeline &nbsp;·&nbsp; <a href="https://boothop.com">boothop.com</a> &nbsp;·&nbsp; <a href="/pipeline-login">Client Login</a></div></footer>
+</div><!-- /wrap -->
+
+<script>
+const INDUSTRIES = [
+  {id:'logistics',  name:'Logistics',     icon:'✈️',  kws:'logistics, delivery, supply chain, movement, cargo'},
+  {id:'hospitality',name:'Hospitality',   icon:'🏨',  kws:'hospitality jobs, career, UK placement, hotel, restaurant'},
+  {id:'restaurant', name:'Food & Dining', icon:'🍽️',  kws:'food, cooking, restaurant, dining, fresh cuisine'},
+  {id:'tech',       name:'Tech / SaaS',   icon:'💻',  kws:'technology, software, innovation, digital, startup'},
+  {id:'real_estate',name:'Real Estate',   icon:'🏡',  kws:'property, real estate, investment, homes, development'},
+  {id:'healthcare', name:'Healthcare',    icon:'⚕️',  kws:'healthcare, wellness, medical, fitness, healthy living'},
+  {id:'finance',    name:'Finance',       icon:'💰',  kws:'finance, investment, money, fintech, wealth'},
+  {id:'fashion',    name:'Fashion',       icon:'👗',  kws:'fashion, style, beauty, clothing, lifestyle'},
+  {id:'education',  name:'Education',     icon:'🎓',  kws:'education, learning, skills, training, knowledge'},
+  {id:'fitness',    name:'Fitness',       icon:'💪',  kws:'fitness, sports, exercise, health, training'},
+  {id:'entertainment',name:'Entertainment',icon:'🎬', kws:'entertainment, music, events, performance, lifestyle'},
+  {id:'other',      name:'Other',         icon:'⚙️',  kws:''},
+];
+
+let _selectedIndustry = 'logistics';
+let _platState = {tt:true, ig:true, yt:false, li:false, bl:false};
+
+// Build industry grid
+function buildIndustries(){
+  const g = document.getElementById('industry-grid');
+  g.innerHTML = INDUSTRIES.map(ind=>`
+    <div class="ind-card ${ind.id===_selectedIndustry?'selected':''}" onclick="pickIndustry(this,'${ind.id}','${ind.kws}')">
+      <div class="ind-icon">${ind.icon}</div>
+      <div class="ind-name">${ind.name}</div>
+    </div>`).join('');
+}
+
+function pickIndustry(el, id, kws){
+  document.querySelectorAll('.ind-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  _selectedIndustry = id;
+  document.getElementById('h-business-type').value = id;
+  const kw = document.getElementById('f-keywords');
+  if(kw && !kw._edited) kw.value = kws;
+}
+
+function pick(type, el, hiddenId){
+  const grid = el.parentElement;
+  grid.querySelectorAll('.choice-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById(hiddenId).value = el.dataset.val;
+}
+
+function togglePlat(el){
+  const k = el.dataset.plat;
+  const on = !el.classList.contains('on');
+  el.classList.toggle('on', on);
+  el.querySelector('.plat-chk').textContent = on ? '✓' : '';
+  _platState[k] = on;
+  document.getElementById('h-'+k).value = on ? 'on' : '';
+  // Show/hide handle fields
+  const hEl = document.getElementById('handle-'+k);
+  if(hEl) hEl.style.display = on ? '' : 'none';
+  updateHandleVisibility();
+}
+
+function updateHandleVisibility(){
+  ['tt','ig','yt','li','bl'].forEach(k=>{
+    const el = document.getElementById('handle-'+k);
+    if(el) el.style.display = _platState[k] ? '' : 'none';
+  });
+}
+
+// Step navigation
+function goStep(n){
+  document.querySelectorAll('.step').forEach((s,i)=>s.classList.toggle('active',i===n-1));
+  for(let i=1;i<=5;i++){
+    const dot = document.getElementById('dot-'+i);
+    const lbl = document.getElementById('lbl-'+i);
+    const line = document.getElementById('line-'+i);
+    dot.className = 'prog-dot' + (i<n?' done':i===n?' active':'');
+    dot.textContent = i<n ? '' : i;
+    lbl.className = 'prog-label' + (i<n?' done':i===n?' active':'');
+    if(line) line.className = 'prog-line' + (i<n?' done':'');
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Logo preview
+function previewLogo(input){
+  if(!input.files||!input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('logo-preview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('logo-text').textContent = input.files[0].name;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  buildIndustries();
+  updateHandleVisibility();
+  // Initial hidden field values
+  document.getElementById('h-tt').value = 'on';
+  document.getElementById('h-ig').value = 'on';
+  document.getElementById('f-keywords').addEventListener('input', function(){this._edited=true;});
+});
+</script>
+</body>
+</html>
