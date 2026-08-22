@@ -275,12 +275,21 @@ td{padding:9px 8px;vertical-align:middle}
       <input type="hidden" name="active_days" id="h-days" value="{{ ','.join(schedule.days or ['mon','tue','wed','thu','fri']) }}">
 
       <div style="margin-top:14px">
-        <label>Timezone</label>
-        <select name="timezone">
-          {% for tz in ['Europe/London','Africa/Lagos','America/New_York','America/Los_Angeles','Asia/Dubai','Asia/Singapore'] %}
-          <option value="{{ tz }}" {% if schedule.timezone == tz %}selected{% endif %}>{{ tz }}</option>
+        <label>Client Timezone <span style="font-size:.65rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">— all slot times are entered in this timezone</span></label>
+        <select name="timezone" id="tz-select" onchange="buildCron()">
+          {% for tz, label in [
+            ('Europe/London',       'UK — London (GMT / BST)'),
+            ('Africa/Lagos',        'Nigeria — Lagos (WAT, UTC+1)'),
+            ('America/Chicago',     'USA Central — Chicago (CT, UTC-6/5)'),
+            ('America/New_York',    'USA Eastern — New York (ET, UTC-5/4)'),
+            ('America/Los_Angeles', 'USA Pacific — Los Angeles (PT, UTC-8/7)'),
+            ('Asia/Dubai',          'UAE — Dubai (GST, UTC+4)'),
+            ('Asia/Singapore',      'Singapore (SGT, UTC+8)'),
+          ] %}
+          <option value="{{ tz }}" {% if schedule.timezone == tz %}selected{% endif %}>{{ label }}</option>
           {% endfor %}
         </select>
+        <div class="hint" style="margin-top:6px">The cron schedule below will be automatically converted to UTC for cron.org.</div>
       </div>
 
       <button type="submit" class="save-btn">Save Schedule</button>
@@ -288,16 +297,25 @@ td{padding:9px 8px;vertical-align:middle}
   </div>
 
   <div class="card">
-    <div class="card-title">Generated cron.org Schedule</div>
+    <div class="card-title">Generated cron.org Schedule <span style="font-size:.68rem;font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted)">(all times converted to UTC for cron.org)</span></div>
+
+    <!-- Local time preview row -->
+    <div id="local-preview" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"></div>
+
     <div class="cron-box" id="cron-output">—</div>
     <button class="copy-btn" onclick="copyCron()">Copy All</button>
-    <div class="cron-note">
+
+    <div id="dst-warning" style="display:none;margin-top:10px;background:#ff404010;border:1px solid #ff404040;border-radius:8px;padding:10px 12px;font-size:.75rem;color:#ff8888;line-height:1.6">
+      <strong>DST reminder:</strong> This client's timezone observes Daylight Saving Time. The UTC offset changes in spring and autumn — remember to update cron.org when clocks change.
+    </div>
+
+    <div class="cron-note" style="margin-top:10px">
       <strong style="color:#ffb800">To apply this schedule:</strong><br>
-      1. Go to <strong>cron.org</strong> and log in<br>
-      2. Create a new job for each slot above<br>
-      3. Set the schedule using the cron expressions shown<br>
-      4. Set the command / webhook URL to your pipeline trigger endpoint<br>
-      5. Each slot runs the pipeline with <code style="background:#ffffff10;padding:1px 4px;border-radius:3px">--slot N</code> argument
+      1. Go to <strong>cron.org</strong> and log in (use the BootHop account)<br>
+      2. Create one job per active slot<br>
+      3. Paste the cron expression (UTC) for each slot<br>
+      4. Set the webhook URL to your pipeline trigger endpoint<br>
+      5. Each slot uses <code style="background:#ffffff10;padding:1px 4px;border-radius:3px">--slot N</code> argument
     </div>
   </div>
 
@@ -487,6 +505,42 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 // Schedule / Cron
+// ── Timezone UTC offset (accounts for DST using today's date) ──────────────
+const DST_ZONES = [
+  'Europe/London','America/New_York','America/Chicago',
+  'America/Los_Angeles','Europe/Paris','America/Denver'
+];
+
+function getUTCOffsetMinutes(timezone) {
+  // Returns (UTC - local) in minutes for the given timezone right now.
+  // Positive = timezone is behind UTC (e.g. America/Chicago = +360 in winter)
+  const now = new Date();
+  function hhmm(tz) {
+    const p = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour:'2-digit', minute:'2-digit',
+      hour12: false, year:'numeric', month:'numeric', day:'numeric'
+    }).formatToParts(now);
+    const o = {};
+    p.forEach(x => o[x.type] = x.value);
+    // hour12:false can give '24' for midnight
+    return parseInt(o.hour === '24' ? '0' : o.hour) * 60 + parseInt(o.minute);
+  }
+  const localMin = hhmm(timezone);
+  const utcMin   = hhmm('UTC');
+  let diff = utcMin - localMin;
+  if (diff >  720) diff -= 1440;
+  if (diff < -720) diff += 1440;
+  return diff; // positive = local is behind UTC
+}
+
+function localToUTC(localH, localM, timezone) {
+  const offsetMin = getUTCOffsetMinutes(timezone);
+  const utcTotal  = ((localH * 60 + localM + offsetMin) % 1440 + 1440) % 1440;
+  return { h: Math.floor(utcTotal / 60), m: utcTotal % 60 };
+}
+
+function pad(n){ return String(n).padStart(2,'0'); }
+
 function buildDays(){
   const hidden = document.getElementById('h-days');
   const on = [...document.querySelectorAll('.day-chip.on')].map(d=>d.dataset.day);
@@ -499,12 +553,6 @@ function toggleDay(el){
   buildCron();
 }
 
-function timeToHM(t){
-  if(!t) return null;
-  const [h,m] = t.split(':');
-  return {h:parseInt(h),m:parseInt(m)};
-}
-
 function daysToCron(){
   const on = [...document.querySelectorAll('.day-chip.on')].map(d=>d.dataset.day);
   if(on.length===7) return '*';
@@ -513,26 +561,60 @@ function daysToCron(){
 }
 
 function buildCron(){
-  const dayPart = daysToCron();
+  const tzSel   = document.getElementById('tz-select');
+  const timezone = tzSel ? tzSel.value : 'UTC';
+  const dayPart  = daysToCron();
+
   const slots = [
-    {id:'t1',label:'Slot 1'},
-    {id:'t2',label:'Slot 2'},
-    {id:'t3',label:'Slot 3'},
-    {id:'t4',label:'Slot 4'},
+    {id:'t1', label:'Slot 1 (Morning)',  num:1},
+    {id:'t2', label:'Slot 2 (Midday)',   num:2},
+    {id:'t3', label:'Slot 3 (Evening)',  num:3},
+    {id:'t4', label:'Slot 4 (Weekly)',   num:4},
   ];
-  const lines = slots.map(s=>{
+
+  // Local time preview chips
+  const preview = document.getElementById('local-preview');
+  preview.innerHTML = '';
+
+  const cronLines = [];
+  slots.forEach(s => {
     const el = document.getElementById(s.id);
-    if(!el||!el.value) return `<span class="cmt"># ${s.label}: disabled</span>`;
-    const {h,m} = timeToHM(el.value);
-    return `<span class="cron-line">${m} ${h} * * ${dayPart}   # ${s.label} — pipeline.py --slot ${s.id.replace('t','')}</span>`;
-  }).join('\n');
-  document.getElementById('cron-output').innerHTML = lines;
+    if (!el || !el.value) {
+      cronLines.push(`<span class="cmt"># ${s.label}: disabled</span>`);
+      return;
+    }
+    const [lh, lm] = el.value.split(':').map(Number);
+    const utc = localToUTC(lh, lm, timezone);
+
+    // Preview chip
+    const chip = document.createElement('div');
+    chip.style.cssText = 'background:#ffffff0a;border:1px solid #ffffff15;border-radius:7px;padding:6px 12px;font-size:.75rem;line-height:1.5';
+    chip.innerHTML = `<span style="color:#ffb800;font-weight:700">${s.label}</span><br>` +
+      `<span style="color:#e0e0f0">${pad(lh)}:${pad(lm)} local</span> ` +
+      `<span style="color:var(--muted)">→</span> ` +
+      `<span style="color:#5ba4e6">${pad(utc.h)}:${pad(utc.m)} UTC</span>`;
+    preview.appendChild(chip);
+
+    cronLines.push(
+      `<span class="cron-line">${utc.m} ${utc.h} * * ${dayPart}` +
+      `   # ${s.label} (${pad(lh)}:${pad(lm)} ${timezone})</span>`
+    );
+  });
+
+  document.getElementById('cron-output').innerHTML = cronLines.join('\n');
+
+  // DST warning
+  const dstWarn = document.getElementById('dst-warning');
+  if (dstWarn) dstWarn.style.display = DST_ZONES.includes(timezone) ? 'block' : 'none';
 }
 
 function copyCron(){
   const text = [...document.querySelectorAll('.cron-line')].map(l=>l.textContent).join('\n');
-  navigator.clipboard.writeText(text).then(()=>alert('Cron schedule copied!')).catch(()=>prompt('Copy:',text));
+  navigator.clipboard.writeText(text).then(()=>alert('Cron schedule copied to clipboard!')).catch(()=>prompt('Copy this:',text));
 }
+
+// Initialise on load
+document.addEventListener('DOMContentLoaded', buildCron);
 </script>
 </body>
 </html>
