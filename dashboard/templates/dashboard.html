@@ -165,6 +165,7 @@ select:focus{border-color:var(--or)}
     <button class="tab-btn active" onclick="switchTab('control',this)">Pipeline Control</button>
     <button class="tab-btn" onclick="switchTab('revoice',this)">Revoice Studio</button>
     <button class="tab-btn" onclick="switchTab('howto',this)">How it works</button>
+    <button class="tab-btn" onclick="switchTab('settings',this)">Settings</button>
   </div>
 
   <!-- ═══════════ PIPELINE CONTROL ═══════════ -->
@@ -499,6 +500,73 @@ select:focus{border-color:var(--or)}
     </div>
 
   </div><!-- /tab-howto -->
+
+  <!-- ═══════════ SETTINGS ═══════════ -->
+  <div class="tab-pane" id="tab-settings">
+
+    {% set pw_msg = request.query_params.get('msg','') %}
+
+    <div class="card" style="max-width:480px">
+      <div class="card-title">Change Password</div>
+
+      {% if pw_msg == 'password_changed' %}
+      <div style="background:#00c85318;border:1px solid #00c85340;border-radius:8px;padding:12px 16px;color:#00c853;font-size:.85rem;margin-bottom:18px;font-weight:700">
+        Password updated successfully.
+      </div>
+      {% elif pw_msg == 'wrong_current' %}
+      <div style="background:#ff404018;border:1px solid #ff404040;border-radius:8px;padding:12px 16px;color:#ff8888;font-size:.85rem;margin-bottom:18px">
+        Current password is incorrect.
+      </div>
+      {% elif pw_msg == 'passwords_mismatch' %}
+      <div style="background:#ff404018;border:1px solid #ff404040;border-radius:8px;padding:12px 16px;color:#ff8888;font-size:.85rem;margin-bottom:18px">
+        New passwords do not match — please try again.
+      </div>
+      {% elif pw_msg == 'password_too_short' %}
+      <div style="background:#ff404018;border:1px solid #ff404040;border-radius:8px;padding:12px 16px;color:#ff8888;font-size:.85rem;margin-bottom:18px">
+        Password must be at least 8 characters.
+      </div>
+      {% endif %}
+
+      <p style="font-size:.83rem;color:var(--muted);margin-bottom:20px;line-height:1.6">
+        To change your password, confirm your current one first. Minimum 8 characters.
+      </p>
+
+      <form method="post" action="/api/change-password">
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Current Password</label>
+          <input type="password" name="current_password" required
+            style="width:100%;background:#0e0e1c;border:1.5px solid #ffffff18;border-radius:9px;padding:11px 14px;color:var(--text);font-size:.88rem;outline:none"
+            placeholder="Your current password">
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">New Password</label>
+          <input type="password" name="new_password" required minlength="8"
+            style="width:100%;background:#0e0e1c;border:1.5px solid #ffffff18;border-radius:9px;padding:11px 14px;color:var(--text);font-size:.88rem;outline:none"
+            placeholder="Min. 8 characters">
+        </div>
+        <div style="margin-bottom:20px">
+          <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Confirm New Password</label>
+          <input type="password" name="confirm_password" required minlength="8"
+            style="width:100%;background:#0e0e1c;border:1.5px solid #ffffff18;border-radius:9px;padding:11px 14px;color:var(--text);font-size:.88rem;outline:none"
+            placeholder="Repeat new password">
+        </div>
+        <button type="submit"
+          style="width:100%;padding:12px;background:linear-gradient(135deg,#ff6b00,#ffb800);color:#000;font-weight:800;font-size:.9rem;border:none;border-radius:9px;cursor:pointer">
+          Update Password →
+        </button>
+      </form>
+    </div>
+
+    <div class="card" style="max-width:480px;margin-top:4px">
+      <div class="card-title">Account Info</div>
+      <div style="font-size:.84rem;color:var(--muted);line-height:1.8">
+        <div><span style="color:var(--text);font-weight:700">Company ID:</span> {{ company.slug }}</div>
+        <div><span style="color:var(--text);font-weight:700">Email:</span> {{ company.email or '—' }}</div>
+        <div><span style="color:var(--text);font-weight:700">Login URL:</span> boothop.com/pipeline-login</div>
+      </div>
+    </div>
+
+  </div><!-- /tab-settings -->
 
 </div>
 
