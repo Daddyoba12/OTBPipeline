@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Client Guide — BootHop Pipeline</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--or:#ff6b00;--am:#ffb800;--text:#1a1a2e;--muted:#666;--bg:#f7f7fc;--card:#fff;--border:#e4e4f0;--green:#00a854;--blue:#1976d2;--r:10px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:15px}
+
+/* ── Layout ── */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);position:sticky;top:0;height:100vh;overflow-y:auto;padding:24px 0}
+.content{flex:1;max-width:800px;padding:48px 40px 80px;margin:0 auto}
+@media(max-width:768px){.sidebar{display:none}.content{padding:32px 20px 60px}}
+
+/* ── Sidebar ── */
+.sidebar-logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar-logo .brand{font-size:1.1rem;font-weight:900;color:var(--or)}
+.sidebar-logo .tag{font-size:.72rem;color:var(--muted);margin-top:2px}
+.nav-section{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:10px 20px 4px}
+.nav-link{display:block;padding:7px 20px;font-size:.85rem;color:var(--text);text-decoration:none;border-left:3px solid transparent;transition:.15s}
+.nav-link:hover{background:#fff4ee;color:var(--or);border-left-color:var(--or)}
+.nav-link.active{background:#fff4ee;color:var(--or);border-left-color:var(--or);font-weight:600}
+
+/* ── Content ── */
+.page-title{font-size:2rem;font-weight:900;color:var(--or);margin-bottom:6px}
+.page-sub{font-size:1rem;color:var(--muted);margin-bottom:36px;padding-bottom:24px;border-bottom:2px solid var(--border)}
+h2{font-size:1.35rem;font-weight:800;color:var(--text);margin:44px 0 10px;padding-top:8px;border-top:2px solid var(--or);display:inline-block}
+h2::before{content:'';display:block;margin-top:-60px;padding-top:60px;pointer-events:none} /* anchor offset */
+h3{font-size:1.05rem;font-weight:700;color:var(--text);margin:22px 0 8px}
+p{margin-bottom:14px;color:#333}
+ul,ol{margin:0 0 14px 22px}
+li{margin-bottom:6px;color:#333}
+strong{color:var(--text)}
+a{color:var(--or);text-decoration:none}
+a:hover{text-decoration:underline}
+code{background:#fff4ee;border:1px solid #ffd8b0;border-radius:4px;padding:1px 6px;font-family:monospace;font-size:.88em;color:#cc4400}
+
+/* ── Cards ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px 24px;margin-bottom:16px}
+.card.tip{border-left:4px solid var(--am);background:#fffdf0}
+.card.info{border-left:4px solid var(--blue);background:#f0f6ff}
+.card.warn{border-left:4px solid #e53935;background:#fff5f5}
+.card.step{border-left:4px solid var(--green);background:#f0fff5}
+.card-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.card.tip .card-label{color:var(--am)}
+.card.info .card-label{color:var(--blue)}
+.card.warn .card-label{color:#e53935}
+.card.step .card-label{color:var(--green)}
+
+/* ── Steps ── */
+.steps{counter-reset:step;margin:16px 0}
+.step-row{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--or);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body h4{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.step-body p{margin:0;font-size:.9rem;color:#444}
+
+/* ── Table ── */
+.data-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-bottom:16px}
+.data-table th{text-align:left;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:8px 12px;border-bottom:2px solid var(--border);background:#f9f9fc}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.data-table tr:last-child td{border-bottom:none}
+.data-table td:first-child{font-weight:600;color:var(--text);white-space:nowrap}
+
+/* ── Credential box ── */
+.cred-box{background:#fff8f0;border:1px solid #ffd8b0;border-radius:8px;padding:14px 18px;font-family:monospace;font-size:.88rem;color:#cc4400;margin:8px 0 16px;word-break:break-all}
+
+/* ── Badge ── */
+.badge{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:#fff4ee;color:var(--or);border:1px solid #ffd8b0;vertical-align:middle;margin-left:6px}
+
+/* ── Top bar (mobile) ── */
+.topbar{display:none;padding:14px 20px;background:#fff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.topbar-brand{font-size:1rem;font-weight:900;color:var(--or)}
+@media(max-width:768px){.topbar{display:flex;justify-content:space-between;align-items:center}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-brand">BootHop Pipeline</div>
+  <span style="font-size:.8rem;color:var(--muted)">Client Guide</span>
+</div>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="brand">BootHop Pipeline</div>
+    <div class="tag">Client Guide</div>
+  </div>
+  <div class="nav-section">Getting Started</div>
+  <a class="nav-link" href="#welcome">What is this?</a>
+  <a class="nav-link" href="#login">Logging in</a>
+  <a class="nav-link" href="#dashboard">Your dashboard</a>
+  <div class="nav-section">Using the Dashboard</div>
+  <a class="nav-link" href="#pipeline">Pipeline Control tab</a>
+  <a class="nav-link" href="#revoice">Revoice Studio tab</a>
+  <a class="nav-link" href="#settings">Settings tab</a>
+  <div class="nav-section">Notifications</div>
+  <a class="nav-link" href="#telegram">Setting up Telegram</a>
+  <a class="nav-link" href="#whatsapp">Setting up WhatsApp</a>
+  <div class="nav-section">Help</div>
+  <a class="nav-link" href="#faq">FAQ</a>
+  <a class="nav-link" href="#contact">Contact support</a>
+</nav>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="content">
+
+  <div class="page-title">Client Guide</div>
+  <div class="page-sub">Everything you need to know about your BootHop Pipeline — from logging in to reading your Telegram notifications.</div>
+
+  <!-- ════════════════════ WELCOME ════════════════════ -->
+  <h2 id="welcome">What is BootHop Pipeline?</h2>
+  <p>
+    BootHop Pipeline is your automated social media content system. Once it is set up and switched on, it works every day without you needing to do anything. It finds trending topics relevant to your business, writes a short video script, assembles a branded video, and posts it to your chosen social media platforms — automatically, on the schedule you agreed with the BootHop team.
+  </p>
+  <p>
+    Your client dashboard is where you can see everything that has been posted, re-do a video if you want different wording, and manage your account settings.
+  </p>
+  <div class="card info">
+    <div class="card-label">Good to know</div>
+    Nothing in your pipeline requires you to take action each day. It runs in the background. You only need to log in if you want to check on posts, make a change, or adjust your password.
+  </div>
+
+  <!-- ════════════════════ LOGIN ════════════════════ -->
+  <h2 id="login">Logging In</h2>
+  <p>Your login page is at:</p>
+  <div class="cred-box">boothop.com/pipeline-login</div>
+  <p>You will need two things to sign in:</p>
+  <table class="data-table">
+    <tr><td>Company ID</td><td>A short name your account was set up with, for example: <code>d818</code> or <code>g-inspired</code>. The BootHop team gave you this when your pipeline was activated.</td></tr>
+    <tr><td>Password</td><td>The password you set up, or the temporary one the BootHop team gave you when your account was created. If you have not changed it yet, do so now — Settings tab → Change Password.</td></tr>
+  </table>
+
+  <h3>Forgot your password?</h3>
+  <p>Go to <code>boothop.com/forgot-password</code> and enter your Company ID and the email address on your account. A reset link will be sent to your email and to your Telegram (if you have that set up). Click the link and choose a new password. The link expires after one hour.</p>
+  <div class="card tip">
+    <div class="card-label">Tip</div>
+    Save <strong>boothop.com/pipeline-login</strong> as a bookmark on your phone. It works on mobile as well as desktop.
+  </div>
+
+  <!-- ════════════════════ DASHBOARD ════════════════════ -->
+  <h2 id="dashboard">Your Dashboard</h2>
+  <p>Once you log in you will see your dashboard. It has four tabs along the top:</p>
+  <table class="data-table">
+    <thead><tr><th>Tab</th><th>What it is for</th></tr></thead>
+    <tr><td>Pipeline Control</td><td>Shows every video your pipeline has generated, with the status of each post.</td></tr>
+    <tr><td>Revoice Studio</td><td>Lets you re-do the voice-over or change the text of any video that has already been generated.</td></tr>
+    <tr><td>How it Works</td><td>A built-in explanation of each stage of the pipeline, plus answers to common questions.</td></tr>
+    <tr><td>Settings</td><td>Change your password and view your account details.</td></tr>
+  </table>
+
+  <!-- ════════════════════ PIPELINE TAB ════════════════════ -->
+  <h2 id="pipeline">Pipeline Control Tab</h2>
+  <p>This is your main activity feed. Every time your pipeline runs a slot, a new entry appears here.</p>
+  <table class="data-table">
+    <thead><tr><th>Column</th><th>What it means</th></tr></thead>
+    <tr><td>Hook</td><td>The opening line of the video — the sentence designed to grab attention in the first 2 seconds.</td></tr>
+    <tr><td>Platforms</td><td>Which social media accounts the video was posted to.</td></tr>
+    <tr><td>Time</td><td>When the pipeline ran for that slot.</td></tr>
+    <tr><td>Status</td><td><strong>Posted</strong> = successfully published. <strong>Pending</strong> = being processed. <strong>Failed</strong> = something went wrong — the BootHop team is notified automatically.</td></tr>
+  </table>
+  <div class="card info">
+    <div class="card-label">About your schedule</div>
+    Your pipeline runs at the slot times agreed during your onboarding call. For example, 09:00, 13:00, and 18:00 in your local time. You will receive a Telegram message each time a slot runs.
+  </div>
+
+  <!-- ════════════════════ REVOICE ════════════════════ -->
+  <h2 id="revoice">Revoice Studio Tab</h2>
+  <p>
+    Sometimes a video is generated on a topic that is fine but you want the wording changed, or the voice to sound different. Revoice lets you do this without rerunning the whole pipeline.
+  </p>
+  <div class="steps">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body"><h4>Choose a video</h4><p>Go to the Pipeline Control tab and click <strong>Revoice</strong> on any row. You will be taken to the Revoice Studio.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body"><h4>Edit the script</h4><p>Change any of the words that will be spoken in the video. Keep it under about 90 seconds when read aloud.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body"><h4>Choose a voice</h4><p>Pick the tone — calm, energetic, or authoritative — depending on the content.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body"><h4>Click Revoice</h4><p>The new audio is applied to the video and it is re-rendered. The original version is always kept in your history.</p></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════ SETTINGS ════════════════════ -->
+  <h2 id="settings">Settings Tab</h2>
+  <h3>Change your password</h3>
+  <p>Go to the Settings tab. You will see a <strong>Change Password</strong> form. Enter your current password, then your new password twice, and click <strong>Update Password</strong>. Your new password takes effect immediately.</p>
+  <div class="card warn">
+    <div class="card-label">Important</div>
+    Passwords must be at least 8 characters. Do not share your password with anyone. The BootHop team will never ask for your password.
+  </div>
+  <h3>Your account details</h3>
+  <p>The Settings tab also shows your Company ID, registered email address, and login URL for easy reference.</p>
+
+  <!-- ════════════════════ TELEGRAM ════════════════════ -->
+  <h2 id="telegram">Setting Up Telegram</h2>
+  <p>
+    Telegram is a free messaging app that your pipeline uses to send you notifications — for example, when a video is posted, or when your password is reset. You do not need to use Telegram for anything else. Setting it up takes about 3 minutes.
+  </p>
+  <div class="card info">
+    <div class="card-label">Why Telegram and not WhatsApp?</div>
+    Telegram allows automated bots to send messages directly — it is free and instant. WhatsApp Business API requires a monthly fee and business verification. We use Telegram for pipeline notifications and WhatsApp optionally for direct contact with the BootHop team.
+  </div>
+
+  <h3>Step-by-step: Set up Telegram and get your Chat ID</h3>
+  <div class="steps">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body"><h4>Download the app</h4><p>Search for <strong>Telegram</strong> in the App Store (iPhone) or Google Play Store (Android). It is free. Install it.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body"><h4>Create your account</h4><p>Open Telegram and tap <strong>Start Messaging</strong>. Enter your phone number. You will receive a code by SMS — enter it to confirm. Choose a display name.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body"><h4>Find the userinfobot</h4><p>In Telegram, tap the <strong>Search</strong> icon (magnifying glass at the top). Type <strong>@userinfobot</strong> and tap on the result that appears.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body"><h4>Send any message</h4><p>Tap the chat with @userinfobot and type anything — for example just <strong>hi</strong> — and press Send. The bot will instantly reply with your account details.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">5</div>
+      <div class="step-body"><h4>Copy your Chat ID</h4><p>The bot's reply will include a line like: <strong>Id: 8641867751</strong>. That number is your Chat ID. Copy it.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">6</div>
+      <div class="step-body"><h4>Share it with the BootHop team</h4><p>Send your Chat ID to the BootHop team via email or WhatsApp. They will add it to your pipeline account so notifications start coming through.</p></div>
+    </div>
+  </div>
+  <div class="card step">
+    <div class="card-label">Once it is set up</div>
+    You will receive a Telegram message from <strong>@BoothHopBot</strong> each time your pipeline posts a video. The message will show the hook line and which platforms it was posted to.
+  </div>
+
+  <!-- ════════════════════ WHATSAPP ════════════════════ -->
+  <h2 id="whatsapp">Setting Up WhatsApp Business</h2>
+  <p>
+    WhatsApp Business is a free app (separate from the normal WhatsApp) designed for small businesses. It lets you show your business name, address, and hours to people who message you. The BootHop team may use WhatsApp to send you updates or check in — this is optional but recommended.
+  </p>
+  <div class="steps">
+    <div class="step-row">
+      <div class="step-num">1</div>
+      <div class="step-body"><h4>Download WhatsApp Business</h4><p>Search for <strong>WhatsApp Business</strong> in the App Store or Google Play. It is a separate, free app — not the same as the regular WhatsApp. Install it.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">2</div>
+      <div class="step-body"><h4>Register with your business number</h4><p>Open the app and enter a phone number. This should be your business phone number. You will receive a verification code by SMS or call.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">3</div>
+      <div class="step-body"><h4>Set up your business profile</h4><p>Tap <strong>More Options</strong> (three dots) → <strong>Settings</strong> → <strong>Business tools</strong> → <strong>Business profile</strong>. Fill in your business name, category, description, address, website, and email.</p></div>
+    </div>
+    <div class="step-row">
+      <div class="step-num">4</div>
+      <div class="step-body"><h4>Share your number with BootHop</h4><p>Send your WhatsApp Business number to the BootHop team. They can then reach you directly if anything needs your attention.</p></div>
+    </div>
+  </div>
+  <div class="card tip">
+    <div class="card-label">Tip</div>
+    You can run WhatsApp Business on the same phone as your regular WhatsApp — they are separate apps and use different numbers (or the same number if you want to switch).
+  </div>
+
+  <!-- ════════════════════ FAQ ════════════════════ -->
+  <h2 id="faq">Frequently Asked Questions</h2>
+
+  <h3>Do I need to do anything each day?</h3>
+  <p>No. The pipeline runs automatically at your agreed schedule. You will just receive Telegram notifications telling you what was posted. You only need to log in if you want to check something or make a change.</p>
+
+  <h3>What if I want to approve a video before it goes live?</h3>
+  <p>By default, the pipeline posts automatically without waiting for approval — this is what makes it hands-free. If you want to review videos first, contact the BootHop team and they can discuss options for your account.</p>
+
+  <h3>Can I stop the pipeline temporarily?</h3>
+  <p>Yes. Contact the BootHop team via Telegram or WhatsApp and they will pause your pipeline immediately. Self-service pause is coming soon.</p>
+
+  <h3>What happens if a post fails?</h3>
+  <p>You will receive a Telegram message alerting you. The BootHop team is also notified automatically and will investigate. Most failures are caused by an expired platform token and are fixed the same day.</p>
+
+  <h3>Can I upload my own video clips?</h3>
+  <p>Yes. Send your video files (MP4 or MOV format, minimum 5 seconds) to the BootHop team and they will add them to your personal clip library. Your clips will always be used before any stock footage.</p>
+
+  <h3>How do I change my posting schedule?</h3>
+  <p>Contact the BootHop team. They will update your schedule in the system and in cron.org. You can request different times, fewer days, or a different timezone if your business situation changes.</p>
+
+  <h3>Is my social media login safe?</h3>
+  <p>Yes. We never store your social media username or password. We use API access tokens issued by each platform. These can be revoked at any time from your platform's security settings — we have no ongoing access to your account beyond what the token permits.</p>
+
+  <h3>I forgot my password and do not have Telegram yet</h3>
+  <p>Go to <code>boothop.com/forgot-password</code>. The reset link will be sent to your registered email address as well as Telegram. Check your email inbox (and spam folder). If you still cannot get in, contact the BootHop team directly.</p>
+
+  <!-- ════════════════════ CONTACT ════════════════════ -->
+  <h2 id="contact">Contact &amp; Support</h2>
+  <table class="data-table">
+    <tr><td>Telegram</td><td>Message the BootHop team directly — fastest response</td></tr>
+    <tr><td>WhatsApp</td><td>Same team, good for quick questions or sending files</td></tr>
+    <tr><td>Email</td><td>support@boothop.com — for non-urgent questions</td></tr>
+    <tr><td>Dashboard</td><td>Settings tab shows your account details. How it Works tab has answers to most questions.</td></tr>
+  </table>
+
+  <div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--border);font-size:.8rem;color:var(--muted)">
+    BootHop Pipeline &middot; boothop.com &middot; This guide is always up to date — bookmark it rather than saving a PDF copy.
+  </div>
+
+</main>
+</div>
+
+<script>
+// Highlight active nav link on scroll
+const links = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, {rootMargin: '-20% 0px -70% 0px'});
+document.querySelectorAll('h2[id]').forEach(h => observer.observe(h));
+</script>
+</body>
+</html>

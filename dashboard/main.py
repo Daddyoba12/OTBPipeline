@@ -1199,6 +1199,53 @@ def _send_reset_telegram(chat_id: str, slug: str, token: str):
         pass
 
 
+def _send_reset_email(to_email: str, slug: str, token: str):
+    """Send password-reset email via Gmail SMTP. Silent no-op if app password not set."""
+    gmail_user = os.environ.get("GMAIL_USER", "")
+    gmail_pw   = os.environ.get("GMAIL_APP_PASSWORD", "")
+    if not gmail_user or not gmail_pw:
+        return
+    try:
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        reset_url = f"https://boothop.com/reset-password/{token}"
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = "BootHop Pipeline — Password Reset"
+        msg["From"]    = f"BootHop Pipeline <{gmail_user}>"
+        msg["To"]      = to_email
+        plain = (
+            f"A password reset was requested for your BootHop Pipeline account ({slug}).\n\n"
+            f"Set a new password here:\n{reset_url}\n\n"
+            f"This link expires in 1 hour. If you did not request this, ignore this email."
+        )
+        html = f"""<html><body style="font-family:Arial,sans-serif;background:#f4f4f8;padding:30px;margin:0">
+<div style="background:#fff;max-width:480px;margin:0 auto;border-radius:12px;padding:36px;border:1px solid #e0e0e0">
+  <div style="font-size:22px;font-weight:900;color:#ff6b00;margin-bottom:4px">BootHop Pipeline</div>
+  <div style="font-size:13px;color:#888;margin-bottom:28px;border-bottom:1px solid #f0f0f0;padding-bottom:18px">Password Reset</div>
+  <p style="color:#333;font-size:15px;line-height:1.7;margin:0 0 20px">
+    A password reset was requested for your pipeline account:<br>
+    <strong style="color:#ff6b00">{slug}</strong>
+  </p>
+  <a href="{reset_url}"
+     style="display:inline-block;padding:14px 28px;background:linear-gradient(135deg,#ff6b00,#ffb800);
+            color:#000;font-weight:800;text-decoration:none;border-radius:9px;font-size:15px">
+    Reset My Password &rarr;
+  </a>
+  <p style="color:#aaa;font-size:11px;margin-top:28px;line-height:1.6;border-top:1px solid #f0f0f0;padding-top:16px">
+    This link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.<br>
+    BootHop Pipeline &middot; boothop.com
+  </p>
+</div></body></html>"""
+        msg.attach(MIMEText(plain, "plain"))
+        msg.attach(MIMEText(html,  "html"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
+            smtp.login(gmail_user, gmail_pw)
+            smtp.sendmail(gmail_user, to_email, msg.as_string())
+    except Exception as e:
+        print(f"[Reset Email] {e}")
+
+
 @app.get("/forgot-password", response_class=HTMLResponse)
 async def forgot_password_page(request: Request):
     return templates.TemplateResponse("forgot_password.html",
@@ -1226,11 +1273,13 @@ async def forgot_password_submit(
     with _db() as c:
         c.execute("UPDATE companies SET reset_token=?, reset_expires=? WHERE id=?",
                   (token, expires, row["id"]))
-    # Notify client's Telegram if available
+    # Notify via Telegram (client if they have it, always admin as backup)
     if row["tg_chat_id"]:
         _send_reset_telegram(row["tg_chat_id"], slug, token)
-    # Always notify admin as backup
     _send_reset_telegram(str(TG_ADMIN_CHAT), slug, token)
+    # Also send email if the account has one
+    if row["email"]:
+        _send_reset_email(row["email"], slug, token)
     return templates.TemplateResponse("forgot_password.html",
         {"request": request, "sent": True, "error": ""})
 
@@ -2194,6 +2243,23 @@ async def api_post_log(request: Request, days: int = 14):
         recent = [e for e in recent if e.get("company_slug", "boothop") == client_slug]
     recent.sort(key=lambda e: e.get("posted_at", ""), reverse=True)
     return recent[:100]
+
+
+# ── Online manuals ─────────────────────────────────────────────────────────────
+
+@app.get("/manual", response_class=HTMLResponse)
+async def client_manual(request: Request):
+    """Public client guide — no login required."""
+    return templates.TemplateResponse("manual.html", {"request": request})
+
+
+@app.get("/admin/guide", response_class=HTMLResponse)
+async def admin_guide(request: Request, session_token: str | None = Cookie(None)):
+    """Super user reference guide — admin login required."""
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        return RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
+    return templates.TemplateResponse("admin_guide.html", {"request": request})
 
 
 # ── Commander alias routes (used by web Commander portal via PIPELINE_BASE_URL) ──
