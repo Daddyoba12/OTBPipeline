@@ -186,8 +186,9 @@ try:
 except Exception:
     pass
 
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", _TELEGRAM_TOKEN_FALLBACK)
-FFMPEG         = shutil.which("ffmpeg") or "ffmpeg"
+TELEGRAM_TOKEN  = os.environ.get("TELEGRAM_TOKEN", _TELEGRAM_TOKEN_FALLBACK)
+TG_ADMIN_CHAT   = os.environ.get("TG_ADMIN_CHAT_ID", "8641867751")
+FFMPEG          = shutil.which("ffmpeg") or "ffmpeg"
 FFPROBE        = shutil.which("ffprobe") or "ffprobe"
 ADMIN_PREFIX   = os.environ.get("ADMIN_PREFIX", "/admin")   # /onboard/admin when behind Vercel proxy
 
@@ -277,6 +278,9 @@ def _migrate_db():
         # Intake workflow
         "ALTER TABLE companies ADD COLUMN intake_status    TEXT DEFAULT 'active'",
         "ALTER TABLE companies ADD COLUMN intake_submitted TEXT DEFAULT ''",
+        # Password reset
+        "ALTER TABLE companies ADD COLUMN reset_token   TEXT DEFAULT ''",
+        "ALTER TABLE companies ADD COLUMN reset_expires TEXT DEFAULT ''",
     ]
     with _db() as c:
         for sql in migrations:
@@ -1127,7 +1131,12 @@ async def admin_login_page(request: Request):
 
 @app.post("/admin/login")
 async def admin_login(request: Request, password: str = Form(...)):
-    if password != ADMIN_PASSWORD:
+    # Check DB-stored admin hash first (set via /admin/change-password), fall back to env/default
+    with _db() as c:
+        row = c.execute("SELECT password_h FROM companies WHERE id=-1").fetchone()
+    db_hash = row["password_h"] if row else None
+    ok = (db_hash and db_hash == _hash(password)) or (not db_hash and password == ADMIN_PASSWORD)
+    if not ok:
         return templates.TemplateResponse("admin_login.html",
             {"request": request, "error": "Wrong password."})
     token   = secrets.token_hex(32)
@@ -1148,6 +1157,152 @@ async def admin_logout(session_token: str | None = Cookie(None)):
     resp = RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
     resp.delete_cookie("session_token")
     return resp
+
+
+@app.post("/admin/change-password")
+async def admin_change_password(
+    request:          Request,
+    current_password: str = Form(...),
+    new_password:     str = Form(...),
+    session_token:    str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        row = c.execute("SELECT password_h FROM companies WHERE id=-1").fetchone()
+    db_hash = row["password_h"] if row else None
+    ok = (db_hash and db_hash == _hash(current_password)) or (not db_hash and current_password == ADMIN_PASSWORD)
+    if not ok:
+        return RedirectResponse(f"{ADMIN_PREFIX}?msg=wrong_current_password", status_code=303)
+    if len(new_password) < 8:
+        return RedirectResponse(f"{ADMIN_PREFIX}?msg=password_too_short", status_code=303)
+    with _db() as c:
+        c.execute("UPDATE companies SET password_h=? WHERE id=-1", (_hash(new_password),))
+    return RedirectResponse(f"{ADMIN_PREFIX}?msg=password_changed", status_code=303)
+
+
+# ── Password reset (self-service for pipeline clients) ─────────────────────────
+
+def _send_reset_telegram(chat_id: str, slug: str, token: str):
+    try:
+        import requests as _r
+        url = f"https://boothop.com/reset-password/{token}"
+        msg = (
+            f"Password reset requested for: {slug}\n\n"
+            f"Click the link below to set a new password:\n{url}\n\n"
+            f"This link expires in 1 hour. If you did not request this, ignore it."
+        )
+        _r.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                json={"chat_id": chat_id, "text": msg}, timeout=10)
+    except Exception:
+        pass
+
+
+@app.get("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_page(request: Request):
+    return templates.TemplateResponse("forgot_password.html",
+        {"request": request, "sent": False, "error": ""})
+
+
+@app.post("/forgot-password", response_class=HTMLResponse)
+async def forgot_password_submit(
+    request: Request,
+    slug:    str = Form(...),
+    email:   str = Form(...),
+):
+    slug = slug.strip().lower()
+    with _db() as c:
+        row = c.execute(
+            "SELECT id, slug, email, tg_chat_id FROM companies WHERE slug=? AND active=1 AND id!=-1",
+            (slug,)
+        ).fetchone()
+    if not row or row["email"].strip().lower() != email.strip().lower():
+        # Don't reveal whether slug exists — show same success screen
+        return templates.TemplateResponse("forgot_password.html",
+            {"request": request, "sent": True, "error": ""})
+    token   = secrets.token_hex(32)
+    expires = (datetime.now() + timedelta(hours=1)).isoformat()
+    with _db() as c:
+        c.execute("UPDATE companies SET reset_token=?, reset_expires=? WHERE id=?",
+                  (token, expires, row["id"]))
+    # Notify client's Telegram if available
+    if row["tg_chat_id"]:
+        _send_reset_telegram(row["tg_chat_id"], slug, token)
+    # Always notify admin as backup
+    _send_reset_telegram(str(TG_ADMIN_CHAT), slug, token)
+    return templates.TemplateResponse("forgot_password.html",
+        {"request": request, "sent": True, "error": ""})
+
+
+@app.get("/reset-password/{token}", response_class=HTMLResponse)
+async def reset_password_page(request: Request, token: str):
+    with _db() as c:
+        row = c.execute(
+            "SELECT id, slug, reset_expires FROM companies WHERE reset_token=? AND id!=-1",
+            (token,)
+        ).fetchone()
+    if not row or datetime.fromisoformat(row["reset_expires"]) < datetime.now():
+        return templates.TemplateResponse("reset_password.html",
+            {"request": request, "token": token, "expired": True, "done": False, "error": ""})
+    return templates.TemplateResponse("reset_password.html",
+        {"request": request, "token": token, "expired": False, "done": False,
+         "slug": row["slug"], "error": ""})
+
+
+@app.post("/reset-password/{token}", response_class=HTMLResponse)
+async def reset_password_submit(
+    request:          Request,
+    token:            str,
+    new_password:     str = Form(...),
+    confirm_password: str = Form(...),
+):
+    if new_password != confirm_password:
+        return templates.TemplateResponse("reset_password.html",
+            {"request": request, "token": token, "expired": False, "done": False,
+             "error": "Passwords do not match."})
+    if len(new_password) < 8:
+        return templates.TemplateResponse("reset_password.html",
+            {"request": request, "token": token, "expired": False, "done": False,
+             "error": "Password must be at least 8 characters."})
+    with _db() as c:
+        row = c.execute(
+            "SELECT id, reset_expires FROM companies WHERE reset_token=? AND id!=-1",
+            (token,)
+        ).fetchone()
+    if not row or datetime.fromisoformat(row["reset_expires"]) < datetime.now():
+        return templates.TemplateResponse("reset_password.html",
+            {"request": request, "token": token, "expired": True, "done": False, "error": ""})
+    with _db() as c:
+        c.execute("UPDATE companies SET password_h=?, reset_token='', reset_expires='' WHERE id=?",
+                  (_hash(new_password), row["id"]))
+    return templates.TemplateResponse("reset_password.html",
+        {"request": request, "token": token, "expired": False, "done": True, "error": ""})
+
+
+@app.post("/api/change-password")
+async def client_change_password(
+    request:          Request,
+    current_password: str = Form(...),
+    new_password:     str = Form(...),
+    confirm_password: str = Form(...),
+    session_token:    str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess:
+        return RedirectResponse("/pipeline-login", status_code=303)
+    if new_password != confirm_password:
+        return RedirectResponse("/dashboard?tab=settings&msg=passwords_mismatch", status_code=303)
+    if len(new_password) < 8:
+        return RedirectResponse("/dashboard?tab=settings&msg=password_too_short", status_code=303)
+    with _db() as c:
+        row = c.execute("SELECT password_h FROM companies WHERE id=?", (sess["company_id"],)).fetchone()
+    if not row or row["password_h"] != _hash(current_password):
+        return RedirectResponse("/dashboard?tab=settings&msg=wrong_current", status_code=303)
+    with _db() as c:
+        c.execute("UPDATE companies SET password_h=? WHERE id=?",
+                  (_hash(new_password), sess["company_id"]))
+    return RedirectResponse("/dashboard?tab=settings&msg=password_changed", status_code=303)
 
 
 # ── Client intake (Get Started) ────────────────────────────────────────────────

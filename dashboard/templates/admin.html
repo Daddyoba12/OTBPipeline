@@ -219,6 +219,32 @@ input:focus,select:focus{border-color:var(--or)}
     </form>
   </div>
 
+  <!-- Admin password change -->
+  <h2>Change Admin Password</h2>
+  <div class="card">
+    <div class="card-title">Update your super user password</div>
+    {% if msg == 'password_changed' %}
+    <div class="ok">Admin password updated successfully.</div>
+    {% elif msg == 'wrong_current_password' %}
+    <div class="err">Current password is incorrect.</div>
+    {% elif msg == 'password_too_short' %}
+    <div class="err">New password must be at least 8 characters.</div>
+    {% endif %}
+    <form method="post" action="/admin/change-password">
+      <div class="form-row">
+        <div>
+          <label>Current Password</label>
+          <input type="password" name="current_password" placeholder="Your current admin password" required>
+        </div>
+        <div>
+          <label>New Password</label>
+          <input type="password" name="new_password" placeholder="Min. 8 characters" required minlength="8">
+        </div>
+      </div>
+      <button class="add-btn" style="background:#ffffff18;color:var(--text);border:1px solid #ffffff20">Change Password →</button>
+    </form>
+  </div>
+
 </div>
 </body>
 </html>
