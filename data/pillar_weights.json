@@ -1,3 +1,13 @@
 {
-  "": 1.0
+  "personal_shopper": 1.0,
+  "family": 0.69,
+  "urgent_medical": 0.55,
+  "smart": 0.49,
+  "airport_deliveries": 0.44,
+  "travel_hacks": 0.38,
+  "": 0.3,
+  "cultural_earn": 0.3,
+  "community": 0.3,
+  "flight_discovery": 0.3,
+  "airport": 0.3
 }

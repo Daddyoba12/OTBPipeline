@@ -19,7 +19,7 @@ import json, re, sys, requests
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, STORY_MODEL
+from config import OPENAI_API_KEY, GEMINI_API_KEY, STORY_MODEL
 
 CLIP_DUR = 4  # seconds per content clip
 
@@ -64,21 +64,16 @@ def _call_ai(prompt: str) -> str:
 
     else:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 1400,
-                "messages": [{"role": "user", "content": prompt}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 1400, "temperature": 0.7},
             },
             timeout=30,
         )
         resp.raise_for_status()
-        return resp.json()["content"][0]["text"].strip()
+        return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
 
 
 def _parse_json(raw: str) -> dict:

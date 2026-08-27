@@ -10,7 +10,7 @@ from pathlib import Path
 
 import os, re as _re
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA as _DATA, ANTHROPIC_API_KEY
+from config import DATA as _DATA, OPENAI_API_KEY
 import requests
 
 # Respect OTB_CLIENT_BASE so data stays in the client folder
@@ -86,21 +86,17 @@ def pick_car() -> dict | None:
 
 def _call_claude(prompt: str, max_tokens: int = 1400) -> str:
     resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key":         ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type":      "application/json",
-        },
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
         json={
-            "model":      "claude-sonnet-4-6",
+            "model":      "gpt-4o",
             "max_tokens": max_tokens,
             "messages":   [{"role": "user", "content": prompt}],
         },
         timeout=45,
     )
     resp.raise_for_status()
-    return resp.json()["content"][0]["text"].strip()
+    return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _parse_json(raw: str) -> dict:
@@ -108,6 +104,35 @@ def _parse_json(raw: str) -> dict:
     if not m:
         raise ValueError("No JSON found in Claude response")
     return json.loads(m.group())
+
+
+# ── Actor variety — rotated every run so faces/clothes never repeat ───────────
+# Each entry: (customer_desc, driver_desc, confident_desc)
+# Used to customise clips 2, 5, 6, 7 so Pexels returns different people each run.
+_ACTOR_VARIANTS = [
+    ("African American man",        "Black man",               "Black man confident"),
+    ("young Black woman",           "African American woman",  "Black woman professional"),
+    ("Hispanic couple",             "Hispanic man",            "Hispanic man confident"),
+    ("mixed race couple",           "young woman",             "woman stylish confident"),
+    ("African American couple",     "Black couple",            "Black professional"),
+    ("young Black man",             "young man",               "young man stylish"),
+    ("diverse couple",              "woman casual",            "woman confident car"),
+    ("older African American man",  "older man",               "mature man suit"),
+    ("Black family",                "Black woman",             "African American woman confident"),
+    ("professional Black woman",    "professional woman",      "businesswoman confident"),
+]
+
+_STYLE_TAGS = [
+    "casual jeans", "business casual", "streetwear", "summer dress",
+    "polo shirt", "blazer", "athleisure", "smart casual",
+]
+
+
+def _pick_actor() -> dict:
+    """Pick a random actor descriptor set for this run."""
+    customer, driver, confident = random.choice(_ACTOR_VARIANTS)
+    style = random.choice(_STYLE_TAGS)
+    return {"customer": customer, "driver": driver, "confident": confident, "style": style}
 
 
 # ── Pexels-proven query builder ───────────────────────────────────────────────
@@ -358,33 +383,53 @@ def generate_content(car: dict | None = None) -> dict:
     # Guaranteed Pexels-friendly hook queries (clips 0 and 1)
     q0, q1 = _car_pexels_queries(make, model, category)
 
+    # Pick a fresh actor descriptor set — ensures different faces/clothes each run
+    actor = _pick_actor()
+
     # Pre-locked automotive queries per beat position.
     # These replace Claude's attempts for middle/end beats where Pexels content
     # is well-defined but Claude's free-form queries often pull unrelated results.
+    # Actor descriptors are injected so Pexels returns different people every run.
     if category == "truck":
         _stakes_q = "pickup truck highway morning commute"
-        _res_q0   = "man buying pickup truck dealership smiling"
-        _res_q1   = "pickup truck driving open road"
-        _lesson_q = "businessman truck confident"
+        _res_q0   = f"{actor['customer']} buying pickup truck dealership smiling"
+        _res_q1   = f"{actor['driver']} driving pickup truck road"
+        _lesson_q = f"{actor['confident']} pickup truck"
     elif category == "SUV":
         _stakes_q = "family SUV highway road trip"
-        _res_q0   = "couple SUV dealership smiling car keys"
-        _res_q1   = "SUV driving scenic highway"
-        _lesson_q = "luxury SUV parked exterior clean"
+        _res_q0   = f"{actor['customer']} SUV dealership car keys smiling"
+        _res_q1   = f"{actor['driver']} driving SUV highway"
+        _lesson_q = f"{actor['confident']} luxury SUV"
     else:
         _stakes_q = "highway commute sedan traffic morning"
-        _res_q0   = "couple car dealership signing papers"
-        _res_q1   = "sedan driving highway happy"
-        _lesson_q = "businessman entering luxury car"
+        _res_q0   = f"{actor['customer']} car dealership signing papers smiling"
+        _res_q1   = f"{actor['driver']} driving sedan highway happy"
+        _lesson_q = f"{actor['confident']} entering luxury car"
 
     # Claude's middle queries (2, 3) get sanitised and used; 4-7 are locked
     queries = data.get("visual_queries", [])
 
+    # Problem/frustration fallbacks also rotate the person shown
+    _problem_queries = [
+        f"{actor['customer']} car dealership stressed price",
+        f"{actor['customer']} used car lot frustrated salesman",
+        f"{actor['customer']} auto dealer hidden fees upset",
+        f"{actor['customer']} car shopping budget stressed",
+    ]
+    _repair_queries = [
+        f"{actor['customer']} car inspection failure mechanic",
+        "old car broken roadside repair",
+        f"{actor['customer']} repair shop expensive bill shocked",
+        "car engine problem mechanic garage",
+    ]
+    _prob_q   = random.choice(_problem_queries)
+    _repair_q = random.choice(_repair_queries)
+
     # Pad to 8 with neutral fallbacks first, then we'll override
     _neutral_mid = [
         q0, q1,
-        "used car salesman customer outdoor lot",
-        "car repair bill mechanic garage",
+        _prob_q,
+        _repair_q,
         _stakes_q, _res_q0, _res_q1, _lesson_q,
     ]
     while len(queries) < 8:

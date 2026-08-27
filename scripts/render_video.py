@@ -17,6 +17,7 @@ from config import (
     ASSETS, MUSIC_DIR, MUSIC_ARCHIVE, TEMP, OUTPUT, LOGO_PATH, FIG_END,
     FONT_TITLE, FONT_BODY, FONT_TITLE_FB, FONT_BODY_FB,
     PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
+    ELEVENLABS_API_KEY, ELEVENLABS_VOICE_LAGOS_F, ELEVENLABS_VOICE_LAGOS_M, ELEVENLABS_VOICE_OTHER,
     VIDEO_W, VIDEO_H, VIDEO_FPS,
     CLIP_DUR, N_CLIPS, LESSON_DUR, BRAND_DUR, TOTAL_DUR,
     PROGRESS_COLOR, PROGRESS_H, DATA,
@@ -1413,30 +1414,85 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
 
 
 def _tts_narration(content: dict, dest: Path) -> bool:
-    """Generate OpenAI TTS narration for story beats. Returns True on success."""
-    if not OPENAI_API_KEY:
-        return False
+    """
+    Generate TTS narration for story beats.
+    Priority: 1) ElevenLabs  2) edge-tts en-NG-AbeoNeural  3) OpenAI TTS
+    """
     parts = []
     for key in ("hook", "problem", "stakes", "resolution", "lesson"):
         t = content.get(key, "").strip().rstrip(".")
         if t:
             parts.append(t)
     script = ". ".join(parts) + "."
+
+    # ── 1. ElevenLabs (primary — context-aware voice) ─────────────────────────
+    _el_text = script.lower()
+    _lagos_kw = {"lagos","ikeja","lekki","victoria island","surulere","yaba","naija","nigeria",
+                 "abuja","ibadan","port harcourt","ph ","enugu","kano","festac","oshodi"}
+    _is_lagos = any(kw in _el_text for kw in _lagos_kw)
+    _she = ("she " in _el_text or " her " in _el_text or "woman" in _el_text or "mum" in _el_text)
+    _el_voice = (ELEVENLABS_VOICE_LAGOS_F if _is_lagos and _she
+                 else ELEVENLABS_VOICE_LAGOS_M if _is_lagos
+                 else ELEVENLABS_VOICE_OTHER)
+    if ELEVENLABS_API_KEY:
+        try:
+            resp = requests.post(
+                f"https://api.elevenlabs.io/v1/text-to-speech/{_el_voice}",
+                headers={"xi-api-key": ELEVENLABS_API_KEY, "Content-Type": "application/json"},
+                json={
+                    "text": script[:5000],
+                    "model_id": "eleven_multilingual_v2",
+                    "voice_settings": {
+                        "stability": 0.50,
+                        "similarity_boost": 0.75,
+                        "style": 0.35,
+                        "use_speaker_boost": True,
+                    },
+                },
+                timeout=40,
+            )
+            if resp.ok and len(resp.content) > 1000:
+                dest.write_bytes(resp.content)
+                _loc  = "Lagos" if _is_lagos else "Other"
+                _gen  = "F" if _she else "M"
+                print(f"    [TTS] ElevenLabs [{_loc}/{_gen}] voice={_el_voice[:8]}... — {len(script)} chars")
+                return True
+            print(f"    [TTS] ElevenLabs error {resp.status_code}: {resp.text[:80]}")
+        except Exception as e:
+            print(f"    [TTS] ElevenLabs failed: {e}")
+
+    # ── 2. edge-tts (backup — Nigerian accent) ────────────────────────────────
     try:
-        resp = requests.post(
-            "https://api.openai.com/v1/audio/speech",
-            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
-            json={"model": "tts-1", "input": script[:4096], "voice": "nova", "speed": 0.88},
-            timeout=30,
-        )
-        if not resp.ok:
-            print(f"    [TTS] API error {resp.status_code}: {resp.text[:80]}")
-            return False
-        dest.write_bytes(resp.content)
-        return dest.exists() and dest.stat().st_size > 1000
+        import asyncio, edge_tts
+        async def _edge():
+            comm = edge_tts.Communicate(script[:5000], "en-NG-AbeoNeural")
+            await comm.save(str(dest))
+        asyncio.run(_edge())
+        if dest.exists() and dest.stat().st_size > 1000:
+            print(f"    [TTS] edge-tts en-NG-AbeoNeural — {len(script)} chars")
+            return True
     except Exception as e:
-        print(f"    [TTS] Failed: {e}")
-        return False
+        print(f"    [TTS] edge-tts failed: {e}")
+
+    # ── 3. OpenAI TTS (last resort) ───────────────────────────────────────────
+    if OPENAI_API_KEY:
+        try:
+            resp = requests.post(
+                "https://api.openai.com/v1/audio/speech",
+                headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+                json={"model": "tts-1", "input": script[:4096], "voice": "nova", "speed": 0.88},
+                timeout=30,
+            )
+            if resp.ok:
+                dest.write_bytes(resp.content)
+                print(f"    [TTS] OpenAI TTS (last resort) — {len(script)} chars")
+                return dest.exists() and dest.stat().st_size > 1000
+            print(f"    [TTS] OpenAI error {resp.status_code}: {resp.text[:80]}")
+        except Exception as e:
+            print(f"    [TTS] OpenAI failed: {e}")
+
+    print("    [TTS] All providers failed — no audio")
+    return False
 
 
 def _add_music_with_voiceover(src: Path, dest: Path, tts_path: Path,

@@ -236,7 +236,7 @@ sudo systemctl start otb-commander
 | `/pause boothop` | Pauses BootHop pipeline (sets `active: false` in profile) |
 | `/pause g-inspired` | Pauses G-Inspired pipeline on Oracle |
 | `/pause all` | Pauses everything |
-| `/revoice 3` | Opens Revoice Studio for slot 3 (record voice or auto TTS) |
+| `/revoice 3` | Opens Revoice Studio — sends slot video preview, then offers Record / Auto TTS / Swap Music |
 | `/v2 3` | Forces V2 Kling video for slot 3 next run |
 | `/music <query>` | Downloads music from YouTube by any query type |
 | `/swapmusic 2` | Swaps music on an existing V2 video (no re-recording needed) |
@@ -250,7 +250,7 @@ The laptop's pipeline (`pipeline.py`) checks for a running commander before poll
 
 ## Revoice Studio — How It Works
 
-Revoice Studio is the tool for replacing the AI voice on any generated video with your own recording or a new auto TTS narration.
+Revoice Studio lets you replace or add a voiceover on any generated video, swap the background music, or both. All controlled from Telegram or the web Commander.
 
 ### Starting a session
 
@@ -258,43 +258,106 @@ Revoice Studio is the tool for replacing the AI voice on any generated video wit
 /revoice 3
 ```
 
-This opens an interactive session for Slot 3. You can also tap **🎙 Revoice S1/S2/S3** buttons in the `/menu` control panel.
+Or tap **🎤 Re-voice S1 / S3 / S4** in the `/menu` control panel. If you type `/revoice` without a slot number the bot automatically picks the slot with the most recent video.
 
-### Session flow
+### Full session flow
 
 ```
-You tap /revoice 3
+/revoice 3  (or tap Re-voice S3 in /menu)
     ↓
-Bot shows the video for slot 3 (30-second preview)
+Bot sends the CURRENT Slot 3 video so you can see what you're working with
     ↓
-Choose: 🎤 Record Voice  OR  🤖 Auto TTS
-    ↓  (if Record Voice)                        ↓  (if Auto TTS)
-Send a voice note to Telegram            Bot reads the script aloud
-    ↓                                          using OpenAI nova TTS
-Choose music duration: 15s / 30s / 45s         (falls back to gTTS)
-    ↓
-Pick a background music track
-    ↓
-Bot bakes: voice + music trimmed to duration + fade-out
-    ↓
-Previews the result — you choose: Post TikTok / Post IG / Swap Music / Post Blog / Done
+Choose an action:
+    ┌─────────────────┬──────────────────┬────────────────────┐
+    │ 🎤 Record Voice │   🤖 Auto TTS    │  🎵 Swap Music     │
+    └────────┬────────┴────────┬─────────┴─────────┬──────────┘
+             │                 │                   │
+    Bot shows HOW TO     Bot generates TTS   Shows music browser
+    RECORD instructions  narration & sends   (70 tracks, 6/page)
+    (mic button guide)   it as AUDIO CLIP    tap ▶️ to preview 30s
+             │           first so you hear   then ✅ pick
+    You hold mic,        it before baking         │
+    speak, release            │              FFmpeg swaps track
+    Voice plays back     ✅ Bake it in       on all 3 variants
+    ✅ Sounds good       🔄 Try alloy/echo   (TikTok/IG/YouTube)
+             │           🎤 Record instead
+    Music browser
+    (70 tracks, 6/page)
+    tap ▶️ to hear 30s preview
+    ✅ pick → trim: 15/30/45s
+             │
+    Bot bakes in background (bot stays responsive while baking)
+             │
+    ✅ Final video sent with action buttons
 ```
 
-### Music trim selector
+### How to record your voice (step by step)
 
-When recording your own voice, you pick how long the background music plays: **15s / 30s / 45s**. The music is trimmed to that duration with a fade-out in the final 1.5s. The voice track always plays for the full video length.
+The bot cannot record for you — you record using Telegram's built-in mic.
 
-### After revoice preview — action buttons
+**On your phone (iOS or Android):**
+1. Look at the message input bar at the bottom of the chat
+2. **Press and HOLD** the 🎤 microphone icon on the right side
+3. Speak your script clearly while holding
+4. **Release** to send — the voice note sends automatically
+5. Slide left while holding if you want to cancel before sending
 
-After a successful bake, four action buttons appear under the preview video:
+**On Telegram Desktop (Windows or Mac):**
+1. Click the 🎤 mic icon once to start recording (a recording timer appears)
+2. Speak your script
+3. Click the ✅ send button to finish and send
+
+After you send, the bot plays your recording back as audio. You then tap:
+- **✅ Sounds good — pick music** to continue
+- **🔄 Record again** to try again
+
+### Music browser — listening before you pick
+
+With 70+ tracks in the library, you browse in pages of 6. Every track shows as a **▶️ button**. Tap it to hear a 30-second clip. After listening:
+- **✅ Use this track** — picks it and moves to trim step
+- **↩️ Back to list** — goes back to the page
+- **🔇 No music** — voice only
+
+You then choose how long the music plays: **15s / 30s / 45s** with a 1.5s fade-out.
+
+### Auto TTS — hearing the AI voice before baking
+
+When you tap **🤖 Auto TTS**, the bot:
+1. Generates narration from the slot's hook + lesson + download CTA
+2. Sends it as an **audio clip** so you can listen first
+3. Shows buttons: **✅ Bake it in** / **🔄 Try different voice** / **🎤 Record instead**
+4. Only renders the final video once you confirm
+
+Available AI voices: nova, alloy, echo, fable, onyx, shimmer (cycles with 🔄).
+
+### After the final bake
+
+The finished video is sent with action buttons:
 
 | Button | What it does |
 |--------|-------------|
-| 🚀 Post TikTok | Posts the revoiced video directly to TikTok |
+| 🚀 Post TikTok | Posts the revoiced video to TikTok |
 | 📸 Post IG | Posts to Instagram |
-| 🎵 Swap Music | Replaces the background music without re-recording |
-| 📝 Post Blog | Generates a blog post from this slot's content |
-| ⏭ Done | Exits the studio |
+| 🎵 Swap Music | Replace music again without re-recording |
+| 📝 Blog | Generates a blog post from this slot's content |
+| ⏭ Done | Closes the studio |
+
+### Does Revoice Studio work on laptop / web Commander?
+
+**Telegram (phone or desktop app):** Full studio — video preview, record voice, Auto TTS preview, music browser with 30s previews. This is the recommended way.
+
+**Web Commander (boothop.com/commander → Revoice tab):** Triggers Auto TTS bake for any slot. Good for quick hands-off revoice without going through the full flow.
+
+**Laptop command line:** Run directly for batch or scripted use:
+```powershell
+# Auto-revoice the latest Slot 3 V2 video
+python revoice_v2.py --slot 3
+
+# Revoice a specific base name
+python revoice_v2.py otb_v2_slot3_20260821_114352
+```
+
+The command line skips the Telegram approval flow and overwrites the platform files directly.
 
 ---
 

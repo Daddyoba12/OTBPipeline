@@ -23,7 +23,7 @@ from config import (
     VIDEO_W, VIDEO_H, VIDEO_FPS,
     FONT_BODY, FONT_TITLE, FONT_BODY_FB, FONT_TITLE_FB,
     LOGO_PATH, MUSIC_DIR, MUSIC_ARCHIVE,
-    OPENAI_API_KEY, ANTHROPIC_API_KEY,
+    OPENAI_API_KEY, GEMINI_API_KEY,
     KLING_LIBRARY, KLING_CLIP_COOLDOWN_DAYS,
     V2_TOTAL_DUR, V2_HOOK_DUR, V2_STORY_DUR, V2_BRAND_DUR, V2_CTA_DUR,
 )
@@ -52,12 +52,46 @@ def _font(which="body"):
 
 
 def _esc(s: str) -> str:
-    """Escape text/path for FFmpeg drawtext filter."""
+    """Escape FILE PATHS for FFmpeg drawtext fontfile= parameter."""
     return (
         s.replace("\\", "/")                # forward slashes (Windows path fix)
-         .replace(chr(39), "’")        # ASCII apostrophe -> right single quote (avoids drawtext delimiter breakage)
+         .replace(chr(39), "’")        # ASCII apostrophe → curly quote
          .replace(":", r"\:")               # colon is special in FFmpeg filter graphs
     )
+
+
+def _esc_text(s: str) -> str:
+    """Escape AD TEXT for FFmpeg drawtext text= parameter.
+    Does NOT convert backslashes — \\n must survive for multi-line wrapping."""
+    return (
+        s.replace(chr(39), "’")        # apostrophe → curly quote
+         .replace(":", r"\:")               # colon is special in FFmpeg filter graphs
+    )
+
+
+def _wrap(text: str, fontsize: int = 52, canvas_w: int = 1080) -> str:
+    """
+    Word-wrap text so each line fits within canvas_w at the given fontsize.
+    Returns an FFmpeg drawtext-safe string with literal \\n line breaks.
+    Char width estimate: fontsize × 0.58 (proportional font average).
+    Safe zone: 85% of canvas width.
+    """
+    avg_cw    = fontsize * 0.58
+    max_chars = int(canvas_w * 0.85 / avg_cw)
+
+    words, lines, line, length = text.split(), [], [], 0
+    for word in words:
+        add = len(word) + (1 if line else 0)
+        if line and length + add > max_chars:
+            lines.append(" ".join(line))
+            line, length = [word], len(word)
+        else:
+            line.append(word)
+            length += add
+    if line:
+        lines.append(" ".join(line))
+
+    return "\\n".join(lines)        # literal \n that FFmpeg drawtext interprets as newline
 
 
 # ── music ─────────────────────────────────────────────────────────────────────
@@ -129,7 +163,7 @@ def _select_clips(story: dict, clips: list[dict], n_target: int = 1) -> list[dic
     Ask Claude to pick the best clips from the available catalogue for this story.
     Returns ordered list of clip entries to use.
     """
-    if not ANTHROPIC_API_KEY or not clips:
+    if not clips:
         return clips[:n_target]
 
     catalogue = "\n".join(
@@ -157,22 +191,18 @@ def _select_clips(story: dict, clips: list[dict], n_target: int = 1) -> list[dic
 
     try:
         import requests as _req
+        from config import GEMINI_API_KEY as _GEM_KEY
         resp = _req.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": _GEM_KEY},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 100,
-                "messages": [{"role": "user", "content": prompt}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 100, "temperature": 0.5},
             },
             timeout=20,
         )
         resp.raise_for_status()
-        raw = resp.json()["content"][0]["text"].strip()
+        raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         m   = re.search(r"\{[\s\S]*\}", raw)
         if m:
             indices = json.loads(m.group()).get("selected", [])
@@ -211,7 +241,7 @@ def _subtitle_filter(segments: list[dict], time_offset: float, font: str) -> str
 # Original Kling audio is kept exactly as-is. These text layers are the only
 # messaging added — no music, no voiceover, no audio changes whatsoever.
 
-_AD_OPENING = [
+_AD_OPENING_DEFAULT = [
     "Already flying to Nigeria? Earn from it.",
     "Why pay £60 when a traveller charges £15?",
     "Your spare luggage space is worth money.",
@@ -222,21 +252,41 @@ _AD_OPENING = [
     "Senders meet travellers. Everyone wins.",
 ]
 
-_AD_HOW_IT_WORKS = [
-    "Match a traveller going your way",
+_AD_HOW_DEFAULT = [
+    "Match a traveller going your way.",
     "They carry your parcel. You save 70%.",
     "Peer-to-peer delivery — UK to Nigeria.",
     "One match. Same-day agreement. Done.",
     "Already going. Already earning.",
 ]
 
-_AD_CTA = [
+_AD_CTA_DEFAULT = [
     "Download free — boothop.com",
     "Sign up today — boothop.com",
     "iOS and Android — boothop.com",
     "Join free at boothop.com",
     "Get started — boothop.com",
 ]
+
+_CUSTOM_TEXTS_FILE = DATA / "kling_custom_texts.json"
+
+
+def _load_ad_texts() -> tuple[list, list, list]:
+    """Load ad text pools. Custom texts in data/kling_custom_texts.json override defaults."""
+    try:
+        if _CUSTOM_TEXTS_FILE.exists():
+            d = json.loads(_CUSTOM_TEXTS_FILE.read_text(encoding="utf-8"))
+            opening = d.get("opening") or _AD_OPENING_DEFAULT
+            how     = d.get("how")     or _AD_HOW_DEFAULT
+            cta     = d.get("cta")     or _AD_CTA_DEFAULT
+            return opening, how, cta
+    except Exception:
+        pass
+    return _AD_OPENING_DEFAULT, _AD_HOW_DEFAULT, _AD_CTA_DEFAULT
+
+
+# Load on module import — can be reloaded per-render
+_AD_OPENING, _AD_HOW_IT_WORKS, _AD_CTA = _load_ad_texts()
 
 # Legacy aliases kept for compatibility
 _HOOK_TEXTS  = {"tiktok": _AD_OPENING, "instagram": _AD_OPENING, "youtube": _AD_OPENING}
@@ -354,6 +404,10 @@ def render_v2_video(
     font   = _font("body")
     music  = _pick_music()
 
+    # Reload text pools so Telegram edits take effect without restarting
+    global _AD_OPENING, _AD_HOW_IT_WORKS, _AD_CTA
+    _AD_OPENING, _AD_HOW_IT_WORKS, _AD_CTA = _load_ad_texts()
+
     # ── 1. Get available clips ─────────────────────────────────────────────────
     clips = available_clips(min_fit=5)
     if not clips:
@@ -466,34 +520,41 @@ def _render_platform(
     Three text layers: opening hook (top) → how it works (middle) → CTA (bottom).
     """
     # ── Three ad text layers ──────────────────────────────────────────────────
+    # All text is word-wrapped so nothing ever overflows the canvas width.
+    # Bottom layer uses h-text_h-padding anchor so wrapped lines stay on screen.
+
+    font_esc = _esc(font)   # file path escape (backslash → forward slash)
+
     # Layer 1 — opening hook at top, shown first 40% of clip
     hook_end  = min(clip_dur * 0.40, 4.0)
-    opening   = random.choice(_AD_OPENING)
+    opening   = _esc_text(_wrap(random.choice(_AD_OPENING), fontsize=52))
     layer1 = (
-        f"drawtext=fontfile='{_esc(font)}':text='{_esc(opening)}'"
-        f":fontsize=52:fontcolor=white:bordercolor=black:borderw=4"
-        f":x=(w-text_w)/2:y=h*0.08"
+        f"drawtext=fontfile='{font_esc}':text='{opening}'"
+        f":fontsize=52:fontcolor=white:bordercolor=black:borderw=4:line_spacing=6"
+        f":x=(w-text_w)/2:y=h*0.06"
         f":enable='between(t\\,0\\,{hook_end:.2f})'"
     )
 
     # Layer 2 — how it works in middle, shown mid-clip
     mid_start = clip_dur * 0.30
     mid_end   = clip_dur * 0.72
-    how_text  = random.choice(_AD_HOW_IT_WORKS)
+    how_text  = _esc_text(_wrap(random.choice(_AD_HOW_IT_WORKS), fontsize=46))
     layer2 = (
-        f"drawtext=fontfile='{_esc(font)}':text='{_esc(how_text)}'"
-        f":fontsize=46:fontcolor=white:bordercolor=black:borderw=3"
+        f"drawtext=fontfile='{font_esc}':text='{how_text}'"
+        f":fontsize=46:fontcolor=white:bordercolor=black:borderw=3:line_spacing=6"
         f":x=(w-text_w)/2:y=(h-text_h)/2"
         f":enable='between(t\\,{mid_start:.2f}\\,{mid_end:.2f})'"
     )
 
     # Layer 3 — download CTA at bottom, shown last third of clip
-    cta_start = clip_dur * 0.65
-    cta_text  = random.choice(_AD_CTA)
+    # y anchored from bottom: (h - text_h - bottom_pad) keeps multi-line text on screen
+    cta_start  = clip_dur * 0.65
+    cta_text   = _esc_text(_wrap(random.choice(_AD_CTA), fontsize=50))
+    bottom_pad = int(H * 0.06)   # 6% bottom safe margin
     layer3 = (
-        f"drawtext=fontfile='{_esc(font)}':text='{_esc(cta_text)}'"
-        f":fontsize=50:fontcolor=white:bordercolor=black:borderw=4"
-        f":x=(w-text_w)/2:y=h*0.82"
+        f"drawtext=fontfile='{font_esc}':text='{cta_text}'"
+        f":fontsize=50:fontcolor=white:bordercolor=black:borderw=4:line_spacing=6"
+        f":x=(w-text_w)/2:y=h-text_h-{bottom_pad}"
         f":enable='between(t\\,{cta_start:.2f}\\,{clip_dur:.2f})'"
     )
 

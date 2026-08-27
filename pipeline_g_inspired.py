@@ -289,16 +289,40 @@ def _run_slot1(profile: dict):
     _log(f"Car: {car.get('year')} {car.get('make')} {car.get('model')} — ${car.get('price', 0):,}")
     _log(f"Hook: {content.get('hook', '')}")
 
-    _log("Step 2: Rendering video...")
+    _log("Step 2: Generating hook clip (dancing/lifestyle opener)...")
+    _hook_clip  = None
+    _hook_audio = None
+    try:
+        from generate_hook import generate_hook
+        _hr = generate_hook(client="g-inspired", slot=1)
+        if _hr.get("success"):
+            _hook_clip  = _hr.get("video_path")
+            _hook_audio = _hr.get("audio_path")
+            _log(f"Hook ready: '{_hr.get('dialogue','')[:60]}'")
+        else:
+            _log("Hook engine: no visual — standard opening will be used")
+    except Exception as _hke:
+        _log(f"[Hook] Skipped: {_hke}")
+
+    _log("Step 3: Rendering video...")
     ts         = datetime.now().strftime("%Y%m%d_%H%M%S")
     video_file = OUTPUT / f"g_inspired_{ts}.mp4"
 
     try:
         from render_video import render_video
-        ok, used_ids = render_video(content, slot=1, output_path=str(video_file), version="v1")
+        ok, used_ids = render_video(content, slot=1, output_path=str(video_file), version="v1",
+                                    hook_clip=_hook_clip, hook_audio=_hook_audio)
     except Exception as e:
         _log(f"Render failed: {e}")
         return False
+
+    # Clean up hook temp files
+    from pathlib import Path as _Path
+    for _hf in filter(None, [_hook_clip, _hook_audio]):
+        try:
+            _Path(_hf).unlink(missing_ok=True)
+        except Exception:
+            pass
 
     if not ok or not video_file.exists():
         _log("Render produced no output — aborting.")
@@ -346,7 +370,7 @@ def _run_slot1(profile: dict):
     except Exception as e:
         _log(f"Post log update skipped: {e}")
 
-    _log(f"Step 3: Emailing video to {to_email}...")
+    _log(f"Step 4: Emailing video to {to_email}...")
     try:
         from email_video import send_video_email
         sent = send_video_email(

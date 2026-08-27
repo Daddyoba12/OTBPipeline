@@ -106,31 +106,35 @@ def _route_to_dashboard(platform_videos: dict, slot: int, base_video: Path) -> N
         key    = str(ORACLE_KEY)
         oracle = f"{ORACLE_USER}@{ORACLE_IP}"
         rdir   = f"{ORACLE_COMPANIES}/{PIPELINE_SLUG}"
+        _SSH_OPTS = ["-o", "StrictHostKeyChecking=no", "-o", "ConnectTimeout=8"]
         try:
-            _sp.run(["ssh", "-i", key, "-o", "StrictHostKeyChecking=no",
-                     oracle, f"mkdir -p {rdir}"],
-                    capture_output=True, timeout=30)
+            _sp.run(["ssh", "-i", key] + _SSH_OPTS + [oracle, f"mkdir -p {rdir}"],
+                    capture_output=True, timeout=15)
         except Exception as e:
-            _log(f"Oracle mkdir error: {e}")
+            _log(f"Oracle offline — skipping dashboard route: {e}")
             return
         synced = []
         for plat, path in platform_videos.items():
             label = labels.get(plat)
             if not label or not Path(path).exists():
                 continue
-            r = _sp.run(["scp", "-i", key, "-o", "StrictHostKeyChecking=no",
-                          path, f"{oracle}:{rdir}/{label}.mp4"],
-                         capture_output=True, text=True, timeout=180)
-            if r.returncode == 0:
-                synced.append(f"{plat}→{label}.mp4")
-            else:
-                _log(f"SCP failed {plat}: {r.stderr[:80]}")
+            try:
+                r = _sp.run(["scp", "-i", key] + _SSH_OPTS + [path, f"{oracle}:{rdir}/{label}.mp4"],
+                             capture_output=True, text=True, timeout=60)
+                if r.returncode == 0:
+                    synced.append(f"{plat}->{label}.mp4")
+                else:
+                    _log(f"SCP failed {plat}: {r.stderr[:80]}")
+            except Exception as e:
+                _log(f"SCP error {plat}: {e}")
         sidecar = base_video.with_suffix(".json")
         if sidecar.exists():
-            _sp.run(["scp", "-i", key, "-o", "StrictHostKeyChecking=no",
-                      str(sidecar), f"{oracle}:{rdir}/slot_{slot}.json"],
-                     capture_output=True, timeout=30)
-        _log(f"Dashboard route (→Oracle): {synced}")
+            try:
+                _sp.run(["scp", "-i", key] + _SSH_OPTS + [str(sidecar), f"{oracle}:{rdir}/slot_{slot}.json"],
+                         capture_output=True, timeout=15)
+            except Exception:
+                pass
+        _log(f"Dashboard route (->Oracle): {synced}")
     else:
         co_dir = Path(f"{ORACLE_COMPANIES}/{PIPELINE_SLUG}")
         co_dir.mkdir(parents=True, exist_ok=True)

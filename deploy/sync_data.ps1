@@ -54,7 +54,7 @@ if ($Direction -eq "pull") {
             Copy-Item $local $backup -ErrorAction SilentlyContinue
         }
 
-        & scp -i "$KeyFile" -o StrictHostKeyChecking=no "$remote" "$local" 2>&1
+        & scp -i "$KeyFile" -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$remote" "$local" 2>&1
         if ($?) {
             Write-Host "  OK  $file" -ForegroundColor Green
         } else {
@@ -77,7 +77,7 @@ if ($Direction -eq "pull") {
             if (-not $pythonExe) { $pythonExe = "python3" }
             & $pythonExe "$PSScriptRoot\..\scripts\post_pending.py"
             # Push the updated pending_posts.json back to Oracle so it knows it's done
-            & scp -i "$KeyFile" -o StrictHostKeyChecking=no "$PendingFile" "${OracleUser}@${OracleIP}:/opt/otb_pipeline/data/pending_posts.json" 2>&1 | Out-Null
+            & scp -i "$KeyFile" -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$PendingFile" "${OracleUser}@${OracleIP}:/opt/otb_pipeline/data/pending_posts.json" 2>&1 | Out-Null
             Write-Host "[PendingPosts] Result synced back to Oracle." -ForegroundColor Green
         }
     }
@@ -92,7 +92,7 @@ if ($Direction -eq "pull") {
             continue
         }
         $remote = "${RemoteData}/$file"
-        & scp -i "$KeyFile" -o StrictHostKeyChecking=no "$local" "$remote" 2>&1
+        & scp -i "$KeyFile" -o StrictHostKeyChecking=no -o ConnectTimeout=8 "$local" "$remote" 2>&1
         if ($?) {
             Write-Host "  OK  $file" -ForegroundColor Green
         } else {

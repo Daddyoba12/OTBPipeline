@@ -19,7 +19,7 @@ import json, re, sys, requests
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, STORY_MODEL
+from config import OPENAI_API_KEY, GEMINI_API_KEY, STORY_MODEL
 from scene_planner import PILLAR_BLUEPRINTS
 
 
@@ -55,21 +55,17 @@ def _call_ai(prompt: str) -> str:
 
     else:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "gpt-4o",
                 "max_tokens": 1600,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=35,
         )
         resp.raise_for_status()
-        return resp.json()["content"][0]["text"].strip()
+        return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _parse_json(raw: str) -> dict:

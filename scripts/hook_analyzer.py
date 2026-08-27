@@ -15,7 +15,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA, ANTHROPIC_API_KEY
+from config import DATA, GEMINI_API_KEY
 
 HOOK_PATTERNS_FILE     = DATA / "hook_patterns.json"
 HOOK_ANALYSIS_LOG      = DATA / "hook_analysis_log.json"
@@ -79,21 +79,16 @@ def _load_top_hooks(n: int = TOP_N_HOOKS) -> list:
 
 def _call_claude(prompt: str) -> str:
     resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key":           ANTHROPIC_API_KEY,
-            "anthropic-version":   "2023-06-01",
-            "content-type":        "application/json",
-        },
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        params={"key": GEMINI_API_KEY},
         json={
-            "model":      "claude-haiku-4-5-20251001",
-            "max_tokens": 1800,
-            "messages":   [{"role": "user", "content": prompt}],
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"maxOutputTokens": 1800, "temperature": 0.5},
         },
         timeout=60,
     )
     resp.raise_for_status()
-    return resp.json()["content"][0]["text"].strip()
+    return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
 
 
 # ── Prompt ────────────────────────────────────────────────────────────────────

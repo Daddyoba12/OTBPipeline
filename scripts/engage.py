@@ -13,10 +13,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import CREDS_PATH, DATA, ANTHROPIC_API_KEY, YOUTUBE_TOKEN
+from config import CREDS_PATH, DATA, GEMINI_API_KEY, YOUTUBE_TOKEN
 
 import requests
-import anthropic
 
 # ── Brand voice for Haiku ───────────────────────────────────────────────────────
 BRAND_SYSTEM = """You are the BootHop community manager. BootHop is a peer-to-peer platform connecting UK and Nigeria — trusted travellers carry packages on journeys they're already making, enabling same-day delivery without courier fees.
@@ -59,23 +58,24 @@ def _save_log(log: dict):
     (DATA / "engagement_log.json").write_text(json.dumps(log, indent=2))
 
 
-# ── Reply generation via Claude Haiku ──────────────────────────────────────────
+# ── Reply generation via Gemini Flash ──────────────────────────────────────────
 
 def _generate_reply(comment_text: str, platform: str) -> str:
-    if not ANTHROPIC_API_KEY:
-        _log("No ANTHROPIC_API_KEY — cannot generate reply"); return ""
+    if not GEMINI_API_KEY:
+        _log("No GEMINI_API_KEY — cannot generate reply"); return ""
     try:
-        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        resp = client.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=120,
-            system=BRAND_SYSTEM,
-            messages=[{
-                "role": "user",
-                "content": f"Platform: {platform}\nComment: {comment_text}\n\nWrite a reply.",
-            }],
+        combined = f"{BRAND_SYSTEM}\n\nPlatform: {platform}\nComment: {comment_text}\n\nWrite a reply."
+        resp = requests.post(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
+            json={
+                "contents": [{"parts": [{"text": combined}]}],
+                "generationConfig": {"maxOutputTokens": 120, "temperature": 0.7},
+            },
+            timeout=15,
         )
-        return resp.content[0].text.strip()
+        resp.raise_for_status()
+        return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
     except Exception as e:
         _log(f"Haiku reply error: {e}"); return ""
 
