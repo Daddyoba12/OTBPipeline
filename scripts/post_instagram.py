@@ -19,6 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import CREDS_PATH, DATA
+from growth_alert import send_live_alert
 
 import requests
 
@@ -58,19 +59,36 @@ def _creds() -> tuple[str, str]:
         _log(f"Creds error: {e}"); return "", ""
 
 
-def _log_post(slot: int, media_id: str):
+def _snapshot_followers(token: str, ig_user_id: str) -> int | None:
+    """Fetch current IG follower count to record alongside the post."""
+    try:
+        r = requests.get(
+            f"https://graph.instagram.com/v22.0/{ig_user_id}",
+            params={"fields": "followers_count", "access_token": token},
+            timeout=10,
+        ).json()
+        count = r.get("followers_count")
+        return int(count) if count is not None else None
+    except Exception:
+        return None
+
+
+def _log_post(slot: int, media_id: str, followers: int | None = None):
     log_path = DATA / "post_log.json"
     log_path.parent.mkdir(exist_ok=True)
     try:
         log = json.loads(log_path.read_text()) if log_path.exists() else []
     except Exception:
         log = []
-    log.append({
+    entry = {
         "platform": "instagram",
         "slot":     slot,
         "media_id": media_id,
         "posted_at": datetime.utcnow().isoformat(),
-    })
+    }
+    if followers is not None:
+        entry["followers_at_post"] = followers
+    log.append(entry)
     log_path.write_text(json.dumps(log, indent=2))
 
 
@@ -235,11 +253,13 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
 
     media_id = str(pub.get("id", ""))
     if media_id:
-        _log_post(slot, media_id)
+        followers = _snapshot_followers(access_token, ig_user_id)
+        _log_post(slot, media_id, followers=followers)
         _log(f"Reel posted! media_id={media_id}")
         engagement = content.get("engagement", "")
         if engagement:
             _post_first_comment(media_id, engagement, access_token)
+        send_live_alert("instagram", slot, content.get("hook", ""), media_id)
     return media_id or None
 
 

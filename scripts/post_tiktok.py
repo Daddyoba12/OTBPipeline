@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import CREDS_PATH, DATA
+from growth_alert import send_live_alert
 
 MAX_CHUNK = 64 * 1024 * 1024
 
@@ -236,6 +237,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
             if status in ("PUBLISH_COMPLETE", "SEND_TO_USER_INBOX", "SUCCESS"):
                 _log_post(slot, publish_id)
                 _log(f"Posted! publish_id={publish_id}")
+                send_live_alert("tiktok", slot, content.get("hook", ""), publish_id)
                 return publish_id
             if status in ("FAILED", "CANCELLED"):
                 _log(f"Failed: {status}"); return None

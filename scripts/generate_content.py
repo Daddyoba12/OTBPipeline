@@ -727,6 +727,15 @@ caption_tiktok  (max 150 chars): ONE original line in the correct style for this
 caption_instagram (max 200 chars): Same original line, slightly expanded if it adds impact. ALWAYS end with "boothop.com".
                                    If slot 2, the booking CTA already has the URL — make it land harder.
                                    Max 2 hashtags. Nothing else.
+
+CAPTION SEO RULE — applies to BOTH captions above:
+IG and TikTok are search engines. Naturally embed ONE of these phrases in the first 80 characters:
+  "send parcel to Nigeria" | "UK to Nigeria delivery" | "ship to Lagos" |
+  "cheap courier Nigeria" | "same-day delivery UK Nigeria" | "send to Lagos cheap"
+Use it once, naturally — the caption must still read as real human language.
+GOOD: "Found the cheapest way to send a parcel to Nigeria in 60 seconds. boothop.com"
+BAD:  "Send parcel Nigeria cheap UK to Nigeria delivery fast. boothop.com"
+
 youtube_title   (max 60 chars): The POV question from the hook. Human, no BootHop name.
 youtube_description: 2 sentences max. First: the story in one line. Second: "boothop.com"
 engagement      (max 10 words): One question that triggers comments. Best openers:
