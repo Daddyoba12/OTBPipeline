@@ -15,7 +15,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import (
-    ANTHROPIC_API_KEY, PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
+    GEMINI_API_KEY, PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
     TEMP, DATA, VIDEO_W, VIDEO_H, VIDEO_FPS,
 )
 
@@ -75,58 +75,94 @@ def _recent_used(days: int = _HOOK_COOLDOWN) -> set:
 
 def _claude_generate(client: str, used: set) -> dict:
     """Ask Claude to generate fresh hook dialogue and scene description."""
-    if not ANTHROPIC_API_KEY:
+    if not GEMINI_API_KEY:
         return {}
 
     used_list = "\n".join(f"- {h}" for h in list(used)[:20]) or "none yet"
 
-    prompt = (
-        f"You are writing the opening 2-second hook for a social media short video about "
-        f"BootHop — a UK-Nigeria parcel delivery and travel money service used by the diaspora.\n\n"
-        f"Client slug: {client}\n"
-        f"Platform: TikTok and Instagram Reels\n"
-        f"Duration of hook: 2 seconds only\n\n"
-        f"GENERATE:\n"
-        f"1. dialogue — A spoken line by the person on screen (max 12 words).\n"
-        f"   Style: Nigerian Pidgin, UK Gen-Z Nigerian, or US Nigerian slang. Vary each time.\n"
-        f"   Should sound natural — someone talking about travel, sending a parcel, or earning.\n"
-        f"   Examples of STYLE (do not copy these):\n"
-        f"     - 'Guy where you dey go? Omo boothop na my plug for this trip!'\n"
-        f"     - 'Pack that envelope fam — someone dey carry am for cheap, trust me!'\n"
-        f"     - 'Omo this trip dey pay for itself, boothop money never lie!'\n"
-        f"     - 'Babe you load that bag already? — BootHop sorted everything!'\n"
-        f"     - 'Ayo how you manage that luggage allowance? Earning from every trip!'\n\n"
-        f"2. scene_query — A Pexels/Pixabay video search query (6-8 words).\n"
-        f"   MUST show a real person (not landscape, not objects alone).\n"
-        f"   Scene ideas: person loading luxury suitcase into car, stylish woman at airport,\n"
-        f"   friends excited before travel, person receiving parcel smiling, person on phone\n"
-        f"   outdoors smiling, couple at departure gate with luggage.\n"
-        f"   Shot type: medium shot or wide shot ONLY — no extreme close-ups.\n"
-        f"   NO church, NO masquerade, NO religious ceremony, NO mask performers, NO food.\n\n"
-        f"3. scene_style — one of: luxury_travel | airport_vibes | parcel_delivery | "
-        f"excited_packing | money_moment\n\n"
-        f"ALREADY USED (do not repeat within 14 days):\n{used_list}\n\n"
-        f"Reply ONLY with valid JSON, no other text:\n"
-        f'{{\"dialogue\": \"...\", \"scene_query\": \"...\", \"scene_style\": \"...\"}}'
-    )
+    if client == "g-inspired":
+        prompt = (
+            f"You are writing the opening 2-second hook for a short social media video for "
+            f"G-Inspired Automall — a no-hidden-fee used car dealership in Washington, IL.\n\n"
+            f"Platform: TikTok and Instagram Reels\n"
+            f"Duration of hook: 2 seconds only\n\n"
+            f"GENERATE:\n"
+            f"1. dialogue — A spoken line by the person on screen (max 10 words).\n"
+            f"   Style: casual American English — car enthusiast, excited buyer, or lifestyle energy.\n"
+            f"   Should feel like a real person who just got a great deal or loves their car.\n"
+            f"   Examples of STYLE (do not copy these):\n"
+            f"     - 'Bro this truck is clean and I paid zero fees!'\n"
+            f"     - 'No cap, I got this SUV for exactly what the tag said.'\n"
+            f"     - 'She pulled up in that and I had to ask where she got it.'\n"
+            f"     - 'Gym after this — just picked up my new ride, no fees, no drama.'\n"
+            f"     - 'Pulled up different today. G-Inspired hit different.'\n\n"
+            f"2. scene_query — A Pexels/Pixabay video search query (6-8 words).\n"
+            f"   MUST show a real person (not landscape, not objects alone).\n"
+            f"   PREFERRED scene ideas (use these often — fresh, high-energy):\n"
+            f"     - beautiful woman dancing confidently indoors lifestyle wide shot\n"
+            f"     - Black men at gym talking laughing energetic medium shot\n"
+            f"     - woman having great time friends laughing celebrating wide shot\n"
+            f"     - men gym workout motivated talking excited wide shot\n"
+            f"     - stylish woman luxury car keys smiling confident medium shot\n"
+            f"   Shot type: medium shot or wide shot ONLY — no extreme close-ups.\n"
+            f"   NO church, NO religious scenes, NO food, NO farm.\n\n"
+            f"3. scene_style — one of: dancing_vibes | gym_energy | luxury_travel | "
+            f"car_lifestyle | money_moment\n"
+            f"   Prefer dancing_vibes or gym_energy for scroll-stopping energy.\n\n"
+            f"ALREADY USED (do not repeat within 14 days):\n{used_list}\n\n"
+            f"Reply ONLY with valid JSON, no other text:\n"
+            f'{{\"dialogue\": \"...\", \"scene_query\": \"...\", \"scene_style\": \"...\"}}'
+        )
+    else:
+        prompt = (
+            f"You are writing the opening 2-second hook for a social media short video about "
+            f"BootHop — a UK-Nigeria parcel delivery and travel money service used by the diaspora.\n\n"
+            f"Client slug: {client}\n"
+            f"Platform: TikTok and Instagram Reels\n"
+            f"Duration of hook: 2 seconds only\n\n"
+            f"GENERATE:\n"
+            f"1. dialogue — A spoken line by the person on screen (max 12 words).\n"
+            f"   Style: Nigerian Pidgin, UK Gen-Z Nigerian, or US Nigerian slang. Vary each time.\n"
+            f"   Should sound natural — someone talking about travel, sending a parcel, or earning.\n"
+            f"   Examples of STYLE (do not copy these):\n"
+            f"     - 'Guy where you dey go? Omo boothop na my plug for this trip!'\n"
+            f"     - 'Pack that envelope fam — someone dey carry am for cheap, trust me!'\n"
+            f"     - 'Omo this trip dey pay for itself, boothop money never lie!'\n"
+            f"     - 'Babe you load that bag already? — BootHop sorted everything!'\n"
+            f"     - 'Bro after the gym I sorted my mum's parcel through BootHop — quick quick!'\n"
+            f"     - 'No cap, I was dancing when I saw how cheap BootHop was, free money!'\n"
+            f"     - 'Ayo how you manage that luggage allowance? Earning from every trip!'\n\n"
+            f"2. scene_query — A Pexels/Pixabay video search query (6-8 words).\n"
+            f"   MUST show a real person (not landscape, not objects alone).\n"
+            f"   PREFERRED scene ideas (use these often — fresh, high-energy):\n"
+            f"     - beautiful African woman dancing confidently indoors lifestyle wide shot\n"
+            f"     - Black men at gym talking laughing energetic medium shot\n"
+            f"     - African woman having a great time friends laughing lifestyle wide shot\n"
+            f"     - Black men gym workout motivated talking wide shot\n"
+            f"   Other scene ideas: stylish woman at airport lounge, person loading luxury\n"
+            f"   suitcase into car, couple at departure gate, Black woman celebrating outdoors.\n"
+            f"   Shot type: medium shot or wide shot ONLY — no extreme close-ups.\n"
+            f"   NO church, NO masquerade, NO religious ceremony, NO mask performers, NO food.\n\n"
+            f"3. scene_style — one of: dancing_vibes | gym_energy | luxury_travel | "
+            f"airport_vibes | parcel_delivery | excited_packing | money_moment\n"
+            f"   Prefer dancing_vibes or gym_energy for variety and scroll-stopping energy.\n\n"
+            f"ALREADY USED (do not repeat within 14 days):\n{used_list}\n\n"
+            f"Reply ONLY with valid JSON, no other text:\n"
+            f'{{\"dialogue\": \"...\", \"scene_query\": \"...\", \"scene_style\": \"...\"}}'
+        )
 
     try:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 220,
-                "messages": [{"role": "user", "content": prompt}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 220, "temperature": 0.7},
             },
             timeout=25,
         )
         resp.raise_for_status()
-        raw = resp.json()["content"][0]["text"].strip()
+        raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         m   = re.search(r"\{[\s\S]*?\}", raw)
         if not m:
             return {}
@@ -308,20 +344,34 @@ def _dalle_image(scene_query: str, dest: Path) -> bool:
     return False
 
 
-# ── gTTS voiceover ─────────────────────────────────────────────────────────────
+# ── Nigerian TTS voiceover ─────────────────────────────────────────────────────
 
-def _gtts_audio(text: str, dest: Path) -> bool:
-    """Generate voiceover MP3 from dialogue text using gTTS."""
+def _nigerian_audio(text: str, dest: Path, client: str = "boothop") -> bool:
+    """
+    Generate hook voiceover MP3.
+    G-Inspired: always ElevenLabs (US/UK English).
+    BootHop: Azure Nigerian mostly, ElevenLabs occasionally (~1 in 4) for variety.
+    """
     try:
-        from gtts import gTTS
+        from tts_nigerian import generate_nigerian_tts, generate_american_tts, _elevenlabs
         clean = re.sub(r"[^\x00-\x7F]", "", text).strip()
         if not clean:
-            clean = "BootHop, your travel plug"
-        tts = gTTS(text=clean, lang="en", tld="co.uk", slow=False)
-        tts.save(str(dest))
-        return dest.exists() and dest.stat().st_size > 1_000
+            clean = "BootHop, your travel plug" if client != "g-inspired" else "G-Inspired. Zero fees."
+
+        if client == "g-inspired":
+            return generate_american_tts(clean, dest, gender="female")
+
+        # BootHop: ~10% chance of using ElevenLabs for voice variety (once every ~10 runs)
+        if random.random() < 0.10:
+            from config import ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
+            if ELEVENLABS_API_KEY and ELEVENLABS_VOICE_ID:
+                if _elevenlabs(clean, dest):
+                    print("  [HookEngine] ElevenLabs voice (variety)")
+                    return True
+
+        return generate_nigerian_tts(clean, dest, gender="female")
     except Exception as e:
-        print(f"  [HookEngine] gTTS error: {e}")
+        print(f"  [HookEngine] TTS error: {e}")
     return False
 
 
@@ -334,7 +384,7 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
     Returns:
         {
             "video_path": str | None,   # 1080x1920, 2s, silent video
-            "audio_path": str | None,   # 2s gTTS dialogue MP3
+            "audio_path": str | None,   # 2s hook dialogue MP3
             "dialogue":   str,
             "scene_query": str,
             "success": bool,
@@ -346,11 +396,18 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
     used    = _recent_used()
     data    = _claude_generate(client, used)
     if not data:
-        data = {
-            "dialogue":    "Omo boothop na my plug for this trip!",
-            "scene_query": "stylish Black British woman airport departure lounge wide shot",
-            "scene_style": "airport_vibes",
-        }
+        if client == "g-inspired":
+            data = {
+                "dialogue":    "Pulled up different today. Zero fees, no drama.",
+                "scene_query": "beautiful woman dancing confidently lifestyle wide shot",
+                "scene_style": "dancing_vibes",
+            }
+        else:
+            data = {
+                "dialogue":    "Omo boothop na my plug for this trip!",
+                "scene_query": "beautiful African woman dancing confidently lifestyle wide shot",
+                "scene_style": "dancing_vibes",
+            }
 
     dialogue    = data["dialogue"]
     scene_query = data["scene_query"]
@@ -377,9 +434,9 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
         print(f"  [HookEngine] All visual sources failed — hook skipped")
 
     # ── Voiceover ─────────────────────────────────────────────────────────────
-    audio_ok = _gtts_audio(dialogue, audio_dest)
+    audio_ok = _nigerian_audio(dialogue, audio_dest, client=client)
     if not audio_ok:
-        print(f"  [HookEngine] gTTS unavailable — hook will be visual-only")
+        print(f"  [HookEngine] Nigerian TTS unavailable — hook will be visual-only")
 
     # ── Log for 14-day dedup ──────────────────────────────────────────────────
     if video_ok:

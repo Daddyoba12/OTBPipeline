@@ -21,6 +21,12 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 try:
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except Exception:
+    pass
+
+try:
     from zoneinfo import ZoneInfo
 except ImportError:
     try:
@@ -103,7 +109,7 @@ def _run_client(client: dict, slot: dict, dry_run: bool):
         env_override = {**__import__("os").environ, "OTB_CLIENT_BASE": client["env_base"]}
 
     label = slot.get("label", slot.get("time", "?"))
-    print(f"  [FIRE] {client['name']} — {label} slot → {' '.join(cmd)}")
+    print(f"  [FIRE] {client['name']} -- {label} slot -> {' '.join(cmd)}")
 
     if not dry_run:
         subprocess.run(

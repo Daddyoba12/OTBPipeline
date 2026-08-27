@@ -1,13 +1,14 @@
 {
   "route_history": {
-    "LGW-LOS": "2026-07-24",
-    "LHR-LOS": "2026-07-27",
-    "MAN-LOS": "2026-07-29",
-    "LHR-ABV": "2026-07-29"
+    "LGW-LOS": "2026-08-26",
+    "LHR-LOS": "2026-08-21",
+    "MAN-LOS": "2026-08-23",
+    "LHR-ABV": "2026-08-24",
+    "LHR-PHC": "2026-08-02"
   },
-  "next_story_index": 6,
-  "next_closing_index": 1,
-  "next_engagement_index": 1,
+  "next_story_index": 4,
+  "next_closing_index": 4,
+  "next_engagement_index": 4,
   "posts": [
     {
       "date": "2026-07-07",
@@ -152,6 +153,168 @@
       "airline": "Kenya Airways",
       "hook": "£379 London to Port Harcourt. That's someone already making that journey.",
       "status": "failed"
+    },
+    {
+      "date": "2026-07-31",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-01",
+      "platform": "tiktok",
+      "route": "London → Port Harcourt",
+      "price_gbp": 379,
+      "airline": "Kenya Airways",
+      "hook": "£379 London to Port Harcourt. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-02",
+      "platform": "instagram",
+      "route": "London → Port Harcourt",
+      "price_gbp": 379,
+      "airline": "Kenya Airways",
+      "hook": "£379 London to Port Harcourt. Someone is already making this journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-03",
+      "platform": "linkedin",
+      "route": "London → Lagos",
+      "price_gbp": 338,
+      "airline": "British Airways",
+      "hook": "£338 London to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-04",
+      "platform": "tiktok",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. Someone is already making this journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-05",
+      "platform": "instagram",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-06",
+      "platform": "tiktok",
+      "route": "London → Abuja",
+      "price_gbp": 355,
+      "airline": "Ethiopian Airlines",
+      "hook": "£355 London to Abuja. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-08",
+      "platform": "tiktok",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-09",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-10",
+      "platform": "linkedin",
+      "route": "London → Lagos",
+      "price_gbp": 338,
+      "airline": "British Airways",
+      "hook": "£338 London to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-19",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-20",
+      "platform": "tiktok",
+      "route": "London → Lagos",
+      "price_gbp": 338,
+      "airline": "British Airways",
+      "hook": "£338 London to Lagos. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-21",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 338,
+      "airline": "British Airways",
+      "hook": "£338 London to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-22",
+      "platform": "tiktok",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. That's someone already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-23",
+      "platform": "instagram",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-24",
+      "platform": "linkedin",
+      "route": "London → Abuja",
+      "price_gbp": 355,
+      "airline": "Ethiopian Airlines",
+      "hook": "£355 London to Abuja. That's someone already making that journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-08-25",
+      "platform": "tiktok",
+      "route": "London → Port Harcourt",
+      "price_gbp": 379,
+      "airline": "Kenya Airways",
+      "hook": "£379 London to Port Harcourt. Someone is already making that journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-08-26",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. Someone is already making this journey.",
+      "status": "posted"
     }
   ]
 }

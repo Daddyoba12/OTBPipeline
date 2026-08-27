@@ -30,9 +30,9 @@ from datetime import datetime, date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY, DATA
+from config import OPENAI_API_KEY, DATA
 
-import anthropic
+import requests as _req_blog
 
 BLOG_BASE   = Path(__file__).resolve().parent.parent / "blog"
 PENDING_DIR = BLOG_BASE / "pending"
@@ -123,13 +123,14 @@ CTA box HTML template:
   <a href="https://www.boothop.com/register" style="display:inline-block;background:#22d3ee;color:#0f172a;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-top:8px;">Get Started Free →</a>
 </div>"""
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    resp = client.messages.create(
-        model="claude-sonnet-4-6",
-        max_tokens=3000,
-        messages=[{"role": "user", "content": prompt}],
+    resp = _req_blog.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
+        json={"model": "gpt-4o", "max_tokens": 3000, "messages": [{"role": "user", "content": prompt}]},
+        timeout=60,
     )
-    raw = resp.content[0].text.strip()
+    resp.raise_for_status()
+    raw = resp.json()["choices"][0]["message"]["content"].strip()
 
     # Extract title and labels from HTML comments
     title_match  = re.search(r'<!-- title:\s*(.+?)\s*-->', raw)

@@ -20,7 +20,7 @@ try:
 except Exception:
     pass
 
-from config import OUTPUT, TEMP, MUSIC_DIR, MUSIC_ARCHIVE, OPENAI_API_KEY
+from config import OUTPUT, TEMP, MUSIC_DIR, MUSIC_ARCHIVE
 
 FFMPEG = "ffmpeg"
 
@@ -53,31 +53,15 @@ def _build_narration(story: dict) -> str:
     return " ".join(p for p in [hook, lesson, cta] if p)
 
 
-def _generate_tts(text: str, out_path: Path, voice: str = "nova") -> bool:
+def _generate_tts(text: str, out_path: Path, gender: str = "female") -> bool:
     if not text.strip():
         return False
-    if OPENAI_API_KEY:
-        try:
-            import requests
-            r = requests.post(
-                "https://api.openai.com/v1/audio/speech",
-                headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-                json={"model": "tts-1", "input": text, "voice": voice},
-                timeout=30,
-            )
-            r.raise_for_status()
-            out_path.write_bytes(r.content)
-            print(f"  [TTS] OpenAI {voice} - {len(text)} chars - {out_path.name}")
-            return True
-        except Exception as e:
-            print(f"  [TTS] OpenAI failed: {e} - trying gTTS")
     try:
-        from gtts import gTTS
-        gTTS(text=text, lang="en", tld="co.uk").save(str(out_path))
-        print(f"  [TTS] gTTS (British) - {out_path.name}")
-        return True
+        sys.path.insert(0, str(Path(__file__).parent / "scripts"))
+        from tts_nigerian import generate_nigerian_tts
+        return generate_nigerian_tts(text, out_path, gender=gender)
     except Exception as e:
-        print(f"  [TTS] Both TTS methods failed: {e}")
+        print(f"  [TTS] Nigerian TTS failed: {e}")
         return False
 
 
@@ -168,7 +152,7 @@ def revoice(base_name: str) -> dict:
     print(f"Narration:\n  {narr_text}\n")
 
     narr_path = TEMP / f"revoice_{base_name}_narr.mp3"
-    if not _generate_tts(narr_text, narr_path):
+    if not _generate_tts(narr_text, narr_path, gender="female"):
         print("WARNING: TTS failed - proceeding with music only")
         narr_path = None
 

@@ -1,52 +1,52 @@
 {
-  "last_updated": "2026-07-26",
-  "hooks_analysed": 25,
+  "last_updated": "2026-08-20",
+  "hooks_analysed": 30,
   "brand_context": "BootHop — peer-to-peer parcel delivery between UK and Nigeria via travellers already making the journey. TikTok + Instagram Reels.",
   "top_patterns": [
     {
-      "trigger": "empathy",
-      "structure": "Would you trust a stranger with your [family member]'s [emotional/milestone object]?",
-      "why_it_works": "Activates protective instinct and relational identity. Viewers picture themselves in the scenario, creating immediate emotional stakes and self-projection that drives engagement.",
+      "trigger": "urgency",
+      "structure": "What if [cherished item] is [location] and [time-sensitive event] is [soon]?",
+      "why_it_works": "Temporal pressure creates anxiety that demands immediate resolution. The specificity of locations and deadlines makes the scenario feel real and relatable, forcing viewers to imagine themselves in that exact predicament.",
       "strength_score": 9
     },
     {
-      "trigger": "urgency",
-      "structure": "What if [cherished item] is still in [UK location] — and the [event] is [day]?",
-      "why_it_works": "Time scarcity creates cognitive tension. The dash amplifies the collision between two incompatible states, forcing viewers to feel the problem before considering the solution.",
+      "trigger": "empathy",
+      "structure": "Would you trust a stranger with [family member]'s [milestone/precious item]?",
+      "why_it_works": "Leverages emotional stakes by combining relational bonds (family) with vulnerability (trusting strangers). This positions BootHop as the bridge between love and logistics, making the service feel emotionally necessary rather than transactional.",
       "strength_score": 9
+    },
+    {
+      "trigger": "fear",
+      "structure": "What if [essential item for critical moment] is [stuck/missing] and [time constraint]?",
+      "why_it_works": "Fear of missing irreplaceable moments (graduation, wedding, birthday) taps into deep loss anxiety. Pairing location specificity with event deadlines makes the stakes feel concrete and unavoidable.",
+      "strength_score": 8
     },
     {
       "trigger": "desire",
-      "structure": "Would you [save money/earn money] by [action related to luggage space]?",
-      "why_it_works": "Frames BootHop as a financial unlock, not a service. Appeals to both senders (cost savings) and travellers (side income), creating dual-audience resonance.",
-      "strength_score": 8
-    },
-    {
-      "trigger": "surprise",
-      "structure": "[Specific item] needed in [Lagos/destination] by [tight deadline]!",
-      "why_it_works": "Specificity (signed shirt, stethoscope, Air Force 1s) creates narrative intrigue. The concrete detail makes the problem feel real and memorable, increasing shares.",
-      "strength_score": 8
+      "structure": "Would you [action] to earn £[amount] carrying [item] to [destination]?",
+      "why_it_works": "Direct appeal to financial incentive for travellers. The specificity of earnings and item types makes the earning potential feel tangible and effortless, motivating supply-side engagement.",
+      "strength_score": 7
     },
     {
       "trigger": "curiosity",
-      "structure": "How to get [sentimental item] to [Lagos] when [obstacle]?",
-      "why_it_works": "Opens a knowledge gap. Viewers watch to discover the 'how,' and the implicit answer (BootHop) feels earned rather than pitched.",
+      "structure": "What if [person] had no idea [opportunity/solution] existed?",
+      "why_it_works": "Open-ended framing creates question-mark thinking that demands mental resolution. Works best when the answer (BootHop) feels like a revelation rather than an obvious conclusion.",
       "strength_score": 7
     }
   ],
   "avoid": [
-    "Generic 'Would you trust a stranger' without emotional specificity — hooks 5, 8, 10, 24 dilute impact by removing family/milestone context",
-    "B2B framing (hook 12) — lower engagement than peer-to-peer human stories in short-form",
-    "Weak value propositions (hooks 20, 25) — detached from emotional narrative; feel salesy rather than story-driven",
-    "Overuse of 'stranger' without context — repetition dulls the psychological tension by hook 9+",
-    "Vague destinations (hook 16 'Abuja' vs hook 1 'Lagos') — specificity to major hubs increases relatability"
+    "Generic 'would you trust a stranger' without emotional specificity or time pressure — feels too abstract",
+    "Vague location references without deadlines — removes urgency that makes hooks stick",
+    "Earnings hooks that lead with numbers without context of ease/simplicity — feels salesy rather than story-driven",
+    "Overuse of medical/clinical items (stethoscope, recovery) — too niche, limits relatability",
+    "Hooks lacking the family/milestone angle — transactional rather than emotional"
   ],
   "suggested_hooks": [
-    "Your mum's burial cloth is packed. Your flight leaves tomorrow. Can it still make it?",
-    "Would you let a traveller carry your baby's first shoes to your parents in Accra?",
-    "Your brother just got engaged. The ring is in London. The proposal is this weekend in Port Harcourt.",
-    "Earn £120 bringing your cousin's WAEC results to Ibadan—she can't register without them.",
-    "What if the herbal remedy your grandmother needs is in a suitcase flying out Thursday?"
+    "What if your cousin's visa documents were sitting in Manchester and her interview is in 36 hours?",
+    "Would you trust a stranger with the traditional fabric your wedding dress designer still needs?",
+    "What if the business proposal that could change everything is on a shelf in Croydon — and the investor meeting is Wednesday?",
+    "Earn £65 carrying textbooks to Accra. Your flight already has the space.",
+    "What if your daughter's school uniform arrived in Liverpool instead of Lagos — and term starts Monday?"
   ],
-  "summary": "BootHop's strongest hooks weaponise empathy + urgency by making abstract logistics feel like emotional emergencies tied to family milestones and irreplaceable moments. Double down on specific, time-bound scenarios featuring named relationships (brother, nan, sister) and tangible objects (stethoscope, dress, signed shirt) rather than generic trust statements—this combination drives both emotional resonance and shareability."
+  "summary": "The strongest hooks weaponize urgency + emotional stakes by naming specific family members, milestone events, and countdown timelines—they make the problem feel *yours* immediately. BootHop should double down on real-life scenarios (graduations, weddings, medical needs, business deadlines) paired with concrete locations and 24-72 hour windows, positioning the service as the only solution between love and logistics."
 }

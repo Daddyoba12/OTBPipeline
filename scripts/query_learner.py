@@ -29,7 +29,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA, ANTHROPIC_API_KEY
+from config import DATA, OPENAI_API_KEY
 
 import requests
 
@@ -414,21 +414,17 @@ Return ONLY valid JSON, no commentary:
 
     try:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            "https://api.openai.com/v1/chat/completions",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
             json={
-                "model": "claude-sonnet-4-6",
+                "model": "gpt-4o",
                 "max_tokens": 600,
                 "messages": [{"role": "user", "content": prompt}],
             },
             timeout=30,
         )
         resp.raise_for_status()
-        raw = resp.json()["content"][0]["text"].strip()
+        raw = resp.json()["choices"][0]["message"]["content"].strip()
         match = re.search(r"\{[\s\S]*\}", raw)
         if not match:
             print("    [QueryLearner] Claude returned no JSON"); return

@@ -31,7 +31,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA, BASE, ANTHROPIC_API_KEY, PERPLEXITY_KEY
+from config import DATA, BASE, OPENAI_API_KEY, PERPLEXITY_KEY
 
 FUNNEL_OUTPUT   = DATA / "product_funnel"
 FUNNEL_LOG      = DATA / "product_funnel_log.json"
@@ -94,21 +94,17 @@ def _update_log(product_cfg: dict):
 
 def _claude(prompt: str, max_tokens: int = 2000) -> str:
     resp = requests.post(
-        "https://api.anthropic.com/v1/messages",
-        headers={
-            "x-api-key":         ANTHROPIC_API_KEY,
-            "anthropic-version": "2023-06-01",
-            "content-type":      "application/json",
-        },
+        "https://api.openai.com/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
         json={
-            "model":      "claude-sonnet-4-6",
+            "model":      "gpt-4o",
             "max_tokens": max_tokens,
             "messages":   [{"role": "user", "content": prompt}],
         },
         timeout=60,
     )
     resp.raise_for_status()
-    return resp.json()["content"][0]["text"].strip()
+    return resp.json()["choices"][0]["message"]["content"].strip()
 
 
 def _perplexity(query: str) -> str:

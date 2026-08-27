@@ -16,7 +16,7 @@ import json, re, sys, requests
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY
+from config import GEMINI_API_KEY
 try:
     from trend_scout import get_scene_trend_context as _get_scene_trends
 except ImportError:
@@ -331,11 +331,11 @@ PILLAR_BLUEPRINTS = {
         "Nigerian woman smiling at door receiving parcel — warm handover wide shot",                             # lesson
     ],
     "family": [
-        "CLOSE-UP Nigerian woman face — worried expression holding phone in UK home — vertical portrait shot",   # hook
-        "Black woman at courier counter reacting to expensive price — medium shot",                              # problem
-        "African woman upset on phone at home deadline approaching — medium shot",                               # stakes
-        "Black man at train station handing small parcel to traveller — friendly wide shot",                     # resolution
-        "Nigerian family member smiling receiving parcel at door — warm wide shot",                              # lesson
+        "CLOSE-UP beautiful African woman dancing confidently indoors — joyful big smile lifestyle — vertical portrait shot",   # hook
+        "Black woman at courier counter reacting to expensive price — medium shot",                                            # problem
+        "African woman upset on phone at home deadline approaching — medium shot",                                             # stakes
+        "Black man at train station handing small parcel to traveller — friendly wide shot",                                   # resolution
+        "Nigerian family member smiling receiving parcel at door — warm wide shot",                                            # lesson
     ],
     "airport": [
         "CLOSE-UP Black traveller face — stressed expression checking phone at airport departures — vertical portrait shot",  # hook
@@ -366,11 +366,11 @@ PILLAR_BLUEPRINTS = {
         "Black traveller arriving confidently Lagos airport — wide shot",                                          # lesson
     ],
     "travel_hacks": [
-        "CLOSE-UP Black British traveller face — realisation expression checking phone airport — vertical portrait shot",  # hook
-        "Nigerian woman frustrated expensive courier price phone — medium shot",                                           # problem
-        "African traveller at departure gate worried about parcel — medium shot",                                          # stakes
-        "Black traveller receiving small parcel from sender at station smiling — wide shot",                               # resolution
-        "Nigerian person at door receiving parcel smiling relief — wide shot",                                             # lesson
+        "CLOSE-UP Black men at gym talking laughing excited — energetic confident lifestyle — vertical portrait shot",  # hook
+        "Nigerian woman frustrated expensive courier price phone — medium shot",                                        # problem
+        "African traveller at departure gate worried about parcel — medium shot",                                       # stakes
+        "Black traveller receiving small parcel from sender at station smiling — wide shot",                            # resolution
+        "Nigerian person at door receiving parcel smiling relief — wide shot",                                          # lesson
     ],
     "logistics_stories": [
         "CLOSE-UP Black woman face — reading expensive courier price quote shocked — vertical portrait shot",     # hook
@@ -475,21 +475,29 @@ AIRPORT PILLAR — MANDATORY (if pillar is airport or airport_deliveries):
 OPENING SCENE RULES (scene 0 — the hook):
   The first 3 seconds must STOP THE SCROLL. ROTATE the opening type — do not always use
   the same style. Pick one of these approaches each time:
-    - A casual conversation or reaction (two people talking, someone laughing, a natural exchange)
+    - PREFERRED: Beautiful African woman dancing confidently (joyful, energetic, lifestyle)
+    - PREFERRED: Black men at gym talking, laughing, motivated (energetic, aspirational)
     - A lifestyle or aspirational moment (airport lounge, upscale setting, stylish arrival)
-    - An action shot (person striding, handing over a parcel, opening a door)
-    - A cinematic close-up (phone notification, parcel being handed over)
+    - A casual conversation or natural social exchange (two people laughing, talking)
+    - An action shot (person striding confidently, celebrating outdoors)
+
+  For pillar "family":   ALWAYS use dancing/lifestyle hook — no worried or stressed faces
+  For pillar "travel_hacks": ALWAYS use gym or dancing hook — no realisation or travel stress
 
   ALWAYS BANNED for ALL scenes:
     - Shocked expression, hand over mouth, wide eyes, extreme surprise
+    - Worried face, stressed expression, realisation face (for hook scene only — OK for scenes 2-3)
     - Children, babies, toddlers, kids — never use child faces
 
-  Face shots ARE allowed — but the expression must be natural: smiling, mid-conversation,
-  calm, curious, relieved, proud. Never shocked or dramatic.
+  Face shots ARE allowed — but the expression must be natural: smiling, dancing, laughing,
+  mid-conversation, confident, proud. Never shocked, worried, or dramatic for the hook.
 
 CORRECT examples:
-  Scene 0 (hook — close-up, varied):
-    "close up Nigerian woman phone relieved expression"
+  Scene 0 (hook — close-up, varied and energetic):
+    "beautiful African woman dancing confidently indoors lifestyle"
+    "Black men gym talking laughing excited medium shot"
+    "close up African woman dancing joyful big smile"
+    "Black British woman dancing confident lifestyle wide shot"
     "close up Black British woman airport gate confident"
     "close up African man laughing phone notification"
   Scenes 1–4 (medium/wide required):
@@ -510,21 +518,16 @@ Return ONLY valid JSON with no markdown:
 
     try:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 300,
-                "messages": [{"role": "user", "content": prompt}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5},
             },
             timeout=20,
         )
         resp.raise_for_status()
-        raw = resp.json()["content"][0]["text"].strip()
+        raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         m = re.search(r"\{[\s\S]*\}", raw)
         if m:
             data = json.loads(m.group())
@@ -578,21 +581,16 @@ Return ONLY valid JSON:
 
     try:
         resp = requests.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": ANTHROPIC_API_KEY,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
             json={
-                "model": "claude-haiku-4-5-20251001",
-                "max_tokens": 300,
-                "messages": [{"role": "user", "content": prompt}],
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5},
             },
             timeout=20,
         )
         resp.raise_for_status()
-        raw = resp.json()["content"][0]["text"].strip()
+        raw = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
         m = re.search(r"\{[\s\S]*\}", raw)
         if m:
             data = json.loads(m.group())

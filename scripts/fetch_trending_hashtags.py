@@ -18,7 +18,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY, DATA
+from config import GEMINI_API_KEY, DATA
 
 HASHTAG_FILE  = DATA / "trending_hashtags.json"   # today's trending tag cache (1 per day)
 USED_LOG      = DATA / "hashtag_used_log.json"     # 7-day per-tag rotation log
@@ -154,13 +154,15 @@ def _get_trending_tag(force: bool = False) -> str:
             "\n\nReply with ONLY ONE hashtag in CamelCase with # prefix. Example: #NigeriaVsEngland"
         )
         try:
-            import anthropic
-            client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-            msg = client.messages.create(
-                model="claude-haiku-4-5-20251001", max_tokens=20,
-                messages=[{"role": "user", "content": prompt}],
+            import requests as _hr
+            _gr = _hr.post(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+                params={"key": GEMINI_API_KEY},
+                json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"maxOutputTokens": 20}},
+                timeout=10,
             )
-            tag = msg.content[0].text.strip().split()[0]
+            _gr.raise_for_status()
+            tag = _gr.json()["candidates"][0]["content"]["parts"][0]["text"].strip().split()[0]
             if tag.startswith("#") and len(tag) > 2 and not any(b in tag.lower() for b in _BLOCKED):
                 HASHTAG_FILE.write_text(
                     json.dumps({"date": today, "trending": tag, "sources": {k: v[:3] for k, v in sources.items()}}),

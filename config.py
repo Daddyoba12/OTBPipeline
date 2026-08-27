@@ -61,6 +61,13 @@ if True:
         GMAIL_USER            = _env_pairs.get("GMAIL_USER",              os.environ.get("GMAIL_USER",             ""))
         GMAIL_APP_PASSWORD= _env_pairs.get("GMAIL_APP_PASSWORD",os.environ.get("GMAIL_APP_PASSWORD",""))
         KLING_API_KEY         = _env_pairs.get("KLING_API_KEY",            os.environ.get("KLING_API_KEY",           ""))
+        ELEVENLABS_API_KEY      = _env_pairs.get("ELEVENLABS_API_KEY",       os.environ.get("ELEVENLABS_API_KEY",      ""))
+        ELEVENLABS_VOICE_ID     = _env_pairs.get("ELEVENLABS_VOICE_ID",      os.environ.get("ELEVENLABS_VOICE_ID",     ""))
+        ELEVENLABS_VOICE_LAGOS_F= _env_pairs.get("ELEVENLABS_VOICE_LAGOS_F", os.environ.get("ELEVENLABS_VOICE_LAGOS_F","httKLfRsEJFpHI6DBUNP"))
+        ELEVENLABS_VOICE_LAGOS_M= _env_pairs.get("ELEVENLABS_VOICE_LAGOS_M", os.environ.get("ELEVENLABS_VOICE_LAGOS_M","yw5mIcUDLlhxVz2DXAJe"))
+        ELEVENLABS_VOICE_OTHER  = _env_pairs.get("ELEVENLABS_VOICE_OTHER",   os.environ.get("ELEVENLABS_VOICE_OTHER",  "e2IyukX6uetCxribP58P"))
+        AZURE_TTS_KEY         = _env_pairs.get("AZURE_TTS_KEY",            os.environ.get("AZURE_TTS_KEY",           ""))
+        AZURE_TTS_REGION      = _env_pairs.get("AZURE_TTS_REGION",         os.environ.get("AZURE_TTS_REGION",        "eastus"))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -80,6 +87,13 @@ if True:
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
             KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")
+            ELEVENLABS_API_KEY       = os.environ.get("ELEVENLABS_API_KEY",       "")
+            ELEVENLABS_VOICE_ID      = os.environ.get("ELEVENLABS_VOICE_ID",      "")
+            ELEVENLABS_VOICE_LAGOS_F = os.environ.get("ELEVENLABS_VOICE_LAGOS_F", "httKLfRsEJFpHI6DBUNP")
+            ELEVENLABS_VOICE_LAGOS_M = os.environ.get("ELEVENLABS_VOICE_LAGOS_M", "yw5mIcUDLlhxVz2DXAJe")
+            ELEVENLABS_VOICE_OTHER   = os.environ.get("ELEVENLABS_VOICE_OTHER",   "e2IyukX6uetCxribP58P")
+            AZURE_TTS_KEY            = os.environ.get("AZURE_TTS_KEY",            "")
+            AZURE_TTS_REGION         = os.environ.get("AZURE_TTS_REGION",         "eastus")
         except Exception:
             ANTHROPIC_API_KEY      = os.environ.get("ANTHROPIC_API_KEY",      "")
             PEXELS_KEY             = os.environ.get("PEXELS_KEY",             "")
@@ -93,6 +107,13 @@ if True:
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
             KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")
+            ELEVENLABS_API_KEY       = os.environ.get("ELEVENLABS_API_KEY",       "")
+            ELEVENLABS_VOICE_ID      = os.environ.get("ELEVENLABS_VOICE_ID",      "")
+            ELEVENLABS_VOICE_LAGOS_F = os.environ.get("ELEVENLABS_VOICE_LAGOS_F", "httKLfRsEJFpHI6DBUNP")
+            ELEVENLABS_VOICE_LAGOS_M = os.environ.get("ELEVENLABS_VOICE_LAGOS_M", "yw5mIcUDLlhxVz2DXAJe")
+            ELEVENLABS_VOICE_OTHER   = os.environ.get("ELEVENLABS_VOICE_OTHER",   "e2IyukX6uetCxribP58P")
+            AZURE_TTS_KEY            = os.environ.get("AZURE_TTS_KEY",            "")
+            AZURE_TTS_REGION         = os.environ.get("AZURE_TTS_REGION",         "eastus")
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"
@@ -117,13 +138,13 @@ BOOTHOP_JOURNEYS_API  = "https://boothop.com/api/journeys"
 #   "openai"  → GPT-4o (V1) / GPT-4o-mini (V2)
 #   "gemini"  → Gemini 2.0 Flash (V1 and V2)
 # Scene planning (Stage 3) always uses Claude Haiku regardless of this setting.
-STORY_MODEL = "claude"
+STORY_MODEL = "openai"
 
 # QA_MODEL: which AI reviews and improves the story (Stage 2 — QA Director)
 #   "openai"  → GPT-4o  (recommended — strong at structured critique)
 #   "claude"  → Claude Sonnet 4.6
 #   "gemini"  → Gemini 2.0 Flash (good secondary opinion)
-QA_MODEL = "claude"
+QA_MODEL = "openai"
 
 # ── Slot schedule ──────────────────────────────────────────────────────────────
 # Task Scheduler calls: python pipeline.py --slot 1|2|3|4

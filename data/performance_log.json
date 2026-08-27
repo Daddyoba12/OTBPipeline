@@ -1,126 +1,230 @@
 {
-  "generated_at": "2026-07-30T21:13:38.669058",
+  "generated_at": "2026-08-24T05:30:50.731047",
   "platforms": {
     "youtube": {
-      "count": 16,
-      "total_views": 269,
+      "count": 28,
+      "total_views": 569,
       "by_pillar": {
+        "personal_shopper": {
+          "avg": 55,
+          "count": 1,
+          "total": 55
+        },
+        "family": {
+          "avg": 38,
+          "count": 3,
+          "total": 113
+        },
+        "urgent_medical": {
+          "avg": 30,
+          "count": 2,
+          "total": 61
+        },
+        "smart": {
+          "avg": 27,
+          "count": 3,
+          "total": 81
+        },
+        "airport_deliveries": {
+          "avg": 24,
+          "count": 2,
+          "total": 49
+        },
+        "travel_hacks": {
+          "avg": 21,
+          "count": 1,
+          "total": 21
+        },
         "": {
-          "avg": 17,
-          "count": 16,
-          "total": 269
+          "avg": 14,
+          "count": 7,
+          "total": 101
+        },
+        "cultural_earn": {
+          "avg": 14,
+          "count": 2,
+          "total": 28
+        },
+        "community": {
+          "avg": 14,
+          "count": 1,
+          "total": 14
+        },
+        "flight_discovery": {
+          "avg": 10,
+          "count": 4,
+          "total": 42
+        },
+        "airport": {
+          "avg": 2,
+          "count": 2,
+          "total": 4
         }
       },
       "by_slot": {
-        "1": {
-          "avg": 21,
-          "label": "08:00 morning",
-          "count": 8
-        },
         "2": {
-          "avg": 18,
+          "avg": 28,
           "label": "14:00 afternoon",
-          "count": 4
+          "count": 9
         },
         "3": {
-          "avg": 7,
+          "avg": 21,
           "label": "21:00 evening",
-          "count": 4
+          "count": 12
+        },
+        "1": {
+          "avg": 8,
+          "label": "08:00 morning",
+          "count": 7
         }
       },
       "by_opener": {
-        "would you let a": {
-          "avg": 39,
+        "the courier said ten": {
+          "avg": 97,
+          "count": 1
+        },
+        "four days. prescribed stockings.": {
+          "avg": 61,
+          "count": 1
+        },
+        "daniel's cousin's wedding is": {
+          "avg": 60,
+          "count": 1
+        },
+        "zara found the bag.": {
+          "avg": 55,
           "count": 1
         },
         "dad's memory awaits, but": {
           "avg": 38,
           "count": 1
         },
-        "what if your brother's": {
-          "avg": 26,
+        "the courier said nine": {
+          "avg": 33,
           "count": 1
         },
         "a shirt from his": {
           "avg": 25,
           "count": 1
         },
-        "need a london gift": {
-          "avg": 20,
+        "the shirt was in": {
+          "avg": 25,
           "count": 1
         },
-        "would you trust a": {
-          "avg": 18,
-          "count": 3
+        "his father's chieftaincy robes": {
+          "avg": 21,
+          "count": 1
         },
-        "what if your graduation": {
-          "avg": 12,
-          "count": 3
+        "her degree was in": {
+          "avg": 18,
+          "count": 2
+        },
+        "signed city shirt. abuja.": {
+          "avg": 17,
+          "count": 1
+        },
+        "her gran's 80th was": {
+          "avg": 16,
+          "count": 1
+        },
+        "sixty-five. four days. one": {
+          "avg": 15,
+          "count": 1
+        },
+        "her nan threaded it": {
+          "avg": 14,
+          "count": 1
         },
         "daniel kept paying £380": {
           "avg": 12,
           "count": 1
-        },
-        "smartest move for success": {
-          "avg": 10,
-          "count": 1
-        },
-        "his brother's first clinical": {
-          "avg": 4,
-          "count": 1
-        },
-        "what if the one": {
-          "avg": 4,
-          "count": 1
-        },
-        "gift wrapped, ceremony thursday,": {
-          "avg": 3,
-          "count": 1
         }
       },
       "by_weekday": {
-        "Thursday": {
-          "avg": 34,
-          "count": 1
-        },
-        "Wednesday": {
-          "avg": 24,
-          "count": 3
-        },
         "Sunday": {
-          "avg": 23,
+          "avg": 32,
+          "count": 5
+        },
+        "Monday": {
+          "avg": 32,
           "count": 2
         },
         "Friday": {
-          "avg": 18,
-          "count": 2
+          "avg": 20,
+          "count": 6
         },
-        "Saturday": {
-          "avg": 18,
-          "count": 2
+        "Wednesday": {
+          "avg": 19,
+          "count": 5
         },
-        "Tuesday": {
-          "avg": 10,
+        "Thursday": {
+          "avg": 16,
           "count": 4
         },
-        "Monday": {
-          "avg": 4,
+        "Saturday": {
+          "avg": 12,
+          "count": 4
+        },
+        "Tuesday": {
+          "avg": 12,
           "count": 2
         }
       },
       "top_posts": [
         {
           "platform": "youtube",
-          "post_id": "30cfsuw4mes",
-          "slot": 1,
-          "posted_at": "2026-07-22T09:01:38.120827",
-          "views": 39,
+          "post_id": "FxcwrZN6v2o",
+          "slot": 2,
+          "posted_at": "2026-08-02T13:22:16.128170",
+          "views": 97,
           "likes": 0,
           "comments": 0,
-          "url": "https://youtube.com/shorts/30cfsuw4mes",
-          "pillar": "",
-          "hook": "Would you let a stranger carry your brother's birthday gift to Lagos?",
-          "opener": "would you let a",
+          "url": "https://youtube.com/shorts/FxcwrZN6v2o",
+          "pillar": "family",
+          "hook": "The courier said ten days. Sunday was five away.",
+          "opener": "the courier said ten",
+          "weekday": "Sunday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "AkuapWL33CU",
+          "slot": 3,
+          "posted_at": "2026-08-03T20:26:59.834325",
+          "views": 61,
+          "likes": 0,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/AkuapWL33CU",
+          "pillar": "urgent_medical",
+          "hook": "Four days. Prescribed stockings. The courier quoted £71.",
+          "opener": "four days. prescribed stockings.",
+          "weekday": "Monday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "OYlPzhIIxwY",
+          "slot": 3,
+          "posted_at": "2026-08-21T20:07:16.763471",
+          "views": 60,
+          "likes": 0,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/OYlPzhIIxwY",
+          "pillar": "smart",
+          "hook": "Daniel's cousin's wedding is Friday. The spices are still in Manchester.",
+          "opener": "daniel's cousin's wedding is",
+          "weekday": "Friday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "mXhmH1ErUoI",
+          "slot": 2,
+          "posted_at": "2026-08-19T13:10:05.016191",
+          "views": 55,
+          "likes": 0,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/mXhmH1ErUoI",
+          "pillar": "personal_shopper",
+          "hook": "Zara found the bag. Getting it to Lagos? That was the problem.",
+          "opener": "zara found the bag.",
           "weekday": "Wednesday"
         },
         {
@@ -136,48 +240,6 @@
           "hook": "Dad's memory awaits, but time is running out.",
           "opener": "dad's memory awaits, but",
           "weekday": "Sunday"
-        },
-        {
-          "platform": "youtube",
-          "post_id": "rKGlfvOmNBY",
-          "slot": 1,
-          "posted_at": "2026-07-23T07:07:05.259111",
-          "views": 34,
-          "likes": 0,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/rKGlfvOmNBY",
-          "pillar": "",
-          "hook": "Would you trust a stranger to carry something irreplaceable to Lagos?",
-          "opener": "would you trust a",
-          "weekday": "Thursday"
-        },
-        {
-          "platform": "youtube",
-          "post_id": "njG5tcxexq8",
-          "slot": 1,
-          "posted_at": "2026-07-24T07:08:51.080278",
-          "views": 26,
-          "likes": 0,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/njG5tcxexq8",
-          "pillar": "",
-          "hook": "What if your brother's recovery depended on a stranger's suitcase?",
-          "opener": "what if your brother's",
-          "weekday": "Friday"
-        },
-        {
-          "platform": "youtube",
-          "post_id": "rfzsgx8Sh10",
-          "slot": 2,
-          "posted_at": "2026-07-25T08:28:04.507057",
-          "views": 25,
-          "likes": 1,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/rfzsgx8Sh10",
-          "pillar": "",
-          "hook": "A shirt from his first match—how to get it to Lagos?",
-          "opener": "a shirt from his",
-          "weekday": "Saturday"
         }
       ]
     }

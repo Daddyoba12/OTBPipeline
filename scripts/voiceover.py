@@ -1,18 +1,16 @@
 """
 OTB_Pipeline — Voice-over (Stage 7)
 
-Generates a natural-sounding narration for each video using OpenAI TTS.
+Generates Nigerian-accented narration for each video.
 Runs after the video is rendered. Saves an MP3 alongside the video and
 optionally mixes the narration into the final video (lowers background music,
 adds voice track on top).
 
-Voice selection by pillar:
-  family / community       → nova  (warm female, relatable)
-  airport / travel_hacks   → shimmer (energetic female)
-  smart / supply_chain     → onyx  (authoritative male)
-  logistics_stories        → echo  (neutral storytelling)
-  airport_deliveries       → fable (expressive)
-  default                  → nova
+Voice provider priority: ElevenLabs → Azure en-NG → OpenAI (fallback)
+Gender selection by pillar:
+  family / community / travel_hacks / cultural_earn → female
+  smart / supply_chain / brand_authority / logistics → male
+  default → female
 """
 
 import json, re, subprocess, sys, tempfile
@@ -20,24 +18,9 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import OPENAI_API_KEY, OUTPUT, TEMP
+from config import OUTPUT, TEMP
 
-_VOICE_MAP = {
-    "family":             "nova",
-    "community":          "nova",
-    "cost_pain":          "nova",
-    "urgent_medical":     "nova",
-    "airport":            "shimmer",
-    "travel_hacks":       "shimmer",
-    "cultural_earn":      "shimmer",
-    "smart":              "onyx",
-    "supply_chain":       "onyx",
-    "brand_authority":    "onyx",
-    "logistics_stories":  "echo",
-    "airport_deliveries": "fable",
-}
-
-_TTS_MODEL = "tts-1"   # tts-1 = faster; tts-1-hd = higher quality
+_MALE_PILLARS = {"smart", "supply_chain", "brand_authority", "logistics_stories", "airport_deliveries"}
 
 
 def _build_narration(content: dict) -> str:
@@ -70,47 +53,32 @@ def _build_narration(content: dict) -> str:
 def generate_tts(content: dict, output_mp3: str | Path) -> Path | None:
     """
     Generate TTS audio from story beats and save to output_mp3.
-    Returns the path to the saved MP3, or None on failure.
+    Routes to the right provider based on pillar:
+      car_feature (G-Inspired) → ElevenLabs American English → OpenAI
+      all others  (BootHop)    → Azure Nigerian en-NG → ElevenLabs → OpenAI
     """
-    if not OPENAI_API_KEY:
-        print("  [Voiceover] No OpenAI key — skipping TTS")
-        return None
+    from tts_nigerian import generate_nigerian_tts, generate_american_tts
 
     pillar = content.get("pillar", "family")
-    voice  = _VOICE_MAP.get(pillar, "nova")
+    gender = "male" if pillar in _MALE_PILLARS else "female"
     text   = _build_narration(content)
 
-    print(f"  [Voiceover] Generating TTS ({voice} voice, {len(text)} chars)...")
+    out = Path(output_mp3)
+    out.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        resp = requests.post(
-            "https://api.openai.com/v1/audio/speech",
-            headers={
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": _TTS_MODEL,
-                "input":  text,
-                "voice":  voice,
-                "speed":  1.05,  # Slightly faster — keeps energy up on TikTok
-            },
-            timeout=60,
-        )
-        if resp.status_code in (429, 402):
-            from quota_alert import alert as _qa
-            _qa("OpenAI TTS", resp.status_code)
-        resp.raise_for_status()
+    if pillar == "car_feature":
+        print(f"  [Voiceover] G-Inspired: ElevenLabs American English ({gender}, {len(text)} chars)...")
+        ok = generate_american_tts(text, out, gender=gender)
+    else:
+        print(f"  [Voiceover] BootHop: Azure Nigerian TTS ({gender}, {len(text)} chars)...")
+        ok = generate_nigerian_tts(text, out, gender=gender)
 
-        out = Path(output_mp3)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_bytes(resp.content)
+    if ok and out.exists():
         print(f"  [Voiceover] Saved: {out} ({out.stat().st_size // 1024}KB)")
         return out
 
-    except Exception as e:
-        print(f"  [Voiceover] TTS failed: {e}")
-        return None
+    print("  [Voiceover] TTS failed — no audio generated")
+    return None
 
 
 def mix_voiceover(video_path: str | Path, voice_mp3: str | Path,
