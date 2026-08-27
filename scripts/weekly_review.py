@@ -455,7 +455,54 @@ def run_review(days: int = 30):
         return {}
 
     _save_and_adapt(aggs)
+    _print_follower_growth()
     return aggs
+
+
+def _print_follower_growth():
+    """Print 7-day and 30-day follower deltas from follower_log.json."""
+    log_path = DATA / "follower_log.json"
+    if not log_path.exists():
+        print("\n  [Followers] No follower_log.json yet — run follower_tracker.py daily to populate")
+        return
+
+    try:
+        log = json.loads(log_path.read_text(encoding="utf-8"))
+    except Exception:
+        return
+
+    if not log:
+        return
+
+    def _delta(platform: str, days: int) -> int | None:
+        cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+        past   = next((e.get(platform) for e in log if e.get("date", "") <= cutoff and e.get(platform) is not None), None)
+        now    = next((e.get(platform) for e in reversed(log) if e.get(platform) is not None), None)
+        return (now - past) if (past is not None and now is not None) else None
+
+    sep = "─" * 60
+    print(f"\n{'='*60}")
+    print("  FOLLOWER GROWTH")
+    print(f"{'='*60}")
+    print(sep)
+
+    for platform, label in [("ig", "Instagram"), ("tiktok", "TikTok")]:
+        now = next((e.get(platform) for e in reversed(log) if e.get(platform) is not None), None)
+        if now is None:
+            print(f"  {label:<12}  —  (no data)")
+            continue
+        d7  = _delta(platform, 7)
+        d30 = _delta(platform, 30)
+        def _fmt(d): return (f"+{d}" if d > 0 else str(d)) if d is not None else "n/a"
+        print(f"  {label:<12}  {now:>8,} followers   7d: {_fmt(d7):<6}   30d: {_fmt(d30)}")
+
+    # Best single day this review period
+    week = [e for e in log[-8:] if e.get("ig") is not None]
+    if len(week) >= 2:
+        gains = [(week[i]["ig"] - week[i-1]["ig"], week[i]["date"]) for i in range(1, len(week))]
+        best  = max(gains, key=lambda x: x[0])
+        if best[0] > 0:
+            print(f"\n  Best IG day this week: {best[1]}  (+{best[0]} followers)")
 
 
 if __name__ == "__main__":
