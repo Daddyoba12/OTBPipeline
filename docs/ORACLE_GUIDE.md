@@ -1,9 +1,10 @@
 # OTB Oracle Cloud — Complete Operations Guide
 
-**Server:** Oracle Cloud Free Tier (Amsterdam region)
-**IP:** `140.238.73.32`
+**Server:** Oracle Cloud Paid (UK South London region)
+**IP:** `130.162.162.189`
 **User:** `ubuntu`
 **SSH Key:** `C:\Users\babso\.ssh\oracle_boothop.pem` (laptop) — keep this file safe
+**Shape:** VM.Standard.E4.Flex — 2 OCPUs, 16 GB RAM
 **Last verified:** August 2026
 
 ---
@@ -31,14 +32,14 @@ If your laptop is off for a week, Oracle keeps posting on schedule for all clien
 Copy `oracle_boothop.pem` to your new laptop at `C:\Users\<yourname>\.ssh\oracle_boothop.pem`, then:
 
 ```powershell
-ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@130.162.162.189
 ```
 
 ### From Mac or Linux
 
 ```bash
 chmod 400 ~/oracle_boothop.pem
-ssh -i ~/oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i ~/oracle_boothop.pem ubuntu@130.162.162.189
 ```
 
 ### From your phone / any browser (no SSH key needed)
@@ -68,7 +69,7 @@ There is one super user for the entire system:
 |--------|-------|
 | **Telegram account** | The account that owns chat ID `8641867751` |
 | **Telegram bot** | Token in `social_credentials.json` → `telegram.bot_token` |
-| **SSH access** | `ubuntu@140.238.73.32` with `oracle_boothop.pem` |
+| **SSH access** | `ubuntu@130.162.162.189` with `oracle_boothop.pem` |
 | **Web dashboard** | `boothop.com/commander` (Supabase login) |
 | **GitHub repo** | `Daddyoba12/OTBPipeline` — all code lives here |
 
@@ -141,7 +142,7 @@ Content uses live inventory from `cars.com` dealer feed. Videos rendered with G-
 ### Step 1 — Create the client folder on Oracle
 
 ```bash
-ssh -i oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i oracle_boothop.pem ubuntu@130.162.162.189
 sudo mkdir -p /opt/<client_slug>/{data,output,temp,assets/fonts,music/daily}
 sudo chown -R ubuntu:ubuntu /opt/<client_slug>
 ```
@@ -512,7 +513,7 @@ Credentials are stored in the database and associated with the company slug. The
 ```
                           ┌─────────────────────┐
                           │   Oracle Cloud VM   │
-                          │  140.238.73.32       │
+                          │  130.162.162.189       │
                           │                     │
   Cron fires (e.g. 08:00) │                     │
   ─────────────────────── ▶  pipeline.py runs   │
@@ -575,7 +576,7 @@ Then Oracle auto-pulls either:
 - Or manually:
 
 ```bash
-ssh -i oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i oracle_boothop.pem ubuntu@130.162.162.189
 cd /opt/otb_pipeline && git pull origin main
 sudo systemctl restart otb-commander
 ```
@@ -590,11 +591,11 @@ To control Oracle from a brand new laptop:
 2. Clone the pipeline: `git clone https://github.com/Daddyoba12/OTBPipeline.git`
 3. Copy `scripts/social_credentials.json` from Oracle:
    ```powershell
-   scp -i oracle_boothop.pem ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/social_credentials.json scripts/
+   scp -i oracle_boothop.pem ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/social_credentials.json scripts/
    ```
 4. Copy the `.env` file (API keys) from Oracle:
    ```powershell
-   scp -i oracle_boothop.pem ubuntu@140.238.73.32:/opt/otb_pipeline/.env .
+   scp -i oracle_boothop.pem ubuntu@130.162.162.189:/opt/otb_pipeline/.env .
    ```
 5. Install Python dependencies: `pip install -r requirements.txt`
 6. Done — the new laptop can run the pipeline and Oracle continues as backup
@@ -614,7 +615,7 @@ Social media tokens expire. When a token expires, posting fails silently. Check 
 
 After refreshing on the laptop, always re-copy to Oracle:
 ```powershell
-scp -i oracle_boothop.pem scripts/social_credentials.json ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/
+scp -i oracle_boothop.pem scripts/social_credentials.json ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
 ```
 
 ---
