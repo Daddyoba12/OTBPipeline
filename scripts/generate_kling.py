@@ -2,12 +2,12 @@
 generate_kling.py — Daily 30-40s BootHop video for otb_midas
 ─────────────────────────────────────────────────────────────
 Composition
-  0–15s   Kling cinematic hook  (AI-generated video + Kling built-in voiceover)
+  0–15s   Kling cinematic hook  (Kling -> Runway -> Sora -> Pexels fallback chain)
   15–40s  Live journey cards    (landmark photo + route + price + Gen-Z text + music)
 
 Schedule  Monday morning (slot 1) / Tuesday afternoon (slot 2) — alternating, one per day
 Client    otb_midas only (KLING_ENABLED_SLUGS in config.py)
-Fallback  If KLING_API_KEY missing or API down → journey cards + music only (no hook video)
+Fallback  Kling -> Runway gen4_turbo -> Sora-2 -> Pexels -> cards-only
 """
 
 import json, os, random, sys, time, textwrap
@@ -22,7 +22,8 @@ sys.path.insert(0, str(BASE))
 
 from config import (
     KLING_API_KEY, KLING_API_BASE,
-    PEXELS_KEY, PIXABAY_KEY, ANTHROPIC_API_KEY, OPENAI_API_KEY,
+    PEXELS_KEY, PIXABAY_KEY, OPENAI_API_KEY,
+    RUNWAY_API_KEY, RUNWAY_VIDEO_MODEL, RUNWAY_VIDEO_DURATION,
     MUSIC_DIR, MUSIC_ARCHIVE,
     ASSETS, TEMP, OUTPUT,
     FONT_TITLE, FONT_BODY, FONT_TITLE_FB, FONT_BODY_FB,
@@ -460,6 +461,69 @@ def _sora_generate_video(prompt: str) -> str | None:
 
     except Exception as e:
         print(f"[Sora] Error: {e}")
+        return None
+
+
+def _runway_generate_video(prompt: str) -> str | None:
+    """
+    Generate a hook video via Runway SDK.
+    Primary non-Kling fallback. Model + duration configurable via config/keys.env.
+    Returns local .mp4 path or None.
+
+    Duration options: 5 (cheaper) or 10 seconds.  Ratio: 720:1280 (9:16 portrait).
+    """
+    if not RUNWAY_API_KEY:
+        return None
+    try:
+        from runwayml import RunwayML
+        client = RunwayML(api_key=RUNWAY_API_KEY)
+
+        task = client.text_to_video.create(
+            model=RUNWAY_VIDEO_MODEL,
+            prompt_text=prompt,
+            ratio="720:1280",
+            duration=RUNWAY_VIDEO_DURATION,
+        )
+        print(f"[Runway] Job submitted: {task.id} ({RUNWAY_VIDEO_MODEL}, {RUNWAY_VIDEO_DURATION}s) — polling…")
+
+        deadline = time.time() + 600
+        while time.time() < deadline:
+            task = client.tasks.retrieve(task.id)
+            print(f"[Runway] {task.status}")
+            if task.status == "SUCCEEDED":
+                urls = task.output or []
+                if not urls:
+                    print("[Runway] No output URLs in response")
+                    return None
+                dl = requests.get(urls[0], timeout=120, stream=True)
+                dl.raise_for_status()
+                out = TEMP / f"runway_hook_{task.id[:20]}.mp4"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                with open(out, "wb") as f:
+                    for chunk in dl.iter_content(65536):
+                        f.write(chunk)
+                size_mb = out.stat().st_size / (1024 * 1024)
+                print(f"[Runway] Downloaded: {out.name} ({size_mb:.1f}MB)")
+                scaled = TEMP / f"runway_hook_scaled_{task.id[:20]}.mp4"
+                _ffmpeg(
+                    "-i", str(out),
+                    "-vf", f"scale={VIDEO_W}:{VIDEO_H}:force_original_aspect_ratio=increase,"
+                           f"crop={VIDEO_W}:{VIDEO_H},setsar=1",
+                    "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+                    "-pix_fmt", "yuv420p", "-an", str(scaled),
+                    timeout=120,
+                )
+                return str(scaled)
+            if task.status in ("FAILED", "CANCELLED"):
+                print(f"[Runway] Job {task.status}: {getattr(task, 'failure', '')}")
+                return None
+            time.sleep(15)
+
+        print("[Runway] Timed out waiting for video")
+        return None
+
+    except Exception as e:
+        print(f"[Runway] Error: {e}")
         return None
 
 
@@ -1047,17 +1111,22 @@ def run_kling_production(slot: int = 1) -> str | None:
     print(f"[Kling] Submitting hook prompt to API…")
     hook_video = _kling_generate_video(kling_prompt, negative_prompt=_NEGATIVE_PROMPT)
     if not hook_video:
-        print("[Kling] Kling API unavailable — trying Sora-2 fallback…")
-        hook_video = _sora_generate_video(kling_prompt)
+        print("[Kling] Kling API unavailable — trying Runway fallback…")
+        hook_video = _runway_generate_video(kling_prompt)
         if hook_video:
-            print(f"[Kling] Sora-2 hook ready: {Path(hook_video).name}")
+            print(f"[Kling] Runway hook ready: {Path(hook_video).name}")
         else:
-            print("[Kling] Sora unavailable — trying Pexels video fallback…")
-            hook_video = _pexels_hook_fallback(concept, day_index)
+            print("[Kling] Runway unavailable — trying Sora-2 fallback…")
+            hook_video = _sora_generate_video(kling_prompt)
             if hook_video:
-                print(f"[Kling] Pexels hook ready: {Path(hook_video).name}")
+                print(f"[Kling] Sora-2 hook ready: {Path(hook_video).name}")
             else:
-                print("[Kling] No hook available — cards-only composition")
+                print("[Kling] Sora unavailable — trying Pexels video fallback…")
+                hook_video = _pexels_hook_fallback(concept, day_index)
+                if hook_video:
+                    print(f"[Kling] Pexels hook ready: {Path(hook_video).name}")
+                else:
+                    print("[Kling] No hook available — cards-only composition")
 
     # ── 3. Fetch live journeys
     journeys = _fetch_journeys(limit=4)

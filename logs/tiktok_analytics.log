@@ -102,3 +102,10 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: Depreca
 [15:39:15] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
 [15:39:15] [TikTokAnalytics] No video data returned — nothing to sync
 [15:39:15] [TikTokAnalytics] === Done ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [TikTokAnalytics] {msg}")
+[08:00:01] [TikTokAnalytics] === TikTok analytics sync starting ===
+[08:00:02] [TikTokAnalytics] 401 Unauthorized — TikTok token expired or missing video.list scope
+[08:00:02] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
+[08:00:02] [TikTokAnalytics] No video data returned — nothing to sync
+[08:00:02] [TikTokAnalytics] === Done ===

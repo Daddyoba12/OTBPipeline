@@ -954,3 +954,57 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [20:00:15] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
 [20:00:15] [Engage] YouTube done — 0 replies sent
 [20:00:15] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[15:39:14] [Engage] === Engagement run starting ===
+[15:39:37] [Engage] Instagram done — 0 replies sent
+[15:39:40] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[15:39:40] [Engage] YouTube done — 0 replies sent
+[15:39:40] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[16:00:02] [Engage] === Engagement run starting ===
+[16:00:07] [Engage] Instagram done — 0 replies sent
+[16:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[16:00:08] [Engage] YouTube done — 0 replies sent
+[16:00:08] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[18:00:02] [Engage] === Engagement run starting ===
+[18:00:09] [Engage] Instagram done — 0 replies sent
+[18:00:10] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[18:00:10] [Engage] YouTube done — 0 replies sent
+[18:00:10] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[20:00:02] [Engage] === Engagement run starting ===
+[20:00:07] [Engage] Instagram done — 0 replies sent
+[20:00:09] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[20:00:09] [Engage] YouTube done — 0 replies sent
+[20:00:09] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[06:52:24] [Engage] === Engagement run starting ===
+[06:52:32] [Engage] Instagram done — 0 replies sent
+[06:52:34] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[06:52:34] [Engage] YouTube done — 0 replies sent
+[06:52:34] [Engage] === Engagement run complete ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:39: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+[08:00:02] [Engage] === Engagement run starting ===
+[08:00:06] [Engage] Instagram done — 0 replies sent
+[08:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[08:00:07] [Engage] YouTube done — 0 replies sent
+[08:00:07] [Engage] === Engagement run complete ===

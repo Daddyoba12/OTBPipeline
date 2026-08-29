@@ -68,6 +68,9 @@ if True:
         ELEVENLABS_VOICE_OTHER  = _env_pairs.get("ELEVENLABS_VOICE_OTHER",   os.environ.get("ELEVENLABS_VOICE_OTHER",  "e2IyukX6uetCxribP58P"))
         AZURE_TTS_KEY         = _env_pairs.get("AZURE_TTS_KEY",            os.environ.get("AZURE_TTS_KEY",           ""))
         AZURE_TTS_REGION      = _env_pairs.get("AZURE_TTS_REGION",         os.environ.get("AZURE_TTS_REGION",        "eastus"))
+        RUNWAY_API_KEY        = _env_pairs.get("RUNWAY_API_KEY",           os.environ.get("RUNWAY_API_KEY",          ""))
+        RUNWAY_VIDEO_MODEL    = _env_pairs.get("RUNWAY_VIDEO_MODEL",       os.environ.get("RUNWAY_VIDEO_MODEL",      "gen4_turbo"))
+        RUNWAY_VIDEO_DURATION = int(_env_pairs.get("RUNWAY_VIDEO_DURATION", os.environ.get("RUNWAY_VIDEO_DURATION",  "5")))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -94,6 +97,9 @@ if True:
             ELEVENLABS_VOICE_OTHER   = os.environ.get("ELEVENLABS_VOICE_OTHER",   "e2IyukX6uetCxribP58P")
             AZURE_TTS_KEY            = os.environ.get("AZURE_TTS_KEY",            "")
             AZURE_TTS_REGION         = os.environ.get("AZURE_TTS_REGION",         "eastus")
+            RUNWAY_API_KEY           = os.environ.get("RUNWAY_API_KEY",           "")
+            RUNWAY_VIDEO_MODEL       = os.environ.get("RUNWAY_VIDEO_MODEL",       "gen4_turbo")
+            RUNWAY_VIDEO_DURATION    = int(os.environ.get("RUNWAY_VIDEO_DURATION", "5"))
         except Exception:
             ANTHROPIC_API_KEY      = os.environ.get("ANTHROPIC_API_KEY",      "")
             PEXELS_KEY             = os.environ.get("PEXELS_KEY",             "")
@@ -114,6 +120,9 @@ if True:
             ELEVENLABS_VOICE_OTHER   = os.environ.get("ELEVENLABS_VOICE_OTHER",   "e2IyukX6uetCxribP58P")
             AZURE_TTS_KEY            = os.environ.get("AZURE_TTS_KEY",            "")
             AZURE_TTS_REGION         = os.environ.get("AZURE_TTS_REGION",         "eastus")
+            RUNWAY_API_KEY           = os.environ.get("RUNWAY_API_KEY",           "")
+            RUNWAY_VIDEO_MODEL       = os.environ.get("RUNWAY_VIDEO_MODEL",       "gen4_turbo")
+            RUNWAY_VIDEO_DURATION    = int(os.environ.get("RUNWAY_VIDEO_DURATION", "5"))
 
 TELEGRAM_TOKEN   = "8717698733:AAF7GI9Yw1DhdYVv_TK35fYQcwaGdk4caeA"
 TELEGRAM_CHAT_ID = "8641867751"

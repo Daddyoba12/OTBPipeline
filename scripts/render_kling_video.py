@@ -560,15 +560,29 @@ def _render_platform(
 
     vf = ",".join([layer1, layer2, layer3])
 
-    # ── Audio: keep original Kling clip audio, add nothing ───────────────────
-    cmd = [
-        FFMPEG, "-y", "-i", str(story_mp4),
-        "-vf", vf,
-        "-map", "0:v", "-map", "0:a",
-        "-c:v", "libx264", "-preset", "fast", "-crf", "20",
-        "-c:a", "aac", "-ar", "44100", "-ac", "2",
-        str(out_path)
-    ]
+    # ── Audio: Kling clip audio + low-volume background music ────────────────
+    if music:
+        cmd = [
+            FFMPEG, "-y",
+            "-i", str(story_mp4),
+            "-stream_loop", "-1", "-i", str(music),
+            "-vf", vf,
+            "-filter_complex",
+            "[0:a]volume=1.0[kl];[1:a]volume=0.20[bg];[kl][bg]amix=inputs=2:duration=first[aout]",
+            "-map", "0:v", "-map", "[aout]",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+            "-c:a", "aac", "-ar", "44100", "-ac", "2",
+            str(out_path)
+        ]
+    else:
+        cmd = [
+            FFMPEG, "-y", "-i", str(story_mp4),
+            "-vf", vf,
+            "-map", "0:v", "-map", "0:a",
+            "-c:v", "libx264", "-preset", "fast", "-crf", "20",
+            "-c:a", "aac", "-ar", "44100", "-ac", "2",
+            str(out_path)
+        ]
 
     r = subprocess.run(cmd, capture_output=True, timeout=180)
 
