@@ -648,9 +648,12 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
         for v in random.sample(videos, len(videos)):
             if v["id"] in exclude_ids:
                 continue
-            # Check Pexels page URL slug for animal/banned terms (e.g. ".../dog-at-airport-1234/")
-            page_slug = v.get("url", "").lower()
-            if any(term in page_slug for term in _BANNED_FETCH_TERMS):
+            # Check page URL slug AND thumbnail image URL — animals often appear in
+            # thumbnail filename even when the page slug is generic
+            page_slug  = v.get("url", "").lower()
+            image_slug = v.get("image", "").lower()
+            combined   = f"{page_slug} {image_slug}"
+            if any(term in combined for term in _BANNED_FETCH_TERMS):
                 print(f"    [Pexels] Skipped banned metadata: {page_slug.split('/')[-2]}")
                 continue
             files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0), reverse=True)
@@ -711,6 +714,16 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR) -> b
             timeout=15,
         )
         photos = r.json().get("photos", [])
+        if not photos:
+            return False
+        # Filter out photos whose URL or photographer alt text contains banned terms
+        photos = [
+            p for p in photos
+            if not any(
+                term in (p.get("url", "") + " " + p.get("alt", "")).lower()
+                for term in _BANNED_FETCH_TERMS
+            )
+        ]
         if not photos:
             return False
         photo = random.choice(photos[:5])
