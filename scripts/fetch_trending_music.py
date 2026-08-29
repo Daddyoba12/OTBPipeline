@@ -248,6 +248,10 @@ def _download_soundcloud(query: str, raw_out: Path) -> dict | None:
     if not mp3.exists():
         mp3s = [f for f in TMP_DIR.glob("*.mp3") if f.stat().st_size > 50_000]
         if not mp3s:
+            if res.returncode != 0 and res.stderr:
+                print(f"    [SC] yt-dlp error: {res.stderr.strip()[:120]}")
+            else:
+                print(f"    [SC] No mp3 found after download (returncode={res.returncode})")
             return None
         mp3 = mp3s[0]
 
