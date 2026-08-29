@@ -259,6 +259,10 @@ def _call_claude(prompt: str, model: str = "claude-sonnet-4-6", max_tokens: int 
     )
     if resp.status_code in (429, 402, 529):
         _qa("Claude", resp.status_code, model)
+    if resp.status_code == 400 and "credit balance" in resp.text.lower():
+        _qa("Claude", 400, model)
+        print(f"  [Claude] Credits depleted — falling back to Gemini")
+        return _call_gemini(prompt, max_tokens=max_tokens)
     resp.raise_for_status()
     return resp.json()["content"][0]["text"].strip()
 
@@ -303,19 +307,34 @@ def _call_gemini(prompt: str, model: str = "gemini-2.0-flash", max_tokens: int =
 
 
 def _call_story_ai(prompt: str, v2: bool = False) -> str:
-    """Route to Claude, OpenAI, or Gemini based on STORY_MODEL config."""
+    """Route to Claude, OpenAI, or Gemini based on STORY_MODEL config.
+    Falls back through the full chain if the primary provider fails."""
+    _providers = []
     if STORY_MODEL == "openai":
-        model = "gpt-4o-mini" if v2 else "gpt-4o"
-        print(f"  [StoryWriter] Using OpenAI {model}")
-        return _call_openai(prompt, model=model)
+        _providers = ["openai", "gemini", "claude"]
     elif STORY_MODEL == "gemini":
-        model = "gemini-2.0-flash" if v2 else "gemini-2.0-flash"
-        print(f"  [StoryWriter] Using Gemini {model}")
-        return _call_gemini(prompt, model=model)
+        _providers = ["gemini", "openai", "claude"]
     else:
-        model = "claude-haiku-4-5-20251001" if v2 else "claude-sonnet-4-6"
-        print(f"  [StoryWriter] Using Claude {model}")
-        return _call_claude(prompt, model=model)
+        _providers = ["claude", "openai", "gemini"]
+
+    last_err = None
+    for _p in _providers:
+        try:
+            if _p == "openai":
+                _m = "gpt-4o-mini" if v2 else "gpt-4o"
+                print(f"  [StoryWriter] Using OpenAI {_m}")
+                return _call_openai(prompt, model=_m)
+            elif _p == "gemini":
+                print("  [StoryWriter] Using Gemini 2.0 Flash")
+                return _call_gemini(prompt)
+            else:
+                _m = "claude-haiku-4-5-20251001" if v2 else "claude-sonnet-4-6"
+                print(f"  [StoryWriter] Using Claude {_m}")
+                return _call_claude(prompt, model=_m)
+        except Exception as _e:
+            print(f"  [StoryWriter] {_p} failed: {_e} — trying next")
+            last_err = _e
+    raise RuntimeError(f"All story AI providers failed. Last error: {last_err}")
 
 
 def _parse_json(raw: str) -> dict:

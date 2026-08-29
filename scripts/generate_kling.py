@@ -299,10 +299,11 @@ def _kling_generate_video(prompt: str, negative_prompt: str = "") -> str | None:
         return None
 
     payload = {
-        "model":    "kling-v1",
-        "prompt":   prompt,
-        "duration": 5,     # Kling generates 5s segments; we request 3× for 15s
-        "cfg_scale": 0.5,
+        "model":          "kling-v1-6",   # latest model — includes natural audio
+        "mode":           "pro",           # pro = higher quality + audio vs std (muted)
+        "prompt":         prompt,
+        "duration":       5,
+        "cfg_scale":      0.5,
     }
     if negative_prompt:
         payload["negative_prompt"] = negative_prompt

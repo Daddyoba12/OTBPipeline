@@ -42,6 +42,10 @@ def _call_claude_qa(prompt: str) -> str:
     )
     if resp.status_code in (429, 402, 529):
         _qa("Claude", resp.status_code, "QA Director")
+    if resp.status_code == 400 and "credit balance" in resp.text.lower():
+        _qa("Claude", 400, "QA Director")
+        print("  [QADirector] Claude credits depleted — falling back to Gemini")
+        return _call_gemini_qa(prompt)
     resp.raise_for_status()
     return resp.json()["content"][0]["text"].strip()
 
@@ -86,14 +90,31 @@ def _call_gemini_qa(prompt: str) -> str:
 
 
 def _call_qa_ai(prompt: str) -> str:
+    """Route QA review through the configured model, falling back through all providers."""
+    _providers = []
     if QA_MODEL == "openai":
-        print("  [QADirector] Reviewing with OpenAI GPT-4o")
-        return _call_openai_qa(prompt)
+        _providers = ["openai", "gemini", "claude"]
     elif QA_MODEL == "gemini":
-        print("  [QADirector] Reviewing with Google Gemini")
-        return _call_gemini_qa(prompt)
-    print("  [QADirector] Reviewing with Claude Sonnet")
-    return _call_claude_qa(prompt)
+        _providers = ["gemini", "openai", "claude"]
+    else:
+        _providers = ["claude", "openai", "gemini"]
+
+    last_err = None
+    for _p in _providers:
+        try:
+            if _p == "openai":
+                print("  [QADirector] Reviewing with OpenAI GPT-4o")
+                return _call_openai_qa(prompt)
+            elif _p == "gemini":
+                print("  [QADirector] Reviewing with Google Gemini")
+                return _call_gemini_qa(prompt)
+            else:
+                print("  [QADirector] Reviewing with Claude Sonnet")
+                return _call_claude_qa(prompt)
+        except Exception as _e:
+            print(f"  [QADirector] {_p} failed: {_e} — trying next")
+            last_err = _e
+    raise RuntimeError(f"All QA providers failed. Last error: {last_err}")
 
 
 def _parse_json(raw: str) -> dict:

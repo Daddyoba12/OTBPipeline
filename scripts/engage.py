@@ -9,7 +9,7 @@ TikTok: comment reply API not publicly available — first comment only
 """
 
 import json, sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -36,7 +36,7 @@ LOOKBACK_DAYS       = 7    # only engage on posts from last 7 days
 
 
 def _log(msg: str):
-    print(f"[{datetime.utcnow():%H:%M:%S}] [Engage] {msg}")
+    print(f"[{datetime.now(timezone.utc):%H:%M:%S}] [Engage] {msg}")
 
 
 # ── Engagement log (tracks replied comment IDs) ─────────────────────────────────
@@ -87,7 +87,7 @@ def _recent_ids(platform: str, field: str) -> list[str]:
     log_path = DATA / "post_log.json"
     if not log_path.exists():
         return []
-    cutoff = datetime.utcnow() - timedelta(days=LOOKBACK_DAYS)
+    cutoff = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=LOOKBACK_DAYS)
     ids: list[str] = []
     try:
         for entry in json.loads(log_path.read_text()):
