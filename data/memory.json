@@ -10932,5 +10932,147 @@
         "watch_time_sec": 0
       }
     }
+  },
+  {
+    "id": "803866f0",
+    "date": "2026-08-28",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "faith_friday",
+    "hook": "Amara's sister needed her handmade jewellery by Saturday.",
+    "problem": "Courier's estimate was seven days and costly.",
+    "stakes": "Graduation was Saturday in Lagos.",
+    "resolution": "BootHop found a Friday traveller for her.",
+    "lesson": "Connecting dots made it happen.",
+    "visual_queries": [
+      "35-year-old mixed heritage woman london anxious medium shot",
+      "35-year-old mixed heritage woman courier phone frustrated medium shot",
+      "35-year-old mixed heritage woman home stressed laptop medium shot",
+      "Black man parcel handover train station smiling wide shot",
+      "35-year-old Nigerian woman confident london street wide shot",
+      "35-year-old mixed heritage woman receiving parcel smiling wide shot",
+      "35-year-old mixed heritage woman relieved indoors medium shot",
+      "35-year-old mixed heritage woman thoughtful office medium shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 35-year-old mixed-heritage woman in a London flat, holding a phone and looking anxious. Indoor lighting, medium shot. The room is cozy with a modern decor. Vertical 9:16 format.",
+      "Photorealistic. 35-year-old mixed-heritage woman at a courier counter in a smart-casual outfit, on a phone call with a frustrated expression. Bright indoor lighting, medium shot. The setting is a modern courier service location. Vertical 9:16 format.",
+      "Photorealistic. 35-year-old mixed-heritage woman sitting at a table at home, staring at her laptop with a stressed expression. Warm home lighting, medium shot. Modern apartment setting with a tidy workspace. Horizontal 16:9 format.",
+      "Photorealistic. Black man in smart-casual attire at a busy train station, handing over a small parcel to a traveler with a warm smile. Natural daylight, wide shot. The scene is bustling and lively with commuters in the background. Horizontal 16:9 format.",
+      "Photorealistic. 35-year-old Nigerian woman in an airport smart-casual outfit, walking confidently on a busy London street. Bright city lighting, wide shot. The background features traditional London architecture with pedestrians around. Horizontal 16:9 format.",
+      "Photorealistic. 35-year-old mixed-heritage woman at her front door, smiling as she receives a parcel from a courier. Soft natural lighting, wide shot. The scene captures the warmth and friendliness of the handover. Horizontal 16:9 format.",
+      "Photorealistic. 35-year-old mixed-heritage woman indoors expressing visible relief, sitting on a couch with the parcel beside her. Warm interior lighting, medium shot. The room is comfortably and stylishly furnished. Horizontal 16:9 format.",
+      "Photorealistic. 35-year-old mixed-heritage woman in an office environment, looking thoughtfully at a laptop. Bright indoor lighting, medium shot. The office has modern decor with motivational posters on the wall. Horizontal 16:9 format."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic scene of a 35-year-old mixed-heritage woman in a London flat, holding a phone and looking anxious. The room has cozy modern decor. The lighting is warm and inviting, casting soft shadows. The camera slowly zooms in on the woman's worried expression, building tension over the 4-second duration while she anxiously checks her phone. The indoor lighting enhances the atmosphere of concern in this vertical 9:16 shot."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic scene capturing a 35-year-old mixed-heritage woman in a smart-casual outfit at a courier counter, visibly tense on a phone call. The indoor lighting is bright and highlights the modern courier service location. The shot is static, allowing the viewer to focus on the woman's frustrated expression as she stands in the busy environment. Vertical 9:16 format."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic depiction of a 35-year-old mixed-heritage woman seated at a table, staring at her laptop with a stressed expression. The setting is a modern, tidy apartment with warm home lighting that softly illuminates the workspace. The static camera captures the weight of her frustration over the 4 seconds as she is lost in thought amidst her dilemma. Horizontal 16:9 format."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic wide shot of a black man in smart-casual attire at a bustling train station, handing over a small parcel to a traveler with a warm smile. The natural daylight emphasizes the liveliness of the station with commuters in motion. The camera gently pans left, following the action of the parcel handover, conveying the tension and urgency of the delivery process. Horizontal 16:9 format."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic wide shot of a 35-year-old Nigerian woman walking confidently on a busy London street. Bright city lighting highlights the iconic London architecture, surrounded by pedestrians. The camera slowly pulls back to reveal the broader context of the scene, conveying the emotional stakes and the pressure she faces. Horizontal 16:9 format."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic wide shot of a 35-year-old mixed-heritage woman at her front door, smiling as she receives a parcel from a courier. Soft natural lighting creates a welcoming atmosphere. The camera dolly moves forward to focus on the moment of joy and relief as she finally receives the parcel. Horizontal 16:9 format."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic medium shot of a 35-year-old mixed-heritage woman sitting on a couch with the parcel beside her, expressing visible relief and happiness. The room is stylishly furnished, with warm interior lighting. The camera slowly zooms out, showing her relieved posture and the comforting environment. Horizontal 16:9 format."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic medium shot of a 35-year-old mixed-heritage woman in an office, looking thoughtfully at a laptop. The bright indoor lighting highlights the modern decor and motivational posters. The camera slowly pans right, capturing her thoughtful and confident demeanor as she reflects on connecting the dots. Horizontal 16:9 format."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 5,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 63
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 8,
+      "visual_relevance": 10,
+      "engagement_potential": 9,
+      "brand_integration": 10,
+      "lesson_shareability": 8,
+      "overall": 93
+    },
+    "caption_tiktok": "Found the cheapest way to send a parcel to Nigeria. 🙏📦",
+    "caption_instagram": "Found the cheapest way to send a parcel to Nigeria in 60 seconds. boothop.com 🙏 #BootHop #FaithFriday",
+    "youtube_title": "The jewellery had to arrive in Lagos by Saturday.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
   }
 ]

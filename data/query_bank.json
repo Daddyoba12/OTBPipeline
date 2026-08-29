@@ -7868,5 +7868,85 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-08-25"
+  },
+  {
+    "query": "35-year-old mixed heritage woman london anxious medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman courier phone frustrated medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman home stressed laptop medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "Black man parcel handover train station smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old Nigerian woman confident london street wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman receiving parcel smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman relieved indoors medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman thoughtful office medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-28"
   }
 ]

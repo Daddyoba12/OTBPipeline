@@ -958,5 +958,45 @@
     "query": "32-year-old black british man airport window plane thoughtful confident wide shot",
     "date": "2026-08-25",
     "slot": 2
+  },
+  {
+    "query": "35-year-old mixed heritage woman london anxious medium shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old mixed heritage woman courier phone frustrated medium shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old mixed heritage woman home stressed laptop medium shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "black man parcel handover train station smiling wide shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old nigerian woman confident london street wide shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old mixed heritage woman receiving parcel smiling wide shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old mixed heritage woman relieved indoors medium shot",
+    "date": "2026-08-28",
+    "slot": 1
+  },
+  {
+    "query": "35-year-old mixed heritage woman thoughtful office medium shot",
+    "date": "2026-08-28",
+    "slot": 1
   }
 ]

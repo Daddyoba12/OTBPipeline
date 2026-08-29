@@ -1,16 +1,6 @@
 {
   "recent_runs": [
     {
-      "timestamp": "2026-07-24T09:26:59.015525",
-      "slot": 2,
-      "pillar": "multi_courier",
-      "bucket": "cinematic",
-      "results": {
-        "instagram": false
-      },
-      "machine": "laptop"
-    },
-    {
       "timestamp": "2026-07-24T18:27:32.628580",
       "slot": 3,
       "pillar": "smart",
@@ -359,17 +349,31 @@
         "youtube": true
       },
       "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-08-28T09:11:55.314119",
+      "slot": 1,
+      "pillar": "faith_friday",
+      "bucket": "cinematic",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true,
+        "newspaper": true
+      },
+      "machine": "laptop"
     }
   ],
   "last_run": {
-    "timestamp": "2026-08-23T14:09:40.706631",
-    "slot": 2,
-    "pillar": "family",
-    "bucket": "community",
+    "timestamp": "2026-08-28T09:11:55.314119",
+    "slot": 1,
+    "pillar": "faith_friday",
+    "bucket": "cinematic",
     "results": {
       "tiktok": true,
       "instagram": true,
-      "youtube": true
+      "youtube": true,
+      "newspaper": true
     },
     "machine": "laptop"
   }

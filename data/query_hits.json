@@ -1,445 +1,5 @@
 [
   {
-    "query": "buick suv",
-    "hit_type": "dalle_car_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "suv driving road scenic",
-    "hit_type": "dalle_car_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "car dealership stressed customer",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "old car broken down roadside",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "family suv highway road trip",
-    "hit_type": "dalle_car_stakes",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "couple suv dealership smiling car keys",
-    "hit_type": "dalle_car_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "suv driving scenic highway",
-    "hit_type": "dalle_car_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "luxury suv parked exterior clean",
-    "hit_type": "dalle_car_lesson_pre",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "airport departure gate passengers boarding",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "london heathrow airport terminal crowded",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "traveller packing bag suitcase home",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "lagos murtala mohammed airport arrivals",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "parcel wrapped gift delivery handoff",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "airport runway plane taking off",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "family reunion greeting airport arrivals emotional",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "smartphone app booking sending parcel",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman birmingham home shocked paper quote medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black woman laptop expensive courier website shocked home medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african man courier counter shocked high delivery price medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman home phone call upset delivery cost medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black traveller nigerian sender train station parcel handover wide shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black traveller airplane window seat parcel overhead bin relaxed medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman medium shot phone",
-    "hit_type": "perplexity_alt",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "diverse black people london street confident celebrating community wide shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black british woman home office worried small parcel medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman shocked expensive delivery price phone screen medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman stressed office medium shot",
-    "hit_type": "perplexity_alt",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "heavy suitcase luggage overweight check",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african traveller seated train window relaxed small parcel beside medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black traveller arriving lagos airport arrivals hall wide shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "plane landing runway arrival",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "lagos nigeria cityscape skyline confident aspirational golden hour wide shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman home shocked holding paper quote medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black woman laptop expensive delivery website shocked medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african man courier counter shocked high price receipt medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone call home upset worried delivery medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "young woman crying airport goodbye",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black male traveller airplane window seat parcel relaxed medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman home smiling phone call happy affordable delivery medium shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "diverse black people london street confident celebrating together wide shot",
-    "hit_type": "video",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman home shocked holding paper document medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black woman laptop expensive delivery website shocked home medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african man courier counter shocked high price package medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone call upset delivery cost home medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "professional traveller briefcase airport",
-    "hit_type": "dalle_bh_stakes",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black male traveller airplane window seat relaxed parcel medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone smiling relieved affordable delivery home medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "diverse black people london street confident celebrating graduation wide shot",
-    "hit_type": "dalle_bh_lesson_pre",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "airport runway plane taxiing",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black woman laptop expensive courier website shocked home desk medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african man courier office counter shocked delivery price quote medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone call upset stressed living room medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african man airport departure lounge",
-    "hit_type": "dalle_bh_stakes",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african male traveller airplane window seat parcel relaxed medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone smiling relieved happy affordable delivery home medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "professional business person london city",
-    "hit_type": "dalle_bh_lesson_pre",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman bristol home shocked holding price quote medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black woman laptop expensive courier website worried uk home medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "airport customs officer inspection",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone call upset delivery cost uk flat medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black traveller nigerian woman train station parcel handover uk wide shot",
-    "hit_type": "dalle_bh_stakes",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "african male traveller flight window seat parcel relaxed medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "nigerian woman phone smiling relieved affordable delivery bristol home medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "diverse black people lagos street celebrating parcel arrival confident wide shot",
-    "hit_type": "dalle_bh_lesson_pre",
-    "date": "2026-07-27"
-  },
-  {
-    "query": "black british woman home worried holding small gift box medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black british woman airport lounge excited phone discovery medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman shocked expensive courier price phone screen medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "african woman half-empty cabin luggage airport departure gate wide shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman shocked expensive courier price smartphone airport terminal medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black british woman living room medium shot",
-    "hit_type": "perplexity_alt",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black traveller receiving small parcel nigerian sender train station wide shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "immigration passport queue airport",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "african traveller airplane seat relaxed small parcel carry-on medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "african man handing parcel black traveller airport departures smiling wide shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "train arrival platform people smiling",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "cargo ship docking port workers",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman front door smiling receiving small parcel handover medium shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "traveller handing parcel airport",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman front door receiving parcel smiling relief wide shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "lagos victoria island skyline confident aspirational golden hour wide shot",
-    "hit_type": "video",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black british woman home worried holding gift box medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman shocked phone screen high shipping price medium shot",
-    "hit_type": "dalle_bh_hook",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "african woman frustrated phone call expensive international delivery medium shot",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "overweight baggage airline counter",
-    "hit_type": "dalle_bh_problem",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black traveller seated airplane cabin relaxed small parcel overhead medium shot",
-    "hit_type": "dalle_bh_stakes",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "black traveller lagos airport arrivals hall walking wide shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "nigerian woman lekki home door smiling receiving small parcel medium shot",
-    "hit_type": "dalle_bh_resolution",
-    "date": "2026-07-28"
-  },
-  {
-    "query": "lagos island cityscape skyline confident aspirational golden hour wide shot",
-    "hit_type": "dalle_bh_lesson_pre",
-    "date": "2026-07-28"
-  },
-  {
     "query": "airport departure gate passengers boarding",
     "hit_type": "video",
     "date": "2026-07-29"
@@ -2513,5 +2073,75 @@
     "query": "wide shot black family airport",
     "hit_type": "perplexity_alt",
     "date": "2026-08-26"
+  },
+  {
+    "query": "airport departure gate passengers boarding",
+    "hit_type": "video",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "london heathrow airport terminal crowded",
+    "hit_type": "video",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "traveller packing bag suitcase home",
+    "hit_type": "video",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "lagos murtala mohammed airport arrivals",
+    "hit_type": "video",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "wide shot airport family welcome",
+    "hit_type": "perplexity_alt",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "nigerian woman stressed worried close up face phone",
+    "hit_type": "dalle_car_problem",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "repair shop expensive bill",
+    "hit_type": "dalle_car_stakes",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "highway commute sedan traffic morning",
+    "hit_type": "dalle_car_lesson_pre",
+    "date": "2026-08-27"
+  },
+  {
+    "query": "terminal medium shot travelers",
+    "hit_type": "perplexity_alt",
+    "date": "2026-08-28"
+  },
+  {
+    "query": "london heathrow airport terminal crowded",
+    "hit_type": "video",
+    "date": "2026-08-28"
+  },
+  {
+    "query": "nigerian woman stressed worried close up face phone",
+    "hit_type": "dalle_bh_problem",
+    "date": "2026-08-28"
+  },
+  {
+    "query": "35-year-old mixed heritage woman home stressed laptop medium shot",
+    "hit_type": "dalle_bh_stakes",
+    "date": "2026-08-28"
+  },
+  {
+    "query": "black man parcel handover train station smiling wide shot",
+    "hit_type": "dalle_bh_resolution",
+    "date": "2026-08-28"
+  },
+  {
+    "query": "35-year-old nigerian woman confident london street wide shot",
+    "hit_type": "dalle_bh_lesson_pre",
+    "date": "2026-08-28"
   }
 ]
