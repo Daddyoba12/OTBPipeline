@@ -17,14 +17,42 @@ LinkedIn 2026 algorithm — what actually moves the needle:
 10. After posting: reply to own post with website URL (drives traffic without algo penalty)
 """
 
-import json, os, sys, time
+import json, os, subprocess, sys, tempfile, time
 from datetime import datetime, date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import CREDS_PATH, DATA, ANTHROPIC_API_KEY
+from config import CREDS_PATH, DATA
 
 import requests
+
+BOOTHOP_INTRO = Path(__file__).parent.parent / "assets" / "boothop_intro.mp3"
+
+
+def _apply_intro_audio(video_path: str) -> str:
+    """Replace video audio with boothop_intro.mp3 (looped to fit). Returns path to new file."""
+    if not BOOTHOP_INTRO.exists():
+        _log("boothop_intro.mp3 not found — using original audio")
+        return video_path
+    try:
+        out = Path(tempfile.mktemp(suffix="_li.mp4"))
+        result = subprocess.run([
+            "ffmpeg", "-y",
+            "-i", video_path,
+            "-stream_loop", "-1", "-i", str(BOOTHOP_INTRO),
+            "-map", "0:v:0", "-map", "1:a:0",
+            "-shortest",
+            "-af", "volume=0.35",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+            str(out),
+        ], capture_output=True, timeout=120)
+        if result.returncode == 0 and out.exists():
+            _log("boothop_intro.mp3 applied to LinkedIn video")
+            return str(out)
+        _log(f"Intro swap failed: {result.stderr[-200:].decode(errors='ignore')} — using original")
+    except Exception as e:
+        _log(f"Intro swap error: {e} — using original")
+    return video_path
 
 
 def _log(msg: str):
@@ -178,6 +206,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
         _log(f"Video not found: {video_path}"); return None
 
     caption = _build_linkedin_caption(content)
+    video_path = _apply_intro_audio(video_path)
     file_size = os.path.getsize(video_path)
     _log(f"Posting slot {slot} | {file_size//1024}KB")
 
