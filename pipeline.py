@@ -173,14 +173,65 @@ def _route_to_dashboard(platform_videos: dict, slot: int, base_video: Path) -> N
 
 
 def _already_ran_today(slot: int) -> bool:
-    """Prevent double-runs of same slot on same day."""
+    """Prevent double-runs of same slot on same day. Checks local file + Supabase."""
+    today = str(date.today())
+    # 1. Local file check
     try:
         if RAN_TODAY.exists():
             ran = json.loads(RAN_TODAY.read_text())
-            return ran.get(str(date.today())) == slot or slot in ran.get(str(date.today()), [])
+            if ran.get(today) == slot or slot in ran.get(today, []):
+                return True
     except Exception:
         pass
+    # 2. Supabase shared check — catches the other machine's run even when SCP fails
+    try:
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        r = __import__("requests").get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.0&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        if r.ok:
+            rows = r.json()
+            if rows:
+                raw = rows[0].get("ran_slots_json") or "[]"
+                claimed = json.loads(raw) if isinstance(raw, str) else raw
+                if f"{today}:{slot}" in claimed:
+                    _log(f"[Guard] Slot {slot} already claimed in Supabase — skipping")
+                    return True
+    except Exception:
+        pass  # Supabase offline — fall through to local-only check
     return False
+
+
+def _claim_slot_supabase(slot: int):
+    """Write today's slot claim to Supabase slot=0 row so both machines see it."""
+    today = str(date.today())
+    try:
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        import requests as _req
+        # Read current value
+        r = _req.get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.0&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        claimed = []
+        if r.ok and r.json():
+            raw = r.json()[0].get("ran_slots_json") or "[]"
+            claimed = json.loads(raw) if isinstance(raw, str) else raw
+        # Prune entries older than 2 days, add new claim
+        claimed = [e for e in claimed if not e.startswith(("20", "19")) or e >= f"{today}:"]
+        entry = f"{today}:{slot}"
+        if entry not in claimed:
+            claimed.append(entry)
+        patch_hdrs = {**_HDR, "Prefer": "resolution=merge-duplicates"}
+        _req.patch(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.0",
+            headers=patch_hdrs,
+            json={"ran_slots_json": json.dumps(claimed), "updated_at": "now()"},
+            timeout=8,
+        )
+    except Exception:
+        pass  # Non-fatal — local file is the fallback
 
 
 def _queue_pending_post(platform: str, slot: int, video_path, content: dict):
@@ -364,8 +415,9 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
         _log(f"Slot {slot} already ran today — skipping (use --force to override)")
         return
 
-    # Claim the slot immediately so a concurrent dispatcher tick can't start a duplicate run
+    # Claim the slot immediately — local file + Supabase so both machines see it at once
     _mark_ran_today(slot)
+    _claim_slot_supabase(slot)
 
     # ── 0. Refresh daily music tracks (slot 1 only, once per day) ────────────
     if slot == 1:
