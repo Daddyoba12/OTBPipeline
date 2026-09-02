@@ -1,17 +1,17 @@
 {
   "slot3": {
     "last_version": "v2",
-    "last_posted_at": "2026-08-21T21:07:17.644524",
+    "last_posted_at": "2026-09-01T21:07:00.420663",
     "next_version": "v1"
   },
   "slot2": {
     "last_version": "v2",
-    "last_posted_at": "2026-08-25T14:52:27.127510",
+    "last_posted_at": "2026-09-01T11:02:24.744121",
     "next_version": "v1"
   },
   "slot1": {
-    "last_version": "v1",
-    "last_posted_at": "2026-08-28T09:11:54.434519",
-    "next_version": "v2"
+    "last_version": "v2",
+    "last_posted_at": "2026-08-30T08:37:16.986256",
+    "next_version": "v1"
   }
 }

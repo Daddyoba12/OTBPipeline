@@ -207,50 +207,70 @@ def run_v2(slot: int, force: bool = False) -> bool:
     from analyse_kling_library import analyse_library, available_clips
     analyse_library()  # only analyses new clips
     clips = available_clips(min_fit=5)
-    if not clips:
-        _log("No available clips after cooldown filter — cannot produce V2 video")
-        _send_text(f"⚠️ V2 slot {slot}: No available Kling clips (all on 14-day cooldown). Running V1 instead.")
-        return False
-
     _log(f"{len(clips)} clips available for selection")
 
-    # ── Generate story content (same generate_content.py as V1) ───────────────
-    _log("Generating V2 story content...")
-    try:
-        from generate_content import generate_content, get_pillar_for_slot, get_bucket
-        pillar  = get_pillar_for_slot(slot)
-        bucket  = get_bucket()
-        _log(f"Pillar: {pillar} | Bucket: {bucket}")
-        content = generate_content(slot, pillar, bucket)
-        if not content:
-            raise ValueError("generate_content returned empty")
-    except Exception as e:
-        _log(f"Content generation failed: {e}")
-        _send_text(f"⚠️ V2 slot {slot}: Content generation failed — {e}")
-        return False
+    content       = None
+    success       = False
+    platform_paths = {}
 
-    _log(f"Story ready: {content.get('hook', '')[:60]}")
+    # ── Path A: Library clips available — render from curated Kling library ────
+    if clips:
+        _log("Using Kling library clips for render...")
+        try:
+            from generate_content import generate_content, get_pillar_for_slot, get_bucket
+            pillar  = get_pillar_for_slot(slot)
+            bucket  = get_bucket()
+            _log(f"Pillar: {pillar} | Bucket: {bucket}")
+            content = generate_content(slot, pillar, bucket)
+            if not content:
+                raise ValueError("generate_content returned empty")
+        except Exception as e:
+            _log(f"Content generation failed: {e}")
+            _send_text(f"⚠️ V2 slot {slot}: Content generation failed — {e}")
+            return False
 
-    # ── Render V2 video (15s, 3 platform variants) ────────────────────────────
-    _log("Rendering V2 video...")
-    ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_base = OUTPUT / f"otb_v2_slot{slot}_{ts}"
+        _log(f"Story ready: {content.get('hook', '')[:60]}")
+        ts       = datetime.now().strftime("%Y%m%d_%H%M%S")
+        out_base = OUTPUT / f"otb_v2_slot{slot}_{ts}"
+        try:
+            from render_kling_video import render_v2_video
+            success, platform_paths = render_v2_video(
+                story    = content,
+                slot     = slot,
+                out_base = out_base,
+            )
+        except Exception as e:
+            _log(f"Library render failed: {e}")
+            success = False
 
-    try:
-        from render_kling_video import render_v2_video
-        success, platform_paths = render_v2_video(
-            story    = content,
-            slot     = slot,
-            out_base = out_base,
-        )
-    except Exception as e:
-        _log(f"Render failed: {e}")
-        _send_text(f"⚠️ V2 slot {slot}: Render failed — {e}")
-        return False
+    # ── Path B: No clips or render failed — Kling API → Runway → Pexels ───────
+    if not success:
+        reason = "no library clips" if not clips else "library render failed"
+        _log(f"Library unavailable ({reason}) — generating fresh clip via Kling API / Runway...")
+        _send_text(f"⚠️ V2 slot {slot}: {reason} — trying Kling API / Runway generation")
+        try:
+            from generate_kling import run_kling_production
+            generated_path = run_kling_production(slot=slot)
+        except Exception as e:
+            _log(f"Kling production error: {e}")
+            generated_path = None
+
+        if not generated_path or not Path(generated_path).exists():
+            _log("All V2 generation methods failed — returning to V1")
+            _send_text(f"⚠️ V2 slot {slot}: Kling + Runway both failed — V1 will run instead")
+            return False
+
+        _log(f"Generated clip ready: {Path(generated_path).name}")
+        _send_text(f"🎬 V2 slot {slot}: Generated clip ready (Kling/Runway) — queued for posting")
+        # Use generated video for all platform slots
+        platform_paths = {p: generated_path for p in SLOT_PLATFORMS.get(slot, [])}
+        success = True
+        if content is None:
+            content = {"hook": "Send it. Share it. Ship it.", "pillar": "community", "slot": slot}
 
     if not success or not platform_paths:
-        _log("Render produced no output")
-        _send_text(f"⚠️ V2 slot {slot}: Render produced no output")
+        _log("V2 produced no output")
+        _send_text(f"⚠️ V2 slot {slot}: No output produced")
         return False
 
     # Save sidecar JSON

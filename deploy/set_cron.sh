@@ -4,6 +4,9 @@
 # G-Inspired: laptop primary at 09:00/13:00/18:00 Chicago CDT (14:00/18:00/23:00 UTC), Oracle 1h later
 # Slot 4 (LinkedIn+Blog) runs Tue+Fri for both clients
 cat > /tmp/newcron << 'CRON'
+# Music refresh at 06:00 UTC — Oracle uses archive only (14-day gap enforced).
+# Laptop slot 1 is the sole SoundCloud downloader; Oracle just draws from local archive.
+0 6 * * * cd /opt/otb_pipeline && python3 scripts/fetch_trending_music.py --skip-if-fresh --archive-only >> /home/ubuntu/music_refresh.log 2>&1
 # BootHop backup — fires 1h after laptop primary
 0 8 * * * cd /opt/otb_pipeline && python3 pipeline.py --slot 1 >> /home/ubuntu/otb_pipeline.log 2>&1
 0 14 * * * cd /opt/otb_pipeline && python3 pipeline.py --slot 2 >> /home/ubuntu/otb_pipeline.log 2>&1

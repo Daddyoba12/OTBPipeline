@@ -72,39 +72,56 @@ def delta_str(now: int, prev) -> str:
 
 # ── PageSpeed Insights ────────────────────────────────────────────────────────
 def run_psi(url: str, strategy: str = "mobile") -> dict:
-    try:
-        r = requests.get(
-            PSI_URL,
-            params={
-                "url":      url,
-                "strategy": strategy,
-                "key":      GOOGLE_API_KEY,
-                "category": ["performance", "seo", "accessibility", "best-practices"],
-            },
-            timeout=90,
-        )
-        d      = r.json()
-        cats   = d.get("lighthouseResult", {}).get("categories", {})
-        audits = d.get("lighthouseResult", {}).get("audits", {})
+    for attempt in range(3):
+        try:
+            r = requests.get(
+                PSI_URL,
+                params={
+                    "url":      url,
+                    "strategy": strategy,
+                    "key":      GOOGLE_API_KEY,
+                    "category": ["performance", "seo", "accessibility", "best-practices"],
+                },
+                timeout=90,
+            )
+            d   = r.json()
+            lhr = d.get("lighthouseResult") or {}
+            cats = lhr.get("categories") or {}
 
-        def get_score(k):
-            return round((cats.get(k, {}).get("score") or 0) * 100)
+            # PSI returns HTTP 200 with empty lighthouseResult on quota / key errors
+            if not cats:
+                err = (
+                    (d.get("error") or {}).get("message")
+                    or lhr.get("runtimeError", {}).get("message")
+                    or "PSI quota exceeded or empty response"
+                )
+                if attempt < 2:
+                    print(f"  [PSI] No data for {url} — retry {attempt+1}/2 in 20s ({err[:80]})")
+                    time.sleep(20)
+                    continue
+                return {"error": err}
 
-        def get_val(k):
-            return audits.get(k, {}).get("displayValue", "—")
+            audits = lhr.get("audits", {})
 
-        return {
-            "perf": get_score("performance"),
-            "seo":  get_score("seo"),
-            "a11y": get_score("accessibility"),
-            "bp":   get_score("best-practices"),
-            "lcp":  get_val("largest-contentful-paint"),
-            "fcp":  get_val("first-contentful-paint"),
-            "cls":  get_val("cumulative-layout-shift"),
-            "tbt":  get_val("total-blocking-time"),
-        }
-    except Exception as e:
-        return {"error": str(e)}
+            def get_score(k):
+                return round((cats.get(k, {}).get("score") or 0) * 100)
+
+            def get_val(k):
+                return audits.get(k, {}).get("displayValue", "—")
+
+            return {
+                "perf": get_score("performance"),
+                "seo":  get_score("seo"),
+                "a11y": get_score("accessibility"),
+                "bp":   get_score("best-practices"),
+                "lcp":  get_val("largest-contentful-paint"),
+                "fcp":  get_val("first-contentful-paint"),
+                "cls":  get_val("cumulative-layout-shift"),
+                "tbt":  get_val("total-blocking-time"),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+    return {"error": "PSI API returned no data after 3 attempts"}
 
 
 # ── Sitemap health ────────────────────────────────────────────────────────────

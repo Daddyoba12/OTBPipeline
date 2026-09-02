@@ -7948,5 +7948,955 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-08-28"
+  },
+  {
+    "query": "26-year-old black woman worried phone medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "african woman phone call frustrated office medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "nigerian woman laptop stressed deadline medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "black man train station parcel handover smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "nigerian woman receives parcel doorstep happy wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "black couple laptop satisfaction home medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "young black couple relaxed happy park medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "black british couple reflective home library medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "26-year-old Black woman typing worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black woman at courier counter price shocked medium",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "26-year-old African woman stressed phone home medium",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black man handing parcel train station smiling wide",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Nigerian family member receiving parcel smiling wide",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black woman happy family delivery arrival wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "26-year-old Black woman relieved group smiles wide",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black couple smiling at park thoughtful wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "26-year-old Black woman worried typing flat",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "African woman courier counter reacting price medium",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Nigerian woman home upset deadline phone medium",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black man smiling parcel handover station wide",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Nigerian family member smiling receiving parcel wide",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black couple celebrating together living room wide",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black couple relieved checking prints living room wide",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Black couple embracing relief living room wide",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-08-30"
+  },
+  {
+    "query": "Nigerian woman holding prescription worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man phone call concerned medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian family member home anxious medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man train station parcel smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "diverse Black people Lagos street confident wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black man receiving parcel at door relief medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man airport arrival confident medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man happy with parcel home medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man 40 business office smile portrait",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian woman frustrated laptop office medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "African man stressed phone workspace medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "African man Black woman parcel handover wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "diverse Black community London celebration wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man smiling office phone medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black man parcel successful delivery confetti wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man reflection office window proud medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old nigerian man gym confident vertical shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian woman courier counter expensive medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "african man departure gate worried medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian man train station parcel handover wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian man london street confident wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian man package delivery home relief wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old nigerian man parcel received satisfied wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian man travel global connection office medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black men gym laughing confident vertical shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian woman courier counter worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "African traveller airport gate worried medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black man train station parcel smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man office relieved parcel wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man airport arrival relieved medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man receiving parcel home smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man street proud confident wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian woman hands prescription worried vertical medium",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man phone call worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian family member home anxious waiting medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black traveller receiving parcel train station smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man parcel handover london street wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Black person receiving parcel smiling door medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man airport delivery relief medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man smiling reflecting cityscape medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man london flat thoughtful medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man phone urgent call medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man home worried deadline medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man train station parcel wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man london street confident wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man airport departure calm medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man at door receiving parcel medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "40-year-old Nigerian man smiling delivery success wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man gym friends laughing vertical portrait",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian woman courier counter frustrated medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man airport departure worried parcel medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man receiving parcel home doorway wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man gives parcel woman doorway wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man smiling phone morning park medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "Nigerian man city street walking confident wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "black men gym energetic confident portrait",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian woman frustrated phone medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "african traveller worried departure gate medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "black man parcel handover station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian person receiving parcel smiling wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "african traveller smiling received parcel wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian traveller returning parcels happy wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "nigerian businessman airport parcels content wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-01"
+  },
+  {
+    "query": "28-year-old British-Nigerian woman reading phone vertical shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "28-year-old African woman phone call frustration medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "Nigerian woman laptop courier site stressed medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "Black man parcel handover train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "Nigerian woman receiving parcel door smiling wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "Black man giving parcel diverse traveler smiling wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "British-Nigerian woman Lagos street confident nodding wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
+  },
+  {
+    "query": "Nigerian woman reflecting street movement wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-02"
   }
 ]

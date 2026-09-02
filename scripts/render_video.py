@@ -113,7 +113,7 @@ def _save_video_log(clip_ids: set):
     # Keep 90 days rolling
     _VIDEO_LOG.write_text(json.dumps(log[-500:], indent=2), encoding="utf-8")
 
-def _recently_used_video_ids() -> set:
+def _recently_used_video_ids_local() -> set:
     from datetime import datetime, timedelta
     log    = _load_video_log()
     cutoff = (datetime.now() - timedelta(days=_VIDEO_COOLDOWN_DAYS)).isoformat()
@@ -121,6 +121,219 @@ def _recently_used_video_ids() -> set:
 
 import requests
 from query_learner import report_hit
+
+# ── Supabase clip library (global dedup, shared laptop + Oracle) ───────────────
+try:
+    from push_pipeline_state import SUPABASE_URL as _SB_URL, SUPABASE_KEY as _SB_KEY, _HDR as _SB_HDR
+except ImportError:
+    _SB_URL = _SB_KEY = None
+    _SB_HDR = {}
+
+_CLIP_LIB_TABLE = "otb_clip_library"
+
+def _sb_blocked_clip_ids() -> set:
+    """Clips still in 14-day cooldown per Supabase (globally across both machines)."""
+    if not _SB_URL:
+        return set()
+    try:
+        from datetime import datetime, timezone
+        now_iso = datetime.now(timezone.utc).isoformat()
+        r = requests.get(
+            f"{_SB_URL}/rest/v1/{_CLIP_LIB_TABLE}",
+            headers=_SB_HDR,
+            params={"select": "clip_id", "cooldown_until": f"gt.{now_iso}"},
+            timeout=10,
+        )
+        if r.ok:
+            return {row["clip_id"] for row in r.json()}
+    except Exception as _e:
+        print(f"  [ClipLib] Supabase read failed: {_e}")
+    return set()
+
+def _recently_used_video_ids() -> set:
+    """Globally blocked IDs: Supabase first, falls back to local JSON if offline."""
+    sb = _sb_blocked_clip_ids()
+    if sb:
+        return sb
+    return _recently_used_video_ids_local()
+
+def _save_clips_supabase(clips: list, pillar: str, video_origin: str = ""):
+    """Upsert newly fetched clips to Supabase. Preserves first_used_at + reuse_count."""
+    if not _SB_URL or not clips:
+        return
+    try:
+        from datetime import datetime, timezone, timedelta
+        now      = datetime.now(timezone.utc)
+        cooldown = (now + timedelta(days=_VIDEO_COOLDOWN_DAYS)).isoformat()
+        rows = [{
+            "clip_id":        str(c["clip_id"]),
+            "source":         c.get("source", "pexels"),
+            "beat_type":      c.get("beat_type", ""),
+            "scene_desc":     c.get("scene_desc", "")[:200],
+            "pillar":         pillar,
+            "last_used_at":   now.isoformat(),
+            "cooldown_until": cooldown,
+            "video_origin":   video_origin,
+        } for c in clips]
+        # Prefer: merge-duplicates → ON CONFLICT DO UPDATE only the columns in the payload.
+        # first_used_at and reuse_count are NOT in payload → preserved on conflict.
+        upsert_hdr = dict(_SB_HDR)
+        upsert_hdr["Prefer"] = "resolution=merge-duplicates,return=minimal"
+        r = requests.post(
+            f"{_SB_URL}/rest/v1/{_CLIP_LIB_TABLE}",
+            headers=upsert_hdr,
+            json=rows,
+            timeout=15,
+        )
+        if r.ok:
+            print(f"  [ClipLib] Synced {len(rows)} clips → Supabase (pillar={pillar})")
+        else:
+            print(f"  [ClipLib] Sync failed {r.status_code}: {r.text[:120]}")
+    except Exception as e:
+        print(f"  [ClipLib] Error: {e}")
+
+# ── Close-up variety — story-action close-ups, never a static staring face ────
+# These are Pexels/Pixabay search queries. Each must imply movement and tell part
+# of the story (hands, objects, reactions mid-action) rather than a face held still.
+_CLOSEUP_STYLES = [
+    "{subject} hands passing parcel close up vertical",
+    "over shoulder {subject} phone screen notification close up",
+    "{subject} departure board then phone reaction close up",
+    "suitcase zipping {subject} hands close up vertical",
+    "{subject} walking phone talking tracking close up",
+    "{subject} reaction realising discovering phone close up",
+    "parcel label attaching hands close up vertical",
+    "luggage rolling {subject} tracking beside camera",
+]
+_CLOSEUP_SUBJECTS = {
+    "supply_chain":       "Nigerian woman",
+    "family":             "Black woman",
+    "airport":            "Black traveller",
+    "airport_deliveries": "Nigerian woman",
+    "community":          "Nigerian woman",
+    "smart":              "Black professional",
+    "travel_hacks":       "Black woman",
+    "logistics_stories":  "African woman",
+    "cost_pain":          "Nigerian woman",
+    "cultural_earn":      "Black woman",
+    "brand_authority":    "Black British professional",
+    "urgent_medical":     "Nigerian woman",
+}
+
+def _closeup_query(pillar: str, slot: int) -> str:
+    """Return a varied close-up query. Deterministic per day+pillar+slot so a re-run is consistent."""
+    from datetime import date
+    seed    = hash(f"{date.today().isoformat()}{pillar}{slot}") & 0xFFFF
+    style   = seed % len(_CLOSEUP_STYLES)
+    subject = _CLOSEUP_SUBJECTS.get(pillar, "Black woman")
+    return _CLOSEUP_STYLES[style].format(subject=subject)
+
+# ── Remix engine ─────────────────────────────────────────────────────────────
+
+def _fetch_eligible_clips(beat_types: list) -> dict:
+    """
+    Returns {beat_type: [clip_row, ...]} for clips past their 14-day cooldown.
+    Ordered oldest-used-first so the longest-resting clips get priority.
+    """
+    if not _SB_URL:
+        return {}
+    try:
+        from datetime import datetime, timezone
+        now_iso = datetime.now(timezone.utc).isoformat()
+        r = requests.get(
+            f"{_SB_URL}/rest/v1/{_CLIP_LIB_TABLE}",
+            headers=_SB_HDR,
+            params={
+                "select":         "clip_id,source,beat_type,scene_desc",
+                "cooldown_until": f"lt.{now_iso}",
+                "beat_type":      f"in.({','.join(beat_types)})",
+                "order":          "last_used_at.asc",
+            },
+            timeout=10,
+        )
+        if not r.ok:
+            return {}
+        pool: dict = {}
+        for row in r.json():
+            bt = row.get("beat_type", "")
+            if bt:
+                pool.setdefault(bt, []).append(row)
+        return pool
+    except Exception as e:
+        print(f"  [Remix] Fetch eligible clips failed: {e}")
+        return {}
+
+def _download_remix_clip(clip_id: str, source: str, dest: Path) -> bool:
+    """Re-fetch a previously used clip from its original source by ID."""
+    try:
+        if source == "pexels":
+            r = requests.get(
+                f"https://api.pexels.com/videos/videos/{clip_id}",
+                headers={"Authorization": PEXELS_KEY},
+                timeout=15,
+            )
+            if r.ok:
+                files = r.json().get("video_files", [])
+                hd = next((f for f in files if f.get("width", 0) >= 720
+                            and f.get("height", 0) > f.get("width", 0)), None)
+                if not hd:
+                    hd = next((f for f in files if f.get("width", 0) >= 720), None)
+                if hd:
+                    return _download_clip(hd["link"], dest)
+        elif source == "pixabay":
+            raw_id = str(clip_id).replace("pb_", "")
+            r = requests.get(
+                "https://pixabay.com/api/videos/",
+                params={"key": PIXABAY_KEY, "id": raw_id},
+                timeout=15,
+            )
+            if r.ok:
+                hits = r.json().get("hits", [])
+                if hits:
+                    sizes = hits[0].get("videos", {})
+                    url   = (sizes.get("large", {}).get("url")
+                              or sizes.get("medium", {}).get("url"))
+                    if url:
+                        return _download_clip(url, dest)
+    except Exception as e:
+        print(f"    [Remix] Re-fetch {clip_id} ({source}) failed: {e}")
+    return False
+
+def _prune_old_clips():
+    """Delete clips not used in 60+ days to keep the library lean."""
+    if not _SB_URL:
+        return
+    try:
+        from datetime import datetime, timezone, timedelta
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=60)).isoformat()
+        r = requests.delete(
+            f"{_SB_URL}/rest/v1/{_CLIP_LIB_TABLE}",
+            headers=_SB_HDR,
+            params={"last_used_at": f"lt.{cutoff}"},
+            timeout=10,
+        )
+        if r.ok:
+            print("  [ClipLib] Pruned clips unused for 60+ days")
+    except Exception as e:
+        print(f"  [ClipLib] Prune error: {e}")
+
+def _mark_clips_remixed(clip_ids: list):
+    """Atomically increment reuse_count and reset 14-day cooldown via Supabase RPC."""
+    if not _SB_URL or not clip_ids:
+        return
+    try:
+        from datetime import datetime, timezone, timedelta
+        cooldown = (datetime.now(timezone.utc) + timedelta(days=_VIDEO_COOLDOWN_DAYS)).isoformat()
+        r = requests.post(
+            f"{_SB_URL}/rest/v1/rpc/mark_clips_remixed",
+            headers=_SB_HDR,
+            json={"clip_ids": [str(c) for c in clip_ids], "new_cooldown": cooldown},
+            timeout=10,
+        )
+        if not r.ok:
+            print(f"  [Remix] mark_clips_remixed RPC failed {r.status_code}: {r.text[:80]}")
+    except Exception as e:
+        print(f"  [Remix] mark_clips_remixed error: {e}")
 
 W, H = VIDEO_W, VIDEO_H
 
@@ -215,33 +428,35 @@ def _car_dalle_prompt(car: dict, beat: str) -> str:
 
 
 def _bh_dalle_prompt(beat: str, content: dict) -> str:
-    """Beat-specific DALL-E prompts for BootHop UK-Nigeria delivery clips."""
+    """Beat-specific DALL-E prompts for BootHop UK-Nigeria delivery clips.
+    Every scene must show action or movement — never a face simply staring at camera."""
     scenes = {
         "hook": (
-            "Extreme close-up of a Black British woman's face — eyes wide in shock, "
-            "staring at her phone screen which shows a large expensive courier price. "
-            "Hand raised to mouth in disbelief. Intense emotional expression, shallow "
-            "depth of field. Vertical 9:16 portrait orientation."
+            "Over-the-shoulder close-up: Black British woman's hands holding phone, screen "
+            "showing a courier price of £300+. Her hands mid-scroll, fingers hovering. "
+            "Shallow depth of field. Implied motion — caught mid-action. "
+            "Vertical 9:16, handheld documentary feel."
         ),
         "problem": (
-            "Close-up of a stressed Black British woman's face — eyes wide, staring in "
-            "disbelief at a phone screen showing a courier price over £300. One hand "
-            "pressed to her mouth in shock. Portrait orientation, documentary lighting."
+            "Close-up of Black British woman's hands and phone — fingers mid-type, courier "
+            "website visible on screen showing expensive delivery options. Phone slightly "
+            "tilted, wrist turned as she reacts. Natural movement implied. "
+            "Vertical 9:16, documentary lighting."
         ),
         "stakes": (
-            "Black British woman at kitchen table — head in hands, phone showing expensive "
-            "courier fees, bills in background. Defeated and stressed. Tight medium shot, "
-            "dim warm home lighting. Portrait orientation."
+            "Nigerian woman's hand pressing phone to her ear — mid-call, pacing in a "
+            "hallway. Other hand gesturing as she explains urgently. Motion blur on "
+            "the moving hand. Tight medium portrait, dim warm home light. Vertical 9:16."
         ),
         "resolution": (
-            "A Black British woman's face lighting up with relief — warm smile, eyes bright, "
-            "holding her phone showing a much lower price. Hopeful, relieved expression. "
-            "Close-up medium portrait shot, soft natural light."
+            "Black British woman's hand tapping a phone screen — finger landing on a "
+            "BootHop booking confirmation. Slight wrist movement visible. Relief in the "
+            "out-of-focus background figure. Soft natural window light. Vertical 9:16."
         ),
         "lesson_pre": (
-            "A joyful Nigerian woman standing at her doorstep receiving a delivered parcel "
-            "from a smiling visitor. Warm evening light on a residential street. "
-            "Emotional medium shot, authentic documentary feel."
+            "Nigerian woman mid-step reaching forward to receive a parcel — arms extended, "
+            "parcel transferring between hands, warm smile. Authentic doorstep moment "
+            "caught in motion. Warm evening light, documentary medium shot. Vertical 9:16."
         ),
     }
     scene = scenes.get(beat, scenes["hook"])
@@ -249,7 +464,7 @@ def _bh_dalle_prompt(beat: str, content: dict) -> str:
         f"Photorealistic commercial photography. {scene} "
         f"Subjects are Black British or Nigerian British people. "
         f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
-        f"High production quality."
+        f"High production quality, authentic documentary style."
     )
 
 
@@ -759,14 +974,15 @@ def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP
         prompt = dalle_prompt
     else:
         beat_mood = {
-            "hook":       "dramatic cinematic medium-wide shot, golden hour lighting",
-            "problem":    "tense medium shot, moody blue tones, documentary style",
-            "stakes":     "emotional medium shot, shallow depth of field, orange accent light",
-            "resolution": "warm joyful medium-wide scene, soft natural light, hopeful mood",
-            "lesson_pre": "clean professional wide shot, bright neutral tones",
-        }.get(beat, "cinematic medium wide shot")
+            "hook":       "over-shoulder or hands close-up, subject mid-action, golden hour documentary — never a face staring at camera",
+            "problem":    "hands on phone or over-shoulder angle, subject in motion, moody blue tones documentary",
+            "stakes":     "subject mid-gesture or mid-step reacting, shallow depth of field, orange accent light",
+            "resolution": "hands completing a handover or tapping phone, subject moving with relief, warm natural light",
+            "lesson_pre": "subject mid-stride or mid-handover, confident movement, clean bright wide shot",
+        }.get(beat, "subject in action mid-moment, documentary style, natural lighting")
         prompt = (
-            f"Photorealistic {beat_mood}. Scene: {query}. "
+            f"Photorealistic commercial photography. {beat_mood}. Scene: {query}. "
+            f"Subject must be mid-action — never posed, never staring directly into camera. "
             f"The main subject should be a person living in the UK — "
             f"could be Black British, Nigerian, or any Western/European ethnicity. "
             f"Vertical 9:16 portrait orientation. No text, no logos, no watermarks. "
@@ -1396,7 +1612,7 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
                    if (exclude_track is None or t.resolve() != exclude_track.resolve())
                    and _track_has_audio(t)]
         if archive:
-            recent_stems = _recently_used_music_stems(days=2)
+            recent_stems = _recently_used_music_stems(days=14)
             fresh = [t for t in archive if t.stem.lower() not in recent_stems]
             track = random.choice(fresh) if fresh else random.choice(archive)
 
@@ -1404,7 +1620,7 @@ def _add_music(src: Path, dest: Path, slot: int = None, exclude_track: Path | No
         shutil.copy(src, dest)
         return None
 
-    # Log archive picks so the 2-day dedup works across renders
+    # Log archive picks so the 14-day dedup works across renders
     if track.parent == MUSIC_ARCHIVE.resolve() or track.parent == MUSIC_ARCHIVE:
         _log_music_used(track)
 
@@ -1531,7 +1747,7 @@ def _add_music_with_voiceover(src: Path, dest: Path, tts_path: Path,
                    if (exclude_track is None or t.resolve() != exclude_track.resolve())
                    and _track_has_audio(t)]
         if archive:
-            recent_stems = _recently_used_music_stems(days=2)
+            recent_stems = _recently_used_music_stems(days=14)
             fresh = [t for t in archive if t.stem.lower() not in recent_stems]
             track = random.choice(fresh) if fresh else random.choice(archive)
     if track is None:
@@ -1653,7 +1869,7 @@ def _find_music_track(slot: int | None, exclude_track: Path | None) -> Path | No
                if (exclude_track is None or t.resolve() != exclude_track.resolve())
                and _track_has_audio(t)]
     if archive:
-        recent_stems = _recently_used_music_stems(days=2)
+        recent_stems = _recently_used_music_stems(days=14)
         fresh = [t for t in archive if t.stem.lower() not in recent_stems]
         return random.choice(fresh) if fresh else random.choice(archive)
     return None
@@ -1739,13 +1955,23 @@ def _concat_clips(clip_paths: list, dest: Path) -> bool:
 def render_video(content: dict, slot: int, output_path: str,
                  version: str = "v1", exclude_ids: set | None = None,
                  hook_clip: str | None = None,
-                 hook_audio: str | None = None) -> tuple[bool, set]:
+                 hook_audio: str | None = None,
+                 music_dir=None, music_archive=None) -> tuple[bool, set]:
     """
     Full render pipeline.
-    version:     "v1" (gold palette, primary queries) or "v2" (cyan palette, alt queries, diff music)
-    exclude_ids: clip IDs to skip (pass V1's used_ids so V2 gets fresh footage)
+    version:       "v1" (gold palette, primary queries) or "v2" (cyan palette, alt queries, diff music)
+    exclude_ids:   clip IDs to skip (pass V1's used_ids so V2 gets fresh footage)
+    music_dir:     override MUSIC_DIR (e.g. G-Inspired uses its own daily track folder)
+    music_archive: override MUSIC_ARCHIVE (e.g. G-Inspired archive with US-appropriate tracks)
     Returns (success, used_clip_ids).
     """
+    global MUSIC_DIR, MUSIC_ARCHIVE
+    _orig_music_dir, _orig_music_archive = MUSIC_DIR, MUSIC_ARCHIVE
+    if music_dir is not None:
+        MUSIC_DIR = music_dir
+    if music_archive is not None:
+        MUSIC_ARCHIVE = music_archive
+
     # Kill any orphaned ffmpeg from a prior crashed run before touching temp files
     try:
         subprocess.run(["taskkill", "/F", "/IM", "ffmpeg.exe"],
@@ -1818,10 +2044,31 @@ def render_video(content: dict, slot: int, output_path: str,
     TEMP.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)
     prefix = f"otb_slot{slot}_{version}"
-    # Seed used_ids with 14-day history so we never repeat clips across days
-    used_ids: set = _recently_used_video_ids() | set(exclude_ids or [])
-    own_ids: set  = set()   # IDs found by THIS render (returned to caller)
+    # Seed used_ids with 14-day history (global via Supabase, local fallback)
+    used_ids: set  = _recently_used_video_ids() | set(exclude_ids or [])
+    own_ids: set   = set()   # IDs found by THIS render (returned to caller + local log)
+    own_clips: list = []     # metadata for new clips → Supabase upsert
     proc_clips: list = []
+
+    # ── Remix engine: ~20% chance of recycling eligible archived clips ────────
+    _remix_mode:          bool  = False
+    _remix_pool:          dict  = {}     # {beat_type: [clip_row, ...]}
+    _remix_ids:           list  = []     # IDs of clips actually remixed this run
+    _recycled_this_render: int  = 0
+    _max_recycled:         int  = 0
+    if random.random() < 0.20:
+        _pool = _fetch_eligible_clips(list(set(CLIP_BEAT)))
+        if _pool:
+            _remix_mode  = True
+            # Max 40% of fetchable clips (clips 1-4; clip 0 is always a text card)
+            _max_recycled = max(1, int((_n_clips_eff - 1) * 0.40))
+            _remix_pool   = _pool
+            print(f"  [Remix] Mode active — up to {_max_recycled} recycled clips from {sum(len(v) for v in _pool.values())} eligible")
+        else:
+            print("  [Remix] Triggered but no eligible clips past cooldown — normal render")
+
+    from datetime import date as _date
+    _video_origin = f"{version}_slot{slot}_{_date.today().isoformat()}"
 
     print(f"\n  [Render-{version.upper()}] Hook: {hook[:60]}")
     print(f"  [Render] Pillar: {pillar} | Slot: {slot} | Version: {version}")
@@ -1833,12 +2080,9 @@ def render_video(content: dict, slot: int, output_path: str,
 
     for i in range(_clip_start, _clip_end):
         query  = _guard_query(queries[i], i)
-        # Slot 1 only: close-up face for hook and problem beats
-        if slot == 1:
-            if i == 0:
-                query = "Black woman close up face shocked expression phone screen"
-            elif i == 1:
-                query = "Nigerian woman stressed worried close up face phone"
+        # Problem beat: rotate through 4 close-up styles so the opening visual varies daily
+        if i == 1:
+            query = _closeup_query(pillar, slot)
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
         raw    = TEMP / f"{prefix}_raw_{i}.mp4"
@@ -1860,6 +2104,25 @@ def render_video(content: dict, slot: int, output_path: str,
                 if top_caption and proc.exists():
                     _apply_caption_overlay(proc, top_caption)
                 print(f"    Clip 0: text-card hook [{len(text.split())} words]")
+
+        # ── Remix: try an eligible archived clip for this beat ───────────────────
+        if (_remix_mode and not got_video and i > 0
+                and beat in _remix_pool and _recycled_this_render < _max_recycled):
+            for _rc in _remix_pool[beat]:
+                remix_raw = TEMP / f"{prefix}_remix_{i}.mp4"
+                if _download_remix_clip(_rc["clip_id"], _rc["source"], remix_raw):
+                    if _process_clip(remix_raw, proc, beat, text, beat_style, top_caption=top_caption):
+                        got_video             = True
+                        _recycled_this_render += 1
+                        _remix_ids.append(_rc["clip_id"])
+                        # Also block from being reused within this render
+                        used_ids.add(_rc["clip_id"])
+                        own_ids.add(_rc["clip_id"])   # include in local log
+                        print(f"    Clip {i} [Remix]: reused {_rc['clip_id']} ({_rc['source']}) "
+                              f"— {_recycled_this_render}/{_max_recycled} recycled")
+                        remix_raw.unlink(missing_ok=True)
+                        break
+                remix_raw.unlink(missing_ok=True)
 
         # ── Priority 0: User-provided clips ──────────────────────────────────────
         # Skipped when user_clips_disabled=true in client_profile.json (e.g. to avoid
@@ -1931,6 +2194,7 @@ def render_video(content: dict, slot: int, output_path: str,
         if clip_info:
             used_ids.add(clip_info["id"])
             own_ids.add(clip_info["id"])
+            own_clips.append({"clip_id": str(clip_info["id"]), "source": clip_info.get("source", "pexels"), "beat_type": beat, "scene_desc": query})
             if _download_clip(clip_info["url"], raw):
                 if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
@@ -1957,6 +2221,7 @@ def render_video(content: dict, slot: int, output_path: str,
                 if clip_info:
                     used_ids.add(clip_info["id"])
                     own_ids.add(clip_info["id"])
+                    own_clips.append({"clip_id": str(clip_info["id"]), "source": clip_info.get("source", "pexels"), "beat_type": beat, "scene_desc": alt_q})
                     if _download_clip(clip_info["url"], raw):
                         if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                             got_video = True
@@ -1988,13 +2253,17 @@ def render_video(content: dict, slot: int, output_path: str,
                 veo_prompt = veo_prompts[i].get("full_prompt", "") if isinstance(veo_prompts[i], dict) else ""
             if not veo_prompt:
                 beat_mood = {
-                    "hook":       "dramatic tense scene medium shot",
-                    "problem":    "frustrated worried scene medium shot",
-                    "stakes":     "emotional charged moment medium shot",
-                    "resolution": "warm hopeful relief scene medium shot",
-                    "lesson_pre": "confident aspirational wide shot",
-                }.get(beat, "cinematic medium shot")
-                veo_prompt = f"{query}. {beat_mood}. 4 seconds. Vertical 9:16 portrait."
+                    "hook":       "handheld push-in, subject in motion, rack focus from background to hands or phone, micro-expression reaction",
+                    "problem":    "handheld tracking as subject moves, rack focus on hands or screen, subject turns mid-step",
+                    "stakes":     "slow push-in as subject reacts, foreground element drifts past, emotional handheld movement",
+                    "resolution": "camera follows subject as tension releases, gentle pull-back, warm natural movement",
+                    "lesson_pre": "tracking shot beside subject walking confidently, smooth pull-out, wide daylight",
+                }.get(beat, "handheld movement, subject in motion, camera follows action")
+                veo_prompt = (
+                    f"{query}. {beat_mood}. "
+                    f"Contains continuous movement throughout — no static holds. "
+                    f"4 seconds. Vertical 9:16 portrait."
+                )
             veo_raw = TEMP / f"{prefix}_veo_{i}.mp4"
             print(f"    Clip {i}: trying Google Veo")
             if _veo_video_as_clip(beat, veo_prompt, veo_raw):
@@ -2029,6 +2298,7 @@ def render_video(content: dict, slot: int, output_path: str,
             if clip_info:
                 used_ids.add(clip_info["id"])
                 own_ids.add(clip_info["id"])
+                own_clips.append({"clip_id": str(clip_info["id"]), "source": clip_info.get("source", "pexels"), "beat_type": beat, "scene_desc": transport_q})
                 if _download_clip(clip_info["url"], raw):
                     if _process_clip(raw, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
@@ -2118,6 +2388,7 @@ def render_video(content: dict, slot: int, output_path: str,
     print("    Concatenating clips...")
     if not _concat_clips(proc_clips, joined):
         print("  [Render] Concat failed")
+        MUSIC_DIR, MUSIC_ARCHIVE = _orig_music_dir, _orig_music_archive
         return False, set()
 
     print("    Adding progress bar...")
@@ -2189,14 +2460,23 @@ def render_video(content: dict, slot: int, output_path: str,
         size_mb = Path(output_path).stat().st_size // 1_048_576
         print(f"  [Render-{version.upper()}] Done {size_mb}MB -> {output_path}")
         if own_ids:
-            _save_video_log(own_ids)
+            _save_video_log(own_ids)   # local fallback
             print(f"  [Render-{version.upper()}] Logged {len(own_ids)} clip IDs (14-day cooldown)")
+        if own_clips:
+            # Filter out remix IDs from Supabase upsert (they're handled by mark_clips_remixed)
+            new_clips_only = [c for c in own_clips if c["clip_id"] not in _remix_ids]
+            _save_clips_supabase(new_clips_only, pillar, _video_origin)
+            _prune_old_clips()
+        if _remix_ids:
+            _mark_clips_remixed(_remix_ids)
+            print(f"  [Remix] Logged {len(_remix_ids)} remixed clips (reuse_count+1, cooldown reset)")
         used_user_clips: set = getattr(render_video, "_used_user_clips_this_run", set())
         if used_user_clips:
             _log_user_clips_used(used_user_clips)
             print(f"  [Render-{version.upper()}] Logged {len(used_user_clips)} user clip(s) ({_USER_CLIP_COOLDOWN_DAYS}-day cooldown)")
     else:
         print(f"  [Render-{version.upper()}] Output missing or too small")
+    MUSIC_DIR, MUSIC_ARCHIVE = _orig_music_dir, _orig_music_archive
     return ok, own_ids
 
 

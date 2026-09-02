@@ -324,84 +324,84 @@ def _build_specificity_block(story: dict) -> str:
 # The Scene Planner AI uses these as hard constraints when writing search queries.
 PILLAR_BLUEPRINTS = {
     "supply_chain": [
-        "CLOSE-UP Black British woman face — reading expensive courier price on phone — vertical portrait shot",  # hook
+        "Black British woman — over shoulder reading expensive courier price on phone — vertical shot",          # hook (note: clip 0 is always a text card; this query guides the AI style only)
         "African woman on phone call frustrated at high delivery price — medium shot",                           # problem
         "Nigerian woman upset at laptop courier website expensive price — medium shot",                          # stakes
         "Black man at train station handing small parcel to traveller smiling — wide shot",                      # resolution
         "Nigerian woman smiling at door receiving parcel — warm handover wide shot",                             # lesson
     ],
     "family": [
-        "CLOSE-UP beautiful African woman dancing confidently indoors — joyful big smile lifestyle — vertical portrait shot",   # hook
-        "Black woman at courier counter reacting to expensive price — medium shot",                                            # problem
-        "African woman upset on phone at home deadline approaching — medium shot",                                             # stakes
-        "Black man at train station handing small parcel to traveller — friendly wide shot",                                   # resolution
-        "Nigerian family member smiling receiving parcel at door — warm wide shot",                                            # lesson
+        "Black woman hands typing stressed message on phone — close up vertical portrait shot",                  # hook
+        "Black woman at courier counter reacting to expensive price — medium shot",                              # problem
+        "African woman upset on phone at home deadline approaching — medium shot",                               # stakes
+        "Black man at train station handing small parcel to traveller — friendly wide shot",                     # resolution
+        "Nigerian family member smiling receiving parcel at door — warm wide shot",                              # lesson
     ],
     "airport": [
-        "CLOSE-UP Black traveller face — stressed expression checking phone at airport departures — vertical portrait shot",  # hook
-        "Nigerian woman stressed at airport counter overweight luggage — medium shot",                                        # problem
-        "African traveller at departure gate worried about parcel — medium shot",                                             # stakes
-        "Black traveller handing parcel to sender at airport gate smiling — wide shot",                                      # resolution
-        "Airport arrivals hall — African family reunion confident smiling — wide shot",                                       # lesson
+        "Black traveller direct camera speaking worried — animated emotional — vertical portrait shot",          # hook
+        "Nigerian woman stressed at airport counter overweight luggage — medium shot",                           # problem
+        "African traveller at departure gate worried about parcel — medium shot",                                # stakes
+        "Black traveller handing parcel to sender at airport gate smiling — wide shot",                         # resolution
+        "Airport arrivals hall — African family reunion confident smiling — wide shot",                          # lesson
     ],
     "airport_deliveries": [
-        "CLOSE-UP Black woman face — deeply worried holding prescription urgent — vertical portrait shot",        # hook
+        "Nigerian woman hands holding prescription urgent — close up vertical portrait shot",                     # hook
         "African man on phone call worried explaining urgent medical problem — medium shot",                      # problem
         "Nigerian family member anxious waiting at home deadline urgent — medium shot",                           # stakes
         "Black traveller at train station receiving small medical parcel smiling — wide shot",                    # resolution
         "Black person at door receiving parcel relief smiling — warm medium shot",                                # lesson
     ],
     "community": [
-        "CLOSE-UP Nigerian woman face — animated emotional expression talking phone — vertical portrait shot",    # hook
+        "Nigerian woman direct camera talking animated emotional — vertical portrait shot",                       # hook
         "African woman stressed on phone expensive courier problem — medium shot",                                # problem
         "Two Black people community cafe discussing urgent parcel problem — medium shot",                         # stakes
         "Black traveller at train station receiving parcel from community member — wide shot",                    # resolution
         "Black family happy handover at door smiling recipient — warm wide shot",                                 # lesson
     ],
     "smart": [
-        "CLOSE-UP Black British professional face — checking phone earnings app pleased — vertical portrait shot", # hook
-        "Nigerian woman frustrated expensive courier quote on laptop — medium shot",                               # problem
-        "African man at train station worried about parcel timing — medium shot",                                  # stakes
-        "Nigerian woman handing small parcel to traveller at station smiling — wide shot",                         # resolution
-        "Black traveller arriving confidently Lagos airport — wide shot",                                          # lesson
+        "Black British professional over shoulder checking phone earnings app — vertical portrait shot",          # hook
+        "Nigerian woman frustrated expensive courier quote on laptop — medium shot",                              # problem
+        "African man at train station worried about parcel timing — medium shot",                                 # stakes
+        "Nigerian woman handing small parcel to traveller at station smiling — wide shot",                        # resolution
+        "Black traveller arriving confidently Lagos airport — wide shot",                                         # lesson
     ],
     "travel_hacks": [
-        "CLOSE-UP Black men at gym talking laughing excited — energetic confident lifestyle — vertical portrait shot",  # hook
-        "Nigerian woman frustrated expensive courier price phone — medium shot",                                        # problem
-        "African traveller at departure gate worried about parcel — medium shot",                                       # stakes
-        "Black traveller receiving small parcel from sender at station smiling — wide shot",                            # resolution
-        "Nigerian person at door receiving parcel smiling relief — wide shot",                                          # lesson
+        "Black men at gym talking laughing excited — energetic confident lifestyle — vertical portrait shot",     # hook
+        "Nigerian woman frustrated expensive courier price phone — medium shot",                                  # problem
+        "African traveller at departure gate worried about parcel — medium shot",                                 # stakes
+        "Black traveller receiving small parcel from sender at station smiling — wide shot",                      # resolution
+        "Nigerian person at door receiving parcel smiling relief — wide shot",                                    # lesson
     ],
     "logistics_stories": [
-        "CLOSE-UP Black woman face — reading expensive courier price quote shocked — vertical portrait shot",     # hook
+        "African woman hands scrolling expensive courier website — close up vertical portrait shot",              # hook
         "African man on phone frustrated logistics delay — medium shot",                                          # problem
         "Nigerian woman at courier counter stressed deadline — medium shot",                                      # stakes
         "Black traveller at airport handing parcel to recipient smiling — wide shot",                             # resolution
         "Nigerian woman smiling receiving parcel at door — medium shot",                                          # lesson
     ],
     "cost_pain": [
-        "CLOSE-UP Nigerian woman face — staring at expensive courier website shocked — vertical portrait shot",   # hook
+        "Nigerian woman direct camera speaking upset expensive price — vertical portrait shot",                   # hook
         "Black woman at courier counter reacting to high delivery price — medium shot",                           # problem
         "African man on phone upset about delivery cost deadline — medium shot",                                  # stakes
         "Black traveller and Nigerian sender at station parcel handover smiling — wide shot",                     # resolution
         "Black woman smiling happy with affordable delivery — medium shot",                                       # lesson
     ],
     "cultural_earn": [
-        "CLOSE-UP Black British traveller face — excited expression at Heathrow lounge — vertical portrait shot", # hook
-        "Nigerian woman frustrated expensive courier quote on phone — medium shot",                                # problem
-        "African traveller at airport gate with empty bag space realising — medium shot",                          # stakes
-        "Two Black people parcel handover at station both smiling mutual benefit — wide shot",                     # resolution
+        "Black British traveller over shoulder checking phone at Heathrow lounge — vertical portrait",            # hook
+        "Nigerian woman frustrated expensive courier quote on phone — medium shot",                               # problem
+        "African traveller at airport gate with empty bag space realising — medium shot",                         # stakes
+        "Two Black people parcel handover at station both smiling mutual benefit — wide shot",                    # resolution
         "Black traveller arriving Lagos accomplished confident — wide shot",                                       # lesson
     ],
     "urgent_medical": [
-        "CLOSE-UP Nigerian woman face — deeply worried holding prescription urgent — vertical portrait shot",     # hook
+        "Nigerian woman hands holding prescription urgent worried — close up vertical portrait",                  # hook
         "African man at pharmacy medication unavailable worried — medium shot",                                    # problem
-        "Nigerian family member on video call anxious urgent deadline — medium shot",                              # stakes
+        "Nigerian family member on video call anxious urgent deadline — medium shot",                             # stakes
         "Black traveller at train station receiving medical parcel from sender — wide shot",                       # resolution
         "Nigerian woman at door receiving medication parcel relief smiling — medium shot",                         # lesson
     ],
     "brand_authority": [
-        "CLOSE-UP Black British professional face — confident warm smile London office — vertical portrait shot", # hook
+        "Black British professional direct camera confident warm smile — vertical portrait shot",                 # hook
         "Nigerian woman frustrated expensive courier options on laptop — medium shot",                             # problem
         "African man on phone comparing delivery costs stressed — medium shot",                                    # stakes
         "African man and Black woman professional parcel handover smiling — wide shot",                            # resolution
@@ -448,10 +448,11 @@ SCENE BLUEPRINT — follow this order EXACTLY. Each query must visually match it
 {airport_rule}{specificity_block}
 
 RULES FOR EVERY QUERY (non-negotiable):
-- Maximum 6 words per query
-- Scene 0 (hook): MUST be a close-up with a face/emotion descriptor — this stops the scroll
+- Maximum 7 words per query
+- Scene 0 (hook): MUST imply movement or action — hands doing something, subject mid-step, over-shoulder angle, reaction mid-happening. NEVER a face held still staring at camera.
 - Scenes 1–4: ALWAYS use "medium shot" OR "wide shot" — no exceptions
-- NEVER use "face only" as the entire query — always include ethnicity and emotion
+- ALL shots must imply the subject is mid-action, not posing or standing still
+- NEVER write a close-up query that is just a face filling the screen — include what the hands/body are doing or use an over-shoulder angle
 - NEVER use animals: dog, cat, horse, farm, zoo, bird, wildlife, livestock
 - NEVER use food: restaurant, kitchen, grocery, meal, cooking, cafe
 - NEVER use Christmas, Halloween, pumpkin, Santa
@@ -492,15 +493,22 @@ OPENING SCENE RULES (scene 0 — the hook):
   Face shots ARE allowed — but the expression must be natural: smiling, dancing, laughing,
   mid-conversation, confident, proud. Never shocked, worried, or dramatic for the hook.
 
-CORRECT examples:
-  Scene 0 (hook — close-up, varied and energetic):
-    "beautiful African woman dancing confidently indoors lifestyle"
-    "Black men gym talking laughing excited medium shot"
-    "close up African woman dancing joyful big smile"
-    "Black British woman dancing confident lifestyle wide shot"
-    "close up Black British woman airport gate confident"
-    "close up African man laughing phone notification"
-  Scenes 1–4 (medium/wide required):
+CORRECT examples — scene 0 (hook, action-based close-ups that tell the story):
+    "Black woman hands passing parcel close up"
+    "over shoulder Nigerian woman phone notification close up"
+    "traveller departure board then phone reaction"
+    "suitcase zipping hands close up vertical"
+    "Black woman walking talking phone tracking"
+    "parcel label attaching hands close up"
+    "Nigerian woman reaction realising phone close up"
+    "luggage rolling camera tracking beside traveller"
+
+INCORRECT — NEVER write these for scene 0:
+    "close up Nigerian woman face shocked phone"   ← static face, no action
+    "Black woman staring phone close up"           ← staring, not doing
+    "Nigerian woman worried face close up"         ← face only, no movement
+
+Scenes 1–4 (medium/wide required):
     "Nigerian woman post office counter medium shot"
     "African man train station parcel handover wide shot"
     "Black traveller parcel handover station smiling wide shot"
