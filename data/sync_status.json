@@ -1,18 +1,6 @@
 {
   "recent_runs": [
     {
-      "timestamp": "2026-07-24T18:27:32.628580",
-      "slot": 3,
-      "pillar": "smart",
-      "bucket": "cinematic",
-      "results": {
-        "tiktok": true,
-        "instagram": true,
-        "youtube": true
-      },
-      "machine": "laptop"
-    },
-    {
       "timestamp": "2026-07-24T21:26:38.665439",
       "slot": 4,
       "pillar": "brand_authority",
@@ -362,18 +350,29 @@
         "newspaper": true
       },
       "machine": "laptop"
+    },
+    {
+      "timestamp": "2026-08-30T20:00:51.008969",
+      "slot": 2,
+      "pillar": "family",
+      "bucket": "community",
+      "results": {
+        "tiktok": true,
+        "instagram": true,
+        "youtube": true
+      },
+      "machine": "laptop"
     }
   ],
   "last_run": {
-    "timestamp": "2026-08-28T09:11:55.314119",
-    "slot": 1,
-    "pillar": "faith_friday",
-    "bucket": "cinematic",
+    "timestamp": "2026-08-30T20:00:51.008969",
+    "slot": 2,
+    "pillar": "family",
+    "bucket": "community",
     "results": {
       "tiktok": true,
       "instagram": true,
-      "youtube": true,
-      "newspaper": true
+      "youtube": true
     },
     "machine": "laptop"
   }

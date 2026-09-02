@@ -289,7 +289,18 @@ def _run_slot1(profile: dict):
     _log(f"Car: {car.get('year')} {car.get('make')} {car.get('model')} — ${car.get('price', 0):,}")
     _log(f"Hook: {content.get('hook', '')}")
 
-    _log("Step 2: Generating hook clip (dancing/lifestyle opener)...")
+    _log("Step 2a: Refreshing G-Inspired music...")
+    try:
+        import subprocess as _sp
+        _sp.run(
+            [sys.executable, str(BASE / "scripts" / "fetch_trending_music.py"),
+             "--client", "g_inspired"],
+            timeout=300,
+        )
+    except Exception as _me:
+        _log(f"[Music] Refresh skipped: {_me}")
+
+    _log("Step 2b: Generating hook clip (dancing/lifestyle opener)...")
     _hook_clip  = None
     _hook_audio = None
     try:
@@ -309,9 +320,12 @@ def _run_slot1(profile: dict):
     video_file = OUTPUT / f"g_inspired_{ts}.mp4"
 
     try:
+        from config import G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE
         from render_video import render_video
         ok, used_ids = render_video(content, slot=1, output_path=str(video_file), version="v1",
-                                    hook_clip=_hook_clip, hook_audio=_hook_audio)
+                                    hook_clip=_hook_clip, hook_audio=_hook_audio,
+                                    music_dir=G_INSPIRED_MUSIC_DIR,
+                                    music_archive=G_INSPIRED_MUSIC_ARCHIVE)
     except Exception as e:
         _log(f"Render failed: {e}")
         return False

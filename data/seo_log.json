@@ -1,0 +1,47 @@
+{
+  "weeks": [
+    {
+      "date": "01 Sep 2026",
+      "pages": {
+        "Send": {
+          "perf": 0,
+          "seo": 0,
+          "a11y": 0,
+          "bp": 0,
+          "lcp": "\u2014",
+          "fcp": "\u2014",
+          "cls": "\u2014",
+          "tbt": "\u2014"
+        },
+        "Business": {
+          "perf": 0,
+          "seo": 0,
+          "a11y": 0,
+          "bp": 0,
+          "lcp": "\u2014",
+          "fcp": "\u2014",
+          "cls": "\u2014",
+          "tbt": "\u2014"
+        },
+        "Blog": {
+          "perf": 0,
+          "seo": 0,
+          "a11y": 0,
+          "bp": 0,
+          "lcp": "\u2014",
+          "fcp": "\u2014",
+          "cls": "\u2014",
+          "tbt": "\u2014"
+        }
+      },
+      "avg_perf": 0,
+      "avg_seo": 0,
+      "sitemap": {
+        "total": 105,
+        "checked": 47,
+        "ok": 47,
+        "failed": []
+      }
+    }
+  ]
+}

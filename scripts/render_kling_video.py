@@ -96,7 +96,13 @@ def _wrap(text: str, fontsize: int = 52, canvas_w: int = 1080) -> str:
 
 # ── music ─────────────────────────────────────────────────────────────────────
 
-def _pick_music() -> Path | None:
+def _pick_music(slot: int | None = None) -> Path | None:
+    # Prefer the slot-specific daily track fetched by fetch_trending_music.py
+    if slot:
+        slot_track = MUSIC_DIR / f"track_{slot}.mp3"
+        if slot_track.exists() and slot_track.stat().st_size > 10_000:
+            return slot_track
+    # Fallback: any daily track, then archive
     for d in [MUSIC_DIR, MUSIC_ARCHIVE]:
         if d.exists():
             tracks = list(d.glob("*.mp3")) + list(d.glob("*.m4a"))
@@ -184,8 +190,11 @@ def _select_clips(story: dict, clips: list[dict], n_target: int = 1) -> list[dic
         f"Select the single best clip that fits this BootHop story.\n"
         f"Rules:\n"
         f"- Pick the clip with the highest boothop_fit score (>= 7 preferred)\n"
-        f"- The clip should work as a standalone piece — people talking, handing over parcels, travel scenes\n"
-        f"- Do not select clips marked best_use=avoid\n\n"
+        f"- The clip should work as a standalone piece — airport scenes, parcel handovers, travel scenes\n"
+        f"- AVOID clips marked best_use=avoid\n"
+        f"- AVOID extreme close-up face shots or tight portrait clips — prefer wide or medium shots\n"
+        f"- PREFER clips with has_speech=false (text overlays will be added; speech clips clash)\n"
+        f"- PREFER clips with setting=airport or setting=street over indoor studio clips\n\n"
         f"Return ONLY valid JSON: {{\"selected\": [3]}}  (one clip index)"
     )
 
@@ -402,14 +411,17 @@ def render_v2_video(
     TEMP.mkdir(exist_ok=True)
     run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     font   = _font("body")
-    music  = _pick_music()
+    music  = _pick_music(slot=slot)
 
     # Reload text pools so Telegram edits take effect without restarting
     global _AD_OPENING, _AD_HOW_IT_WORKS, _AD_CTA
     _AD_OPENING, _AD_HOW_IT_WORKS, _AD_CTA = _load_ad_texts()
 
-    # ── 1. Get available clips ─────────────────────────────────────────────────
-    clips = available_clips(min_fit=5)
+    # ── 1. Get available clips (min_fit=7 keeps only strong BootHop-relevant clips) ──
+    clips = available_clips(min_fit=7)
+    if not clips:
+        # Soft fallback: widen to fit≥5 rather than abort
+        clips = available_clips(min_fit=5)
     if not clips:
         print("  [V2] No available clips — re-run analyse_kling_library.py")
         return False, {}
@@ -471,12 +483,18 @@ def render_v2_video(
     sub_filter = _subtitle_filter(segments, time_offset=0.0, font=font) if segments else ""
 
     # ── 8. Render 3 platform variants ─────────────────────────────────────────
+    # Use the actual generated story text — hook line and problem as the two
+    # visible text layers.  Falls back to random pools only if story fields absent.
+    story_hook    = story.get("hook", "").strip()
+    story_problem = story.get("problem", "").strip()
     platform_paths = {}
     hook_texts = {
-        "tiktok":    random.choice(_HOOK_TEXTS["tiktok"]),
-        "instagram": random.choice(_HOOK_TEXTS["instagram"]),
-        "youtube":   random.choice(_HOOK_TEXTS["youtube"]),
+        "tiktok":    story_hook    or random.choice(_HOOK_TEXTS["tiktok"]),
+        "instagram": story_hook    or random.choice(_HOOK_TEXTS["instagram"]),
+        "youtube":   story_hook    or random.choice(_HOOK_TEXTS["youtube"]),
     }
+    # Middle layer: story problem beats generic "how it works" copy
+    mid_text  = story_problem or random.choice(_AD_HOW_IT_WORKS)
     brand_msg = random.choice(_BRAND_MSGS)
 
     for platform, hook_text in hook_texts.items():
@@ -485,6 +503,7 @@ def render_v2_video(
             story_mp4  = story_mp4,
             out_path   = out_path,
             hook_text  = hook_text,
+            mid_text   = mid_text,
             brand_msg  = brand_msg,
             sub_filter = sub_filter,
             music      = music,
@@ -510,24 +529,20 @@ def render_v2_video(
 
 
 def _render_platform(
-    story_mp4, out_path, hook_text, brand_msg,
+    story_mp4, out_path, hook_text, mid_text, brand_msg,
     sub_filter, music, font, platform, run_id,
     clip_dur: float, total_dur: float,
 ) -> bool:
     """
     Add brand text overlays to the Kling clip video.
     Audio: original Kling clip audio kept exactly as-is — no music added, no voiceover.
-    Three text layers: opening hook (top) → how it works (middle) → CTA (bottom).
+    Three text layers: story hook (top) → story problem (middle) → CTA (bottom).
     """
-    # ── Three ad text layers ──────────────────────────────────────────────────
-    # All text is word-wrapped so nothing ever overflows the canvas width.
-    # Bottom layer uses h-text_h-padding anchor so wrapped lines stay on screen.
+    font_esc = _esc(font)
 
-    font_esc = _esc(font)   # file path escape (backslash → forward slash)
-
-    # Layer 1 — opening hook at top, shown first 40% of clip
-    hook_end  = min(clip_dur * 0.40, 4.0)
-    opening   = _esc_text(_wrap(random.choice(_AD_OPENING), fontsize=52))
+    # Layer 1 — story hook at top, shown first 40% of clip (max 4s)
+    hook_end = min(clip_dur * 0.40, 4.0)
+    opening  = _esc_text(_wrap(hook_text, fontsize=52))
     layer1 = (
         f"drawtext=fontfile='{font_esc}':text='{opening}'"
         f":fontsize=52:fontcolor=white:bordercolor=black:borderw=4:line_spacing=6"
@@ -535,30 +550,33 @@ def _render_platform(
         f":enable='between(t\\,0\\,{hook_end:.2f})'"
     )
 
-    # Layer 2 — how it works in middle, shown mid-clip
-    mid_start = clip_dur * 0.30
-    mid_end   = clip_dur * 0.72
-    how_text  = _esc_text(_wrap(random.choice(_AD_HOW_IT_WORKS), fontsize=46))
-    layer2 = (
-        f"drawtext=fontfile='{font_esc}':text='{how_text}'"
-        f":fontsize=46:fontcolor=white:bordercolor=black:borderw=3:line_spacing=6"
-        f":x=(w-text_w)/2:y=(h-text_h)/2"
-        f":enable='between(t\\,{mid_start:.2f}\\,{mid_end:.2f})'"
-    )
+    # Layer 2 — story problem in middle (only for clips > 6s, otherwise too crowded)
+    layers = [layer1]
+    if clip_dur > 6.0:
+        mid_start = clip_dur * 0.38
+        mid_end   = clip_dur * 0.72
+        how_text  = _esc_text(_wrap(mid_text, fontsize=46))
+        layer2 = (
+            f"drawtext=fontfile='{font_esc}':text='{how_text}'"
+            f":fontsize=46:fontcolor=white:bordercolor=black:borderw=3:line_spacing=6"
+            f":x=(w-text_w)/2:y=(h-text_h)/2"
+            f":enable='between(t\\,{mid_start:.2f}\\,{mid_end:.2f})'"
+        )
+        layers.append(layer2)
 
-    # Layer 3 — download CTA at bottom, shown last third of clip
-    # y anchored from bottom: (h - text_h - bottom_pad) keeps multi-line text on screen
+    # Layer 3 — CTA at bottom, shown last 35% of clip
     cta_start  = clip_dur * 0.65
     cta_text   = _esc_text(_wrap(random.choice(_AD_CTA), fontsize=50))
-    bottom_pad = int(H * 0.06)   # 6% bottom safe margin
+    bottom_pad = int(H * 0.06)
     layer3 = (
         f"drawtext=fontfile='{font_esc}':text='{cta_text}'"
         f":fontsize=50:fontcolor=white:bordercolor=black:borderw=4:line_spacing=6"
         f":x=(w-text_w)/2:y=h-text_h-{bottom_pad}"
         f":enable='between(t\\,{cta_start:.2f}\\,{clip_dur:.2f})'"
     )
+    layers.append(layer3)
 
-    vf = ",".join([layer1, layer2, layer3])
+    vf = ",".join(layers)
 
     # ── Audio: Kling clip audio + low-volume background music ────────────────
     if music:

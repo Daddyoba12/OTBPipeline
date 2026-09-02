@@ -136,6 +136,10 @@ def _wrap_genz(text: str, max_chars: int = 30) -> tuple[str, str]:
 # Do not reuse until intentionally reintroduced after 6–10 new videos.
 _NEGATIVE_PROMPT = (
     "shocked woman, hand over mouth, wide eyes staring at phone, extreme surprise expression, "
+    "extreme face close-up, face filling entire frame, tight portrait close-up, upward-tilted face close-up, "
+    "face looking directly up into camera, face-up pose, extreme macro face shot, "
+    "person standing completely still staring directly into camera, static face filling screen, "
+    "talking head locked to lens, frozen pose, no movement, static shot, "
     "same face repeated, same hairstyle repeated, same actor as previous video, "
     "low quality, blurry, watermark, text overlay, subtitles, cartoon, animation"
 )
@@ -151,7 +155,7 @@ _THUMBNAIL_HOOKS = [
     "student receiving an important item — university room, emotional moment opening a care package",
     "two friends laughing at a restaurant — upscale restaurant, infectious laughter over a shared moment",
     "traveller collecting payment — airport or departure gate, phone notification showing earnings",
-    "close-up of attractive luggage or packaging — cinematic product shot, premium feel",
+    "wide shot of traveller wheeling luggage through a bright airport concourse — premium, spacious feel",
 ]
 
 _HOOK_CONCEPTS = [
@@ -282,11 +286,24 @@ def _build_kling_prompt(concept: dict, day_index: int = 0) -> str:
         "- Use on-screen text sparingly — do not try to spell BootHop on screen\n"
         "- End on a clean fade to black ready for post-editing\n"
         "- Fast-paced cuts matching the dialogue rhythm\n\n"
+        "Shot framing rules (mandatory):\n"
+        "- Use WIDE or MEDIUM shots only — full body or waist-up at minimum\n"
+        "- NO extreme face close-ups, NO upward-tilted face shots, NO face-up poses\n"
+        "- Keep faces as part of a scene, not the entire frame\n\n"
         "Actor diversity (mandatory):\n"
         "- Cast completely new actors — different face, hairstyle, clothing, age and body type from any previous video\n"
         "- Avoid shocked expressions, hand-over-mouth poses and extreme wide eyes\n"
         "- Use natural, subtle facial reactions — a smile, a raised eyebrow, a quiet nod\n"
         "- Mix genders, ages (20s–50s) and body types across videos\n\n"
+        "Camera and close-up rules:\n"
+        "- Every shot must contain continuous movement — no static locked-off holds\n"
+        "- Close-ups must tell part of the story through action: hands passing a parcel, "
+        "phone screen showing a booking, traveller glancing at departure board then checking phone, "
+        "suitcase being zipped, parcel label being attached, luggage rolling while camera tracks beside it\n"
+        "- When showing a face, introduce micro-action: subject turns their head, reacts to "
+        "something off-screen, begins to smile, glances down then back up — never a face held still\n"
+        "- Camera movement on every shot: push-in, pull-out, rack focus, handheld drift, "
+        "tracking beside subject, foreground element passing through frame\n\n"
         f"Opening thumbnail hook: {thumbnail_hook}"
     )
 
@@ -315,15 +332,30 @@ def _kling_generate_video(prompt: str, negative_prompt: str = "") -> str | None:
             json=payload,
             timeout=30,
         )
-        if r.status_code == 429:
-            body = r.json() if r.headers.get("content-type", "").startswith("application/json") else {}
-            msg  = body.get("message", r.text[:120])
-            print(f"[Kling] ⚠️ ACCOUNT ISSUE ({r.status_code}): {msg}")
-            if "balance" in msg.lower():
-                print("[Kling] → Top up at: https://klingai.com (check wallet)")
+        # Credit/quota errors can come as 429, 402, or 200 with error code in body
+        body = {}
+        if r.headers.get("content-type", "").startswith("application/json"):
+            try:
+                body = r.json()
+            except Exception:
+                pass
+        api_code = body.get("code", 0)
+        api_msg  = body.get("message", "")
+        _NO_CREDIT_CODES = {1002, 1003, 1004, 1005}  # Kling insufficient credit codes
+        _NO_CREDIT_WORDS = ("insufficient", "balance", "credit", "quota", "no credit")
+        is_credit_error = (
+            r.status_code in (402, 429)
+            or api_code in _NO_CREDIT_CODES
+            or any(w in api_msg.lower() for w in _NO_CREDIT_WORDS)
+        )
+        if is_credit_error:
+            print(f"[Kling] ⚠️ NO CREDITS ({r.status_code} code={api_code}): {api_msg or r.text[:120]}")
+            print("[Kling] → Runway fallback will be used")
             return None
-        r.raise_for_status()
-        task_id = r.json().get("data", {}).get("task_id")
+        if r.status_code not in (200, 201):
+            print(f"[Kling] HTTP {r.status_code}: {r.text[:200]}")
+            return None
+        task_id = body.get("data", {}).get("task_id")
         if not task_id:
             print(f"[Kling] No task_id in response: {r.text[:200]}")
             return None
@@ -479,9 +511,14 @@ def _runway_generate_video(prompt: str) -> str | None:
         from runwayml import RunwayML
         client = RunwayML(api_key=RUNWAY_API_KEY)
 
+        runway_prompt = (
+            prompt
+            + "\n\nIMPORTANT: Use wide or medium shots only. "
+            "No extreme face close-ups. No upward-tilted face shots. No face filling the frame."
+        )
         task = client.text_to_video.create(
             model=RUNWAY_VIDEO_MODEL,
-            prompt_text=prompt,
+            prompt_text=runway_prompt,
             ratio="720:1280",
             duration=RUNWAY_VIDEO_DURATION,
         )
@@ -827,7 +864,6 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
     genz_l1, genz_l2 = _wrap_genz(genz_raw)
     route      = _ffmpeg_text(f"{origin}  to  {dest}")
 
-    photo = _fetch_landmark_photo(journey.get("destinationCity") or dest)
     font  = _ffmpeg_font(_safe_font())
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -853,38 +889,22 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
     ]
     text_chain = ",".join(text_layers)
 
-    if photo and Path(photo).exists():
-        # Background: photo scaled + dark overlay + text
-        filtergraph = (
-            f"[0:v]scale={CARD_W}:{CARD_H}:force_original_aspect_ratio=increase,"
-            f"crop={CARD_W}:{CARD_H},setsar=1,"
-            f"colorchannelmixer=rr=0.3:gg=0.3:bb=0.3:aa=1[bg];"
-            f"[bg]{text_chain}[out]"
-        )
-        _ffmpeg(
-            "-loop", "1", "-i", photo,
-            "-filter_complex", filtergraph,
-            "-map", "[out]",
-            "-t", str(CARD_DURATION),
-            "-r", "30",
-            "-pix_fmt", "yuv420p",
-            str(out_path),
-        )
-    else:
-        # Fallback: coloured card when photo unavailable
-        filtergraph = (
-            f"color=c=0x0d0d18:s={CARD_W}x{CARD_H}:r=30[bg];"
-            f"[bg]{text_chain}[out]"
-        )
-        _ffmpeg(
-            "-f", "lavfi", "-i", f"color=c=0x0d0d18:s={CARD_W}x{CARD_H}:r=30",
-            "-filter_complex", filtergraph,
-            "-map", "[out]",
-            "-t", str(CARD_DURATION),
-            "-r", "30",
-            "-pix_fmt", "yuv420p",
-            str(out_path),
-        )
+    # Gradient-feel background: deep navy + subtle indigo overlay (no Pexels photos)
+    # [0:v] is the dark navy colour source from -f lavfi -i
+    filtergraph = (
+        f"[0:v]drawbox=x=0:y=0:w={CARD_W}:h={CARD_H//3}:color=0x0d1045@0.7:t=fill[bg];"
+        f"[bg]drawbox=x=0:y={CARD_H*2//3}:w={CARD_W}:h={CARD_H//3}:color=0x1a0840@0.5:t=fill[bgf];"
+        f"[bgf]{text_chain}[out]"
+    )
+    _ffmpeg(
+        "-f", "lavfi", "-i", f"color=c=0x08081e:s={CARD_W}x{CARD_H}:r=30",
+        "-filter_complex", filtergraph,
+        "-map", "[out]",
+        "-t", str(CARD_DURATION),
+        "-r", "30",
+        "-pix_fmt", "yuv420p",
+        str(out_path),
+    )
 
     return str(out_path)
 
@@ -893,7 +913,13 @@ def _render_journey_card(journey: dict, out_path: Path) -> str:
 # SECTION 7 — Music picker
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def _pick_music() -> str | None:
+def _pick_music(slot: int | None = None) -> str | None:
+    # Prefer the slot-specific daily track fetched by fetch_trending_music.py
+    if slot:
+        slot_track = Path(str(MUSIC_DIR)) / f"track_{slot}.mp3"
+        if slot_track.exists() and slot_track.stat().st_size > 10_000:
+            return str(slot_track)
+    # Fallback: any daily track, then archive
     for folder in [MUSIC_DIR, MUSIC_ARCHIVE]:
         if not Path(str(folder)).exists():
             continue
@@ -1168,8 +1194,8 @@ def run_kling_production(slot: int = 1) -> str | None:
             else:
                 print("[Kling] Hook audio unavailable — hook section will use music only")
 
-    # ── 6. Pick music
-    music = _pick_music()
+    # ── 6. Pick music (slot-specific daily track first, then fallback)
+    music = _pick_music(slot=slot)
     if music:
         print(f"[Kling] Music: {Path(music).name}")
     else:

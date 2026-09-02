@@ -302,6 +302,41 @@ def _push_ran_signal_to_oracle():
         pass  # Oracle offline — backup cron will run, which is the intended behaviour
 
 
+def _sync_music_to_oracle():
+    """
+    SCP today's daily music tracks to Oracle after laptop downloads them.
+    Oracle's cron uses --archive-only, so it never downloads from SoundCloud.
+    This push ensures Oracle always has the freshest tracks without needing internet access.
+    Only runs from Windows laptop (Oracle never calls this).
+    """
+    import os
+    if os.name != "nt":
+        return
+    key = Path.home() / ".ssh" / "oracle_boothop.pem"
+    if not key.exists():
+        return
+    daily_dir = BASE / "music" / "daily"
+    tracks    = list(daily_dir.glob("track_*.mp3"))
+    if not tracks:
+        return
+    oracle = "ubuntu@140.238.73.32"
+    dest   = "/opt/otb_pipeline/music/daily/"
+    pushed = 0
+    for t in sorted(tracks):
+        try:
+            subprocess.run(
+                ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
+                 "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
+                 str(t), f"{oracle}:{dest}"],
+                timeout=30, capture_output=True,
+            )
+            pushed += 1
+        except Exception as e:
+            _log(f"[Music sync] {t.name} SCP failed: {e}")
+    if pushed:
+        _log(f"[Music sync] Pushed {pushed} track(s) to Oracle")
+
+
 def _tg_send(text: str) -> None:
     """Quick Telegram send without reply markup."""
     import requests
@@ -387,6 +422,9 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
             ok = run_v2(slot=slot, force=force)
             if ok:
                 _log(f"V2 slot {slot} completed successfully")
+                _mark_ran_today(slot)
+                _claim_slot_supabase(slot)
+                _push_ran_signal_to_oracle()
                 return
             else:
                 _log(f"V2 slot {slot} failed — falling back to V1")
@@ -435,6 +473,7 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
                 _log(f"Music ready: {[t['title'][:40] for t in tracks]}")
                 lines = [f"  [{t.get('source','?')[:8]}] {t['title'][:45]}" for t in tracks]
                 _tg_send("🎵 Music refresh done:\n" + "\n".join(lines))
+                _sync_music_to_oracle()
         except Exception as e:
             _log(f"Music refresh failed (pipeline will use yesterday's tracks): {e}")
             _tg_send(f"⚠️ Music refresh failed — using yesterday's tracks\n{e}")

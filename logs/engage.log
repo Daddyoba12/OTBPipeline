@@ -1008,3 +1008,86 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [08:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
 [08:00:07] [Engage] YouTube done — 0 replies sent
 [08:00:07] [Engage] === Engagement run complete ===
+[22:14:52] [Engage] === Engagement run starting ===
+[22:14:58] [Engage] Instagram done — 0 replies sent
+[22:14:59] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[22:14:59] [Engage] YouTube done — 0 replies sent
+[22:14:59] [Engage] === Engagement run complete ===
+[00:00:02] [Engage] === Engagement run starting ===
+[00:00:06] [Engage] Instagram done — 0 replies sent
+[00:00:09] [Engage] YouTube done — 0 replies sent
+[00:00:09] [Engage] === Engagement run complete ===
+[02:00:02] [Engage] === Engagement run starting ===
+[02:00:05] [Engage] Instagram done — 0 replies sent
+[02:00:08] [Engage] YouTube done — 0 replies sent
+[02:00:08] [Engage] === Engagement run complete ===
+[04:00:02] [Engage] === Engagement run starting ===
+[04:00:05] [Engage] Instagram done — 0 replies sent
+[04:00:07] [Engage] YouTube done — 0 replies sent
+[04:00:07] [Engage] === Engagement run complete ===
+[06:00:02] [Engage] === Engagement run starting ===
+[06:00:06] [Engage] Instagram done — 0 replies sent
+[06:00:09] [Engage] YouTube done — 0 replies sent
+[06:00:09] [Engage] === Engagement run complete ===
+[08:00:02] [Engage] === Engagement run starting ===
+[08:00:06] [Engage] Instagram done — 0 replies sent
+[08:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[08:00:07] [Engage] YouTube done — 0 replies sent
+[08:00:07] [Engage] === Engagement run complete ===
+[10:00:02] [Engage] === Engagement run starting ===
+[10:00:06] [Engage] Instagram done — 0 replies sent
+[10:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[10:00:07] [Engage] YouTube done — 0 replies sent
+[10:00:07] [Engage] === Engagement run complete ===
+[18:25:30] [Engage] === Engagement run starting ===
+[18:25:44] [Engage] Instagram done — 0 replies sent
+[18:25:49] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[18:25:49] [Engage] YouTube done — 0 replies sent
+[18:25:49] [Engage] === Engagement run complete ===
+[20:44:13] [Engage] === Engagement run starting ===
+[20:44:13] [Engage] IG comments fetch error (18128709745709401): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18128709745709401/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (17968847775139514): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/17968847775139514/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (18163542259415896): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18163542259415896/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (18025796735887170): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18025796735887170/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (18014600570928585): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18014600570928585/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (18140792488591568): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18140792488591568/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] IG comments fetch error (18068706650741166): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18068706650741166/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGI4dVBJNmIzZADRzQjNnTFRpNWFCS0ZAKNVlTNDVKZA3BFTF9Eb3JJbm1KMzQtWmdocmZAGcjVvNXZAoaEhKVzY3dXBrb2QzblVKOVFjLVlNdDdVS1RMdGROT2x2TWlKei10SkRzSGozRmRB (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] Instagram done — 0 replies sent
+[20:44:13] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+[20:44:13] [Engage] No YT token — skipping YouTube
+[20:44:13] [Engage] === Engagement run complete ===
+[09:27:33] [Engage] === Engagement run starting ===
+[09:27:39] [Engage] Instagram done — 0 replies sent
+[09:27:40] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[09:27:41] [Engage] YouTube done — 0 replies sent
+[09:27:41] [Engage] === Engagement run complete ===
+[10:00:02] [Engage] === Engagement run starting ===
+[10:00:06] [Engage] Instagram done — 0 replies sent
+[10:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[10:00:07] [Engage] YouTube done — 0 replies sent
+[10:00:07] [Engage] === Engagement run complete ===
+[15:38:01] [Engage] === Engagement run starting ===
+[15:38:07] [Engage] Instagram done — 0 replies sent
+[15:38:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[15:38:08] [Engage] YouTube done — 0 replies sent
+[15:38:08] [Engage] === Engagement run complete ===
+[16:00:02] [Engage] === Engagement run starting ===
+[16:00:06] [Engage] Instagram done — 0 replies sent
+[16:00:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[16:00:06] [Engage] YouTube done — 0 replies sent
+[16:00:06] [Engage] === Engagement run complete ===
+[18:00:02] [Engage] === Engagement run starting ===
+[18:00:05] [Engage] Instagram done — 0 replies sent
+[18:00:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[18:00:06] [Engage] YouTube done — 0 replies sent
+[18:00:06] [Engage] === Engagement run complete ===
+[20:00:02] [Engage] === Engagement run starting ===
+[20:00:06] [Engage] Instagram done — 0 replies sent
+[20:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[20:00:07] [Engage] YouTube done — 0 replies sent
+[20:00:07] [Engage] === Engagement run complete ===
+[14:02:58] [Engage] === Engagement run starting ===
+[14:03:05] [Engage] Instagram done — 0 replies sent
+[14:03:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[14:03:06] [Engage] YouTube done — 0 replies sent
+[14:03:06] [Engage] === Engagement run complete ===

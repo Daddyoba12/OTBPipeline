@@ -32,7 +32,7 @@ if _platform.system() == "Windows":
         if Path(_fp).exists() and _fp not in os.environ.get("PATH", ""):
             os.environ["PATH"] = _fp + os.pathsep + os.environ.get("PATH", "")
 
-from config import DATA, MUSIC_ARCHIVE
+from config import DATA, MUSIC_ARCHIVE, G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE
 
 DAILY_DIR = BASE / "music" / "daily"
 ARCHIVE   = MUSIC_ARCHIVE
@@ -40,9 +40,17 @@ TMP_DIR   = DAILY_DIR / "_tmp"
 MUSIC_LOG = DATA / "music_log.json"
 INFO_FILE = DAILY_DIR / "daily_info.json"
 
+# G-Inspired Automall — separate music dirs and log
+GI_DAILY_DIR = G_INSPIRED_MUSIC_DIR
+GI_ARCHIVE   = G_INSPIRED_MUSIC_ARCHIVE
+GI_MUSIC_LOG = DATA / "gi_music_log.json"
+GI_INFO_FILE = GI_DAILY_DIR / "daily_info.json"
+
 DAILY_DIR.mkdir(parents=True, exist_ok=True)
 ARCHIVE.mkdir(parents=True, exist_ok=True)
 TMP_DIR.mkdir(parents=True, exist_ok=True)
+GI_DAILY_DIR.mkdir(parents=True, exist_ok=True)
+GI_ARCHIVE.mkdir(parents=True, exist_ok=True)
 
 
 # ── Per-slot SoundCloud search queries ────────────────────────────────────────
@@ -84,26 +92,41 @@ SLOT_QUERIES = {
     ],
 }
 
+# G-Inspired Automall — US R&B / Hip-Hop / Pop (car dealership vibes)
+GI_SLOT_QUERIES = {
+    1: [  # Morning — upbeat R&B / pop energy for car promo
+        "SZA 2026 official",
+        "Bruno Mars 2026 official",
+        "The Weeknd 2026 official",
+        "Khalid 2026 official",
+        "Benson Boone 2026",
+        "Sabrina Carpenter 2026 official",
+        "Doja Cat 2026 official",
+    ],
+}
+
 
 # ── Music log helpers ──────────────────────────────────────────────────────────
 
-def _load_log() -> list:
-    if MUSIC_LOG.exists():
+def _load_log(log_file: Path | None = None) -> list:
+    f = log_file or MUSIC_LOG
+    if f.exists():
         try:
-            return json.loads(MUSIC_LOG.read_text(encoding="utf-8"))
+            return json.loads(f.read_text(encoding="utf-8"))
         except Exception:
             pass
     return []
 
 
-def _save_log(entry: dict):
-    log = _load_log()
+def _save_log(entry: dict, log_file: Path | None = None):
+    f   = log_file or MUSIC_LOG
+    log = _load_log(f)
     log.append(entry)
-    MUSIC_LOG.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
+    f.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
 
 
-def _used_recently(title: str, days: int = 14) -> bool:
-    log    = _load_log()
+def _used_recently(title: str, days: int = 14, log_file: Path | None = None) -> bool:
+    log    = _load_log(log_file)
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     return any(
         e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
@@ -111,8 +134,8 @@ def _used_recently(title: str, days: int = 14) -> bool:
     )
 
 
-def _used_yesterday(title: str) -> bool:
-    log    = _load_log()
+def _used_yesterday(title: str, log_file: Path | None = None) -> bool:
+    log    = _load_log(log_file)
     cutoff = (datetime.now() - timedelta(days=2)).isoformat()
     return any(
         e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
@@ -203,7 +226,7 @@ def _has_audio(path: Path, min_db: float = -60.0) -> bool:
 
 # ── SoundCloud downloader ──────────────────────────────────────────────────────
 
-def _download_soundcloud(query: str, raw_out: Path) -> dict | None:
+def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None) -> dict | None:
     """
     Search SoundCloud for a track matching query and download it.
     Uses yt-dlp scsearch — no cookies, no YouTube, no auth required.
@@ -258,7 +281,7 @@ def _download_soundcloud(query: str, raw_out: Path) -> dict | None:
     if mp3.stat().st_size < 50_000:
         return None
 
-    if _used_recently(title):
+    if _used_recently(title, log_file=log_file):
         print(f"    [SC] Skip (used recently): {title[:55]}")
         mp3.unlink(missing_ok=True)
         return None
@@ -274,36 +297,39 @@ def _download_soundcloud(query: str, raw_out: Path) -> dict | None:
 
 # ── Archive fallback ───────────────────────────────────────────────────────────
 
-def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set) -> dict | None:
-    tracks = sorted(list(ARCHIVE.glob("*.mp3")) + list(ARCHIVE.glob("*.m4a")))
+def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set,
+                      archive_dir: Path | None = None, log_file: Path | None = None) -> dict | None:
+    ar = archive_dir or ARCHIVE
+    tracks = sorted(list(ar.glob("*.mp3")) + list(ar.glob("*.m4a")))
     if not tracks:
         return None
     day = datetime.now().timetuple().tm_yday
-    # First pass: respect 14-day + yesterday dedup
+    # Strict 14-day gap — never loosen this rule regardless of archive size
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
-        if not _used_recently(t.stem) and not _used_yesterday(t.stem) and t.stem not in used_titles:
+        if not _used_recently(t.stem, log_file=log_file) and t.stem not in used_titles:
             if not _has_audio(t):
                 continue
             shutil.copy2(str(t), str(slot_out))
             return {"title": t.stem, "artist": "archive", "source": "archive"}
-    # Second pass: only block yesterday
-    for offset in range(len(tracks)):
-        t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
-        if not _used_yesterday(t.stem) and t.stem not in used_titles:
-            if not _has_audio(t):
-                continue
-            shutil.copy2(str(t), str(slot_out))
-            return {"title": t.stem, "artist": "archive", "source": "archive"}
-    # No non-repeat track found — do NOT silently reuse yesterday's track
+    # All archive tracks used within 14 days — caller raises RuntimeError
     return None
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
-def fetch_trending_music() -> dict:
-    """Download 3 daily tracks (one per slot). SoundCloud primary, archive fallback."""
-    print("\n[Music] Selecting today's tracks...")
+def fetch_trending_music(archive_only: bool = False) -> dict:
+    """
+    Download 3 daily tracks (one per slot).
+
+    archive_only=True  — skip SoundCloud entirely, pull from local archive only.
+                         Used by Oracle cron so the laptop remains the sole SoundCloud
+                         downloader. Oracle never tries SoundCloud; it only draws from
+                         the archive library with the full 14-day gap enforced.
+    archive_only=False — SoundCloud primary, archive 14-day fallback (laptop default).
+    """
+    mode = "archive-only" if archive_only else "SoundCloud+archive"
+    print(f"\n[Music] Selecting today's tracks ({mode})...")
 
     SLOT_LABELS = {1: "Morning 08:00", 2: "Afternoon 14:00", 3: "Evening 21:00"}
     info = {"date": datetime.now().strftime("%Y-%m-%d"), "tracks": []}
@@ -314,36 +340,40 @@ def fetch_trending_music() -> dict:
         print(f"\n  [Slot {slot_num}] {SLOT_LABELS[slot_num]}")
 
         result = None
-        queries = SLOT_QUERIES.get(slot_num, SLOT_QUERIES[1])
 
-        for query in queries:
-            print(f"    Trying SoundCloud: {query}")
-            raw = TMP_DIR / "raw_download.mp3"
-            meta = _download_soundcloud(query, raw)
-            if not meta:
-                continue
+        # ── SoundCloud download (laptop only) ───────────────────────────────────
+        if not archive_only:
+            queries = SLOT_QUERIES.get(slot_num, SLOT_QUERIES[1])
+            for query in queries:
+                print(f"    Trying SoundCloud: {query}")
+                raw = TMP_DIR / "raw_download.mp3"
+                meta = _download_soundcloud(query, raw, log_file=MUSIC_LOG)
+                if not meta:
+                    continue
 
-            hooked = _extract_hook(raw, slot_out, duration_s=30)
-            raw.unlink(missing_ok=True)
+                hooked = _extract_hook(raw, slot_out, duration_s=30)
+                raw.unlink(missing_ok=True)
 
-            if hooked and slot_out.exists() and _has_audio(slot_out):
-                result = {**meta, "logged_at": datetime.now().isoformat()}
-                used_titles.add(meta["title"])
-                _save_log(result)
-                size = slot_out.stat().st_size // 1024
-                print(f"  [Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
-                break
-            else:
-                slot_out.unlink(missing_ok=True)
+                if hooked and slot_out.exists() and _has_audio(slot_out):
+                    result = {**meta, "logged_at": datetime.now().isoformat()}
+                    used_titles.add(meta["title"])
+                    _save_log(result)
+                    size = slot_out.stat().st_size // 1024
+                    print(f"  [Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
+                    break
+                else:
+                    slot_out.unlink(missing_ok=True)
 
+        # ── Archive fallback (strict 14-day gap) ────────────────────────────────
         if not result:
-            print(f"  [Slot {slot_num}] SoundCloud failed — trying archive")
-            archive_result = _archive_fallback(slot_out, slot_num, used_titles)
+            src = "archive-only" if archive_only else "SoundCloud failed"
+            print(f"  [Slot {slot_num}] {src} — trying archive (14-day gap enforced)")
+            archive_result = _archive_fallback(slot_out, slot_num, used_titles,
+                                              archive_dir=ARCHIVE, log_file=MUSIC_LOG)
             if archive_result is None:
                 msg = (
-                    f"[Music] CRITICAL: Slot {slot_num} — no non-repeat track available. "
-                    f"SoundCloud failed and every archive track was used recently. "
-                    f"Add more tracks to music/archive/ or wait for the 2-day cooldown to expire."
+                    f"[Music] CRITICAL: Slot {slot_num} — no non-repeat track available "
+                    f"within 14-day gap. Add more tracks to music/archive/."
                 )
                 print(msg)
                 raise RuntimeError(msg)
@@ -381,16 +411,90 @@ def _already_fresh_today() -> bool:
         return False
 
 
+def fetch_gi_music(archive_only: bool = False) -> dict:
+    """
+    Download 1 daily track for G-Inspired Automall slot 1.
+    Uses US R&B/hip-hop/pop queries. Writes to g_inspired_music/daily/track_1.mp3.
+    Separate 14-day log (gi_music_log.json) — never mixes with BootHop music log.
+    """
+    mode = "archive-only" if archive_only else "SoundCloud+archive"
+    print(f"\n[GI Music] Selecting G-Inspired track ({mode})...")
+
+    GI_DAILY_DIR.mkdir(parents=True, exist_ok=True)
+    GI_ARCHIVE.mkdir(parents=True, exist_ok=True)
+    TMP_DIR.mkdir(parents=True, exist_ok=True)
+
+    info        = {"date": datetime.now().strftime("%Y-%m-%d"), "tracks": []}
+    used_titles: set = set()
+    slot_num    = 1
+    slot_out    = GI_DAILY_DIR / "track_1.mp3"
+
+    result = None
+
+    if not archive_only:
+        queries = GI_SLOT_QUERIES.get(slot_num, GI_SLOT_QUERIES[1])
+        for query in queries:
+            print(f"    Trying SoundCloud: {query}")
+            raw  = TMP_DIR / "gi_raw.mp3"
+            meta = _download_soundcloud(query, raw, log_file=GI_MUSIC_LOG)
+            if not meta:
+                continue
+            hooked = _extract_hook(raw, slot_out, duration_s=30)
+            raw.unlink(missing_ok=True)
+            if hooked and slot_out.exists() and _has_audio(slot_out):
+                result = {**meta, "logged_at": datetime.now().isoformat()}
+                used_titles.add(meta["title"])
+                _save_log(result, log_file=GI_MUSIC_LOG)
+                size = slot_out.stat().st_size // 1024
+                print(f"  [GI Slot 1] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
+                break
+            else:
+                slot_out.unlink(missing_ok=True)
+
+    if not result:
+        src = "archive-only" if archive_only else "SoundCloud failed"
+        print(f"  [GI Slot 1] {src} — trying G-Inspired archive (14-day gap)")
+        archive_result = _archive_fallback(slot_out, slot_num, used_titles,
+                                           archive_dir=GI_ARCHIVE, log_file=GI_MUSIC_LOG)
+        if archive_result is None:
+            msg = ("[GI Music] CRITICAL: No non-repeat track available. "
+                   "Add tracks to g_inspired_music/archive/.")
+            print(msg)
+            raise RuntimeError(msg)
+        result = archive_result
+        result["logged_at"] = datetime.now().isoformat()
+        _save_log(result, log_file=GI_MUSIC_LOG)
+
+    info["tracks"].append({
+        "slot": 1, "title": result.get("title", "?"),
+        "artist": result.get("artist", "?"), "source": result.get("source", "?"),
+    })
+    GI_INFO_FILE.write_text(json.dumps(info, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"  [GI Music] track_1.mp3 — {result.get('title', '?')[:50]}")
+    return info
+
+
 if __name__ == "__main__":
-    if "--skip-if-fresh" in sys.argv and _already_fresh_today():
+    _archive_only = "--archive-only" in sys.argv
+    _client       = None
+    for _arg in sys.argv:
+        if _arg.startswith("--client="):
+            _client = _arg.split("=", 1)[1].strip()
+        elif _arg == "--client" and sys.argv.index(_arg) + 1 < len(sys.argv):
+            _client = sys.argv[sys.argv.index(_arg) + 1]
+
+    if _client == "g_inspired":
+        fetch_gi_music(archive_only=_archive_only)
+    elif "--skip-if-fresh" in sys.argv and _already_fresh_today():
         print("[Music] Fresh tracks already downloaded today — skipping.")
     else:
-        fetch_trending_music()
+        fetch_trending_music(archive_only=_archive_only)
 
-    # Pre-warm trending hashtags
-    print("\n[Hashtags] Pre-warming trending hashtags...")
-    try:
-        from fetch_trending_hashtags import fetch_today as _fth
-        _fth()
-    except Exception as e:
-        print(f"[Hashtags] Pre-warm failed: {e}")
+    if _client != "g_inspired":
+        # Pre-warm trending hashtags (BootHop only)
+        print("\n[Hashtags] Pre-warming trending hashtags...")
+        try:
+            from fetch_trending_hashtags import fetch_today as _fth
+            _fth()
+        except Exception as e:
+            print(f"[Hashtags] Pre-warm failed: {e}")

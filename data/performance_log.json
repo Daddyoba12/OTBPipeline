@@ -1,44 +1,44 @@
 {
-  "generated_at": "2026-08-24T05:30:50.731047",
+  "generated_at": "2026-09-01T10:28:27.294882",
   "platforms": {
     "youtube": {
-      "count": 28,
-      "total_views": 569,
+      "count": 22,
+      "total_views": 591,
       "by_pillar": {
+        "urgent_medical": {
+          "avg": 61,
+          "count": 1,
+          "total": 61
+        },
         "personal_shopper": {
           "avg": 55,
           "count": 1,
           "total": 55
         },
         "family": {
-          "avg": 38,
-          "count": 3,
-          "total": 113
-        },
-        "urgent_medical": {
-          "avg": 30,
-          "count": 2,
-          "total": 61
+          "avg": 50,
+          "count": 4,
+          "total": 199
         },
         "smart": {
-          "avg": 27,
-          "count": 3,
-          "total": 81
+          "avg": 32,
+          "count": 2,
+          "total": 64
         },
         "airport_deliveries": {
-          "avg": 24,
-          "count": 2,
-          "total": 49
+          "avg": 27,
+          "count": 3,
+          "total": 82
+        },
+        "faith_friday": {
+          "avg": 27,
+          "count": 1,
+          "total": 27
         },
         "travel_hacks": {
           "avg": 21,
           "count": 1,
           "total": 21
-        },
-        "": {
-          "avg": 14,
-          "count": 7,
-          "total": 101
         },
         "cultural_earn": {
           "avg": 14,
@@ -51,36 +51,45 @@
           "total": 14
         },
         "flight_discovery": {
-          "avg": 10,
-          "count": 4,
-          "total": 42
+          "avg": 12,
+          "count": 3,
+          "total": 36
         },
         "airport": {
           "avg": 2,
           "count": 2,
           "total": 4
+        },
+        "founder_story": {
+          "avg": 0,
+          "count": 1,
+          "total": 0
         }
       },
       "by_slot": {
         "2": {
-          "avg": 28,
+          "avg": 36,
           "label": "14:00 afternoon",
-          "count": 9
+          "count": 10
         },
         "3": {
-          "avg": 21,
+          "avg": 26,
           "label": "21:00 evening",
-          "count": 12
+          "count": 8
         },
         "1": {
-          "avg": 8,
+          "avg": 7,
           "label": "08:00 morning",
-          "count": 7
+          "count": 4
         }
       },
       "by_opener": {
         "the courier said ten": {
           "avg": 97,
+          "count": 1
+        },
+        "would you let a": {
+          "avg": 86,
           "count": 1
         },
         "four days. prescribed stockings.": {
@@ -95,21 +104,21 @@
           "avg": 55,
           "count": 1
         },
-        "dad's memory awaits, but": {
-          "avg": 38,
-          "count": 1
-        },
         "the courier said nine": {
           "avg": 33,
           "count": 1
         },
-        "a shirt from his": {
-          "avg": 25,
+        "amara's sister needed her": {
+          "avg": 27,
           "count": 1
         },
         "the shirt was in": {
           "avg": 25,
           "count": 1
+        },
+        "the gown was still": {
+          "avg": 24,
+          "count": 2
         },
         "his father's chieftaincy robes": {
           "avg": 21,
@@ -119,14 +128,6 @@
           "avg": 18,
           "count": 2
         },
-        "signed city shirt. abuja.": {
-          "avg": 17,
-          "count": 1
-        },
-        "her gran's 80th was": {
-          "avg": 16,
-          "count": 1
-        },
         "sixty-five. four days. one": {
           "avg": 15,
           "count": 1
@@ -135,39 +136,43 @@
           "avg": 14,
           "count": 1
         },
-        "daniel kept paying £380": {
-          "avg": 12,
+        "£58 to get a": {
+          "avg": 4,
+          "count": 1
+        },
+        "the courier wanted £59.": {
+          "avg": 4,
           "count": 1
         }
       },
       "by_weekday": {
-        "Sunday": {
-          "avg": 32,
-          "count": 5
-        },
         "Monday": {
-          "avg": 32,
-          "count": 2
+          "avg": 61,
+          "count": 1
+        },
+        "Sunday": {
+          "avg": 40,
+          "count": 5
         },
         "Friday": {
-          "avg": 20,
-          "count": 6
+          "avg": 25,
+          "count": 5
+        },
+        "Tuesday": {
+          "avg": 23,
+          "count": 3
         },
         "Wednesday": {
-          "avg": 19,
-          "count": 5
+          "avg": 21,
+          "count": 4
         },
         "Thursday": {
           "avg": 16,
-          "count": 4
+          "count": 3
         },
         "Saturday": {
-          "avg": 12,
-          "count": 4
-        },
-        "Tuesday": {
-          "avg": 12,
-          "count": 2
+          "avg": 4,
+          "count": 1
         }
       },
       "top_posts": [
@@ -183,6 +188,20 @@
           "pillar": "family",
           "hook": "The courier said ten days. Sunday was five away.",
           "opener": "the courier said ten",
+          "weekday": "Sunday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "cwQq1ENjHpY",
+          "slot": 2,
+          "posted_at": "2026-08-30T19:00:49.186238",
+          "views": 86,
+          "likes": 0,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/cwQq1ENjHpY",
+          "pillar": "family",
+          "hook": "Would you let a stranger carry your dad's birthday gift to Lagos?",
+          "opener": "would you let a",
           "weekday": "Sunday"
         },
         {
@@ -226,20 +245,6 @@
           "hook": "Zara found the bag. Getting it to Lagos? That was the problem.",
           "opener": "zara found the bag.",
           "weekday": "Wednesday"
-        },
-        {
-          "platform": "youtube",
-          "post_id": "O1khq9lwQmw",
-          "slot": 1,
-          "posted_at": "2026-07-26T14:23:48.046279",
-          "views": 38,
-          "likes": 0,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/O1khq9lwQmw",
-          "pillar": "",
-          "hook": "Dad's memory awaits, but time is running out.",
-          "opener": "dad's memory awaits, but",
-          "weekday": "Sunday"
         }
       ]
     }
