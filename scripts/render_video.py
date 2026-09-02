@@ -25,7 +25,7 @@ from config import (
 
 # -- 14-day video clip dedup ---------------------------------------------------
 _VIDEO_LOG = DATA / "video_clip_log.json"
-_VIDEO_COOLDOWN_DAYS = 14
+_VIDEO_COOLDOWN_DAYS = 28
 
 # -- User clip cooldown --------------------------------------------------------
 # Prevents the same user-supplied clip from appearing in consecutive renders.
