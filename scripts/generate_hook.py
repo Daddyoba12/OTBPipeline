@@ -438,9 +438,41 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
     if not audio_ok:
         print(f"  [HookEngine] Nigerian TTS unavailable — hook will be visual-only")
 
-    # ── Log for 14-day dedup ──────────────────────────────────────────────────
+    # ── Log for dedup ─────────────────────────────────────────────────────────
     if video_ok:
         _save_entry(dialogue, scene_query)
+        if clip_info:
+            try:
+                import json as _json
+                from datetime import datetime as _dt
+                _vlog = DATA / "video_clip_log.json"
+                _log = _json.loads(_vlog.read_text()) if _vlog.exists() else []
+                _log.append({"id": str(clip_info["id"]), "logged_at": _dt.now().isoformat()})
+                _vlog.write_text(_json.dumps(_log[-500:], indent=2))
+            except Exception as _le:
+                print(f"  [HookEngine] Local clip log failed: {_le}")
+            try:
+                from push_pipeline_state import SUPABASE_URL as _SU, SUPABASE_KEY as _SK, _HDR as _SH
+                import requests as _rq
+                from datetime import datetime as _dt2, timezone as _tz, timedelta as _td
+                _now = _dt2.now(_tz.utc)
+                _rq.post(
+                    f"{_SU}/rest/v1/otb_clip_library",
+                    headers={**_SH, "Prefer": "resolution=merge-duplicates,return=minimal"},
+                    json=[{
+                        "clip_id":        str(clip_info["id"]),
+                        "source":         clip_info.get("source", "pixabay"),
+                        "beat_type":      "hook",
+                        "scene_desc":     scene_query[:200],
+                        "pillar":         "hook",
+                        "last_used_at":   _now.isoformat(),
+                        "cooldown_until": (_now + _td(days=28)).isoformat(),
+                        "video_origin":   "hook_engine",
+                    }],
+                    timeout=10,
+                )
+            except Exception as _se:
+                print(f"  [HookEngine] Supabase clip log failed: {_se}")
 
     return {
         "video_path":  str(video_dest) if video_ok  else None,

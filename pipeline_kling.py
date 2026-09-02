@@ -190,8 +190,9 @@ def _poll_approval(slot: int, timeout_sec: int) -> str:
                 pass
             time.sleep(3)
 
-    _log("Approval timeout — auto-approving V2 video")
-    return "approve"
+    _log("Approval timeout — V2 slot skipped (no response in window)")
+    _send_text(f"⏱ V2 Slot {slot} — no approval received. Slot SKIPPED.\n\nUse /rerun {slot} to post manually.")
+    return "reject"
 
 
 # ── main pipeline ─────────────────────────────────────────────────────────────
