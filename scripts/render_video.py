@@ -1543,6 +1543,24 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
         return ok and dest.exists() and dest.stat().st_size > 5000
 
 
+# ── Instagram end card constants ───────────────────────────────────────────────
+_IG_END_PALETTE = {"bg": "1A1200", "title": "FFB800", "body": "FFEAA0"}
+_IG_CTA_PHRASES = [
+    "Follow @boothop on Instagram",
+    "Save this + follow @boothop",
+    "Tag someone who needs this",
+    "Share with a traveller ↗",
+]
+
+
+def _make_ig_end_card(lesson: str, client: str, client_profile: dict, dest: Path) -> bool:
+    """Instagram-specific end card: warm amber palette + IG-native CTA phrases."""
+    ig_cp = dict(client_profile)
+    ig_cp["end_card_palettes"] = [_IG_END_PALETTE]
+    ig_cp["cta_phrases"]       = _IG_CTA_PHRASES
+    return _make_merged_end_card(lesson, client, ig_cp, dest)
+
+
 def _add_progress_bar(src: Path, dest: Path) -> bool:
     """Burn a static accent bar at the bottom of the video."""
     import shutil
@@ -2510,6 +2528,20 @@ def _grade_instagram(src: Path, dest: Path) -> bool:
     )
 
 
+def _video_duration(path: Path) -> float:
+    """Return video duration in seconds via ffprobe. Falls back to TOTAL_DUR on error."""
+    import subprocess as _sp
+    try:
+        r = _sp.run(
+            ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", str(path)],
+            capture_output=True, text=True, timeout=15,
+        )
+        return float(r.stdout.strip())
+    except Exception:
+        return float(TOTAL_DUR)
+
+
 def _grade_linkedin(src: Path, dest: Path) -> bool:
     """Cooler, desaturated grade " professional LinkedIn look."""
     return _ff(
@@ -2605,17 +2637,83 @@ def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_onl
         paths["youtube_thumbnail"] = str(thumb_path)
         print(f"  [Render] Thumbnail OK ({thumb_path.stat().st_size // 1024}KB)")
 
-    # "" Instagram warm grade """"""""""""""""""""""""""""""""""""""""""""""""""
-    ig_path = outdir / f"{stem}_ig.mp4"
-    print("  [Render] Applying Instagram grade...")
-    if _grade_instagram(base, ig_path) and ig_path.exists() and ig_path.stat().st_size > 200_000:
+    # ── Instagram: same clips, warm grade on body + IG-branded end card ──────────
+    # TikTok = base (neutral grade).  Instagram = warm grade + amber end card.
+    ig_path    = outdir / f"{stem}_ig.mp4"
+    ig_graded  = outdir / f"{stem}_ig_graded.mp4"
+    ig_body    = outdir / f"{stem}_ig_body.mp4"
+    ig_end     = outdir / f"{stem}_ig_end.mp4"
+    ig_noaudio = outdir / f"{stem}_ig_noaudio.mp4"
+    ig_audio   = outdir / f"{stem}_ig_audio.aac"
+
+    print("  [Render] Building Instagram variant (warm grade + IG end card)...")
+    _ig_ok = False
+    try:
+        # 1. Warm grade the full base video (identical clips, preserves audio)
+        if _grade_instagram(base, ig_graded) and ig_graded.exists() and ig_graded.stat().st_size > 200_000:
+            # 2. Compute body duration — strip the merged end card (LESSON_DUR + BRAND_DUR)
+            total_dur = _video_duration(ig_graded)
+            body_dur  = max(5.0, total_dur - (LESSON_DUR + BRAND_DUR))
+
+            # 3. Trim warm body — video only, no audio
+            body_ok = _ff(
+                "-i", str(ig_graded), "-t", str(body_dur),
+                "-c:v", "libx264", "-crf", "20", "-preset", "fast",
+                "-pix_fmt", "yuv420p", "-an", str(ig_body),
+            )
+
+            # 4. Extract full music track from graded video (fade-out timing intact)
+            audio_ok = _ff(
+                "-i", str(ig_graded), "-vn", "-acodec", "aac", "-b:a", "192k",
+                str(ig_audio),
+            )
+
+            # 5. Render IG-specific end card (warm amber palette, IG CTA phrases)
+            _ig_client = content.get("client", "boothop")
+            try:
+                from cinematographer import load_client_profile as _lcp_ig
+                _ig_cp = _lcp_ig(_ig_client)
+            except Exception:
+                _ig_cp = {}
+            end_ok = _make_ig_end_card(
+                content.get("lesson", ""), _ig_client, _ig_cp, ig_end
+            )
+
+            if body_ok and end_ok and ig_body.exists() and ig_end.exists():
+                # 6. Concat body + IG end card (no audio — handled in step 7)
+                concat_ok = _concat_clips([str(ig_body), str(ig_end)], ig_noaudio)
+
+                if concat_ok and ig_noaudio.exists() and audio_ok and ig_audio.exists():
+                    # 7. Merge video stream + original music audio
+                    merged = _ff(
+                        "-i", str(ig_noaudio), "-i", str(ig_audio),
+                        "-c:v", "copy", "-c:a", "aac", "-b:a", "192k",
+                        "-t", str(total_dur), str(ig_path),
+                    )
+                    if merged and ig_path.exists() and ig_path.stat().st_size > 200_000:
+                        _ig_ok = True
+                        print(f"  [Render] Instagram variant OK "
+                              f"({ig_path.stat().st_size // 1024}KB) — warm grade + IG end card")
+    except Exception as _ige:
+        print(f"  [Render] Instagram variant error: {_ige}")
+
+    # Clean up temp files
+    for _tmp in [ig_graded, ig_body, ig_end, ig_noaudio, ig_audio]:
+        try:
+            _tmp.unlink(missing_ok=True)
+        except Exception:
+            pass
+
+    if not _ig_ok:
+        print("  [Render] IG variant failed — falling back to simple warm grade")
+        ig_path.unlink(missing_ok=True)
+        if _grade_instagram(base, ig_path) and ig_path.exists() and ig_path.stat().st_size > 200_000:
+            _ig_ok = True
+
+    if _ig_ok:
         paths["instagram"]       = str(ig_path)
         paths["instagram_story"] = str(ig_path)
         paths["newspaper"]       = str(ig_path)
-        print(f"  [Render] Instagram grade OK ({ig_path.stat().st_size // 1024}KB)")
-    else:
-        print("  [Render] Instagram grade failed - using base")
-        ig_path.unlink(missing_ok=True)
 
     # "" LinkedIn professional grade + intro card (V1 only) """""""""""""""""""
     if not tiktok_ig_only:

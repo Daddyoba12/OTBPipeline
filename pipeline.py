@@ -58,7 +58,11 @@ from config import (
 CRASH_LOG  = DATA / "pipeline_crash.log"
 STEP_FILE  = DATA / "pipeline_step.txt"
 POST_LOG   = DATA / "post_log.json"
-RAN_TODAY  = DATA / "pipeline_ran_today.json"
+RAN_TODAY     = DATA / "pipeline_ran_today.json"
+PIPELINE_LOCK = DATA / "pipeline.lock"
+# Acceptable run windows per slot (start_hour inclusive, end_hour exclusive, 24=midnight)
+# Prevents Task Scheduler "run missed tasks" pile-up when laptop wakes from sleep.
+SLOT_WINDOWS  = {1: (6, 11), 2: (12, 17), 3: (19, 24), 4: (6, 11)}
 
 
 def _log(msg: str):
@@ -282,6 +286,36 @@ def _mark_ran_today(slot: int):
         pass
 
 
+def _acquire_lock(slot: int) -> bool:
+    """Prevent concurrent slot runs. Returns True if lock acquired, False if already held."""
+    try:
+        if PIPELINE_LOCK.exists():
+            try:
+                info     = json.loads(PIPELINE_LOCK.read_text(encoding="utf-8"))
+                held_at  = datetime.fromisoformat(info.get("locked_at", ""))
+                age_mins = (datetime.now() - held_at).total_seconds() / 60
+                if age_mins < 90:
+                    _log(f"[Lock] Slot {info.get('slot')} locked since {held_at:%H:%M} ({age_mins:.0f}m ago)")
+                    return False
+                _log("[Lock] Stale lock (>90m) — clearing")
+            except Exception:
+                pass  # corrupted lock file — overwrite
+        PIPELINE_LOCK.write_text(
+            json.dumps({"slot": slot, "locked_at": datetime.now().isoformat()}),
+            encoding="utf-8",
+        )
+        return True
+    except Exception:
+        return True  # if lock read/write fails, don't block the run
+
+
+def _release_lock():
+    try:
+        PIPELINE_LOCK.unlink(missing_ok=True)
+    except Exception:
+        pass
+
+
 def _push_ran_signal_to_oracle():
     """Push pipeline_ran_today.json to Oracle so the 1-hour backup cron skips if laptop ran first."""
     import os
@@ -405,6 +439,21 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
     _log(f"OTB_Pipeline — Slot {slot} — {date.today()}")
     _log(f"{'='*56}")
 
+    # ── Time-window guard: prevents missed-task pile-up ────────────────────────
+    if not force:
+        now_h = datetime.now().hour
+        win   = SLOT_WINDOWS.get(slot, (0, 24))
+        if not (win[0] <= now_h < (24 if win[1] >= 24 else win[1])):
+            _log(f"Slot {slot} outside window {win[0]:02d}:00-{win[1]:02d}:00 "
+                 f"(current {now_h:02d}:xx) — skipping. Use --force to override.")
+            _tg_send(f"⏰ Slot {slot} skipped — outside time window (now {now_h:02d}:xx).")
+            return
+
+    # ── Concurrent-run guard: serialises simultaneous Task Scheduler fires ─────
+    if not _acquire_lock(slot):
+        _tg_send(f"🔒 Slot {slot} skipped — pipeline lock held. Try again shortly.")
+        return
+
     _git_pull()  # always sync latest code before running
 
     DATA.mkdir(exist_ok=True)
@@ -425,6 +474,7 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
                 _mark_ran_today(slot)
                 _claim_slot_supabase(slot)
                 _push_ran_signal_to_oracle()
+                _release_lock()
                 return
             else:
                 _log(f"V2 slot {slot} failed — falling back to V1")
@@ -624,6 +674,7 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
         if not ok or not video_file.exists():
             _crash(f"Render failed for slot {slot}")
             _tg_send(f"❌ OTB Slot {slot} — render failed")
+            _release_lock()
             return
 
         _log(f"Render done: {video_file.stat().st_size // 1024}KB  ({len(used_ids)} clips)")
@@ -686,6 +737,7 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
             _log(f"Slot {slot} skipped by operator.")
             _tg_send(f"⏭ Slot {slot} skipped.")
             _clear_step()
+            _release_lock()
             return
 
         if decision == "regen":
@@ -715,6 +767,7 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
 
     if not video_path or not content:
         _tg_send(f"❌ OTB Slot {slot} — no content after {regen_count} attempts")
+        _release_lock()
         return
 
     # ── 8. Platform posting — V1 + V2 on each platform ────────────────────────
@@ -875,6 +928,8 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
             _log("Data sync → Oracle started (background)")
     except Exception as _e:
         _log(f"Data sync warning: {_e}")
+
+    _release_lock()
 
     # ── Clean up platform variant files (copies now in dashboard, safe to remove)
     try:
