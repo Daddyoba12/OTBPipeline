@@ -8898,5 +8898,85 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-09-02"
+  },
+  {
+    "query": "55-year-old nigerian woman london worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "55-year-old african woman courier counter expensive medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "african man phone upset deadline medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "55-year-old nigerian woman train station handover smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "55-year-old african woman happy delivery medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "55-year-old nigerian woman flyer lagos airport wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "african man nigerian woman airport parcel seat wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
+  },
+  {
+    "query": "55-year-old nigerian woman airport relief medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-03"
   }
 ]

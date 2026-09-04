@@ -1,85 +1,5 @@
 [
   {
-    "query": "60-year-old nigerian grandfather phone price shocked dignified medium shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather phone call frustrated delivery cost medium shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather laptop courier website expensive price medium shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather calendar four days deadline worried medium shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather boutique luxury handbag phone call worried wide shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather handing parcel traveller london station smiling wide shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "nigerian woman doorway lagos receiving luxury handbag parcel smiling warm wide shot",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather dignified proud calm smile medium shot lesson",
-    "date": "2026-08-19",
-    "slot": 2
-  },
-  {
-    "query": "60-year-old nigerian grandfather heathrow lounge proud medium shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "nigerian woman frustrated expensive courier quote phone medium shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "60-year-old nigerian grandfather airport gate open luggage realising medium shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "60-year-old nigerian grandfather phone app airport seat wide shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "nigerian woman nottingham street holding gift shirt worried wide shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "black man woman parcel handover train station smiling mutual wide shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "60-year-old nigerian grandfather lagos arrivals hall confident proud wide shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
-    "query": "60-year-old nigerian grandfather lagos family birthday celebration dignified wide shot",
-    "date": "2026-08-19",
-    "slot": 3
-  },
-  {
     "query": "26-year-old black british woman phone call relieved medium shot",
     "date": "2026-08-20",
     "slot": 2
@@ -1158,5 +1078,45 @@
     "query": "nigerian woman reflecting street movement wide shot",
     "date": "2026-09-02",
     "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman london worried medium shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "55-year-old african woman courier counter expensive medium shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "african man phone upset deadline medium shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "55-year-old nigerian woman train station handover smiling wide shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "55-year-old african woman happy delivery medium shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "55-year-old nigerian woman flyer lagos airport wide shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "african man nigerian woman airport parcel seat wide shot",
+    "date": "2026-09-03",
+    "slot": 1
+  },
+  {
+    "query": "55-year-old nigerian woman airport relief medium shot",
+    "date": "2026-09-03",
+    "slot": 1
   }
 ]

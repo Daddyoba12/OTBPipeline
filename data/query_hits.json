@@ -1,111 +1,6 @@
 [
   {
     "query": "nigerian woman shocked face expensive price reaction close up",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "wide shot black british travel packing",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "nigerian woman shocked face expensive price reaction close up",
-    "hit_type": "dalle_car_hook",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "lagos murtala mohammed airport arrivals",
-    "hit_type": "dalle",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "car dealership stressed customer",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "black british woman medium shot stressed",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "wide shot airport runway",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "old car broken down roadside",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "family reunion greeting airport arrivals emotional",
-    "hit_type": "dalle",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "black woman stressed worried phone bills money close up",
-    "hit_type": "dalle_car_stakes",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "smartphone app booking sending parcel",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "couple suv dealership smiling car keys",
-    "hit_type": "dalle_car_resolution",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "suv driving scenic highway",
-    "hit_type": "dalle_car_resolution",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "luxury suv parked exterior clean",
-    "hit_type": "dalle_car_lesson_pre",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "nigerian woman shocked medium shot",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "missed train station platform run",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "black man video call worried urgent living room medium shot",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "black woman stressed worried phone bills money close up",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "black woman airplane window seat small parcel relaxed medium shot",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "nigerian older woman front door receiving medical parcel relief smiling",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "diverse black british community london street warm daylight wide shot",
-    "hit_type": "video",
-    "date": "2026-08-03"
-  },
-  {
-    "query": "nigerian woman shocked face expensive price reaction close up",
     "hit_type": "branded_fallback",
     "date": "2026-08-04"
   },
@@ -1823,5 +1718,70 @@
     "query": "family suv highway road trip",
     "hit_type": "dalle_car_lesson_pre",
     "date": "2026-09-02"
+  },
+  {
+    "query": "black woman reaction realising discovering phone close up",
+    "hit_type": "dalle_car_problem",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "couple car budget stress",
+    "hit_type": "dalle_car_stakes",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "family road trip suv",
+    "hit_type": "dalle_car_resolution",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "highway commute sedan traffic morning",
+    "hit_type": "dalle_car_lesson_pre",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "airport departure gate passengers boarding",
+    "hit_type": "branded_fallback",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "black traveller hands passing parcel close up vertical",
+    "hit_type": "video",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "medium shot traveller packing suitcase",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "nigeria airport arrivals wide shot",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "medium shot black family airport",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "luggage rolling nigerian woman tracking beside camera",
+    "hit_type": "dalle_bh_problem",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "african man phone upset deadline medium shot",
+    "hit_type": "dalle_bh_stakes",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "55-year-old nigerian woman train station handover smiling wide shot",
+    "hit_type": "dalle_bh_resolution",
+    "date": "2026-09-03"
+  },
+  {
+    "query": "55-year-old african woman happy delivery medium shot",
+    "hit_type": "dalle_bh_lesson_pre",
+    "date": "2026-09-03"
   }
 ]
