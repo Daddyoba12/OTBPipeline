@@ -36,7 +36,7 @@
       {"time": "08:00", "pipeline_slot": 4, "label": "weekly", "days": [1, 4]}
     ]
   },
-  "user_clips_disabled": true,
+  "user_clips_disabled": false,
   "product": {
     "enabled": false,
     "name": "",
