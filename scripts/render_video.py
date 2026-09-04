@@ -31,7 +31,7 @@ _VIDEO_COOLDOWN_DAYS = 28
 # Prevents the same user-supplied clip from appearing in consecutive renders.
 # Each clip gets a 3-day rest after being used so the feed stays visually fresh.
 _USER_CLIP_LOG  = DATA / "user_clip_log.json"
-_USER_CLIP_COOLDOWN_DAYS = 14
+_USER_CLIP_COOLDOWN_DAYS = 28
 
 def _recently_used_user_clip_names(days: int = _USER_CLIP_COOLDOWN_DAYS) -> set:
     from datetime import datetime, timedelta
