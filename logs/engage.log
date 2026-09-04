@@ -1091,3 +1091,55 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [14:03:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
 [14:03:06] [Engage] YouTube done — 0 replies sent
 [14:03:06] [Engage] === Engagement run complete ===
+[21:55:14] [Engage] === Engagement run starting ===
+[21:55:19] [Engage] Instagram done — 0 replies sent
+[21:55:21] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[21:55:21] [Engage] YouTube done — 0 replies sent
+[21:55:21] [Engage] === Engagement run complete ===
+[22:00:02] [Engage] === Engagement run starting ===
+[22:00:06] [Engage] Instagram done — 0 replies sent
+[22:00:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[22:00:06] [Engage] YouTube done — 0 replies sent
+[22:00:06] [Engage] === Engagement run complete ===
+[00:00:02] [Engage] === Engagement run starting ===
+[00:00:06] [Engage] Instagram done — 0 replies sent
+[00:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[00:00:08] [Engage] YouTube done — 0 replies sent
+[00:00:08] [Engage] === Engagement run complete ===
+[02:00:02] [Engage] === Engagement run starting ===
+[02:00:06] [Engage] Instagram done — 0 replies sent
+[02:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[02:00:07] [Engage] YouTube done — 0 replies sent
+[02:00:07] [Engage] === Engagement run complete ===
+[04:00:02] [Engage] === Engagement run starting ===
+[04:00:06] [Engage] Instagram done — 0 replies sent
+[04:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[04:00:07] [Engage] YouTube done — 0 replies sent
+[04:00:07] [Engage] === Engagement run complete ===
+[08:20:23] [Engage] === Engagement run starting ===
+[08:20:23] [Engage] IG comments fetch error (18025796735887170): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18025796735887170/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] IG comments fetch error (18014600570928585): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18014600570928585/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] IG comments fetch error (18140792488591568): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18140792488591568/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] IG comments fetch error (18068706650741166): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18068706650741166/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] IG comments fetch error (18099552905256811): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18099552905256811/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] IG comments fetch error (18129394339662516): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18129394339662516/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] Instagram done — 0 replies sent
+[08:20:23] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+[08:20:23] [Engage] No YT token — skipping YouTube
+[08:20:23] [Engage] === Engagement run complete ===
+[12:00:03] [Engage] === Engagement run starting ===
+[12:00:06] [Engage] Instagram done — 0 replies sent
+[12:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[12:00:07] [Engage] YouTube done — 0 replies sent
+[12:00:07] [Engage] === Engagement run complete ===
+[15:03:54] [Engage] === Engagement run starting ===
+[15:03:54] [Engage] IG comments fetch error (18025796735887170): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18025796735887170/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] IG comments fetch error (18014600570928585): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18014600570928585/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] IG comments fetch error (18140792488591568): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18140792488591568/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] IG comments fetch error (18068706650741166): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18068706650741166/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] IG comments fetch error (18099552905256811): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18099552905256811/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] IG comments fetch error (18129394339662516): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18129394339662516/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFkxTHBYNVJnZAEZApZAE1lV3M0NGtzdDVYXzJnc3l3ZAHhPZA3RDdEJTcGhfaVpFdVdSSHlEQVg4YkhiNHU0WjdIcUJ1Qlg1N29Hd2JrbXRybVRnSEVOc0h0Tk4zLTR3UnVxQjBrTnBDYVJR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] Instagram done — 0 replies sent
+[15:03:54] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+[15:03:54] [Engage] No YT token — skipping YouTube
+[15:03:54] [Engage] === Engagement run complete ===
