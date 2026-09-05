@@ -51,7 +51,12 @@ BANNED_TERMS = {
     "animal","animals","dog","dogs","cat","cats","horse","horses","pet","pets",
     "puppy","puppies","kitten","kittens","bird","birds","lion","tiger","elephant",
     "monkey","fish","rabbit","wildlife","farm","zoo","livestock","parrot",
-    "sheep","cow","goat","duck","chicken","pig","hamster","turtle","snake","insect",
+    "sheep","cow","cows","goat","goats","duck","chicken","pig","hamster","turtle",
+    "snake","insect","cattle","bull","deer","donkey","camel","rooster","hen",
+    "calf","lamb","oxen","mule","pony","mare","stallion","swine","fowl",
+    "plantation","plantations","farmland","farmhouse","barn","pasture","grazing",
+    "countryside","rural","orchard","crops","harvest","ranch","stable","paddock",
+    "corral","savanna",
     "food","food delivery","uber eats","ubereats","deliveroo","just eat","doordash",
     "grubhub","restaurant","takeaway","takeout","pizza delivery","meal delivery",
     "grocery delivery","grocery","meal","cooking","chef","kitchen","cafe","diner",
@@ -395,7 +400,8 @@ Beat roles and what they need:
 - lesson_pre: professional/confident scenes in London or Lagos transport settings
 
 STRICT RULES — never suggest:
-- Animals of any kind (dog, cat, horse, bird, fish, pet, wildlife, farm, zoo)
+- Animals of any kind (dog, cat, horse, bird, fish, pet, wildlife, farm, zoo, cattle, deer, bull, camel, donkey, rooster, hen, livestock)
+- Farm or rural scenery (plantation, farmland, barn, pasture, countryside, rural, orchard, crops, harvest, ranch, savanna, grazing) — all settings must be urban
 - Food or food delivery (Uber Eats, Deliveroo, restaurant, takeaway, meal, pizza, grocery, chef, kitchen)
 - Christmas, Xmas, Santa, halloween, pumpkin, easter, thanksgiving, fireworks
 - Generic stock clichés (handshake, trophy, success mountain, cartoon, lightbulb)

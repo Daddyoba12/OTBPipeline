@@ -345,7 +345,13 @@ _BANNED_FETCH_TERMS = {
     "animal","animals","dog","dogs","cat","cats","horse","horses","pet","pets",
     "puppy","puppies","kitten","kittens","bird","birds","lion","tiger","elephant",
     "monkey","fish","rabbit","wildlife","farm","zoo","livestock","parrot",
-    "sheep","cow","goat","duck","chicken","pig","hamster","turtle","snake","insect",
+    "sheep","cow","cows","goat","goats","duck","chicken","pig","hamster","turtle",
+    "snake","insect","cattle","bull","deer","donkey","camel","rooster","hen",
+    "calf","lamb","oxen","mule","pony","mare","stallion","swine","fowl",
+    # Farm / plantation / rural scenery
+    "plantation","plantations","farmland","farmhouse","barn","pasture","grazing",
+    "countryside","rural","orchard","crops","harvest","field","meadow","savanna",
+    "ranch","stable","kennel","pen","paddock","corral","silo","trough",
     # Food / food delivery brands
     "food","food delivery","uber eats","ubereats","deliveroo","just eat","doordash",
     "grubhub","restaurant","takeaway","takeout","pizza delivery","meal delivery",
@@ -355,7 +361,7 @@ _BANNED_FETCH_TERMS = {
     "christmas","xmas","santa","reindeer","baubles","nativity","tinsel","advent",
     "carol","festive","halloween","pumpkin","easter","thanksgiving","fireworks",
     "new year party","valentine","bonfire",
-    # Generic stock clichs
+    # Generic stock clichés
     "handshake","trophy","medal","piggy bank","cartoon","illustration",
 }
 

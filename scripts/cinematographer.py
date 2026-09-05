@@ -127,6 +127,7 @@ RULES:
 - Keep characters consistent with the story (same person, same location)
 - Each clip must visually advance the story
 - ABSOLUTE BAN: No animals, pets, wildlife, or creatures of any kind in any prompt
+- ABSOLUTE BAN: No farm or rural scenery — no plantation, farmland, barn, pasture, countryside, rural, orchard, crops, harvest, ranch, savanna. All settings must be urban.
 
 Return ONLY valid JSON:
 {{
