@@ -281,6 +281,8 @@ def _migrate_db():
         # Password reset
         "ALTER TABLE companies ADD COLUMN reset_token   TEXT DEFAULT ''",
         "ALTER TABLE companies ADD COLUMN reset_expires TEXT DEFAULT ''",
+        # Bakes — track per-slug for Commander portal
+        "ALTER TABLE bakes ADD COLUMN company_slug TEXT DEFAULT 'boothop'",
     ]
     with _db() as c:
         for sql in migrations:
@@ -2310,9 +2312,9 @@ async def cmdr_bake_alias(
 
     with _db() as c:
         cur = c.execute(
-            "INSERT INTO bakes (company_id,video_path,voice_path,music_path,status) "
-            "VALUES (?,?,?,?,'pending')",
-            (-1, video_local, str(vp), music_resolved or ""),
+            "INSERT INTO bakes (company_id,company_slug,video_path,voice_path,music_path,status) "
+            "VALUES (?,?,?,?,?,'pending')",
+            (-1, sess["slug"], video_local, str(vp), music_resolved or ""),
         )
         bake_id = cur.lastrowid
     job_id = f"cbake_{bake_id}_{int(time.time())}"
@@ -2426,6 +2428,50 @@ async def cmdr_yt_music_alias(
         final = candidates[0]
     rel_path = f"yt_downloads/{final.name}"
     return {"label": f"[YouTube] {final.stem}", "path": rel_path}
+
+
+@app.get("/commander/api/bakes")
+async def cmdr_bakes(request: Request, session_token: str | None = Cookie(None)):
+    sess = _auth_or_secret(session_token, request)
+    if not sess:
+        raise HTTPException(401)
+    with _db() as c:
+        rows = c.execute(
+            "SELECT id, status, created_at FROM bakes WHERE company_slug=? "
+            "ORDER BY created_at DESC LIMIT 10",
+            (sess["slug"],),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+@app.post("/commander/api/tts")
+async def cmdr_tts(
+    request:       Request,
+    text:          str = Form(...),
+    voice:         str = Form("nova"),
+    session_token: str | None = Cookie(None),
+):
+    if not _auth_or_secret(session_token, request):
+        raise HTTPException(401)
+    if not text.strip():
+        raise HTTPException(400, "text is required")
+    if not OPENAI_API_KEY:
+        raise HTTPException(503, "OpenAI API key not configured")
+    voice = voice if voice in _TTS_VOICES else "nova"
+    import requests as _r
+    try:
+        resp = _r.post(
+            "https://api.openai.com/v1/audio/speech",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+            json={"model": "tts-1", "input": text.strip(), "voice": voice},
+            timeout=30,
+        )
+        resp.raise_for_status()
+    except Exception as e:
+        raise HTTPException(502, f"TTS generation failed: {e}")
+    from fastapi.responses import Response
+    return Response(content=resp.content, media_type="audio/mpeg",
+                    headers={"Content-Disposition": f"inline; filename=tts_{voice}.mp3"})
 
 
 if __name__ == "__main__":

@@ -208,7 +208,7 @@ REWRITE RULES (when rewriting, MUST follow all of these):
 - Pick ONE anchor: one character, one specific item, one obstacle. ALL beats must reference it.
 - Hook → Problem → Stakes → Resolution → Lesson must be ONE continuous story, not 5 separate ideas.
 - Courier brand rule: NEVER name DHL, FedEx, Royal Mail, Hermes — always "a reputable courier"
-- ANIMAL BAN (hard rule, no exceptions): If any beat contains any animal, pet, wildlife, bird, dog, cat, horse, fish, or any creature — rewrite that beat immediately. No animals anywhere in the story.
+- ANIMAL & FARM BAN (hard rule, no exceptions): If any beat contains any animal, pet, wildlife, bird, dog, cat, horse, fish, cattle, deer, bull, camel, donkey, rooster, or any creature — rewrite that beat immediately. Also banned: plantation, farm, farmland, barn, pasture, countryside, rural, crops, harvest, ranch, savanna. All settings must be urban (city, airport, home, office, street). No animals, no farm scenery, anywhere in the story.
 - Hook: specific, emotional, under 15 words, never start with "BootHop"
 - Problem: max 12 words — names the EXACT obstacle from the hook
 - Stakes: max 10 words — the time pressure, references same character and item

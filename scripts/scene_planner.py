@@ -453,7 +453,8 @@ RULES FOR EVERY QUERY (non-negotiable):
 - Scenes 1–4: ALWAYS use "medium shot" OR "wide shot" — no exceptions
 - ALL shots must imply the subject is mid-action, not posing or standing still
 - NEVER write a close-up query that is just a face filling the screen — include what the hands/body are doing or use an over-shoulder angle
-- NEVER use animals: dog, cat, horse, farm, zoo, bird, wildlife, livestock
+- NEVER use animals: dog, cat, horse, farm, zoo, bird, wildlife, livestock, cattle, deer, bull, camel, donkey, rooster, hen
+- NEVER use farm or rural scenery: plantation, plantations, farmland, barn, pasture, countryside, rural, orchard, crops, harvest, ranch, savanna, grazing
 - NEVER use food: restaurant, kitchen, grocery, meal, cooking, cafe
 - NEVER use Christmas, Halloween, pumpkin, Santa
 - NEVER name courier companies: DHL, FedEx, Royal Mail, Hermes, UPS

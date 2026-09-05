@@ -12920,5 +12920,571 @@
         "watch_time_sec": 0
       }
     }
+  },
+  {
+    "id": "ff6b7956",
+    "date": "2026-09-04",
+    "slot": 4,
+    "version": "v1",
+    "pillar": "brand_authority",
+    "hook": "He nearly flew to his brother's wedding empty-handed.",
+    "problem": "A courier quoted £62. Ten days. The ceremony was Friday.",
+    "stakes": "Fifteen years of loyalty. Miss Friday — it meant nothing.",
+    "resolution": "BootHop matched Daniel to a traveller. Shirt landed for £13.",
+    "lesson": "The journey existed. The parcel just joined it.",
+    "visual_queries": [
+      "Black British woman london flat worried phone close up",
+      "African woman courier counter expensive price medium shot",
+      "Nigerian woman stressed phone deadline medium shot",
+      "airport queue long waiting customs",
+      "diverse Black people london street confident wide shot",
+      "woman waiting taxi night rain",
+      "luggage claim belt passengers happy",
+      "professional business person london city"
+    ],
+    "image_prompts": [
+      "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text.",
+      "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 8,
+      "anchor_consistency": 7,
+      "story_coherence": 8,
+      "beat_length": 4,
+      "brand_safety": 10,
+      "emotional_impact": 8,
+      "boothop_fit": 10,
+      "lesson_quality": 9,
+      "overall": 80
+    },
+    "review_scores": {},
+    "caption_tiktok": "The cheapest way to send a parcel to Nigeria just walked through arrivals. BootHop. Different breed. 🛫",
+    "caption_instagram": "Found the cheapest way to send a parcel to Nigeria and it arrived before the ceremony even started. This is what we built. boothop.com #BootHop #UKtoNigeria",
+    "youtube_title": "He nearly flew to his brother's wedding empty-handed.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "af09e987",
+    "date": "2026-09-04",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "smart",
+    "hook": "Daniel's brother had no wedding outfit. The wedding was Saturday.",
+    "problem": "The agbada was in London. A courier quoted ten working days.",
+    "stakes": "No outfit. No ceremony. Friday was the deadline.",
+    "resolution": "Daniel was already flying home. BootHop matched him in minutes.",
+    "lesson": "The right journey was already happening.",
+    "visual_queries": [
+      "airplane takeoff runway sunrise",
+      "london black cab night city",
+      "heavy suitcase luggage overweight check",
+      "airport customs officer inspection",
+      "woman phone call airport emotional",
+      "traveller looking at passport nervous",
+      "traveller delivery doorstep smile",
+      "confident woman airport professional"
+    ],
+    "image_prompts": [
+      "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text.",
+      "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 8,
+      "anchor_consistency": 6,
+      "story_coherence": 7,
+      "beat_length": 6,
+      "brand_safety": 10,
+      "emotional_impact": 8,
+      "boothop_fit": 10,
+      "lesson_quality": 9,
+      "overall": 80
+    },
+    "review_scores": {},
+    "caption_tiktok": "The cheapest way to send parcel to Nigeria just saved a wedding. Not kidding. 🎊",
+    "caption_instagram": "The cheapest way to send a parcel to Nigeria just saved an entire wedding outfit. Someone was already on that flight. boothop.com #BootHop #UKtoNigeria",
+    "youtube_title": "His brother's wedding outfit was still in London on Wednesday",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "7397ca37",
+    "date": "2026-09-04",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "multi_courier",
+    "hook": "£71 and nine days. Daniel nearly lost the season.",
+    "problem": "His usual courier quoted nine days. Stockist needed Thursday.",
+    "stakes": "Miss Thursday — the whole season's order walks.",
+    "resolution": "BootHop matched him to a traveller on that route. £18. Wednesday.",
+    "lesson": "Your route already exists. BootHop finds it.",
+    "visual_queries": [
+      "train departing station platform",
+      "cargo plane loading airport freight",
+      "delayed flight departure board",
+      "commuter waiting train platform stressed",
+      "family farewell airport departure terminal",
+      "taxi arriving destination passenger happy",
+      "plane landing runway arrival",
+      "london skyline cityscape evening"
+    ],
+    "image_prompts": [
+      "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text.",
+      "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 5,
+      "anchor_consistency": 7,
+      "story_coherence": 8,
+      "beat_length": 4,
+      "brand_safety": 10,
+      "emotional_impact": 7,
+      "boothop_fit": 10,
+      "lesson_quality": 7,
+      "overall": 73
+    },
+    "review_scores": {},
+    "caption_tiktok": "Need to ship to Lagos for your business? Log your job free at boothop.com/business — set your price, we match the courier. 📦",
+    "caption_instagram": "Running a business and need to send a parcel to Nigeria without the £70 courier bill? Log your shipment at boothop.com/business — set your price, set your deadline, and let the system find your match. No calls. No quotes. Just matched and shipped. boothop.com #UKtoNigeriaDelivery #BootHop",
+    "youtube_title": "Why is your business still locked into one courier?",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "fdeab268",
+    "date": "2026-09-04",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "faith_friday",
+    "hook": "Amara needed her photo in Lagos. Saturday. 🙏",
+    "problem": "A reputable courier quoted £62 and ten working days.",
+    "stakes": "Grandma's 80th was Saturday. The frame had to arrive.",
+    "resolution": "BootHop matched her a Lagos traveller in 22 minutes. ✈️📦",
+    "lesson": "The journey existed. Her parcel simply joined it.",
+    "visual_queries": [
+      "taxi cab london street rain",
+      "eurostar train platform london",
+      "crowded airport terminal busy",
+      "immigration passport queue airport",
+      "man sitting airport gate alone",
+      "passenger taxi arrival smiling",
+      "package delivered door receiver happy",
+      "lagos nigeria city skyline aerial"
+    ],
+    "image_prompts": [
+      "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text.",
+      "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text.",
+      "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. Black British woman london flat worried phone close up. Vertical 9:16 portrait. No text. Camera: slow zoom in. Duration: 4 seconds. Emotion: worry."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. African woman courier counter expensive price medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: tension."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. Nigerian woman stressed phone deadline medium shot. Vertical 9:16 portrait. No text. Camera: static. Duration: 4 seconds. Emotion: frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. Black man parcel handover train station smiling wide shot. Vertical 9:16 portrait. No text. Camera: gentle pan left. Duration: 4 seconds. Emotion: stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. diverse Black people london street confident wide shot. Vertical 9:16 portrait. No text. Camera: slow pull back. Duration: 4 seconds. Emotion: sadness."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 8,
+      "anchor_consistency": 6,
+      "story_coherence": 7,
+      "beat_length": 6,
+      "brand_safety": 10,
+      "emotional_impact": 8,
+      "boothop_fit": 7,
+      "lesson_quality": 9,
+      "overall": 76
+    },
+    "review_scores": {},
+    "caption_tiktok": "The cheapest way to send a parcel to Nigeria? It was already on a plane. 🙏 boothop.com",
+    "caption_instagram": "The cheapest way to send a parcel to Nigeria — and the most faithful. Someone was already flying. Your parcel just needed a seat. boothop.com 🙏 #FaithFriday #BootHop",
+    "youtube_title": "The parcel that arrived before the tears did",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "338441f3",
+    "date": "2026-09-05",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "flight_discovery",
+    "hook": "Three days before grandma's 80th: Flights £810.",
+    "problem": "Parcel delivery quoted £680.",
+    "stakes": "Needed for grandma's birthday tomorrow.",
+    "resolution": "BootHop delivered it before noon.",
+    "lesson": "The journey already existed.",
+    "visual_queries": [
+      "22-year-old Nigerian woman London worried phone medium",
+      "22-year-old Nigerian woman expensive delivery phone medium",
+      "22-year-old Nigerian woman laptop expensive parcel medium",
+      "overweight baggage airline counter",
+      "22-year-old Nigerian woman parcel door smiling wide",
+      "parcel package handover smiling",
+      "22-year-old Nigerian woman receiving parcel doorway wide",
+      "22-year-old Nigerian woman thoughtful phone call wide"
+    ],
+    "image_prompts": [
+      "Photorealistic. 22-year-old Nigerian woman in a London flat, with a curious attentive look, reading a delivery price on her phone. Warm indoor lighting. Medium shot. Vertical 9:16 portrait. No text or logos.",
+      "Photorealistic. 22-year-old Nigerian woman in a university setting, frustrated on a phone call about high delivery price. Natural daylight. Medium shot. No text or logos. Emphasis on her curious yet frustrated expression.",
+      "Photorealistic. 22-year-old Nigerian woman with a laptop in a university dorm, looking upset at an expensive courier website. Soft indoor lighting. Medium shot. No text or logos. Her expression is one of stress and curiosity.",
+      "Photorealistic. Black man at a busy train station with a curious smile, handing over a small parcel to a traveller. Natural daylight. Wide shot. Emphasis on friendly exchange. No text or logos. Horizontal format.",
+      "Photorealistic. 22-year-old Nigerian woman at her doorstep, smiling warmly as she receives a parcel. Soft morning light. Wide shot. No text or logos. Her expression is one of relief and happiness. Horizontal format.",
+      "Photorealistic. Black man handing a parcel to a traveller at a London train station. They both share a smile. Bright, natural lighting. Wide shot. No text or logos. Emphasize the friendly handover. Horizontal format.",
+      "Photorealistic. 22-year-old Nigerian woman at her doorway, smiling as she receives a parcel. Early afternoon lighting. Wide shot. No text or logos. Expression of gratitude and relief. Horizontal format.",
+      "Photorealistic. 22-year-old Nigerian woman walking along a London street, reflecting thoughtfully during a phone call. Warm, soft lighting like a sunset. Wide shot. No text or logos. Her face shows understanding and insight. Horizontal format."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic scene depicting a 22-year-old Nigerian woman in a London flat, reading a delivery price on her phone with a curious, attentive look. Warm indoor lighting creates a homey atmosphere. Medium shot with a slow zoom in focuses on her worried expression as she processes the high price. No additional text or logos."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic scene of a 22-year-old Nigerian woman in a university setting, visibly frustrated about a high delivery price during a phone call. Natural daylight bathes the scene. The camera remains static, highlighting her tense expression. Medium shot captures her emotional conflict. No text or logos."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic scene where a 22-year-old Nigerian woman sits in her university dorm, upset at an expensive courier website on her laptop. Soft indoor lighting softly illuminates her stressed face. A medium shot focuses on the weight of the situation with a static camera. No text or logos."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic scene at a busy train station showing a Black man with a curious smile handing a small parcel to a traveller. Natural daylight fills the space. A gentle pan left shows the friendly exchange amidst the crowd. Wide shot emphasizes the bustling environment. No text or logos."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic scene where a 22-year-old Nigerian woman stands at her doorstep, smiling warmly as she receives a parcel. Soft morning light creates a welcoming atmosphere. Wide shot with a slow pull back reveals the emotional significance of this moment. No text or logos."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic scene of a Black man and a traveller at a London train station sharing a smile as he hands over a parcel. Bright, natural lighting enhances the scene's warmth. A wide shot with a slow dolly forward conveys an optimistic resolution. No text or logos."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic scene of a 22-year-old Nigerian woman at her doorway, smiling as she receives a parcel. Early afternoon lighting adds positivity. A wide shot with a slow zoom out captures her expression of gratitude and relief. No text or logos."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic wide establishing shot of a 22-year-old Nigerian woman walking along a London street, thoughtfully reflecting during a phone call. Warm, soft sunset lighting adds to her contemplative mood. A slow pan right emphasizes her confident, reflective demeanor. No text or logos."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 66
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Found the cheapest way to send a parcel to Nigeria fast. Gift delivered in time! 🎁",
+    "caption_instagram": "Discovered the magic way to send parcels to Nigeria quicker than expected. Delivered right on time! boothop.com #NigeriaDelivery",
+    "youtube_title": "Would you risk a stranger carrying your special gift?",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
   }
 ]

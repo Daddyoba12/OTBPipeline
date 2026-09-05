@@ -105,7 +105,7 @@ def _claude_generate(client: str, used: set) -> dict:
             f"     - men gym workout motivated talking excited wide shot\n"
             f"     - stylish woman luxury car keys smiling confident medium shot\n"
             f"   Shot type: medium shot or wide shot ONLY — no extreme close-ups.\n"
-            f"   NO church, NO religious scenes, NO food, NO farm.\n\n"
+            f"   NO church, NO religious scenes, NO food, NO farm, NO plantation, NO rural scenery, NO animals.\n\n"
             f"3. scene_style — one of: dancing_vibes | gym_energy | luxury_travel | "
             f"car_lifestyle | money_moment\n"
             f"   Prefer dancing_vibes or gym_energy for scroll-stopping energy.\n\n"

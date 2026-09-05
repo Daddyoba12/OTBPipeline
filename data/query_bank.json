@@ -8978,5 +8978,105 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-09-03"
+  },
+  {
+    "query": "Black British woman london flat worried phone close up",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-04"
+  },
+  {
+    "query": "African woman courier counter expensive price medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-04"
+  },
+  {
+    "query": "Nigerian woman stressed phone deadline medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-04"
+  },
+  {
+    "query": "diverse Black people london street confident wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-04"
+  },
+  {
+    "query": "22-year-old Nigerian woman London worried phone medium",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
+  },
+  {
+    "query": "22-year-old Nigerian woman expensive delivery phone medium",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
+  },
+  {
+    "query": "22-year-old Nigerian woman laptop expensive parcel medium",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
+  },
+  {
+    "query": "22-year-old Nigerian woman parcel door smiling wide",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
+  },
+  {
+    "query": "22-year-old Nigerian woman receiving parcel doorway wide",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
+  },
+  {
+    "query": "22-year-old Nigerian woman thoughtful phone call wide",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-05"
   }
 ]

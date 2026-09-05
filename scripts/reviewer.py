@@ -135,7 +135,7 @@ SCORE EACH DIMENSION 0-10:
 
 OVERALL = (sum of all 7 scores / 7) × 10. Round to nearest integer.
 
-ANIMAL BAN (hard rule, checked before scoring): If any beat or scene description contains any animal, pet, wildlife, bird, dog, cat, horse, fish, or creature of any kind — immediately rewrite that beat. No animals anywhere, no exceptions.
+ANIMAL & FARM BAN (hard rule, checked before scoring): If any beat or scene description contains any animal, pet, wildlife, bird, dog, cat, horse, fish, cattle, deer, bull, camel, donkey, rooster, or creature of any kind — immediately rewrite that beat. Also banned: plantation, farm, farmland, barn, pasture, countryside, rural scenery, crops, harvest, ranch, savanna. All scenes must be set in urban environments. No animals, no farm/plantation scenery, no exceptions.
 
 IF OVERALL < {PASS_THRESHOLD}:
   - Identify every weak dimension (score < 8)

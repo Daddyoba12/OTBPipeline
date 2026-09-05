@@ -49,8 +49,13 @@ BANNED_QUERY_TERMS = {
     "animal", "animals", "dog", "dogs", "cat", "cats", "horse", "horses",
     "pet", "pets", "puppy", "puppies", "kitten", "kittens", "bird", "birds",
     "lion", "tiger", "elephant", "monkey", "fish", "rabbit", "wildlife",
-    "farm", "zoo", "livestock", "parrot", "sheep", "cow", "goat", "duck",
-    "chicken", "pig", "hamster", "turtle", "snake", "gecko", "insect",
+    "farm", "zoo", "livestock", "parrot", "sheep", "cow", "cows", "goat", "goats",
+    "duck", "chicken", "pig", "hamster", "turtle", "snake", "gecko", "insect",
+    "cattle", "bull", "deer", "donkey", "camel", "rooster", "hen", "calf", "lamb",
+    "oxen", "mule", "pony", "mare", "stallion", "swine", "fowl",
+    "plantation", "plantations", "farmland", "farmhouse", "barn", "pasture",
+    "grazing", "countryside", "rural", "orchard", "crops", "harvest", "ranch",
+    "stable", "kennel", "paddock", "corral", "savanna",
     "food", "food delivery", "uber eats", "ubereats", "deliveroo", "just eat",
     "doordash", "grubhub", "restaurant", "takeaway", "takeout", "pizza delivery",
     "meal delivery", "grocery delivery", "grocery", "meal", "cooking", "chef",
@@ -461,7 +466,7 @@ Lock into this POV from hook to lesson — never switch perspectives mid-story.
 
 LANGUAGE RULE — CRITICAL: British English only. No Yoruba, Pidgin, Igbo, Hausa, or any other language — not even single words or phrases.
 
-ABSOLUTE BAN — NO ANIMALS: Do not include any animal, pet, wildlife, or creature of any kind in any scene, story beat, character description, or visual suggestion. No dogs, cats, birds, horses, fish, livestock, or any other animal. Any story that references an animal in any context is immediately rejected.
+ABSOLUTE BAN — NO ANIMALS OR FARM SCENERY: Do not include any animal, pet, wildlife, or creature of any kind in any scene, story beat, character description, or visual suggestion. No dogs, cats, birds, horses, fish, livestock, cattle, deer, bull, camel, donkey, rooster, or any other animal. Any story that references an animal in any context is immediately rejected. Also banned: plantation, farm, farmland, barn, pasture, countryside, rural landscape, orchard, crops, harvest, ranch, savanna, or any farm/rural scenery — all stories must be set in urban environments (cities, airports, homes, offices, streets).
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BRAND PHILOSOPHY
