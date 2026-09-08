@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-09-01T10:28:27.294882",
+  "generated_at": "2026-09-07T05:30:42.872674",
   "platforms": {
     "youtube": {
-      "count": 22,
-      "total_views": 591,
+      "count": 17,
+      "total_views": 425,
       "by_pillar": {
-        "urgent_medical": {
-          "avg": 61,
+        "smart": {
+          "avg": 60,
           "count": 1,
-          "total": 61
+          "total": 60
         },
         "personal_shopper": {
           "avg": 55,
@@ -17,47 +17,42 @@
         },
         "family": {
           "avg": 50,
-          "count": 4,
-          "total": 199
-        },
-        "smart": {
-          "avg": 32,
           "count": 2,
-          "total": 64
-        },
-        "airport_deliveries": {
-          "avg": 27,
-          "count": 3,
-          "total": 82
+          "total": 101
         },
         "faith_friday": {
           "avg": 27,
           "count": 1,
           "total": 27
         },
-        "travel_hacks": {
-          "avg": 21,
-          "count": 1,
-          "total": 21
-        },
         "cultural_earn": {
-          "avg": 14,
+          "avg": 25,
+          "count": 1,
+          "total": 25
+        },
+        "airport_deliveries": {
+          "avg": 20,
+          "count": 4,
+          "total": 82
+        },
+        "flight_discovery": {
+          "avg": 18,
           "count": 2,
-          "total": 28
+          "total": 36
         },
         "community": {
           "avg": 14,
           "count": 1,
           "total": 14
         },
-        "flight_discovery": {
-          "avg": 12,
-          "count": 3,
-          "total": 36
+        "travel_hacks": {
+          "avg": 10,
+          "count": 2,
+          "total": 21
         },
         "airport": {
-          "avg": 2,
-          "count": 2,
+          "avg": 4,
+          "count": 1,
           "total": 4
         },
         "founder_story": {
@@ -67,33 +62,25 @@
         }
       },
       "by_slot": {
+        "3": {
+          "avg": 28,
+          "label": "21:00 evening",
+          "count": 5
+        },
         "2": {
-          "avg": 36,
+          "avg": 26,
           "label": "14:00 afternoon",
           "count": 10
         },
-        "3": {
-          "avg": 26,
-          "label": "21:00 evening",
-          "count": 8
-        },
         "1": {
-          "avg": 7,
+          "avg": 14,
           "label": "08:00 morning",
-          "count": 4
+          "count": 2
         }
       },
       "by_opener": {
-        "the courier said ten": {
-          "avg": 97,
-          "count": 1
-        },
         "would you let a": {
           "avg": 86,
-          "count": 1
-        },
-        "four days. prescribed stockings.": {
-          "avg": 61,
           "count": 1
         },
         "daniel's cousin's wedding is": {
@@ -136,39 +123,43 @@
           "avg": 14,
           "count": 1
         },
-        "£58 to get a": {
+        "the courier wanted £59.": {
           "avg": 4,
           "count": 1
         },
-        "the courier wanted £59.": {
-          "avg": 4,
+        "i watched my cousin": {
+          "avg": 0,
+          "count": 1
+        },
+        "the competition loomed, but": {
+          "avg": 0,
+          "count": 1
+        },
+        "nobody told us there": {
+          "avg": 0,
           "count": 1
         }
       },
       "by_weekday": {
-        "Monday": {
-          "avg": 61,
-          "count": 1
+        "Wednesday": {
+          "avg": 40,
+          "count": 2
         },
         "Sunday": {
-          "avg": 40,
-          "count": 5
-        },
-        "Friday": {
-          "avg": 25,
-          "count": 5
-        },
-        "Tuesday": {
-          "avg": 23,
+          "avg": 34,
           "count": 3
         },
-        "Wednesday": {
-          "avg": 21,
+        "Friday": {
+          "avg": 31,
           "count": 4
         },
         "Thursday": {
-          "avg": 16,
-          "count": 3
+          "avg": 24,
+          "count": 2
+        },
+        "Tuesday": {
+          "avg": 14,
+          "count": 5
         },
         "Saturday": {
           "avg": 4,
@@ -176,20 +167,6 @@
         }
       },
       "top_posts": [
-        {
-          "platform": "youtube",
-          "post_id": "FxcwrZN6v2o",
-          "slot": 2,
-          "posted_at": "2026-08-02T13:22:16.128170",
-          "views": 97,
-          "likes": 0,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/FxcwrZN6v2o",
-          "pillar": "family",
-          "hook": "The courier said ten days. Sunday was five away.",
-          "opener": "the courier said ten",
-          "weekday": "Sunday"
-        },
         {
           "platform": "youtube",
           "post_id": "cwQq1ENjHpY",
@@ -203,20 +180,6 @@
           "hook": "Would you let a stranger carry your dad's birthday gift to Lagos?",
           "opener": "would you let a",
           "weekday": "Sunday"
-        },
-        {
-          "platform": "youtube",
-          "post_id": "AkuapWL33CU",
-          "slot": 3,
-          "posted_at": "2026-08-03T20:26:59.834325",
-          "views": 61,
-          "likes": 0,
-          "comments": 0,
-          "url": "https://youtube.com/shorts/AkuapWL33CU",
-          "pillar": "urgent_medical",
-          "hook": "Four days. Prescribed stockings. The courier quoted £71.",
-          "opener": "four days. prescribed stockings.",
-          "weekday": "Monday"
         },
         {
           "platform": "youtube",
@@ -245,6 +208,34 @@
           "hook": "Zara found the bag. Getting it to Lagos? That was the problem.",
           "opener": "zara found the bag.",
           "weekday": "Wednesday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "J57ENz5wz-M",
+          "slot": 2,
+          "posted_at": "2026-08-25T13:52:26.242038",
+          "views": 49,
+          "likes": 1,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/J57ENz5wz-M",
+          "pillar": "airport_deliveries",
+          "hook": "The gown was still in Birmingham. The graduation was Thursday.",
+          "opener": "the gown was still",
+          "weekday": "Tuesday"
+        },
+        {
+          "platform": "youtube",
+          "post_id": "RPznRW1sY7o",
+          "slot": 3,
+          "posted_at": "2026-08-20T20:09:50.821867",
+          "views": 33,
+          "likes": 0,
+          "comments": 0,
+          "url": "https://youtube.com/shorts/RPznRW1sY7o",
+          "pillar": "airport_deliveries",
+          "hook": "The courier said nine days. The ceremony was in three.",
+          "opener": "the courier said nine",
+          "weekday": "Thursday"
         }
       ]
     }

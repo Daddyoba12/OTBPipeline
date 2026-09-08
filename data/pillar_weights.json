@@ -1,14 +1,13 @@
 {
-  "urgent_medical": 1.0,
-  "personal_shopper": 0.9,
-  "family": 0.82,
-  "smart": 0.52,
-  "airport_deliveries": 0.44,
-  "faith_friday": 0.44,
-  "travel_hacks": 0.34,
-  "cultural_earn": 0.3,
-  "community": 0.3,
+  "smart": 1.0,
+  "personal_shopper": 0.92,
+  "family": 0.83,
+  "faith_friday": 0.45,
+  "cultural_earn": 0.42,
+  "airport_deliveries": 0.33,
   "flight_discovery": 0.3,
+  "community": 0.3,
+  "travel_hacks": 0.3,
   "airport": 0.3,
   "founder_story": 0.3
 }
