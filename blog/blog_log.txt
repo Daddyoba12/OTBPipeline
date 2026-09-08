@@ -1242,3 +1242,147 @@ Blog published successfully.
 }
 [2026-07-28 01:20:26] Run: python blog/setup_blogger.py  to re-authenticate
 [2026-07-28 01:20:26] =======================================================
+[2026-09-05 15:09:10] =======================================================
+[2026-09-05 15:09:10] BootHop Blog Auto-Poster starting
+[2026-09-05 15:09:10] Found 11 pending post(s)
+[2026-09-05 15:09:11] Processing: 2026-07-06_uk-nigeria-supply-chain-solved-by-travellers-in-2026.html
+[2026-09-05 15:09:11]   Title:  UK Nigeria Supply Chain Solved by Travellers in 2026
+[2026-09-05 15:09:11]   Labels: ['supply_chain', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:12]   Posted via API: https://boothopmovement.blogspot.com/2026/09/uk-nigeria-supply-chain-solved-by.html
+[2026-09-05 15:09:12]   Done — moved to posted/
+[2026-09-05 15:09:12] Processing: 2026-07-08_travel-tips-uk-nigeria-flights-send-parcels-smarter-2026.html
+[2026-09-05 15:09:12]   Title:  Travel Tips UK Nigeria Flights: Send Parcels Smarter 2026
+[2026-09-05 15:09:12]   Labels: ['travel_hacks', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:13]   Posted via API: https://boothopmovement.blogspot.com/2026/09/travel-tips-uk-nigeria-flights-send.html
+[2026-09-05 15:09:13]   Done — moved to posted/
+[2026-09-05 15:09:13] Processing: 2026-07-09_boothop-how-it-works-fast-uknigeria-delivery-2026.html
+[2026-09-05 15:09:13]   Title:  BootHop How It Works: Fast UK–Nigeria Delivery 2026
+[2026-09-05 15:09:13]   Labels: ['logistics_stories', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:14]   Posted via API: https://boothopmovement.blogspot.com/2026/09/boothop-how-it-works-fast-uknigeria.html
+[2026-09-05 15:09:14]   Done — moved to posted/
+[2026-09-05 15:09:14] Processing: 2026-07-09_boothop-how-it-works-real-story-2026-guide.html
+[2026-09-05 15:09:14]   Title:  BootHop How It Works: Real Story, 2026 Guide
+[2026-09-05 15:09:14]   Labels: ['logistics_stories', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:15]   Posted via API: https://boothopmovement.blogspot.com/2026/09/boothop-how-it-works-real-story-2026.html
+[2026-09-05 15:09:15]   Done — moved to posted/
+[2026-09-05 15:09:15] Processing: 2026-07-14_uk-nigeria-supply-chain-smarter-shipping-in-2026.html
+[2026-09-05 15:09:15]   Title:  UK Nigeria Supply Chain: Smarter Shipping in 2026
+[2026-09-05 15:09:15]   Labels: ['supply_chain', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:17]   Posted via API: https://boothopmovement.blogspot.com/2026/09/uk-nigeria-supply-chain-smarter.html
+[2026-09-05 15:09:17]   Done — moved to posted/
+[2026-09-05 15:09:17] Processing: 2026-07-16_travel-tips-uk-nigeria-flights-send-parcels-smarter-in-2026.html
+[2026-09-05 15:09:17]   Title:  Travel Tips UK Nigeria Flights: Send Parcels Smarter in 2026
+[2026-09-05 15:09:17]   Labels: ['travel_hacks', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:17]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:17]   FAILED — stays in pending/
+[2026-09-05 15:09:17] Processing: 2026-07-20_boothop-uk-nigeria-delivery-never-miss-a-milestone-in-2026.html
+[2026-09-05 15:09:17]   Title:  BootHop UK Nigeria Delivery: Never Miss a Milestone in 2026
+[2026-09-05 15:09:17]   Labels: ['brand_authority', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:18]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:18]   FAILED — stays in pending/
+[2026-09-05 15:09:18] Processing: 2026-07-22_boothop-uk-nigeria-delivery-earn-55-just-by-flying-2026.html
+[2026-09-05 15:09:18]   Title:  BootHop UK Nigeria Delivery: Earn £55 Just by Flying 2026
+[2026-09-05 15:09:18]   Labels: ['brand_authority', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:19]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:19]   FAILED — stays in pending/
+[2026-09-05 15:09:19] Processing: 2026-07-24_boothop-uk-nigeria-delivery-saved-my-sisters-wedding-2026.html
+[2026-09-05 15:09:19]   Title:  BootHop UK Nigeria Delivery Saved My Sister's Wedding 2026
+[2026-09-05 15:09:19]   Labels: ['brand_authority', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:19]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:19]   FAILED — stays in pending/
+[2026-09-05 15:09:19] Processing: 2026-07-26_boothop-uk-nigeria-delivery-the-story-behind-chisoms-gift-20.html
+[2026-09-05 15:09:19]   Title:  BootHop UK Nigeria Delivery: The Story Behind Chisom's Gift 2026
+[2026-09-05 15:09:19]   Labels: ['brand_authority', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:20]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:20]   FAILED — stays in pending/
+[2026-09-05 15:09:20] Processing: 2026-07-28_boothop-uk-nigeria-delivery-2-days-not-8-2026.html
+[2026-09-05 15:09:20]   Title:  BootHop UK Nigeria Delivery: 2 Days Not 8 (2026)
+[2026-09-05 15:09:20]   Labels: ['flight_discovery', 'logistics', 'diaspora', 'BootHop']
+[2026-09-05 15:09:21]   API error 429: {
+  "error": {
+    "code": 429,
+    "message": "Resource has been exhausted (e.g. check quota).",
+    "errors": [
+      {
+        "message": "Resource has been exhausted (e.g. check quota).",
+        "domain": "global",
+        "reason": "rateLimitExceeded"
+      }
+    ],
+    "status": "RESOURCE_EXHAUSTED"
+  }
+}
+
+[2026-09-05 15:09:21]   FAILED — stays in pending/
+[2026-09-05 15:09:21] All done.
+[2026-09-05 15:09:21] =======================================================

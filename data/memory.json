@@ -13486,5 +13486,715 @@
         "watch_time_sec": 0
       }
     }
+  },
+  {
+    "id": "9a670f62",
+    "date": "2026-09-05",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "airport",
+    "hook": "Sade panicked; London's fabric was stuck on Tuesday.",
+    "problem": "Courier demands £54 and 8 days.",
+    "stakes": "Sister's outfit incomplete Saturday.",
+    "resolution": "BootHop matched her with Tunde flying Thursday. It arrived Friday.",
+    "lesson": "Journeys exist, join them.",
+    "visual_queries": [
+      "22-year-old nigerian woman london worried medium shot",
+      "22-year-old nigerian woman airport luggage stressed medium shot",
+      "nigerian woman airport gate parcel worried medium shot",
+      "african woman airport gate parcel handover wide shot",
+      "african family airport arrivals cheerful wide shot",
+      "22-year-old nigerian woman airport assistance relieved medium shot",
+      "nigerian man departed with parcel smiling wide shot",
+      "nigerian woman airport contemplative journey wide shot"
+    ],
+    "image_prompts": [
+      "A photorealistic image of a 22-year-old Nigerian female student in a London flat. She appears worried, looking at her phone with gentle concern. Shot is in warm natural lighting. Medium shot format, showing her casual home setting. Vertical 9:16 portrait.",
+      "A photorealistic image of a 22-year-old Nigerian female student at an airport counter. She looks stressed about her overweight luggage. Medium shot captures her anxious expression under cool terminal lighting. The scene is bustling with travelers. Format: Horizontal 16:9.",
+      "A photorealistic image of a 22-year-old Nigerian female student at an airport departure gate. She anxiously checks her phone about a parcel deadline. Medium shot, shows her focused and slightly tense. Ambient terminal lighting filters through large windows. Format: Horizontal 16:9.",
+      "Wide shot of a 22-year-old Nigerian woman handing a parcel to a sender at the airport gate. She wears a relieved smile. The image captures the exchange amid other travelers in a bustling airport setting. Bright terminal lighting, engaging diverse people. Format: Horizontal 16:9.",
+      "Photorealistic wide shot of a Nigerian family reunited at an airport arrivals hall. They radiate confidence and happiness, embracing each other warmly. The scene is filled with joyful expressions and an ambient buzz. Bright, welcoming airport lighting sets the mood. Format: Horizontal 16:9.",
+      "A 22-year-old Nigerian woman at the airport receiving assistance from a staff member. She shows a look of relief and gratitude. Medium shot captures the supportive interaction in vibrant terminal lighting. Format: Horizontal 16:9.",
+      "Wide shot of a Nigerian man departing from the airport holding a parcel, smiling confidently. The atmosphere is bustling with other travelers and dynamic airport activity. The terminal lighting casts a daytime glow. Format: Horizontal 16:9.",
+      "A 22-year-old Nigerian woman at the airport, appearing contemplative about her journey. She stands amidst fellow travelers, with thoughtful anticipation in her eyes. The wide shot captures the grand scale of the airport, filled with people on their adventures. Warm, inviting lighting. Format: Horizontal 16:9."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "A photorealistic medium shot of a 22-year-old Nigerian female student in a London flat, appearing worried. She looks at her phone with gentle concern under warm natural lighting. The shot starts with a slow zoom in to build tension, conveying her sense of panic as she discovers something troubling on her phone. Her body slightly shifts in response to what she sees, framed vertically in a 9:16 portrait aspect ratio."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "A photorealistic medium shot of a 22-year-old Nigerian female student at an airport counter, stressed about her overweight luggage. The cool terminal lighting highlights her anxious expression amidst the bustling travelers. The camera remains static, capturing the palpable tension of the moment, emphasizing her stressed demeanor and the surrounding chaos in a horizontal 16:9 format."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "A photorealistic medium shot of a 22-year-old Nigerian female student at an airport departure gate, anxiously checking her phone about a parcel deadline. The ambient terminal lighting filters through large windows, contributing to a feeling of urgency. The camera remains static, capturing her focused and tense demeanor as she swipes on her phone, illustrating her quiet frustration in the bustling environment. Format: Horizontal 16:9."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "A wide shot of a 22-year-old Nigerian woman handing a parcel to a sender at the airport gate. Her face reflects relief amid other travelers in a busy airport setting, with bright terminal lighting. The camera gently pans left, capturing the bustling backdrop and the sense of stress she feels as she completes the transaction. The motion conveys the mix of anxiety and satisfaction with the diverse crowd. Format: Horizontal 16:9."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "A photorealistic wide shot of a Nigerian family reunited at an airport arrivals hall. They emit confidence and happiness as they warmly embrace each other, surrounded by joyful expressions and an ambient buzz. The bright, welcoming airport lighting sets a poignant scene. The camera slowly pulls back, revealing the emotional depth of family bonds rekindled, against the backdrop of a lively airport. Format: Horizontal 16:9."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "A medium shot of a 22-year-old Nigerian woman at the airport receiving assistance from a staff member. Her face shows relief and gratitude. The vibrant terminal lighting adds warmth to the supportive interaction. As the camera slowly dolly forwards, it accentuates the optimistic energy and the gratitude she feels for the essential help. Format: Horizontal 16:9."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "A wide shot of a Nigerian man departing from the airport holding a parcel, smiling with confidence. The bustling atmosphere is full of travelers and dynamic airport activity. Terminal lighting casts a daytime glow across the scene. The camera slowly zooms out, spreading the contagious happiness he exudes as he leaves, reunited with his belongings. Format: Horizontal 16:9."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "A wide shot of a 22-year-old Nigerian woman at the airport, appearing contemplative about her journey. Amidst fellow travelers, she displays thoughtful anticipation. The camera slowly pans right, capturing the grand scale of the airport and the sense of shared adventure among the crowd, illustrating the confidence and aspiration of embarking on a personal journey. Warm, inviting lighting fills the space. Format: Horizontal 16:9."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 75
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Found the cheapest way to send a parcel to Nigeria fast. boothop.com",
+    "caption_instagram": "Found the cheapest way to send a parcel to Nigeria in 60 secs. Visit boothop.com today. #BootHop #Nigeria",
+    "youtube_title": "She realised the fabric was still in London on Tuesday.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "d5d64118",
+    "date": "2026-09-05",
+    "slot": 3,
+    "version": "v1",
+    "pillar": "cost_pain",
+    "hook": "Would you risk a stranger flying your cousin's gift just to save £60?",
+    "problem": "Tunde had a signed sports shirt to send. The party was Friday.",
+    "stakes": "Without it, the farewell speech wouldn't be the same.",
+    "resolution": "A frequent flyer had space. It arrived before the courier's quote email.",
+    "lesson": "Movement already exists. BootHop makes it useful.",
+    "visual_queries": [
+      "22-year-old Nigerian woman worried phone room",
+      "African woman courier counter shocked price medium",
+      "Nigerian woman phone stressed deadline medium",
+      "Black man woman train station parcel handover",
+      "Black woman happy delivery cost medium shot",
+      "black traveler Nigerian woman package arrival smiling",
+      "Nigerian woman satisfied gift delivery medium shot",
+      "Nigerian woman group discussion university setting wide"
+    ],
+    "image_prompts": [
+      "Photorealistic. 22-year-old Nigerian female student in a London flat. She looks worried while checking her phone's delivery price notification. Warm indoor lighting. Medium shot. No text. No logos. Indoor setting. Vertical 9:16 portrait.",
+      "Photorealistic. 22-year-old Nigerian female student at a courier counter, reacting to the high cost of delivery. Medium shot. Natural indoor lighting highlights her curious, attentive expression. Busy courier setting, no text or logos. Horizontal 16:9 format.",
+      "Photorealistic. 22-year-old Nigerian female student in a university setting, stressed while looking at her phone discussing a tight delivery deadline. Medium shot. Natural daylight through windows. Classroom environment. No text. No logos. Horizontal 16:9 format.",
+      "Photorealistic. An African male traveler and 22-year-old Nigerian female student at a bustling train station, smiling while exchanging a parcel. Wide shot. Vibrant lighting from station lights. Urban transit environment. Natural interaction, no text. No logos. Horizontal 16:9 format.",
+      "Photorealistic. 22-year-old Nigerian female student, in a London street, showing happiness over receiving an affordable delivery quote. Medium shot. Bright afternoon city street lighting. Her expression is one of contentment and relief. No text. No logos. Vertical 9:16 format.",
+      "Photorealistic. African frequent flyer delivering a package to a 22-year-old Nigerian female student. Both are smiling as the package arrives before expected. Urban London background. Medium shot. Evening lights provide warm ambiance. No text. No logos. Horizontal 16:9 format.",
+      "Photorealistic. 22-year-old Nigerian female student, satisfied with the gift delivery success, in her university dorm. Medium shot, warm indoor dorm lighting illuminates a sense of relief. Her expression is proud and content. No text. No logos. Vertical 9:16 format.",
+      "Photorealistic. 22-year-old Nigerian female student leading a group discussion in a university setting, explaining BootHop's benefits. Wide shot. Classroom environment with attentive peers. Bright classroom daylight. No text. No logos. Horizontal 16:9 format."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic scene of a 22-year-old Nigerian female student in a London flat. She looks worried while checking her phone's delivery price notification. Warm indoor lighting surrounds her. The camera performs a slow zoom in, building tension over 4 seconds."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic scene showing a 22-year-old Nigerian female student at a courier counter, reacting to the high cost of delivery. Natural indoor lighting highlights her curious, attentive expression in a busy courier setting. The camera remains static, keeping the focus on her building tension over 4 seconds in horizontal 16:9 format."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic scene where a 22-year-old Nigerian female student is stressed while looking at her phone in a university setting, discussing a tight delivery deadline. Natural daylight enters through the classroom windows, while the camera remains static, emphasizing the weight of frustration over 4 seconds in horizontal 16:9 format."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic scene of an African male traveler and a 22-year-old Nigerian female student at a bustling train station, smiling while exchanging a parcel. Vibrant lighting from station lights enriches the urban transit environment. The camera gently pans left, adding to the underlying stress in this busy setting over 4 seconds in horizontal 16:9 format."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic scene with a 22-year-old Nigerian female student on a London street, reacting to an affordable delivery quote. Bright afternoon city street lighting captures her moment of contentment and relief. The camera performs a slow pull back, revealing her emotional context over 4 seconds in vertical 9:16 format."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic scene where an African frequent flyer delivers a package to a 22-year-old Nigerian female student, both smiling as the package arrives before expected. The urban London background and evening lights provide a warm ambiance. The camera slowly dollies forward, conveying a sense of relief and optimism over 4 seconds in horizontal 16:9 format."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic scene of a 22-year-old Nigerian female student, satisfied with a successful gift delivery in her university dorm. Warm indoor lighting illuminates her sense of relief and pride. The camera slowly zooms out, capturing her happiness over 4 seconds in vertical 9:16 format."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic scene of a 22-year-old Nigerian female student leading a group discussion in a university setting, explaining BootHop's benefits. Bright classroom daylight shines on her and attentive peers as the camera slowly pans right, establishing a confident, aspirational mood over 4 seconds in horizontal 16:9 format."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 81
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "BootHop understood the assignment. Now your parcel beats the courier to Lagos.",
+    "caption_instagram": "BootHop understood the assignment. Your parcel beats the courier to Lagos. Boothop.com #sendparceltoNigeria",
+    "youtube_title": "Would you risk a stranger flying your cousin's gift just to save £60?",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "5b073711",
+    "date": "2026-09-06",
+    "slot": 1,
+    "version": "v1",
+    "pillar": "founder_story",
+    "hook": "I once spent £70 just to send a phone charger to Lagos.",
+    "problem": "Meanwhile, someone I knew flew that route with an empty suitcase.",
+    "stakes": "So I built what I wished already existed, doubting if it would work.",
+    "resolution": "Now people use it every day for just that.",
+    "lesson": "The movement already existed. I just gave it a home.",
+    "visual_queries": [
+      "30-year-old black British woman reading phone vertical",
+      "30-year-old African woman frustrated phone call medium shot",
+      "Nigerian woman upset laptop expensive website medium shot",
+      "48-year-old black man handing parcel train station wide shot",
+      "Nigerian woman smiling receiving parcel warm wide shot",
+      "48-year-old Nigerian man with suitcase airport",
+      "48-year-old Nigerian man helping passenger wide shot",
+      "48-year-old Nigerian man smiling urban street wide"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30-year-old Black British woman in a London flat, looking at her phone with a worried expression. She stands by a window with natural daylight streaming in. Vertical shot. No text or logos. 9:16 portrait.",
+      "Photorealistic. 30-year-old African woman at a courier counter on her phone, frustrated at high delivery prices. She wears casual attire in a bustling urban setting. Medium shot. Natural indoor lighting. No text or logos. 16:9 format.",
+      "Photorealistic. 35-year-old Nigerian woman staring at her laptop screen in dismay at a courier's expensive prices. Inside a modern office space. Medium shot. Soft indoor lighting. Expression of stress visible. No text or logos. 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man at a busy train station handing over a small parcel to a smiling traveler. Everyday clothing, expressions of hope. Wide shot capturing the bustling station environment. No text or logos. 16:9 format.",
+      "Photorealistic. 35-year-old Nigerian woman at her front door, joyfully receiving a parcel. Urban residential setting. Wide shot with soft, warm lighting to capture a sense of relief and happiness. No text or logos. 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man at an airport with a suitcase, wearing a slightly relieved expression. Everyday clothing, standing in front of a departures board. Medium shot with bustling airport background. No text or logos. 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man assisting a fellow passenger with luggage in an airport. Expressions of pride and community spirit. Everyday clothing. Wide shot encompassing the scene of collaboration. No text or logos. 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man walking serenely on an urban street, reflecting on success. Dressed in casual attire, expression of contentment. Wide shot with city background, warm evening light. No text or logos. 16:9 format."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic image of a 30-year-old Black British woman in a London flat, looking at her phone with a worried expression near a window with natural daylight streaming in. The camera slowly zooms in on her face over 4 seconds, capturing the tension and worry in her expression. The natural daylight highlights her concern, set against the background of an urban London flat."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic setting of a 30-year-old African woman at a courier counter on her phone, showcasing her frustration at high delivery prices in a bustling urban environment. The camera remains static, emphasizing her tense mood while the natural indoor lighting captures the busy atmosphere around her."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic scene of a 35-year-old Nigerian woman staring at her laptop screen in dismay within a modern office space. The camera holds the frame steadily, showing her stressed expression clearly illuminated by soft indoor lighting. Her frustration is palpable as she grapples with expensive courier prices."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Capture the photorealistic moment in a busy train station where a 48-year-old Nigerian man hands over a small parcel to a smiling traveler. The camera gently pans left, highlighting his stress amidst the bustling station environment, where hopes of delivery uncertainty play out."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "In an urban residential setting, show a photorealistic view of a 35-year-old Nigerian woman at her front door, joyfully receiving a parcel. The camera slowly pulls back over 4 seconds, revealing her immense relief and happiness as the warm lighting highlights the emotional weight being lifted with the delivery's arrival."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Show a photorealistic view of a 48-year-old Nigerian man at an airport with a suitcase, wearing a relieved expression. As he stands in front of a departures board, the camera slowly dolly forwards to capture his sense of overcoming obstacles, while the lively airport surroundings echo a feeling of optimism."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "A wide photorealistic shot of a 48-year-old Nigerian man assisting a fellow passenger with luggage at an airport. The shot slowly zooms out, encapsulating the pride and community spirit in their interaction, bathed in everyday airport lighting, set against the scene of collaborative motion."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic video of a 48-year-old Nigerian man walking with serenity down an urban street, reflecting on his success. The camera slowly pans right, capturing his expression of contentment and confidence as warm evening light casts a glow over his journey through the vibrant cityscape."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 100
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 9,
+      "visual_relevance": 10,
+      "engagement_potential": 9,
+      "brand_integration": 10,
+      "lesson_shareability": 9,
+      "overall": 96
+    },
+    "caption_tiktok": "The reason I built BootHop was simpler than you'd think.",
+    "caption_instagram": "Sending a charger shouldn't cost the earth. The reason behind BootHop. boothop.com",
+    "youtube_title": "Why I built BootHop.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "f9a3de33",
+    "date": "2026-09-06",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "family",
+    "hook": "His sister's engagement is in jeopardy.",
+    "problem": "Tunde's parcel was stuck in Birmingham.",
+    "stakes": "Engagement outfit incomplete without it.",
+    "resolution": "BootHop saved the day. Delivered Saturday night.",
+    "lesson": "Your parcel needs a ride.",
+    "visual_queries": [
+      "30s black british woman london anxious medium shot",
+      "african woman courier counter frustrated medium shot",
+      "nigerian woman stressed phone home medium shot",
+      "nigerian man train station parcel friendly wide shot",
+      "nigerian family receiving parcel smiling wide shot",
+      "nigerian man indoor parcel relieved medium shot",
+      "nigerian family celebrating delivered parcel indoors wide shot",
+      "nigerian man phone ride reflection medium shot"
+    ],
+    "image_prompts": [
+      "Photorealistic. 30s Black British woman in her London flat typing anxiously on her phone. Soft indoor lighting. Medium shot. She wears casual indoor attire, with a concerned expression on her face. Vertical 9:16 portrait. No text or logos.",
+      "Photorealistic. African woman in her 40s at a courier service counter, looking frustrated at the quoted price. Indoor lighting, visible counter details. Medium shot. The setting is bustling, with paperwork scattered across the counter. No branding. Horizontal 16:9 format.",
+      "Photorealistic. 30-year-old Nigerian woman sitting in her living room, deadline approaching, stressed while talking on her phone. The lighting is warm. The medium shot captures her tense expression, surrounded by home comforts. No text or logos. Horizontal 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man at a bustling train station, handing over a small parcel to a traveler. Warm, natural lighting. The wide shot includes a train in the background and captures the man's friendly demeanor. No text or logos. Horizontal 16:9 format.",
+      "Photorealistic. Diverse Nigerian family at their front door, smiling warmly as they receive a parcel. Daylight shines in. The wide shot captures multiple family members, including the slightly tired but relieved 48-year-old Nigerian man from earlier. No text or logos. Horizontal 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man indoors, holding the parcel that was successfully delivered. He has a relieved expression as warm indoor lighting highlights his everyday attire. Medium shot focused on his emotions. No text or logos. Vertical 9:16 portrait.",
+      "Photorealistic. Nigerian family joyfully celebrating inside their living room after receiving the parcel. The scene is full of warm, inviting light. The wide shot captures family togetherness featuring the 48-year-old Nigerian man from previous scenes. No text or logos. Horizontal 16:9 format.",
+      "Photorealistic. 48-year-old Nigerian man reflecting on the importance of parcel delivery while looking at his phone. He's sitting indoors with natural lighting. Medium shot highlighting his thoughtful expression. The atmosphere conveys a sense of learning. No text or logos. Vertical 9:16 portrait."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 30s Black British woman in her London flat typing anxiously on her phone. Soft indoor lighting, medium shot. Capture her concerned expression in casual indoor attire. The slow zoom in builds tension, emphasizing her worry in a vertical 9:16 portrait format."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. African woman in her 40s at a courier service counter, looking frustrated at the quoted price. The bustling indoor setting is detailed with paperwork scattered across the counter, enhanced by medium shot framing. The tension rises amidst the indoor lighting, presented in a horizontal 16:9 format."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 30-year-old Nigerian woman sitting in her living room, deadline approaching, stressed while talking on her phone. The warm lighting in the room captures her tense expression in a medium shot. The static camera emphasizes the weight of the situation, set in a horizontal 16:9 format."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 48-year-old Nigerian man at a bustling train station, handing over a small parcel to a traveler. Warm, natural lighting illuminates the scene with a train in the background. A gentle pan left captures the stress of the moment, with a wide shot showing the man's friendly demeanor in a horizontal 16:9 format."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. Diverse Nigerian family at their front door, smiling warmly as they receive a parcel. Daylight bathes the scene, capturing multiple family members, including the slightly tired yet relieved 48-year-old Nigerian man. A slow pull back reveals the emotional context, illustrating the stakes of the situation in a horizontal 16:9 format."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 48-year-old Nigerian man indoors, holding the parcel that was successfully delivered. A relieved expression is highlighted by warm indoor lighting in a medium shot. The slow dolly forward conveys a sense of optimistic energy in a vertical 9:16 portrait format."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. Nigerian family joyfully celebrating inside their living room after receiving the parcel. Warm, inviting light fills the room, capturing family togetherness with the 48-year-old Nigerian man. A slow zoom out emphasizes the happiness shared among loved ones in a horizontal 16:9 format."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. 48-year-old Nigerian man reflecting on the importance of parcel delivery while looking at his phone. Sitting indoors with natural lighting, the medium shot highlights his thoughtful expression. A slow pan right conveys a sense of learning and confidence in a vertical 9:16 portrait format."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 5,
+      "story_coherence": 5,
+      "beat_length": 10,
+      "brand_safety": 10,
+      "emotional_impact": 5,
+      "boothop_fit": 10,
+      "lesson_quality": 5,
+      "overall": 75
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 8,
+      "visual_relevance": 10,
+      "engagement_potential": 9,
+      "brand_integration": 10,
+      "lesson_shareability": 8,
+      "overall": 93
+    },
+    "caption_tiktok": "Send a parcel to Nigeria without the courier wait. boothop.com",
+    "caption_instagram": "Found the cheapest way to send a parcel to Nigeria in 60 seconds. boothop.com #SendItFast #Nigeria",
+    "youtube_title": "His sister's engagement was Sunday. The jewellery was still in Birmingham.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
+  },
+  {
+    "id": "b9f4a60c",
+    "date": "2026-09-07",
+    "slot": 2,
+    "version": "v1",
+    "pillar": "courier_business",
+    "hook": "The courier said seven days. She had three for an art exhibition.",
+    "problem": "Amarachi had a portrait in Bristol meant for a Lagos exhibit on Friday.",
+    "stakes": "An empty wall in Lagos if it didn't arrive.",
+    "resolution": "BootHop matched her with Emi, flying tomorrow. It arrived Thursday.",
+    "lesson": "The journey already existed. The parcel just joined it.",
+    "visual_queries": [
+      "35-year-old Black woman london flat phone medium",
+      "35-year-old African woman courier counter annoyed medium",
+      "35-year-old Nigerian woman laptop stressed medium",
+      "35-year-old Black woman train station parcel handover wide",
+      "35-year-old Nigerian woman parcel home door wide",
+      "35-year-old mixed-heritage woman airport pickup smile wide",
+      "35-year-old African woman art gallery delivery relaxed wide",
+      "35-year-old mixed-heritage woman city reflection thoughtful wide"
+    ],
+    "image_prompts": [
+      "Photorealistic. 35-year-old Black British woman in smart-casual attire at her stylish London flat. She views her smartphone with a concerned expression. Soft ambient lighting. Medium shot. No text. No logos. Vertical 9:16 portrait.",
+      "Photorealistic. 35-year-old African woman in smart-casual wear at a modern courier counter. She is on the phone, looking frustrated about delivery costs. Even lighting. Medium shot. No text. No logos. 9:16 vertical portrait.",
+      "Photorealistic. 35-year-old Nigerian woman in airport-smart clothing, in front of a laptop, stressed about delivery prices. She leans back in a chic office, with natural daylight streaming through. Medium shot. No text. No logos. 9:16 vertical format.",
+      "Photorealistic. 35-year-old Black woman in business-casual attire at a bustling train station. She receives a small parcel from a smiling Black man. Dynamic ambient lighting. Wide shot capturing the energy of the location. No text. No logos. Horizontal format.",
+      "Photorealistic. 35-year-old Nigerian woman grinning as she receives a parcel at her home door. Her attire is smart-casual, and there's a warm, welcoming vibe. Sunlight enhances the scene. Wide shot. No text. No logos. Horizontal format.",
+      "Photorealistic. 35-year-old mixed-heritage woman, in airport-smart casual attire, at an airport pickup zone, smiling as she collects the parcel. Bright airport lighting. Wide shot. No text. No logos. Horizontal format.",
+      "Photorealistic. 35-year-old African woman, dressed smart-casual, relaxing in an art gallery as the parcel arrives. She's filled with relief. The gallery is bathed in natural light. Wide shot. No text. No logos. Horizontal format.",
+      "Photorealistic. 35-year-old mixed-heritage woman, dressed in business casual, walking through a vibrant city, reflecting thoughtfully on the journey. The city is alive with activity. Wide shot captures the bustling atmosphere with her in focus. No text. No logos. Horizontal format."
+    ],
+    "video_prompts": [
+      {
+        "scene": 0,
+        "beat": "hook",
+        "camera_move": "slow zoom in",
+        "duration": 4,
+        "emotion": "worry",
+        "full_prompt": "Photorealistic. 35-year-old Black British woman in smart-casual attire at her stylish London flat. She views her smartphone with a concerned expression. Soft ambient lighting from the side creates a subtle ambiance. Medium shot. Vertical 9:16 portrait. The slow zoom in emphasizes her deep concern about the news she has just read."
+      },
+      {
+        "scene": 1,
+        "beat": "hook",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "tension",
+        "full_prompt": "Photorealistic. 35-year-old African woman in smart-casual wear at a modern courier counter. She is on the phone, looking frustrated about delivery costs. Even lighting illuminates her frustration. Medium shot. 9:16 vertical portrait. The static shot captures her tense phone conversation without distraction."
+      },
+      {
+        "scene": 2,
+        "beat": "problem",
+        "camera_move": "static",
+        "duration": 4,
+        "emotion": "frustration",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian woman in airport-smart clothing in front of a laptop, stressed about delivery prices. Natural daylight streams through, highlighting her emotional burden. Medium shot. 9:16 vertical format. Her hands occasionally move to her head, manifesting her frustration."
+      },
+      {
+        "scene": 3,
+        "beat": "problem",
+        "camera_move": "gentle pan left",
+        "duration": 4,
+        "emotion": "stress",
+        "full_prompt": "Photorealistic. 35-year-old Black woman in business-casual attire at a bustling train station. She receives a small parcel from a smiling Black man. Dynamic ambient lighting captures the energy around them. Wide shot. Horizontal format. The gentle pan left captures the busy scene and her moment of stress."
+      },
+      {
+        "scene": 4,
+        "beat": "stakes",
+        "camera_move": "slow pull back",
+        "duration": 4,
+        "emotion": "sadness",
+        "full_prompt": "Photorealistic. 35-year-old Nigerian woman grinning as she receives a parcel at her home door. Her attire is smart-casual, and there's a warm, welcoming vibe. Sunlight enhances the scene. Wide shot. Horizontal format. The slow pull back reveals her isolated joy amidst the stakes."
+      },
+      {
+        "scene": 5,
+        "beat": "resolution",
+        "camera_move": "slow dolly forward",
+        "duration": 4,
+        "emotion": "relief",
+        "full_prompt": "Photorealistic. 35-year-old mixed-heritage woman, in airport-smart casual attire, at an airport pickup zone, smiling as she collects the parcel. Bright airport lighting envelops her joy. Wide shot. Horizontal format. The slow dolly forward captures her sense of relief as the resolution unfolds."
+      },
+      {
+        "scene": 6,
+        "beat": "resolution",
+        "camera_move": "slow zoom out",
+        "duration": 4,
+        "emotion": "happiness",
+        "full_prompt": "Photorealistic. 35-year-old African woman, dressed smart-casual, relaxing in an art gallery as the parcel arrives. She's filled with relief. The gallery is bathed in natural light. Wide shot. Horizontal format. The slow zoom out depicts her happiness settled in the gallery atmosphere."
+      },
+      {
+        "scene": 7,
+        "beat": "lesson",
+        "camera_move": "slow pan right",
+        "duration": 4,
+        "emotion": "confidence",
+        "full_prompt": "Photorealistic. 35-year-old mixed-heritage woman, dressed in business casual, walking through a vibrant city, reflecting thoughtfully on the journey. The city is alive with activity. Wide shot captures the bustling atmosphere with her in focus. No text. No logos. Horizontal format. The slow pan right underlines her confident stride and reflective state."
+      }
+    ],
+    "qa_scores": {
+      "hook_strength": 10,
+      "anchor_consistency": 10,
+      "story_coherence": 10,
+      "beat_length": 5,
+      "brand_safety": 10,
+      "emotional_impact": 10,
+      "boothop_fit": 10,
+      "lesson_quality": 10,
+      "overall": 94
+    },
+    "review_scores": {
+      "hook_virality": 10,
+      "story_coherence": 10,
+      "emotional_journey": 10,
+      "visual_relevance": 10,
+      "engagement_potential": 10,
+      "brand_integration": 10,
+      "lesson_shareability": 10,
+      "overall": 100
+    },
+    "caption_tiktok": "Need to send to Lagos fast? Post it free at boothop.com — there's already someone flying. 🎨",
+    "caption_instagram": "Discover the fastest way to send to Lagos. Post your artwork free at boothop.com — someone's already flying. 🎨 #ArtExhibition #BootHop",
+    "youtube_title": "The courier said seven days. She had three for an art exhibition.",
+    "performance": {
+      "tiktok": {
+        "views": 0,
+        "likes": 0,
+        "shares": 0,
+        "comments": 0,
+        "watch_pct": 0
+      },
+      "instagram": {
+        "views": 0,
+        "likes": 0,
+        "saves": 0,
+        "shares": 0
+      },
+      "youtube": {
+        "views": 0,
+        "likes": 0,
+        "watch_time_sec": 0
+      }
+    }
   }
 ]
