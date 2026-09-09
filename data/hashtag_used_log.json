@@ -1,113 +1,5 @@
 [
   {
-    "tag": "#TravelCourier",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PackageDelivery",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PeoplePowered",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#AfricanCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelHacks",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelTips",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#SmartTravel",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#AfricanCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelHacks",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelTips",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#SmartTravel",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelCourier",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PackageDelivery",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PeoplePowered",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelCourier",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PackageDelivery",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#PeoplePowered",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelHacks",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelTips",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#SmartTravel",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelHacks",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#TravelTips",
-    "date": "2026-09-01"
-  },
-  {
-    "tag": "#SmartTravel",
-    "date": "2026-09-01"
-  },
-  {
     "tag": "#AfricanCommunity",
     "date": "2026-09-02"
   },
@@ -346,5 +238,17 @@
   {
     "tag": "#NigerianCommunity",
     "date": "2026-09-07"
+  },
+  {
+    "tag": "#AfricanCommunity",
+    "date": "2026-09-09"
+  },
+  {
+    "tag": "#NaijaCommunity",
+    "date": "2026-09-09"
+  },
+  {
+    "tag": "#NigerianCommunity",
+    "date": "2026-09-09"
   }
 ]
