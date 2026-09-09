@@ -1,40 +1,5 @@
 [
   {
-    "query": "nigerian woman wide shot reaction",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "traveller packing bag suitcase home",
-    "hit_type": "video",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "lagos murtala mohammed airport arrivals",
-    "hit_type": "video",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "black woman stressed worried phone bills money close up",
-    "hit_type": "dalle",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "wide shot plane takeoff",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "family reunion greeting airport arrivals emotional",
-    "hit_type": "video",
-    "date": "2026-08-09"
-  },
-  {
-    "query": "smartphone app booking sending parcel",
-    "hit_type": "video",
-    "date": "2026-08-09"
-  },
-  {
     "query": "african woman shocked medium shot",
     "hit_type": "perplexity_alt",
     "date": "2026-08-10"
@@ -1723,5 +1688,30 @@
     "query": "family reunion greeting airport arrivals smiling",
     "hit_type": "video",
     "date": "2026-09-08"
+  },
+  {
+    "query": "airport departure gate passengers boarding",
+    "hit_type": "video",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "black man shocked medium shot",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "traveller packing bag suitcase home",
+    "hit_type": "video",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "lagos murtala mohammed airport arrivals",
+    "hit_type": "video",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "family reunion greeting airport arrivals smiling",
+    "hit_type": "video",
+    "date": "2026-09-09"
   }
 ]

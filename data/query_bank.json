@@ -9478,5 +9478,205 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-09-07"
+  },
+  {
+    "query": "airplane taking off runway",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "taxi weaving through traffic",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "train speedily departing station",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "cargo ship in motion",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "passengers stuck in long queue",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "delayed trains at platform",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "stressful customs check airport",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "worried traveller checking watch",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "farewells at airport gate",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "nervous traveller waiting alone",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "emotional embraces at train station",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "lonely passenger staring out window",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "happy parcel handover london",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "arriving taxi at home",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "family reunion at arrivals",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "successful check-in at hotel",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "confident commuting in lagos",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "business professional in london taxi",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "efficient transfer at airport",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
+  },
+  {
+    "query": "executive walking city streets",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-09"
   }
 ]

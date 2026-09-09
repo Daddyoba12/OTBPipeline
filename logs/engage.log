@@ -1274,3 +1274,34 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [03:34:33] [Engage] YT token error: ('Connection aborted.', ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))
 [03:34:33] [Engage] No YT token — skipping YouTube
 [03:34:33] [Engage] === Engagement run complete ===
+[12:00:02] [Engage] === Engagement run starting ===
+[12:00:05] [Engage] Instagram done — 0 replies sent
+[12:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[12:00:08] [Engage] YouTube done — 0 replies sent
+[12:00:08] [Engage] === Engagement run complete ===
+[14:00:02] [Engage] === Engagement run starting ===
+[14:00:04] [Engage] Instagram done — 0 replies sent
+[14:00:06] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[14:00:06] [Engage] YouTube done — 0 replies sent
+[14:00:06] [Engage] === Engagement run complete ===
+[16:00:02] [Engage] === Engagement run starting ===
+[16:00:04] [Engage] Instagram done — 0 replies sent
+[16:00:05] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[16:00:05] [Engage] YouTube done — 0 replies sent
+[16:00:05] [Engage] === Engagement run complete ===
+[10:00:03] [Engage] === Engagement run starting ===
+[10:00:05] [Engage] Instagram done — 0 replies sent
+[10:00:05] [Engage] No recent YT posts to engage on
+[10:00:05] [Engage] === Engagement run complete ===
+[12:00:02] [Engage] === Engagement run starting ===
+[12:00:04] [Engage] Instagram done — 0 replies sent
+[12:00:04] [Engage] No recent YT posts to engage on
+[12:00:04] [Engage] === Engagement run complete ===
+[18:06:24] [Engage] === Engagement run starting ===
+[18:06:24] [Engage] IG comments fetch error (18188241469399419): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18188241469399419/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFljdXJpOFp5ejExZAG84d2JWdmR2eGZAaMVQwU0x3VFRTSjBMN2xlTWFveWtmMWRkbjBfYk81Y0tmc1NnSnJ3bi1qaXZAkVmpzZAlhYYWUxTEswRHFxdnE3alR5V09LVjAxQVRxYllKNXlR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[18:06:24] [Engage] IG comments fetch error (17969129499136676): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/17969129499136676/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFljdXJpOFp5ejExZAG84d2JWdmR2eGZAaMVQwU0x3VFRTSjBMN2xlTWFveWtmMWRkbjBfYk81Y0tmc1NnSnJ3bi1qaXZAkVmpzZAlhYYWUxTEswRHFxdnE3alR5V09LVjAxQVRxYllKNXlR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[18:06:24] [Engage] IG comments fetch error (18140697802596331): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18140697802596331/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAFljdXJpOFp5ejExZAG84d2JWdmR2eGZAaMVQwU0x3VFRTSjBMN2xlTWFveWtmMWRkbjBfYk81Y0tmc1NnSnJ3bi1qaXZAkVmpzZAlhYYWUxTEswRHFxdnE3alR5V09LVjAxQVRxYllKNXlR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[18:06:24] [Engage] Instagram done — 0 replies sent
+[18:06:24] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+[18:06:24] [Engage] No YT token — skipping YouTube
+[18:06:24] [Engage] === Engagement run complete ===
