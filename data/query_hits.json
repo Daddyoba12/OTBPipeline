@@ -1,70 +1,5 @@
 [
   {
-    "query": "african woman shocked medium shot",
-    "hit_type": "perplexity_alt",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "traveller packing bag suitcase home",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "lagos murtala mohammed airport arrivals",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "black woman stressed worried phone bills money close up",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "airport runway plane taking off",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "family reunion greeting airport arrivals emotional",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "smartphone app booking sending parcel",
-    "hit_type": "video",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "nigerian woman shocked face expensive price reaction close up",
-    "hit_type": "dalle_car_hook",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "used car dealership pushy salesman",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "old car broken down roadside",
-    "hit_type": "dalle_car_problem",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "black woman stressed worried phone bills money close up",
-    "hit_type": "dalle_car_stakes",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "suv driving scenic highway",
-    "hit_type": "dalle_car_resolution",
-    "date": "2026-08-10"
-  },
-  {
-    "query": "luxury suv parked exterior clean",
-    "hit_type": "dalle_car_lesson_pre",
-    "date": "2026-08-10"
-  },
-  {
     "query": "nigerian woman stressed worried close up face phone",
     "hit_type": "dalle_car_problem",
     "date": "2026-08-13"
@@ -1713,5 +1648,45 @@
     "query": "family reunion greeting airport arrivals smiling",
     "hit_type": "video",
     "date": "2026-09-09"
+  },
+  {
+    "query": "black woman hands passing parcel close up vertical",
+    "hit_type": "dalle_car_problem",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "family road trip suv",
+    "hit_type": "dalle_car_stakes",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "car key handover dealer smiling",
+    "hit_type": "dalle_car_resolution",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "family suv highway road trip",
+    "hit_type": "dalle_car_lesson_pre",
+    "date": "2026-09-09"
+  },
+  {
+    "query": "over shoulder black traveller phone screen notification close up",
+    "hit_type": "video",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "traveller packing bag suitcase home",
+    "hit_type": "video",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "lagos murtala mohammed airport arrivals",
+    "hit_type": "video",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "wide shot airport family reunion",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-11"
   }
 ]
