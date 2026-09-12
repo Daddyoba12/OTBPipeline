@@ -793,8 +793,10 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
             _tk = importlib.import_module(_tiktok_mod)
             pub_id = _tk.post_video(platform_videos.get("tiktok", video_path), content, slot)
             results["tiktok"] = pub_id
-            _log(f"TikTok: {'OK ' + pub_id if pub_id else 'FAILED'}")
-            if not pub_id:
+            if pub_id:
+                _log(f"TikTok: OK {pub_id}")
+            else:
+                _crash(f"Slot {slot} TikTok post returned None — Zernio rejected or no response")
                 _queue_pending_post("tiktok", slot, platform_videos.get("tiktok", video_path), content)
         except Exception as e:
             _crash(f"TikTok error: {e}")

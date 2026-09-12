@@ -58,37 +58,76 @@ GI_ARCHIVE.mkdir(parents=True, exist_ok=True)
 # Queries are genre/vibe based — no YouTube dependency, no cookies needed.
 
 SLOT_QUERIES = {
-    # IMPORTANT: Use artist-name searches, not genre-name searches.
-    # Genre searches ("afrobeats 2026") return mixes (7000s+), which are filtered
-    # by --match-filter duration < 600 and waste a download attempt.
-    # Artist searches ("Victony 2026") reliably return single tracks (2-4 min).
+    # IMPORTANT: Use artist-name or song-title searches, not genre searches.
+    # Genre searches ("afrobeats 2026") return long mixes filtered by duration < 600.
+    # Artist or title searches return single tracks (2-4 min).
+    # Keep list large — DRM blocks and 14-day log need many fallback options.
 
     1: [  # Morning 08:00 — Afrobeats energy
-        "Victony 2026",
-        "Rema official 2026",
-        "Asake 2026 official",
-        "Ayra Starr 2026",
-        "Ckay 2026 official",
-        "Fireboy DML 2026",
-        "Tems 2026 official",
+        "Victony Soweto",
+        "Rema Calm Down",
+        "Asake Organise",
+        "Ayra Starr Rush",
+        "Ckay Love Nwantiti",
+        "Fireboy Peru",
+        "Tems Free Mind",
+        "Gyakie Forever",
+        "Omah Lay Understand",
+        "Pheelz Finesse",
+        "Portable Zazu",
+        "Benson Boone Beautiful Things",
+        "Tyla Water official",
+        "Oxlade Kulosa",
+        "Khaid With You",
+        "Olamide Infinity",
+        "Wande Coal Again",
+        "Seun Kuti",
+        "Lojay Monalisa",
+        "Adekunle Gold Mercy",
     ],
     2: [  # Afternoon 14:00 — Naija / Afroswing
-        "Wizkid 2026 official",
-        "Burna Boy 2026 official",
-        "Davido 2026 official",
-        "Omah Lay 2026",
-        "Oxlade 2026 official",
-        "Fave 2026",
-        "Ruger 2026 official",
+        "Wizkid Essence",
+        "Burna Boy Last Last",
+        "Davido Fall",
+        "Omah Lay Bad Influence",
+        "Fave Baby Riddim",
+        "Ruger Dior",
+        "Simi Duduke",
+        "Flavour Nwa Baby",
+        "Tekno Yur Luv",
+        "Naira Marley Soapy",
+        "Zlatan Zanku",
+        "Mr Eazi Pour Me Water",
+        "Yemi Alade Johnny",
+        "Tiwa Savage Somebody Son",
+        "Afro B Drogba",
+        "Not3s My Lover",
+        "Maleek Berry Feel Like",
+        "Kida Kudz Buga remix",
+        "Black Sherif Kwaku the Traveller",
+        "Joeboy Beginning",
     ],
     3: [  # Evening 21:00 — Amapiano / chill Afrobeats
-        "Focalistic 2026",
-        "Kabza De Small 2026",
-        "Amapiano 2025 official",
-        "DJ Maphorisa 2025",
-        "Blaqbonez 2026",
-        "Zinoleesky 2026",
-        "Kizz Daniel 2026",
+        "Focalistic Ke Star",
+        "Kabza De Small Sponono",
+        "DJ Maphorisa Izolo",
+        "Blaqbonez Miss Understood",
+        "Zinoleesky Loving You",
+        "Kizz Daniel Buga",
+        "Shan'L Belo",
+        "Amaroto Bango",
+        "Felo Le Tee Ke Kho",
+        "Daliwonga Tshwala Bam",
+        "Young Stunna Adiwele",
+        "Reece Madlisa Siyathandana",
+        "Myztro John Vuli Gate",
+        "DJ Buckz Woza",
+        "Mas Musiq Vula Vula",
+        "Mnqobi Yazo Ngeke Balunge",
+        "Shasha Akulaleki",
+        "Samthing Soweto Akulaleki",
+        "De Mthuda Nana Thula",
+        "Msaki Ungowam",
     ],
 }
 
@@ -240,7 +279,7 @@ def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None
     tmp_out = str(TMP_DIR / "sc_track.%(ext)s")
     try:
         res = subprocess.run(
-            ["yt-dlp",
+            [r"C:\Python314\Scripts\yt-dlp.exe",
              "--no-playlist",
              "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K",
              "--max-filesize", "12m",         # skip albums/mixes (>12MB raw)
@@ -281,7 +320,7 @@ def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None
     if mp3.stat().st_size < 50_000:
         return None
 
-    if _used_recently(title, log_file=log_file):
+    if _used_recently(title, days=7, log_file=log_file):
         print(f"    [SC] Skip (used recently): {title[:55]}")
         mp3.unlink(missing_ok=True)
         return None

@@ -125,7 +125,6 @@ def _claude_generate(client: str, used: set) -> dict:
             f"   Style: Nigerian Pidgin, UK Gen-Z Nigerian, or US Nigerian slang. Vary each time.\n"
             f"   Should sound natural — someone talking about travel, sending a parcel, or earning.\n"
             f"   Examples of STYLE (do not copy these):\n"
-            f"     - 'Guy where you dey go? Omo boothop na my plug for this trip!'\n"
             f"     - 'Pack that envelope fam — someone dey carry am for cheap, trust me!'\n"
             f"     - 'Omo this trip dey pay for itself, boothop money never lie!'\n"
             f"     - 'Babe you load that bag already? — BootHop sorted everything!'\n"
@@ -403,11 +402,18 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
                 "scene_style": "dancing_vibes",
             }
         else:
-            data = {
-                "dialogue":    "Omo boothop na my plug for this trip!",
-                "scene_query": "beautiful African woman dancing confidently lifestyle wide shot",
-                "scene_style": "dancing_vibes",
-            }
+            _FALLBACK_HOOKS = [
+                ("Pack that bag fam — BootHop got you sorted, trust!",          "beautiful African woman dancing confidently lifestyle wide shot",   "dancing_vibes"),
+                ("Babe you load that bag already? BootHop sorted everything!",   "Black men gym workout motivated talking excited wide shot",         "gym_energy"),
+                ("No cap, BootHop saved me bare money on this trip!",            "African woman having great time friends laughing lifestyle wide shot","dancing_vibes"),
+                ("Omo this trip dey pay for itself, boothop money never lie!",   "stylish woman luxury car keys smiling confident medium shot",       "money_moment"),
+                ("Bro I sorted my mum's parcel through BootHop — quick quick!", "Black men at gym talking laughing energetic medium shot",           "gym_energy"),
+                ("Ayo how you manage that luggage allowance? BootHop money!",    "couple at airport departure gate excited wide shot",               "airport_vibes"),
+                ("Guy where you dey go? BootHop dey handle everything for me!", "stylish Black British woman airport departure lounge wide shot",    "airport_vibes"),
+                ("No stress fam — I used BootHop and it was mad cheap!",         "beautiful African woman dancing confidently lifestyle wide shot",   "dancing_vibes"),
+            ]
+            _fb = random.choice(_FALLBACK_HOOKS)
+            data = {"dialogue": _fb[0], "scene_query": _fb[1], "scene_style": _fb[2]}
 
     dialogue    = data["dialogue"]
     scene_query = data["scene_query"]
