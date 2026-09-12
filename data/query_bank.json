@@ -9678,5 +9678,85 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-09-09"
+  },
+  {
+    "query": "black british woman london flat phone vertical",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "african woman phone call frustrated medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "nigerian woman stressed laptop courier site medium",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "black man parcel train station smiling wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "nigerian woman parcel delivery door warm wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "40-year-old nigerian man aeroport terminal confident",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "40-year-old nigerian man smiling lagos delivery wide",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
+  },
+  {
+    "query": "40-year-old nigerian man thoughtful cityscape wide",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-11"
   }
 ]

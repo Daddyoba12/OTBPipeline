@@ -1688,5 +1688,25 @@
     "query": "wide shot airport family reunion",
     "hit_type": "perplexity_alt",
     "date": "2026-09-11"
+  },
+  {
+    "query": "black british parcel medium shot",
+    "hit_type": "perplexity_alt",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "nigerian woman stressed laptop courier site medium",
+    "hit_type": "video",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "black man parcel train station smiling wide shot",
+    "hit_type": "video",
+    "date": "2026-09-11"
+  },
+  {
+    "query": "nigerian woman parcel delivery door warm wide shot",
+    "hit_type": "video",
+    "date": "2026-09-11"
   }
 ]

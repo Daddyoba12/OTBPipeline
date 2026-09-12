@@ -1305,3 +1305,11 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [18:06:24] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
 [18:06:24] [Engage] No YT token — skipping YouTube
 [18:06:24] [Engage] === Engagement run complete ===
+[10:00:03] [Engage] === Engagement run starting ===
+[10:00:06] [Engage] Instagram done — 0 replies sent
+[10:00:07] [Engage] No recent YT posts to engage on
+[10:00:07] [Engage] === Engagement run complete ===
+[12:00:03] [Engage] === Engagement run starting ===
+[12:00:06] [Engage] Instagram done — 0 replies sent
+[12:00:07] [Engage] No recent YT posts to engage on
+[12:00:07] [Engage] === Engagement run complete ===

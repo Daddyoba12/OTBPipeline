@@ -1,54 +1,6 @@
 [
   {
     "tag": "#AfricanCommunity",
-    "date": "2026-09-02"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-02"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-02"
-  },
-  {
-    "tag": "#AfricanCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#AfricanCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#AfricanCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NaijaCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#NigerianCommunity",
-    "date": "2026-09-03"
-  },
-  {
-    "tag": "#AfricanCommunity",
     "date": "2026-09-04"
   },
   {
@@ -250,5 +202,17 @@
   {
     "tag": "#NigerianCommunity",
     "date": "2026-09-09"
+  },
+  {
+    "tag": "#AfricanCommunity",
+    "date": "2026-09-11"
+  },
+  {
+    "tag": "#NaijaCommunity",
+    "date": "2026-09-11"
+  },
+  {
+    "tag": "#NigerianCommunity",
+    "date": "2026-09-11"
   }
 ]
