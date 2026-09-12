@@ -1,14 +1,14 @@
 {
   "route_history": {
-    "LGW-LOS": "2026-09-04",
+    "LGW-LOS": "2026-09-11",
     "LHR-LOS": "2026-09-06",
     "MAN-LOS": "2026-09-09",
     "LHR-ABV": "2026-08-24",
     "LHR-PHC": "2026-08-02"
   },
-  "next_story_index": 5,
-  "next_closing_index": 5,
-  "next_engagement_index": 5,
+  "next_story_index": 6,
+  "next_closing_index": 1,
+  "next_engagement_index": 1,
   "posts": [
     {
       "date": "2026-07-07",
@@ -413,6 +413,15 @@
       "price_gbp": 312,
       "airline": "Air France",
       "hook": "£312 Manchester to Lagos. Someone is already making this journey.",
+      "status": "posted"
+    },
+    {
+      "date": "2026-09-11",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making the journey.",
       "status": "posted"
     }
   ]
