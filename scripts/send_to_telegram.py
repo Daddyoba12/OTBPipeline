@@ -54,55 +54,54 @@ def make_ig_grade(src: Path) -> Path:
     return dest if dest.exists() else None
 
 
-# ── Collect all base videos (no _ig / _li suffix) ─────────────────────────
-all_videos = sorted(
-    [f for f in OUTPUT.glob("otb_slot*.mp4")
-     if "_ig" not in f.name and "_li" not in f.name],
-    key=lambda f: f.stat().st_mtime
-)
+if __name__ == "__main__":
+    import json
 
-if not all_videos:
-    print("No videos found in OUTPUT/")
-    sys.exit(1)
+    # ── Collect all base videos (no _ig / _li suffix) ─────────────────────────
+    all_videos = sorted(
+        [f for f in OUTPUT.glob("otb_slot*.mp4")
+         if "_ig" not in f.name and "_li" not in f.name],
+        key=lambda f: f.stat().st_mtime
+    )
 
-tg_text(
-    f"OTB Pipeline — {len(all_videos)} video(s) ready for posting\n"
-    "Each slot sent as 3 versions: TikTok, Instagram, YouTube\n"
-    "Reply to post or re-voice any of them."
-)
-time.sleep(1)
+    if not all_videos:
+        print("No videos found in OUTPUT/")
+        sys.exit(1)
 
-for vid in all_videos:
-    # Read sidecar for hook text
-    sidecar = vid.with_suffix(".json")
-    hook = ""
-    pillar = ""
-    try:
-        import json
-        d = json.loads(sidecar.read_text(encoding="utf-8"))
-        hook   = d.get("hook", "")
-        pillar = d.get("pillar", "").replace("_", " ").title()
-    except Exception:
-        pass
+    tg_text(
+        f"OTB Pipeline — {len(all_videos)} video(s) ready for posting\n"
+        "Each slot sent as 3 versions: TikTok, Instagram, YouTube\n"
+        "Reply to post or re-voice any of them."
+    )
+    time.sleep(1)
 
-    slot_num = "?"
-    for part in vid.stem.split("_"):
-        if part.startswith("slot"):
-            slot_num = part.replace("slot", "")
+    for vid in all_videos:
+        sidecar = vid.with_suffix(".json")
+        hook = ""
+        pillar = ""
+        try:
+            d = json.loads(sidecar.read_text(encoding="utf-8"))
+            hook   = d.get("hook", "")
+            pillar = d.get("pillar", "").replace("_", " ").title()
+        except Exception:
+            pass
 
-    label_base = f"SLOT {slot_num} — {pillar}\n\"{hook[:80]}\""
+        slot_num = "?"
+        for part in vid.stem.split("_"):
+            if part.startswith("slot"):
+                slot_num = part.replace("slot", "")
 
-    # TikTok / YouTube — base video
-    tg_video(vid, f"{label_base}\n\nTikTok / YouTube version")
-    time.sleep(2)
+        label_base = f"SLOT {slot_num} — {pillar}\n\"{hook[:80]}\""
 
-    # Instagram — warm-graded
-    ig = make_ig_grade(vid)
-    if ig:
-        tg_video(ig, f"{label_base}\n\nInstagram Reel version (warm grade)")
+        tg_video(vid, f"{label_base}\n\nTikTok / YouTube version")
         time.sleep(2)
-    else:
-        tg_text(f"Slot {slot_num} — IG grade failed, use TikTok version for IG manually.")
 
-tg_text("All done. Post directly from here or forward to WhatsApp.")
-print("All videos sent.")
+        ig = make_ig_grade(vid)
+        if ig:
+            tg_video(ig, f"{label_base}\n\nInstagram Reel version (warm grade)")
+            time.sleep(2)
+        else:
+            tg_text(f"Slot {slot_num} — IG grade failed, use TikTok version for IG manually.")
+
+    tg_text("All done. Post directly from here or forward to WhatsApp.")
+    print("All videos sent.")

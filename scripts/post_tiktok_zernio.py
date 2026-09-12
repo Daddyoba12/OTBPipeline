@@ -16,7 +16,7 @@ from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA, ZERNIO_API_KEY, ZERNIO_ACCOUNT_ID
+from config import DATA, ZERNIO_API_KEY, ZERNIO_ACCOUNT_ID, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
 
 BASE_URL = "https://zernio.com/api/v1"
 
@@ -135,75 +135,97 @@ def _upload_file(upload_url: str, video_path: str) -> bool:
         return False
 
 
-def _publish(public_url: str, title: str, description: str) -> str | None:
-    """POST to Zernio /v1/posts. Returns Zernio post _id on success."""
-    import requests
-    body = {
-        "publishNow": True,
+def _build_body(public_url: str, title: str, description: str, draft: bool = False) -> dict:
+    return {
+        "publishNow": not draft,
         "title":      title,
         "content":    description,
-        "platforms": [
-            {
-                "platform":  "tiktok",
-                "accountId": ZERNIO_ACCOUNT_ID,
-            }
-        ],
-        "mediaItems": [
-            {
-                "type": "video",
-                "url":  public_url,
-            }
-        ],
+        "platforms": [{"platform": "tiktok", "accountId": ZERNIO_ACCOUNT_ID}],
+        "mediaItems": [{"type": "video", "url": public_url}],
         "tiktokSettings": {
-            "privacy_level":            "PUBLIC_TO_EVERYONE",
-            "allow_comment":            True,
-            "allow_duet":               True,
-            "allow_stitch":             True,
-            "commercial_content_type":  "none",
+            "privacy_level":             "PUBLIC_TO_EVERYONE",
+            "allow_comment":             True,
+            "allow_duet":                True,
+            "allow_stitch":              True,
+            "commercial_content_type":   "none",
             "content_preview_confirmed": True,
-            "express_consent_given":    True,
-            "media_type":               "video",
-            "video_made_with_ai":       False,
+            "express_consent_given":     True,
+            "media_type":                "video",
+            "video_made_with_ai":        False,
+            "draft":                     draft,
         },
     }
-    try:
+
+
+def _publish(public_url: str, title: str, description: str, slot: int = 0) -> str | None:
+    """POST to Zernio /v1/posts. Returns Zernio post _id on success, None on failure."""
+    import requests
+
+    def _attempt(draft: bool = False) -> tuple[int, dict]:
         r = requests.post(
             f"{BASE_URL}/posts",
             headers=_auth_headers(),
-            json=body,
+            json=_build_body(public_url, title, description, draft=draft),
             timeout=60,
         )
-        if r.status_code in (429, 402, 403):
-            from quota_alert import alert as _qa
-            _qa("Zernio", r.status_code, "TikTok post blocked")
         data = r.json() if r.content else {}
-        # Log full raw response — helps diagnose "queued" fallback vs real post IDs
-        _log(f"Zernio response {r.status_code}: {json.dumps(data)}")
+        _log(f"Zernio response {r.status_code} (draft={draft}): {json.dumps(data)[:300]}")
+        return r.status_code, data
 
-        # Hard failures — Zernio explicitly rejected the post
-        if r.status_code in (400, 401, 402, 403, 422, 429):
+    try:
+        status_code, data = _attempt(draft=False)
+
+        # Hard HTTP failures
+        if status_code in (400, 401, 402, 403, 422, 429):
             from quota_alert import alert as _qa
-            _qa("Zernio", r.status_code, data.get("error", "TikTok post blocked"))
+            _qa("Zernio", status_code, data.get("error", "TikTok post blocked"))
             return None
 
-        # 2xx → Zernio accepted the post. Walk all known ID field names.
+        # Check platform-level status inside the response (Zernio returns 207 on partial failure)
         inner = data.get("data") or data.get("post") or data.get("result") or {}
         if isinstance(inner, list):
             inner = inner[0] if inner else {}
+
+        plat_list = inner.get("platforms") or data.get("platforms") or []
+        if isinstance(plat_list, list) and plat_list:
+            plat_status = plat_list[0].get("status", "")
+            plat_error  = plat_list[0].get("errorMessage", "")
+            if plat_status == "failed":
+                _log(f"TikTok platform failed: {plat_error}")
+                # Capacity error — retry as draft so video lands in Creator Inbox
+                if "capacity" in plat_error.lower() or "draft" in plat_error.lower():
+                    _log("Retrying as draft -> TikTok Creator Inbox...")
+                    status_code, data = _attempt(draft=True)
+                    inner = data.get("data") or data.get("post") or data.get("result") or {}
+                    if isinstance(inner, list):
+                        inner = inner[0] if inner else {}
+                    draft_id = inner.get("_id") or inner.get("id") or ""
+                    if draft_id:
+                        _log(f"Draft sent to TikTok Creator Inbox: {draft_id}")
+                        try:
+                            import requests as _rq
+                            _rq.post(
+                                f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
+                                json={"chat_id": TELEGRAM_CHAT_ID,
+                                      "text": f"TikTok capacity full - Slot {slot} video sent to Creator Inbox as draft.\nOpen TikTok Creator Center > Drafts and post manually."},
+                                timeout=10,
+                            )
+                        except Exception:
+                            pass
+                        return f"draft:{draft_id}"
+                return None
+
         post_id = (
-            data.get("_id") or data.get("id") or
-            data.get("postId") or data.get("post_id") or
-            data.get("tiktokId") or data.get("tiktok_id") or
             inner.get("_id") or inner.get("id") or
             inner.get("postId") or inner.get("post_id") or
-            inner.get("tiktokId") or inner.get("tiktok_id") or ""
+            inner.get("tiktokId") or inner.get("tiktok_id") or
+            data.get("_id") or data.get("id") or ""
         )
-        status = (
-            data.get("status") or data.get("state") or data.get("publishStatus") or
-            inner.get("status") or inner.get("state") or inner.get("publishStatus") or ""
-        )
-        _log(f"Zernio post accepted: id={post_id!r} status={status!r} keys={list(data.keys())}")
-        return post_id or status or "queued"
+        plat_tk_id = plat_list[0].get("tiktokId", "") if plat_list else ""
+        result_id  = plat_tk_id or post_id
+        _log(f"TikTok posted: zernio_id={post_id!r} tiktok_id={plat_tk_id!r}")
+        return result_id or "queued"
+
     except Exception as e:
         _log(f"Publish failed: {e}")
         return None
@@ -248,7 +270,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     _log(f"Upload complete. publicUrl={public_url[:60]}...")
 
     # Step 3 — publish
-    post_id = _publish(public_url, title, description)
+    post_id = _publish(public_url, title, description, slot=slot)
     if post_id:
         _log_post(slot, post_id)
         _log(f"Posted! zernio_id={post_id}")
