@@ -1,0 +1,42 @@
+{
+  "series": "BOUNCE ON THE MOVE",
+  "characters": {
+    "bounce": {
+      "name": "Bounce",
+      "species": "Anthropomorphic mouse",
+      "appearance": {
+        "body": "Small, blue-grey",
+        "ears": "Large with warm pink inner ears",
+        "eyes": "Expressive brown eyes",
+        "clothing": "Grey travel jacket, small black-and-orange backpack, oversized red high-top trainers"
+      },
+      "personality": "Friendly, clever, slightly cheeky",
+      "style": "Premium original 3D animated-film appearance",
+      "voice_profile": "Warm, youthful British-Nigerian male. Friendly and conversational. Confident but not corporate. Slightly cheeky. Clear pronunciation of BootHop.",
+      "reference_image": "series_bible/character_refs/bounce_ref.png",
+      "dalle_prompt_prefix": "3D animated film style, original character, small blue-grey anthropomorphic mouse, large ears with pink inner ears, expressive brown eyes, grey travel jacket, small black-and-orange backpack, oversized red high-top trainers, premium Pixar-quality render, NOT resembling Tom and Jerry or any copyrighted character"
+    },
+    "dash": {
+      "name": "Dash",
+      "species": "Anthropomorphic cat",
+      "appearance": {
+        "body": "Fluffy, orange",
+        "eyes": "Large green eyes",
+        "muzzle": "White with whiskers",
+        "clothing": "Teal travel backpack"
+      },
+      "personality": "Kind, cautious, sometimes easily flustered",
+      "style": "Premium original 3D animated-film appearance",
+      "voice_profile": "Warm British voice. Slightly cautious and expressive. Distinctly different from Bounce. Family-friendly and natural.",
+      "reference_image": "series_bible/character_refs/dash_ref.png",
+      "dalle_prompt_prefix": "3D animated film style, original character, fluffy orange anthropomorphic cat, large green eyes, white muzzle and whiskers, teal travel backpack, premium Pixar-quality render, NOT resembling Tom and Jerry or any copyrighted character"
+    }
+  },
+  "rules": {
+    "consistency": "Do not change faces, colours, proportions, clothing or accessories between episodes",
+    "originality": "Must not resemble Tom and Jerry or any copyrighted characters",
+    "references": "Use character reference image in every image or video generation call",
+    "branding": "Do not generate text or the BootHop logo inside AI-created scenes — add during final editing",
+    "logo": "Use only the official supplied BootHop logo. Never redraw, reinterpret or misspell it."
+  }
+}

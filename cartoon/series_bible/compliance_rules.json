@@ -1,0 +1,38 @@
+{
+  "earnings": {
+    "rule": "Never guarantee earnings. Use conditional phrases only.",
+    "approved_phrases": ["can earn", "if matched", "potential to earn", "opportunity to earn"],
+    "banned_phrases": ["will earn", "guaranteed earnings", "you'll make", "earn every time"]
+  },
+  "content": {
+    "banned": [
+      "Political humour",
+      "Offensive stereotypes",
+      "Dangerous behaviour",
+      "Prohibited items",
+      "Cash rain imagery",
+      "Sports cars / get-rich-quick",
+      "Unrealistic cash amounts",
+      "Employer claims"
+    ],
+    "required": [
+      "Secure verification shown where relevant",
+      "Only sealed ordinary personal items",
+      "Legitimate marketplace framing"
+    ]
+  },
+  "branding": {
+    "spelling": "BootHop — capital B and H always",
+    "website": "boothop.com — exact spelling always",
+    "logo": "Official supplied logo only — never regenerate"
+  },
+  "platform_posting": {
+    "telegram_only": true,
+    "auto_post_to_social": false,
+    "approval_required": true,
+    "note": "Telegram approval marks episode as approved only — does NOT trigger public posting"
+  },
+  "cost_cap_usd": 5.00,
+  "proceed_auto_under": 5.00,
+  "require_approval_over": 5.00
+}

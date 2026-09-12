@@ -1,0 +1,13 @@
+{
+  "schedule": [
+    {"week": 1, "route": "London -> Manchester",         "direction": "outbound"},
+    {"week": 2, "route": "Nottingham -> Cardiff",        "direction": "outbound"},
+    {"week": 3, "route": "London -> Newcastle",          "direction": "outbound"},
+    {"week": 4, "route": "London -> Lagos/Nigeria",      "direction": "international"},
+    {"week": 5, "route": "Manchester -> London",         "direction": "return"},
+    {"week": 6, "route": "Cardiff -> Nottingham",        "direction": "return"},
+    {"week": 7, "route": "Newcastle -> London",          "direction": "return"},
+    {"week": 8, "route": "London -> New York",           "direction": "international"}
+  ],
+  "used": []
+}

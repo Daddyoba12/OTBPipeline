@@ -1,0 +1,27 @@
+{
+  "format": {
+    "resolution": "1080x1920",
+    "aspect_ratio": "9:16",
+    "fps": 30,
+    "codec": "h264",
+    "container": "mp4",
+    "duration_seconds": "25-35"
+  },
+  "style": "Premium 3D animated film, Pixar-quality render, warm cinematic lighting",
+  "camera": "Cinematic movement, expressive animation, natural gestures, blinking, accurate lip-sync",
+  "scenes_per_episode": "4-6",
+  "caption_style": {
+    "font": "Bold, clean sans-serif",
+    "position": "Mobile-safe margins",
+    "match_dialogue": true
+  },
+  "branding": {
+    "logo_source": "series_bible/approved_logo/",
+    "add_in_post": true,
+    "no_generated_text_in_scenes": true
+  },
+  "lighting": {
+    "preferred": "Golden hour warm light for home scenes, bright natural light for travel",
+    "avoid": "Dark or horror-style lighting"
+  }
+}
