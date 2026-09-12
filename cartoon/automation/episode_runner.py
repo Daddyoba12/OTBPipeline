@@ -27,7 +27,6 @@ from config import (
 
 # Optional keys — report missing, never print values
 _PERPLEXITY_KEY  = os.environ.get("PERPLEXITY_API_KEY", "")
-_KLING_KEY       = os.environ.get("KLING_API_KEY", "")
 
 COST_CAP = 5.00
 
@@ -211,14 +210,40 @@ EPISODE_1 = {
 def estimate_cost(episode: dict) -> dict:
     n_scenes = len(episode["shots"])
     costs = {
-        "dalle_images":    round(n_scenes * 0.04, 2),      # DALL-E 3 standard
-        "kling_video":     round(n_scenes * 0.35, 2),      # ~5s clip per scene
-        "elevenlabs_tts":  round(len(episode["dialogue"]) * 0.0003, 3),
+        "dalle_images":    round(n_scenes * 0.04, 2),                          # DALL-E 3 standard
+        "sora_video":      round(n_scenes * 5 * 0.03, 2),                      # Sora: $0.03/sec × 5s × n_scenes
+        "openai_tts":      round(len(episode["dialogue"]) / 1_000_000 * 15, 4),# TTS-1: $15 per 1M chars
         "elevenlabs_music": 0.10,
-        "perplexity":      0.02,
     }
     costs["total"] = round(sum(costs.values()), 2)
     return costs
+
+
+# ── OpenAI balance checker ─────────────────────────────────────────────────────
+def _check_openai_balance(estimated_cost: float):
+    import requests as _rq
+    WARNING_THRESHOLD = 5.00
+    try:
+        r = _rq.get(
+            "https://api.openai.com/v1/dashboard/billing/credit_grants",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
+            timeout=15,
+        )
+        if r.status_code != 200:
+            _log(f"  Balance check: HTTP {r.status_code} — skipping")
+            return
+        available = r.json().get("total_available") or 0
+        _log(f"  OpenAI balance: ${available:.2f}")
+        if available < estimated_cost + WARNING_THRESHOLD:
+            _tg(
+                f"*OpenAI Credits Low*\n"
+                f"Balance: ${available:.2f}\n"
+                f"Next episode estimate: ${estimated_cost:.2f}\n"
+                f"Please top up at platform.openai.com/settings/billing"
+            )
+            _log(f"  Balance warning sent to Telegram (${available:.2f} remaining)")
+    except Exception as e:
+        _log(f"  Balance check failed: {e}")
 
 
 # ── Scene image generation (DALL-E 3) ─────────────────────────────────────────
@@ -250,32 +275,17 @@ def generate_scene_image(shot: dict, ep_dir: Path, retry: int = 0) -> Path | Non
         return None
 
 
-# ── Voiceover (ElevenLabs) ────────────────────────────────────────────────────
+# ── Voiceover (OpenAI TTS-1) ──────────────────────────────────────────────────
 def generate_voiceover(text: str, ep_dir: Path) -> Path | None:
     import requests as _rq
-    voices = _load_json(BIBLE / "voices.json")
-    voice_id = voices.get("bounce", {}).get("voice_id")
-
-    if not voice_id:
-        _log("  No Bounce voice_id set — selecting from ElevenLabs...")
-        voice_id = _select_bounce_voice()
-        if voice_id:
-            voices["bounce"]["voice_id"] = voice_id
-            _save_json(BIBLE / "voices.json", voices)
-
-    if not voice_id:
-        _log("  Cannot generate voiceover — no voice_id available")
-        return None
-
-    settings = voices.get("bounce", {}).get("settings", {})
-    _log(f"  Generating voiceover ({len(text)} chars, voice={voice_id})...")
+    _log(f"  Generating voiceover ({len(text)} chars, OpenAI TTS-1)...")
     try:
         r = _rq.post(
-            f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-            headers={"xi-api-key": ELEVENLABS_API_KEY,
+            "https://api.openai.com/v1/audio/speech",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
                      "Content-Type": "application/json"},
-            json={"text": text, "model_id": "eleven_multilingual_v2",
-                  "voice_settings": settings},
+            json={"model": "tts-1", "input": text,
+                  "voice": "echo", "speed": 0.95},
             timeout=60,
         )
         r.raise_for_status()
@@ -286,28 +296,6 @@ def generate_voiceover(text: str, ep_dir: Path) -> Path | None:
     except Exception as e:
         _log(f"  Voiceover failed: {e}")
         return None
-
-
-def _select_bounce_voice() -> str | None:
-    import requests as _rq
-    try:
-        r = _rq.get("https://api.elevenlabs.io/v1/voices",
-                    headers={"xi-api-key": ELEVENLABS_API_KEY}, timeout=15)
-        voices = r.json().get("voices", [])
-        # Prefer British-Nigerian / young male voices
-        for kw in ["british", "nigerian", "young", "male"]:
-            for v in voices:
-                labels = str(v.get("labels", {})).lower()
-                if kw in labels:
-                    _log(f"  Selected voice: {v['name']} ({v['voice_id']})")
-                    return v["voice_id"]
-        # Fall back to first available
-        if voices:
-            _log(f"  Fallback voice: {voices[0]['name']} ({voices[0]['voice_id']})")
-            return voices[0]["voice_id"]
-    except Exception as e:
-        _log(f"  Voice selection failed: {e}")
-    return None
 
 
 # ── Background music (ElevenLabs Music) ───────────────────────────────────────
@@ -341,59 +329,92 @@ def generate_music(duration_s: float, ep_dir: Path) -> Path | None:
         return None
 
 
-# ── Image -> 5s video clip (Kling) ────────────────────────────────────────────
-def image_to_video_kling(image_path: Path, prompt: str, ep_dir: Path, shot_id: str) -> Path | None:
+# ── Image -> 5s video clip (OpenAI Sora) ─────────────────────────────────────
+def image_to_video_sora(image_path: Path, prompt: str, ep_dir: Path, shot_id: str) -> Path | None:
     import requests as _rq
-
-    if not _KLING_KEY:
-        _log("  KLING_API_KEY not set — using still image as video fallback")
-        return _still_to_video(image_path, ep_dir, shot_id, duration=5)
-
-    _log(f"  Kling video generation: {shot_id}...")
+    _log(f"  Sora video generation: {shot_id}...")
     try:
-        # Submit job
+        body = {
+            "model": "sora-1080p",
+            "prompt": prompt,
+            "duration": 5,
+            "size": "1080x1920",
+            "n": 1,
+        }
+        # Attach DALL-E image for image-to-video
+        if image_path and image_path.exists():
+            body["image"] = f"data:image/png;base64,{_b64(image_path)}"
+
         r = _rq.post(
-            "https://api.aimlapi.com/v2/generate/video/kling/generation",
-            headers={"Authorization": f"Bearer {_KLING_KEY}",
+            "https://api.openai.com/v1/video/generations",
+            headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
                      "Content-Type": "application/json"},
-            json={"model": "kling-v1", "prompt": prompt,
-                  "image_url": f"data:image/png;base64,{_b64(image_path)}",
-                  "duration": 5, "aspect_ratio": "9:16"},
-            timeout=30,
+            json=body,
+            timeout=60,
         )
-        r.raise_for_status()
-        gen_id = r.json().get("id") or r.json().get("generation_id")
-        if not gen_id:
-            _log(f"  Kling: no generation ID returned")
+        # If API rejects image param, retry as text-to-video
+        if r.status_code == 400 and "image" in (r.text or "").lower():
+            _log(f"  Sora: image-to-video unsupported — retrying text-to-video...")
+            body.pop("image", None)
+            r = _rq.post(
+                "https://api.openai.com/v1/video/generations",
+                headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
+                         "Content-Type": "application/json"},
+                json=body,
+                timeout=60,
+            )
+
+        if r.status_code not in (200, 202):
+            _log(f"  Sora: API error {r.status_code} — {r.text[:200]}")
             return _still_to_video(image_path, ep_dir, shot_id)
 
-        # Poll for result
-        for _ in range(30):
-            time.sleep(10)
+        data = r.json()
+
+        # Synchronous response with URL
+        if data.get("data") and data["data"][0].get("url"):
+            url = data["data"][0]["url"]
+            vid_data = _rq.get(url, timeout=120).content
+            out = ep_dir / f"{shot_id}_clip.mp4"
+            out.write_bytes(vid_data)
+            _log(f"  Sora OK: {out.name} ({len(vid_data)//1024}KB)")
+            return out
+
+        # Async: poll for completion
+        gen_id = data.get("id")
+        if not gen_id:
+            _log(f"  Sora: no generation ID — falling back")
+            return _still_to_video(image_path, ep_dir, shot_id)
+
+        _log(f"  Sora: polling {gen_id}...")
+        for attempt in range(40):
+            time.sleep(15)
             status_r = _rq.get(
-                f"https://api.aimlapi.com/v2/generate/video/kling/generation",
-                headers={"Authorization": f"Bearer {_KLING_KEY}"},
-                params={"generation_id": gen_id},
+                f"https://api.openai.com/v1/video/generations/{gen_id}",
+                headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
                 timeout=15,
             )
-            data = status_r.json()
-            state = data.get("status", "")
+            status_data = status_r.json()
+            state = status_data.get("status", "")
+            _log(f"  Sora: {state} (attempt {attempt+1}/40)")
             if state == "completed":
-                url = (data.get("video") or {}).get("url", "")
+                result_list = status_data.get("data") or []
+                url = result_list[0].get("url", "") if result_list else ""
                 if url:
-                    vid_data = _rq.get(url, timeout=60).content
+                    vid_data = _rq.get(url, timeout=120).content
                     out = ep_dir / f"{shot_id}_clip.mp4"
                     out.write_bytes(vid_data)
-                    _log(f"  Kling OK: {out.name} ({len(vid_data)//1024}KB)")
+                    _log(f"  Sora OK: {out.name} ({len(vid_data)//1024}KB)")
                     return out
-            elif state in ("failed", "error"):
-                _log(f"  Kling failed: {data.get('error','unknown')}")
+                _log("  Sora: completed but no URL")
+                break
+            elif state in ("failed", "error", "cancelled"):
+                _log(f"  Sora failed: {status_data.get('error', 'unknown')}")
                 break
 
         return _still_to_video(image_path, ep_dir, shot_id)
 
     except Exception as e:
-        _log(f"  Kling error: {e}")
+        _log(f"  Sora error: {e}")
         return _still_to_video(image_path, ep_dir, shot_id)
 
 
@@ -610,9 +631,10 @@ def produce_episode(episode: dict, dry_run: bool = False):
     ep_dir.mkdir(parents=True, exist_ok=True)
     _log(f"=== Producing Episode {ep_num}: {episode['title']} ===")
 
-    # Cost estimate
+    # Cost estimate + balance check
     costs = estimate_cost(episode)
     _log(f"Estimated cost: ${costs['total']:.2f} (cap: ${COST_CAP:.2f})")
+    _check_openai_balance(costs["total"])
 
     if dry_run:
         _log("Dry run — stopping before generation")
@@ -634,8 +656,8 @@ def produce_episode(episode: dict, dry_run: bool = False):
     }
     _save_json(manifest_path, manifest)
 
-    actual_costs = {"dalle_images": 0.0, "kling_video": 0.0,
-                    "elevenlabs_tts": 0.0, "elevenlabs_music": 0.0}
+    actual_costs = {"dalle_images": 0.0, "sora_video": 0.0,
+                    "openai_tts": 0.0, "elevenlabs_music": 0.0}
 
     # Generate scene images
     _log("Stage 1: Scene images (DALL-E 3)...")
@@ -653,9 +675,9 @@ def produce_episode(episode: dict, dry_run: bool = False):
         vid_path = ep_dir / f"{shot['id']}_clip.mp4"
         if not vid_path.exists():
             if img:
-                vid_path = image_to_video_kling(img, shot["dalle_scene"], ep_dir, shot["id"])
+                vid_path = image_to_video_sora(img, shot["dalle_scene"], ep_dir, shot["id"])
                 if vid_path:
-                    actual_costs["kling_video"] += 0.35
+                    actual_costs["sora_video"] += round(5 * 0.03, 2)  # 5s × $0.03/s
         else:
             _log(f"  Reusing existing clip: {vid_path.name}")
 
@@ -668,12 +690,12 @@ def produce_episode(episode: dict, dry_run: bool = False):
         return
 
     # Generate voiceover
-    _log("Stage 2: Voiceover (ElevenLabs)...")
+    _log("Stage 2: Voiceover (OpenAI TTS-1)...")
     vo_path = ep_dir / "voiceover.mp3"
     if not vo_path.exists():
         vo_path = generate_voiceover(episode["dialogue"], ep_dir)
         if vo_path:
-            actual_costs["elevenlabs_tts"] = round(len(episode["dialogue"]) * 0.0003, 3)
+            actual_costs["openai_tts"] = round(len(episode["dialogue"]) / 1_000_000 * 15, 4)
     else:
         _log("  Reusing existing voiceover")
 
