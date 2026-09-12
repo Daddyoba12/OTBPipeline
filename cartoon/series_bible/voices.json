@@ -1,0 +1,36 @@
+{
+  "provider": "elevenlabs",
+  "bounce": {
+    "character": "Bounce",
+    "voice_id": null,
+    "description": "Warm, youthful British-Nigerian male. Friendly, conversational, slightly cheeky. Not corporate.",
+    "model": "eleven_multilingual_v2",
+    "settings": {
+      "stability": 0.55,
+      "similarity_boost": 0.80,
+      "style": 0.25,
+      "use_speaker_boost": true
+    },
+    "note": "Set voice_id after first ElevenLabs selection. Reuse every episode."
+  },
+  "dash": {
+    "character": "Dash",
+    "voice_id": null,
+    "description": "Warm British voice. Slightly cautious and expressive. Distinctly different from Bounce.",
+    "model": "eleven_multilingual_v2",
+    "settings": {
+      "stability": 0.65,
+      "similarity_boost": 0.75,
+      "style": 0.20,
+      "use_speaker_boost": true
+    },
+    "note": "Set voice_id after first ElevenLabs selection. Reuse every episode."
+  },
+  "music": {
+    "style": "Amapiano instrumental",
+    "bpm": "106-110",
+    "description": "Warm African percussion, smooth piano chords, light log-drum rhythm. Modern and playful. No vocals. No copyrighted samples.",
+    "mix_ducking_db": -14,
+    "ducking_when_speech": true
+  }
+}
