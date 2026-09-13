@@ -107,7 +107,14 @@ def _ffprobe_duration(path: Path) -> float:
         return 0.0
 
 
-# ── Episode 1 Script (hardcoded per spec) ──────────────────────────────────────
+# Character description — matches reference videos (orange Pixar-quality cat)
+_BOUNCE = (
+    "3D animated Pixar-quality film style, original character, orange anthropomorphic cat named Bounce, "
+    "large vivid green eyes, warm orange tabby fur, white muzzle with short whiskers, "
+    "very expressive emotive face, humanoid posture, premium cinema render"
+)
+
+# ── Episode 1: SPARE SPACE ─────────────────────────────────────────────────────
 EPISODE_1 = {
     "number": 1,
     "title": "SPARE SPACE",
@@ -128,10 +135,8 @@ EPISODE_1 = {
             "description": "Bounce stares into partly empty suitcase, looks at camera with cheeky expression.",
             "on_screen_text": "SPARE SPACE?",
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "wearing a grey travel jacket and red high-top trainers, looking into an open suitcase "
-                "on a bed with a cheeky smile, golden hour light, modern London apartment, "
-                "city skyline visible through window. No text in image."
+                f"{_BOUNCE}, looking into an open suitcase on a bed with a cheeky smile, "
+                "golden hour light, modern London apartment, city skyline visible through window. No text in image."
             ),
         },
         {
@@ -141,8 +146,7 @@ EPISODE_1 = {
             "description": "Bounce sits on sofa, holds up phone showing travel plan.",
             "on_screen_text": "LONDON -> MANCHESTER",
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "sitting on a modern sofa, holding up a smartphone with a friendly expression, "
+                f"{_BOUNCE}, sitting on a modern sofa, holding up a smartphone with a friendly expression, "
                 "golden hour light, cosy London apartment interior. No text in image."
             ),
         },
@@ -153,8 +157,7 @@ EPISODE_1 = {
             "description": "Bounce holds phone, listing trip on BootHop app.",
             "on_screen_text": "LIST YOUR JOURNEY",
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "holding a smartphone up proudly with an excited expression, "
+                f"{_BOUNCE}, holding a smartphone up proudly with an excited expression, "
                 "bright natural light, modern flat interior. No text in image."
             ),
         },
@@ -165,8 +168,7 @@ EPISODE_1 = {
             "description": "Bounce explains matching and verification process.",
             "on_screen_text_sequence": ["GET MATCHED", "VERIFY", "ACCEPT"],
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "gesturing with both hands in an explanatory way, confident friendly expression, "
+                f"{_BOUNCE}, gesturing with both hands in an explanatory way, confident friendly expression, "
                 "warm interior lighting, modern apartment. No text in image."
             ),
         },
@@ -176,8 +178,7 @@ EPISODE_1 = {
             "label": "The Humour",
             "description": "Bounce looks at train ticket, jokes it won't pay for itself, closes suitcase.",
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "holding a train ticket with a comically exasperated expression, "
+                f"{_BOUNCE}, holding a train ticket with a comically exasperated expression, "
                 "golden hour light, London apartment. No text in image."
             ),
         },
@@ -189,8 +190,7 @@ EPISODE_1 = {
             "on_screen_text_sequence": ["GOING THAT WAY ANYWAY?", "BOOTHOP IT.", "boothop.com"],
             "next_teaser": "NEXT EPISODE: THE HANDOVER",
             "dalle_scene": (
-                "3D animated film, Pixar quality. Small blue-grey anthropomorphic mouse named Bounce "
-                "giving a confident thumbs up with a warm smile, "
+                f"{_BOUNCE}, giving a confident thumbs up with a warm smile, "
                 "golden hour light, London apartment with suitcase ready by the door. No text in image."
             ),
         },
@@ -203,6 +203,96 @@ EPISODE_1 = {
     "hashtags": "#BootHop #BounceOnTheMove #StudentLife #LondonToManchester #DiasporaLife #AfricanCommunity #SmartTravel #Earn",
     "setting": "Bounce's modern London apartment, golden hour",
     "story_summary": "Bounce discovers he can list spare luggage space on BootHop and potentially earn on his London-Manchester journey.",
+}
+
+# ── Episode 2: THE HANDOVER ────────────────────────────────────────────────────
+EPISODE_2 = {
+    "number": 2,
+    "title": "THE HANDOVER",
+    "route": "Nottingham -> Cardiff",
+    "dialogue": (
+        "I needed to get a box to my mate in Cardiff. "
+        "Courier wanted forty quid. So I listed the item on BootHop — "
+        "a verified traveller going that way picked up the job. "
+        "I dropped the box at the meet point, they handled the rest. "
+        "My mate got it same day. For way less. BootHop it."
+    ),
+    "shots": [
+        {
+            "id": "s1_hook",
+            "time": "0:00-0:02",
+            "label": "Hook",
+            "description": "Bounce stares at a cardboard box, looks at camera with exasperated expression.",
+            "on_screen_text": "40 QUID?!",
+            "dalle_scene": (
+                f"{_BOUNCE}, standing in a modern flat, staring at a cardboard box on the floor "
+                "with an exasperated shocked expression, holding a phone, golden hour light, cosy Nottingham apartment. No text in image."
+            ),
+        },
+        {
+            "id": "s2_problem",
+            "time": "0:02-0:08",
+            "label": "The Problem",
+            "description": "Bounce scrolls courier prices on phone, eyes widening in shock.",
+            "on_screen_text": "COURIER FEES = MADNESS",
+            "dalle_scene": (
+                f"{_BOUNCE}, sitting on a sofa, scrolling through a smartphone with wide eyes and a horrified expression, "
+                "warm interior lighting, cosy modern apartment. No text in image."
+            ),
+        },
+        {
+            "id": "s3_idea",
+            "time": "0:08-0:14",
+            "label": "The Idea",
+            "description": "Bounce opens BootHop app, lists the item with a smile.",
+            "on_screen_text": "LIST YOUR ITEM",
+            "dalle_scene": (
+                f"{_BOUNCE}, holding a smartphone with a lightbulb-moment excited expression, "
+                "bright natural light, modern Nottingham flat. No text in image."
+            ),
+        },
+        {
+            "id": "s4_match",
+            "time": "0:14-0:21",
+            "label": "The Match",
+            "description": "Bounce sees a verified traveller matched on the app heading to Cardiff.",
+            "on_screen_text_sequence": ["TRAVELLER VERIFIED", "GOING TO CARDIFF", "MATCHED!"],
+            "dalle_scene": (
+                f"{_BOUNCE}, looking at his phone with a relieved and excited expression, "
+                "pumping fist in celebration, cosy apartment, afternoon light. No text in image."
+            ),
+        },
+        {
+            "id": "s5_handover",
+            "time": "0:21-0:27",
+            "label": "The Handover",
+            "description": "Bounce hands the cardboard box to the traveller at a street meet-up point.",
+            "dalle_scene": (
+                f"{_BOUNCE}, handing a cardboard box to a person on a city street, "
+                "confident friendly expression, daytime Nottingham street setting. No text in image."
+            ),
+        },
+        {
+            "id": "s6_ending",
+            "time": "0:27-0:32",
+            "label": "Ending",
+            "description": "Bounce gives a satisfied thumbs up — mate in Cardiff got the box same day.",
+            "on_screen_text_sequence": ["DELIVERED SAME DAY", "FOR WAY LESS", "BOOTHOP IT.", "boothop.com"],
+            "next_teaser": "NEXT EPISODE: TOO MUCH LUGGAGE?",
+            "dalle_scene": (
+                f"{_BOUNCE}, giving a confident satisfied thumbs up with a big warm smile, "
+                "golden hour light, Nottingham city background. No text in image."
+            ),
+        },
+    ],
+    "caption": (
+        "Bounce needed to send a box from Nottingham to Cardiff. "
+        "Courier wanted £40. He listed it on BootHop — a verified traveller handled the rest. "
+        "Delivered same day for way less. BootHop it. boothop.com"
+    ),
+    "hashtags": "#BootHop #BounceOnTheMove #SendSmart #NottinghamToCardiff #DiasporaLife #AfricanCommunity #SmartSending #SaveMoney",
+    "setting": "Bounce's Nottingham flat and city street handover point",
+    "story_summary": "Bounce has a box to send to Cardiff but is shocked by courier prices. He lists it on BootHop, gets matched with a verified traveller, and arranges a street handover — delivered same day for way less.",
 }
 
 
@@ -805,26 +895,48 @@ def produce_episode(episode: dict, dry_run: bool = False):
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--episode", type=int, default=None)
-    parser.add_argument("--dry-run", action="store_true")
+    parser = argparse.ArgumentParser(description="BOUNCE ON THE MOVE episode runner")
+    parser.add_argument("--episode", type=int, default=None, help="Start from this episode number")
+    parser.add_argument("--batch",   type=int, default=1,    help="Produce N consecutive episodes (Sunday batch)")
+    parser.add_argument("--post",    type=int, default=None, help="Re-post completed episode N to Telegram now")
+    parser.add_argument("--dry-run", action="store_true",    help="Estimate cost only, no generation")
     args = parser.parse_args()
 
     # Check required credentials
     missing = []
-    if not OPENAI_API_KEY:        missing.append("OPENAI_API_KEY")
-    if not ELEVENLABS_API_KEY:    missing.append("ELEVENLABS_API_KEY")
-    if not TELEGRAM_TOKEN:        missing.append("TELEGRAM_TOKEN / TELEGRAM_BOT_TOKEN")
+    if not OPENAI_API_KEY:     missing.append("OPENAI_API_KEY")
+    if not ELEVENLABS_API_KEY: missing.append("ELEVENLABS_API_KEY")
+    if not TELEGRAM_TOKEN:     missing.append("TELEGRAM_TOKEN")
     if missing:
         print(f"Missing credentials: {', '.join(missing)}")
         sys.exit(1)
 
-    episodes_map = {1: EPISODE_1}
-    ep_num = args.episode or _load_json(STATE / "episode_counter.json").get("next_episode", 1)
-    episode = episodes_map.get(ep_num)
+    episodes_map = {1: EPISODE_1, 2: EPISODE_2}
 
-    if not episode:
-        print(f"Episode {ep_num} script not yet defined. Add it to episode_runner.py.")
-        sys.exit(1)
+    # --post: re-deliver a finished episode to Telegram without regenerating
+    if args.post is not None:
+        ep = episodes_map.get(args.post)
+        if not ep:
+            print(f"Episode {args.post} not defined in episodes_map")
+            sys.exit(1)
+        ep_dir = EPISODES / f"episode_{args.post:03}"
+        final  = ep_dir / "final_video.mp4"
+        if not final.exists():
+            print(f"No final_video.mp4 for episode {args.post}. Produce it first.")
+            sys.exit(1)
+        manifest = _load_json(ep_dir / "episode_manifest.json")
+        costs = manifest.get("actual_cost", {"total": 0})
+        qa    = manifest.get("qa", {"passed": True, "issues": [], "duration": 30})
+        _log(f"Re-posting episode {args.post} to Telegram...")
+        deliver_to_telegram(ep, ep_dir, final, costs, qa)
+        sys.exit(0)
 
-    produce_episode(episode, dry_run=args.dry_run)
+    # --batch: produce N episodes starting from --episode (or next_episode in state)
+    start_ep = args.episode or _load_json(STATE / "episode_counter.json").get("next_episode", 1)
+    for i in range(args.batch):
+        ep_num  = start_ep + i
+        episode = episodes_map.get(ep_num)
+        if not episode:
+            _log(f"Episode {ep_num} script not yet defined — stopping batch")
+            break
+        produce_episode(episode, dry_run=args.dry_run)
