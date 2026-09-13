@@ -300,7 +300,7 @@ EPISODE_2 = {
 def estimate_cost(episode: dict) -> dict:
     n_scenes = len(episode["shots"])
     costs = {
-        "dalle_images":    round(n_scenes * 0.04, 2),                          # DALL-E 3 standard
+        "dalle_images":    round(n_scenes * 0.042, 2),                         # gpt-image-1 medium
         "sora_video":      round(n_scenes * 5 * 0.03, 2),                      # Sora: $0.03/sec × 5s × n_scenes
         "openai_tts":      round(len(episode["dialogue"]) / 1_000_000 * 15, 4),# TTS-1: $15 per 1M chars
         "elevenlabs_music": 0.10,
@@ -336,9 +336,9 @@ def _check_openai_balance(estimated_cost: float):
         _log(f"  Balance check failed: {e}")
 
 
-# ── Scene image generation (DALL-E 3) ─────────────────────────────────────────
+# ── Scene image generation (gpt-image-1) ──────────────────────────────────────
 def generate_scene_image(shot: dict, ep_dir: Path, retry: int = 0) -> Path | None:
-    import requests as _rq
+    import requests as _rq, base64 as _b64m
     _log(f"  Generating image: {shot['id']}...")
     prompt = shot["dalle_scene"]
     try:
@@ -346,16 +346,20 @@ def generate_scene_image(shot: dict, ep_dir: Path, retry: int = 0) -> Path | Non
             "https://api.openai.com/v1/images/generations",
             headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
                      "Content-Type": "application/json"},
-            json={"model": "dall-e-3", "prompt": prompt,
-                  "n": 1, "size": "1024x1792", "quality": "standard"},
-            timeout=60,
+            json={"model": "gpt-image-1", "prompt": prompt,
+                  "n": 1, "size": "1024x1536", "quality": "medium"},
+            timeout=90,
         )
         r.raise_for_status()
-        url = r.json()["data"][0]["url"]
+        item = r.json()["data"][0]
         img_path = ep_dir / f"{shot['id']}.png"
-        img_data = _rq.get(url, timeout=60).content
-        img_path.write_bytes(img_data)
-        _log(f"  Image OK: {img_path.name} ({len(img_data)//1024}KB)")
+        if item.get("b64_json"):
+            img_path.write_bytes(_b64m.b64decode(item["b64_json"]))
+        elif item.get("url"):
+            img_path.write_bytes(_rq.get(item["url"], timeout=60).content)
+        else:
+            raise ValueError("No image data in response")
+        _log(f"  Image OK: {img_path.name} ({img_path.stat().st_size//1024}KB)")
         return img_path
     except Exception as e:
         _log(f"  Image failed ({shot['id']}): {e}")
@@ -757,7 +761,7 @@ def produce_episode(episode: dict, dry_run: bool = False):
         if not img.exists():
             img = generate_scene_image(shot, ep_dir)
             if img:
-                actual_costs["dalle_images"] += 0.04
+                actual_costs["dalle_images"] += 0.042
         else:
             _log(f"  Reusing existing: {img.name}")
 
