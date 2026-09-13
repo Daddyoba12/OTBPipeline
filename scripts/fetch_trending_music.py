@@ -16,8 +16,8 @@ Output:
 14-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
 """
 
-import json, subprocess, shutil, sys, os, platform as _platform
-from datetime import datetime, timedelta
+import json, subprocess, shutil, sys, os, platform as _platform, re
+from datetime import datetime, timedelta, date
 from pathlib import Path
 
 if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
@@ -32,7 +32,7 @@ if _platform.system() == "Windows":
         if Path(_fp).exists() and _fp not in os.environ.get("PATH", ""):
             os.environ["PATH"] = _fp + os.pathsep + os.environ.get("PATH", "")
 
-from config import DATA, MUSIC_ARCHIVE, G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE
+from config import DATA, MUSIC_ARCHIVE, G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE, PERPLEXITY_KEY
 
 DAILY_DIR = BASE / "music" / "daily"
 ARCHIVE   = MUSIC_ARCHIVE
@@ -53,116 +53,168 @@ GI_DAILY_DIR.mkdir(parents=True, exist_ok=True)
 GI_ARCHIVE.mkdir(parents=True, exist_ok=True)
 
 
-# ── Per-slot SoundCloud search queries ────────────────────────────────────────
-# Multiple queries per slot → tried in order until one downloads successfully.
-# Queries are genre/vibe based — no YouTube dependency, no cookies needed.
+# ── Priority artists per slot ──────────────────────────────────────────────────
+# Queries are built dynamically — current month backward — so no hardcoded titles.
 
-SLOT_QUERIES = {
-    # IMPORTANT: Use artist-name or song-title searches, not genre searches.
-    # Genre searches ("afrobeats 2026") return long mixes filtered by duration < 600.
-    # Artist or title searches return single tracks (2-4 min).
-    # Keep list large — DRM blocks and 14-day log need many fallback options.
-    # PRIORITY ORDER: latest 2025/2026 releases FIRST, then older fallbacks.
-
-    1: [  # Morning 08:00 — Afrobeats energy
-        # ── Latest 2025/2026 priority ──────────────────────────────────────────
-        "Asake Only Me 2024",
-        "Asake Fuji Vibe 2024",
-        "Asake Lonely at the Top",
-        "Asake Active 2024",
-        "Wizkid Piece of My Heart 2025",
-        "Wizkid Money and Love 2024",
-        "Wizkid Kese Dollar On You",
-        "Omah Lay Holy Ghost 2024",
-        "Omah Lay Reason 2024",
-        "Davido Feel 2024",
-        "Davido Funds 2024",
-        "Burna Boy Outside 2024",
-        "Burna Boy No Sign 2025",
-        "Mavo latest 2025",
-        "Mavo official 2025",
-        # ── 2023/2024 proven tracks ────────────────────────────────────────────
-        "Victony Soweto",
-        "Rema Calm Down",
-        "Ayra Starr Rush",
-        "Ckay Love Nwantiti",
-        "Fireboy Peru",
-        "Tems Free Mind",
-        "Pheelz Finesse",
-        "Tyla Water official",
-        "Oxlade Kulosa",
-        "Khaid With You",
-        "Olamide Infinity",
-        "Lojay Monalisa",
-        "Adekunle Gold Mercy",
-        "Asake Organise",
-    ],
-    2: [  # Afternoon 14:00 — Naija / Afroswing
-        # ── Latest 2025/2026 priority ──────────────────────────────────────────
-        "Davido Unavailable 2023",
-        "Davido Feel 5ive album",
-        "Davido Funds official",
-        "Wizkid Money Love 2024",
-        "Wizkid Kese 2023",
-        "Burna Boy Tested Approved Trusted",
-        "Burna Boy Outside 2024",
-        "Omah Lay GospEL album 2024",
-        "Omah Lay Understand 2024",
-        "Asake Yoga 2023",
-        "Mavo new song 2025",
-        # ── 2022/2023 proven tracks ────────────────────────────────────────────
-        "Burna Boy Last Last",
-        "Omah Lay Bad Influence",
-        "Fave Baby Riddim",
-        "Ruger Dior",
-        "Simi Duduke",
-        "Tekno Yur Luv",
-        "Mr Eazi Pour Me Water",
-        "Yemi Alade Johnny",
-        "Tiwa Savage Somebody Son",
-        "Maleek Berry Feel Like",
-        "Black Sherif Kwaku the Traveller",
-        "Joeboy Beginning",
-        "Wizkid Essence",
-    ],
-    3: [  # Evening 21:00 — Amapiano / chill Afrobeats
-        # ── Latest 2025/2026 priority ──────────────────────────────────────────
-        "Burna Boy No Sign 2025",
-        "Wizkid Piece of My Heart 2025",
-        "Asake Lonely at the Top 2024",
-        "Omah Lay Holy Ghost 2024",
-        "Davido Feel 2024",
-        "Mavo 2025 official",
-        # ── Amapiano / afroswing chill ─────────────────────────────────────────
-        "Focalistic Ke Star",
-        "Kabza De Small Sponono",
-        "DJ Maphorisa Izolo",
-        "Zinoleesky Loving You",
-        "Kizz Daniel Buga",
-        "Daliwonga Tshwala Bam",
-        "Young Stunna Adiwele",
-        "Reece Madlisa Siyathandana",
-        "Myztro John Vuli Gate",
-        "Mas Musiq Vula Vula",
-        "Samthing Soweto Akulaleki",
-        "De Mthuda Nana Thula",
-        "Blaqbonez Miss Understood",
-        "Msaki Ungowam",
-    ],
+_SLOT_ARTISTS = {
+    1: ["Wizkid", "Asake", "Burna Boy", "Davido", "Omah Lay", "Mavo",
+        "Victony", "Rema", "Ayra Starr", "Tems", "Fireboy DML", "Tyla",
+        "Oxlade", "Khaid", "Adekunle Gold", "Ckay", "Pheelz"],
+    2: ["Davido", "Burna Boy", "Wizkid", "Omah Lay", "Asake", "Mavo",
+        "Ruger", "Fave", "Simi", "Mr Eazi", "Yemi Alade",
+        "Tiwa Savage", "Black Sherif", "Joeboy"],
+    3: ["Burna Boy", "Wizkid", "Asake", "Omah Lay", "Davido", "Mavo",
+        "Focalistic", "Kabza De Small", "DJ Maphorisa",
+        "Zinoleesky", "Kizz Daniel", "Blaqbonez"],
 }
+
+_MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+]
+
+
+def _build_slot_queries(slot: int) -> list[str]:
+    """
+    Build queries: for each priority artist, try current month → previous months
+    going back 6 months, then year-only as final fallback per artist.
+    e.g. "Wizkid September 2026", "Wizkid August 2026", ..., "Wizkid 2026"
+    """
+    today     = date.today()
+    queries: list[str] = []
+    artists   = _SLOT_ARTISTS.get(slot, _SLOT_ARTISTS[1])
+
+    # Build 6-month window working backwards from this month
+    month_labels: list[str] = []
+    for offset in range(6):
+        m = today.month - offset
+        y = today.year
+        if m <= 0:
+            m += 12
+            y -= 1
+        month_labels.append(f"{_MONTHS[m - 1]} {y}")
+
+    # For each artist: current-month query first, then step back, then year-only
+    for artist in artists:
+        for label in month_labels:
+            queries.append(f"{artist} {label}")
+        queries.append(f"{artist} {today.year}")
+
+    return queries
+
+
+# Injected by _perplexity_refresh() weekly — real current track names at top
+CURRENT_TRACKS_FILE = DATA / "current_tracks.json"
+
+SLOT_QUERIES: dict[int, list[str]] = {}  # built at runtime below
+
+
+def _perplexity_refresh() -> bool:
+    """
+    Call Perplexity to find each priority artist's latest single right now.
+    Writes results to data/current_tracks.json. Runs once per week (Monday).
+    Returns True if refresh ran, False if skipped or failed.
+    """
+    if date.today().weekday() != 0:  # Monday only
+        return False
+    if CURRENT_TRACKS_FILE.exists():
+        try:
+            saved = json.loads(CURRENT_TRACKS_FILE.read_text(encoding="utf-8"))
+            if saved.get("week") == date.today().isocalendar()[1]:
+                return False  # already refreshed this week
+        except Exception:
+            pass
+
+    if not PERPLEXITY_KEY:
+        print("  [Music] Perplexity key missing — skipping weekly refresh")
+        return False
+
+    import urllib.request
+    artists = ["Wizkid", "Asake", "Omah Lay", "Burna Boy", "Davido", "Mavo"]
+    prompt = (
+        "What is each of these Nigerian/Afrobeats artist's most recently released single or song "
+        "as of today? Give ONLY the song title for each, no explanations. "
+        "Format: Artist: Song Title\n"
+        + "\n".join(artists)
+    )
+    try:
+        body = json.dumps({
+            "model": "sonar",
+            "messages": [{"role": "user", "content": prompt}],
+        }).encode()
+        req = urllib.request.Request(
+            "https://api.perplexity.ai/chat/completions",
+            data=body,
+            headers={
+                "Authorization": f"Bearer {PERPLEXITY_KEY}",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read())
+        text = data["choices"][0]["message"]["content"]
+        tracks = {}
+        for line in text.splitlines():
+            m = re.match(r"(\w[\w\s]+):\s*(.+)", line.strip())
+            if m:
+                artist = m.group(1).strip()
+                title  = m.group(2).strip().strip('"').strip("'")
+                tracks[artist] = title
+        if tracks:
+            CURRENT_TRACKS_FILE.write_text(
+                json.dumps({"week": date.today().isocalendar()[1], "tracks": tracks},
+                           indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            print(f"  [Music] Perplexity refresh: {tracks}")
+            return True
+    except Exception as e:
+        print(f"  [Music] Perplexity refresh failed: {e}")
+    return False
+
+
+def _load_current_tracks():
+    """
+    Prepend Perplexity-discovered current titles to each slot's query list.
+    Each slot starts from a different artist so slots 1/2/3 never lead with
+    the same track — prevents the same song playing across all three slots.
+    Slot 1 → artist[0], Slot 2 → artist[1], Slot 3 → artist[2], then wrap.
+    """
+    if not CURRENT_TRACKS_FILE.exists():
+        return
+    try:
+        saved = json.loads(CURRENT_TRACKS_FILE.read_text(encoding="utf-8"))
+        tracks = saved.get("tracks", {})
+        if not tracks:
+            return
+        artists_in_order = list(tracks.keys())
+        n = len(artists_in_order)
+        for slot_num in SLOT_QUERIES:
+            # Rotate starting artist per slot
+            start = (slot_num - 1) % n
+            rotated = artists_in_order[start:] + artists_in_order[:start]
+            injected = [f"{a} {tracks[a]}" for a in rotated]
+            covered  = {a.lower() for a in artists_in_order}
+            deduped  = [q for q in SLOT_QUERIES[slot_num]
+                        if q.split()[0].lower() not in covered]
+            SLOT_QUERIES[slot_num] = injected + deduped
+    except Exception as e:
+        print(f"  [Music] Could not load current tracks: {e}")
+
+
+# Build dynamic month-backward queries at startup, then optionally prepend Perplexity titles
+for _s in (1, 2, 3):
+    SLOT_QUERIES[_s] = _build_slot_queries(_s)
+
+_perplexity_refresh()
+_load_current_tracks()
 
 # G-Inspired Automall — US R&B / Hip-Hop / Pop (car dealership vibes)
-GI_SLOT_QUERIES = {
-    1: [  # Morning — upbeat R&B / pop energy for car promo
-        "SZA 2026 official",
-        "Bruno Mars 2026 official",
-        "The Weeknd 2026 official",
-        "Khalid 2026 official",
-        "Benson Boone 2026",
-        "Sabrina Carpenter 2026 official",
-        "Doja Cat 2026 official",
-    ],
-}
+_GI_ARTISTS = ["SZA", "Bruno Mars", "The Weeknd", "Benson Boone",
+                "Sabrina Carpenter", "Doja Cat", "Khalid", "Post Malone", "Harry Styles"]
+
+_SLOT_ARTISTS[4] = _GI_ARTISTS  # reuse _build_slot_queries with slot 4
+GI_SLOT_QUERIES = {1: _build_slot_queries(4)}
 
 
 # ── Music log helpers ──────────────────────────────────────────────────────────
@@ -288,70 +340,88 @@ def _has_audio(path: Path, min_db: float = -60.0) -> bool:
 def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None) -> dict | None:
     """
     Search SoundCloud for a track matching query and download it.
-    Uses yt-dlp scsearch — no cookies, no YouTube, no auth required.
+    Uses scsearch5 to get 5 candidates — official DRM-locked uploads are always
+    first, so iterating past them reaches fan/unofficial uploads that download.
     Returns metadata dict on success, None on failure.
     """
     TMP_DIR.mkdir(parents=True, exist_ok=True)
-    for f in TMP_DIR.iterdir():
-        try: f.unlink()
-        except Exception: pass
 
-    tmp_out = str(TMP_DIR / "sc_track.%(ext)s")
+    # ── Step 1: collect up to 5 candidate URLs without downloading ──────────────
     try:
-        res = subprocess.run(
+        list_res = subprocess.run(
             [r"C:\Python314\Scripts\yt-dlp.exe",
-             "--no-playlist",
-             "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K",
-             "--max-filesize", "12m",         # skip albums/mixes (>12MB raw)
-             "--match-filter", "duration < 600",  # skip anything over 10 min
-             "--print", "%(title)s|||%(uploader)s",  # print metadata before downloading
-             "--no-simulate",                 # --print implies simulate in newer yt-dlp; force actual download
-             "-o", tmp_out,
+             "--flat-playlist",
+             "--print", "%(url)s|||%(title)s|||%(uploader)s",
+             "--match-filter", "duration < 600",
              "--quiet", "--no-warnings",
-             f"scsearch1:{query}"],
-            timeout=120, capture_output=True, text=True,
+             f"scsearch5:{query}"],
+            timeout=60, capture_output=True, text=True,
         )
     except (subprocess.TimeoutExpired, FileNotFoundError) as e:
         print(f"    [SC] Timeout/missing yt-dlp: {e}")
         return None
 
-    # Extract printed title/uploader from stdout
-    title, artist = query, "SoundCloud"
-    if res.stdout:
-        for line in res.stdout.strip().splitlines():
-            if "|||" in line:
-                parts = line.split("|||", 1)
-                title  = parts[0].strip() or query
-                artist = parts[1].strip() or "SoundCloud"
-                break
+    candidates = []
+    for line in list_res.stdout.strip().splitlines():
+        parts = line.split("|||", 2)
+        if len(parts) >= 1 and parts[0].startswith("http"):
+            url    = parts[0].strip()
+            title  = parts[1].strip() if len(parts) > 1 else query
+            uploader = parts[2].strip() if len(parts) > 2 else "SoundCloud"
+            candidates.append((url, title, uploader))
 
-    # Find downloaded mp3
-    mp3 = TMP_DIR / "sc_track.mp3"
-    if not mp3.exists():
+    if not candidates:
+        print(f"    [SC] No candidates found for: {query}")
+        return None
+
+    # ── Step 2: try each candidate until one downloads (skip DRM/used) ──────────
+    for url, title, uploader in candidates:
+        if _used_recently(title, days=7, log_file=log_file):
+            print(f"    [SC] Skip (used recently): {title[:55]}")
+            continue
+
+        for f in TMP_DIR.iterdir():
+            try: f.unlink()
+            except Exception: pass
+
+        tmp_out = str(TMP_DIR / "sc_track.%(ext)s")
+        try:
+            dl_res = subprocess.run(
+                [r"C:\Python314\Scripts\yt-dlp.exe",
+                 "--no-playlist",
+                 "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K",
+                 "--max-filesize", "12m",
+                 "--quiet", "--no-warnings",
+                 "-o", tmp_out,
+                 url],
+                timeout=120, capture_output=True, text=True,
+            )
+        except subprocess.TimeoutExpired:
+            print(f"    [SC] Timeout downloading: {title[:50]}")
+            continue
+
+        if dl_res.returncode != 0:
+            err = dl_res.stderr.strip()[:80]
+            if "DRM" in err:
+                print(f"    [SC] DRM — skip: {title[:50]}")
+            else:
+                print(f"    [SC] Failed ({err}): {title[:50]}")
+            continue
+
         mp3s = [f for f in TMP_DIR.glob("*.mp3") if f.stat().st_size > 50_000]
         if not mp3s:
-            if res.returncode != 0 and res.stderr:
-                print(f"    [SC] yt-dlp error: {res.stderr.strip()[:120]}")
-            else:
-                print(f"    [SC] No mp3 found after download (returncode={res.returncode})")
-            return None
+            continue
         mp3 = mp3s[0]
 
-    if mp3.stat().st_size < 50_000:
-        return None
+        try:
+            shutil.copy2(str(mp3), str(raw_out))
+            mp3.unlink(missing_ok=True)
+            return {"title": title, "artist": uploader, "source": "soundcloud"}
+        except Exception as e:
+            print(f"    [SC] Copy failed: {e}")
+            continue
 
-    if _used_recently(title, days=7, log_file=log_file):
-        print(f"    [SC] Skip (used recently): {title[:55]}")
-        mp3.unlink(missing_ok=True)
-        return None
-
-    try:
-        shutil.copy2(str(mp3), str(raw_out))
-        mp3.unlink(missing_ok=True)
-        return {"title": title, "artist": artist, "source": "soundcloud"}
-    except Exception as e:
-        print(f"    [SC] Copy failed: {e}")
-        return None
+    return None
 
 
 # ── Archive fallback ───────────────────────────────────────────────────────────
