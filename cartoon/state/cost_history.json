@@ -2,24 +2,60 @@
   "episodes": [
     {
       "episode": 1,
-      "actual": 1.26,
-      "estimated": 1.26
-    },
-    {
-      "episode": 2,
-      "actual": 1.26,
-      "estimated": 1.25
+      "title": "THE DHL RECEIPT",
+      "date": "2026-09-13",
+      "estimated": 1.2,
+      "actual": 0.91,
+      "breakdown": {
+        "image_gen": 0.21,
+        "kling_video": 0.7,
+        "openai_tts": 0.0,
+        "elevenlabs_music": 0.0,
+        "perplexity": 0.0,
+        "claude_writer": 0.0
+      }
     },
     {
       "episode": 1,
-      "actual": 1.26,
-      "estimated": 1.26
+      "actual": 1.2,
+      "estimated": 1.2
     },
     {
       "episode": 2,
-      "actual": 1.26,
-      "estimated": 1.26
+      "title": "THE COUSIN",
+      "date": "2026-09-13",
+      "estimated": 1.2,
+      "actual": 1.1986,
+      "breakdown": {
+        "image_gen": 0.252,
+        "kling_video": 0.84,
+        "openai_tts": 0.0066,
+        "elevenlabs_music": 0.1,
+        "perplexity": 0.0,
+        "claude_writer": 0.0
+      }
+    },
+    {
+      "episode": 2,
+      "actual": 1.2,
+      "estimated": 1.2
+    },
+    {
+      "episode": 1,
+      "title": "THE DHL RECEIPT",
+      "date": "2026-09-13",
+      "estimated": 1.2,
+      "actual": 0.1072,
+      "breakdown": {
+        "image_gen": 0.0,
+        "kling_video": 0.0,
+        "openai_tts": 0.0072,
+        "elevenlabs_music": 0.1,
+        "perplexity": 0.0,
+        "claude_writer": 0.0
+      }
     }
   ],
-  "total_spent_usd": 5.04
+  "total_spent_usd": 4.6172,
+  "currency": "USD"
 }

@@ -5,37 +5,38 @@
       "name": "Bounce",
       "species": "Anthropomorphic cat",
       "appearance": {
-        "body": "Medium build, warm orange fur with subtle tabby markings",
-        "eyes": "Large vivid green eyes, highly expressive",
+        "body": "Large, chunky, fluffy — big warm presence",
+        "fur": "Bold orange with darker tabby stripes",
+        "eyes": "Large vivid bright green, highly expressive",
         "muzzle": "White with short whiskers",
-        "clothing": "Grey zip-up hoodie, headphones around neck, grey joggers and trainers"
+        "clothing": "Casual — sometimes a messenger bag slung across body"
       },
-      "personality": "Friendly, clever, slightly cheeky",
+      "personality": "Warm, funny, energetic, slightly panicky — heart of gold",
       "style": "Premium original 3D animated-film Pixar-quality appearance",
-      "voice_profile": "Warm, youthful British-Nigerian male. Friendly and conversational. Confident but not corporate. Slightly cheeky. Clear pronunciation of BootHop.",
+      "voice_profile": "Warm, expressive Nigerian male. Confident but slightly dramatic. British-Nigerian swagger. Friendly and conversational. Clear pronunciation of BootHop.",
       "reference_image": "series_bible/character_refs/bounce_ref.png",
-      "dalle_prompt_prefix": "3D animated Pixar-quality film style, original character, orange anthropomorphic cat named Bounce, large vivid green eyes, warm orange tabby fur, white muzzle with short whiskers, very expressive emotive face, humanoid posture, premium cinema render, NOT resembling Garfield, Tom, or any copyrighted character"
+      "dalle_prompt_prefix": "3D animated Pixar-quality film style, original BootHop character, large fluffy orange tabby cat named Bounce, large vivid green eyes, bold orange fur with darker tabby stripes, white muzzle and whiskers, big expressive face, chunky friendly build, premium cinema render, no text in image"
     },
     "dash": {
       "name": "Dash",
-      "species": "Anthropomorphic cat",
+      "species": "Anthropomorphic mouse",
       "appearance": {
-        "body": "Fluffy, orange — same breed as Bounce but stockier build",
-        "eyes": "Large green eyes with dark aviator sunglasses in some scenes",
-        "muzzle": "White with whiskers",
-        "clothing": "Teal travel backpack, casual jacket"
+        "body": "Small, compact, slim — much smaller than Bounce",
+        "fur": "Grey-blue",
+        "ears": "Large round grey mouse ears",
+        "clothing": "Always carrying a travel bag or small box"
       },
-      "personality": "Kind, cautious, sometimes easily flustered",
+      "personality": "Quick, confident, calm, dry wit — the organised one",
       "style": "Premium original 3D animated-film appearance",
-      "voice_profile": "Warm British voice. Slightly cautious and expressive. Distinctly different from Bounce. Family-friendly and natural.",
-      "reference_image": "series_bible/character_refs/dash_ref.png",
-      "dalle_prompt_prefix": "3D animated Pixar-quality film style, original character, fluffy orange anthropomorphic cat named Dash, large green eyes, white muzzle and whiskers, teal travel backpack, premium cinema render, NOT resembling Garfield, Tom, or any copyrighted character"
+      "voice_profile": "Slightly different Nigerian voice — smaller, quicker, cheekier, more energetic. Dry and deadpan. Calm even when chaos is happening.",
+      "reference_image": "series_bible/character_refs/whatsapp_a_2s.png",
+      "dalle_prompt_prefix": "3D animated Pixar-quality film style, original BootHop character, small grey-blue anthropomorphic mouse named Dash, large round grey mouse ears, slim compact build much smaller than Bounce, quick confident posture, always carrying a travel bag or small box, premium cinema render, no text in image"
     }
   },
   "rules": {
-    "consistency": "Do not change faces, colours, proportions, clothing or accessories between episodes",
-    "originality": "Must not resemble Garfield, Tom, or any other copyrighted character",
-    "references": "Use bounce_ref.png in every image or video generation prompt to anchor character appearance",
+    "consistency": "Bounce = large orange cat. Dash = small grey-blue mouse. Never swap or confuse them.",
+    "originality": "Original BootHop characters — must match the reference videos exactly",
+    "references": "bounce_ref.png for Bounce scenes, whatsapp_a_2s.png for Dash reference",
     "branding": "Do not generate text or the BootHop logo inside AI-created scenes — add during final editing",
     "logo": "Use only the official supplied BootHop logo. Never redraw, reinterpret or misspell it."
   }
