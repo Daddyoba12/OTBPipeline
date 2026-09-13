@@ -27,11 +27,25 @@ W, H     = VIDEO_W, VIDEO_H
 _HOOK_LOG         = DATA / "hook_used_log.json"
 _HOOK_COOLDOWN    = 14  # days
 
-# Scenes that are absolutely banned (no church, no masquerade, no worship)
+# Scenes that are absolutely banned
 _BANNED_SCENE_TERMS = {
+    # Religious
     "church", "prayer", "masquerade", "mask", "carnival mask",
     "religious", "worship", "mosque", "cathedral", "congregation",
     "festival mask", "voodoo", "costume mask",
+    # Wildlife / animals — no lions, safari, nature clips
+    "lion", "lioness", "leopard", "cheetah", "elephant", "giraffe",
+    "zebra", "safari", "wildlife", "animal", "tiger", "wolf",
+    "savanna", "jungle animal", "nature wildlife",
+}
+
+# Dialogue lines permanently silenced — never used regardless of cooldown
+# Add exact lowercase phrases here to kill them forever until removed
+_PERMANENTLY_SILENCED = {
+    "omo boothop na my plug for this trip!",
+    "omo boothop na mi plug for this trip!",
+    "omo boothop na my plug",
+    "omo boothop na mi plug",
 }
 
 
@@ -69,6 +83,22 @@ def _recent_used(days: int = _HOOK_COOLDOWN) -> set:
             recent.add(e.get("dialogue", "")[:60].lower())
             recent.add(e.get("scene_query", "").lower())
     return recent
+
+
+def _recent_clip_ids(days: int = 28) -> set:
+    """Return Pexels/Pixabay clip IDs used in the last N days — skip these when picking."""
+    try:
+        import json as _j
+        vlog = DATA / "video_clip_log.json"
+        if not vlog.exists():
+            return set()
+        cutoff = (datetime.now() - timedelta(days=days)).isoformat()
+        return {
+            e["id"] for e in _j.loads(vlog.read_text(encoding="utf-8"))
+            if e.get("logged_at", "") > cutoff
+        }
+    except Exception:
+        return set()
 
 
 # ── Claude: fresh dialogue + scene description ────────────────────────────────
@@ -134,14 +164,15 @@ def _claude_generate(client: str, used: set) -> dict:
             f"2. scene_query — A Pexels/Pixabay video search query (6-8 words).\n"
             f"   MUST show a real person (not landscape, not objects alone).\n"
             f"   PREFERRED scene ideas (use these often — fresh, high-energy):\n"
-            f"     - beautiful African woman dancing confidently indoors lifestyle wide shot\n"
+            f"     - Black British woman dancing confidently indoors lifestyle wide shot\n"
             f"     - Black men at gym talking laughing energetic medium shot\n"
-            f"     - African woman having a great time friends laughing lifestyle wide shot\n"
+            f"     - Black British woman great time friends laughing lifestyle wide shot\n"
             f"     - Black men gym workout motivated talking wide shot\n"
             f"   Other scene ideas: stylish woman at airport lounge, person loading luxury\n"
-            f"   suitcase into car, couple at departure gate, Black woman celebrating outdoors.\n"
+            f"   suitcase into car, couple at departure gate, Black British woman celebrating outdoors.\n"
+            f"   NEVER use 'African' in the scene query — it returns wildlife clips. Use 'Black British' instead.\n"
             f"   Shot type: medium shot or wide shot ONLY — no extreme close-ups.\n"
-            f"   NO church, NO masquerade, NO religious ceremony, NO mask performers, NO food.\n\n"
+            f"   NO church, NO masquerade, NO religious ceremony, NO mask performers, NO food, NO animals.\n\n"
             f"3. scene_style — one of: dancing_vibes | gym_energy | luxury_travel | "
             f"airport_vibes | parcel_delivery | excited_packing | money_moment\n"
             f"   Prefer dancing_vibes or gym_energy for variety and scroll-stopping energy.\n\n"
@@ -232,9 +263,10 @@ def _download_and_trim(url: str, dest: Path) -> bool:
 
 # ── Video sources: Pexels -> Pixabay -> DALL-E ────────────────────────────────
 
-def _pexels_video(query: str) -> dict | None:
+def _pexels_video(query: str, used_ids: set | None = None) -> dict | None:
     if not PEXELS_KEY:
         return None
+    used_ids = used_ids or set()
     try:
         r = requests.get(
             "https://api.pexels.com/videos/search",
@@ -245,6 +277,8 @@ def _pexels_video(query: str) -> dict | None:
         r.raise_for_status()
         videos = r.json().get("videos", [])
         for v in random.sample(videos, len(videos)):
+            if str(v["id"]) in used_ids:
+                continue
             slug = v.get("url", "").lower()
             if any(b in slug for b in _BANNED_SCENE_TERMS):
                 continue
@@ -263,9 +297,10 @@ def _pexels_video(query: str) -> dict | None:
     return None
 
 
-def _pixabay_video(query: str) -> dict | None:
+def _pixabay_video(query: str, used_ids: set | None = None) -> dict | None:
     if not PIXABAY_KEY:
         return None
+    used_ids = used_ids or set()
     try:
         r = requests.get(
             "https://pixabay.com/api/videos/",
@@ -276,6 +311,8 @@ def _pixabay_video(query: str) -> dict | None:
         r.raise_for_status()
         hits = r.json().get("hits", [])
         for v in random.sample(hits, len(hits)):
+            if f"pb_{v['id']}" in used_ids:
+                continue
             tags = {t.strip() for t in v.get("tags", "").lower().split(",")}
             if tags & _BANNED_SCENE_TERMS:
                 continue
@@ -392,8 +429,21 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
     TEMP.mkdir(exist_ok=True)
     DATA.mkdir(exist_ok=True)
 
-    used    = _recent_used()
+    used      = _recent_used()
+    used_clips = _recent_clip_ids()
     data    = _claude_generate(client, used)
+
+    # Hard-enforce dedup in code — AI prompt alone is not reliable.
+    # Reject if: (a) matches a recently used line, or (b) is permanently silenced.
+    if data:
+        dialogue_key = data.get("dialogue", "").lower()
+        in_cooldown  = dialogue_key[:60] in used
+        is_silenced  = any(s in dialogue_key for s in _PERMANENTLY_SILENCED)
+        if in_cooldown or is_silenced:
+            reason = "permanently silenced" if is_silenced else "14-day cooldown repeat"
+            print(f"  [HookEngine] Rejected ({reason}): '{data['dialogue'][:55]}' — forcing fallback")
+            data = None
+
     if not data:
         if client == "g-inspired":
             data = {
@@ -403,16 +453,39 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
             }
         else:
             _FALLBACK_HOOKS = [
-                ("Pack that bag fam — BootHop got you sorted, trust!",          "beautiful African woman dancing confidently lifestyle wide shot",   "dancing_vibes"),
-                ("Babe you load that bag already? BootHop sorted everything!",   "Black men gym workout motivated talking excited wide shot",         "gym_energy"),
-                ("No cap, BootHop saved me bare money on this trip!",            "African woman having great time friends laughing lifestyle wide shot","dancing_vibes"),
-                ("Omo this trip dey pay for itself, boothop money never lie!",   "stylish woman luxury car keys smiling confident medium shot",       "money_moment"),
-                ("Bro I sorted my mum's parcel through BootHop — quick quick!", "Black men at gym talking laughing energetic medium shot",           "gym_energy"),
-                ("Ayo how you manage that luggage allowance? BootHop money!",    "couple at airport departure gate excited wide shot",               "airport_vibes"),
-                ("Guy where you dey go? BootHop dey handle everything for me!", "stylish Black British woman airport departure lounge wide shot",    "airport_vibes"),
-                ("No stress fam — I used BootHop and it was mad cheap!",         "beautiful African woman dancing confidently lifestyle wide shot",   "dancing_vibes"),
+                # ── Parcel / sending home ───────────────────────────────────────────
+                ("DHL quoted me £89. I laughed and opened BootHop.",              "young man laughing on phone outdoors confident wide shot",            "money_moment"),
+                ("My parcel reached Lagos before I even got to Heathrow. Mad.",   "Black man smiling checking phone airport departure lounge wide shot",  "airport_vibes"),
+                ("Naija aunty asked for groundnut oil. BootHop sorted it for £9.","Black British woman excitedly packing box at home kitchen wide shot", "dancing_vibes"),
+                ("Babe tell them BootHop. Stop paying DHL money for no reason.",  "two women friends laughing together smartphone lifestyle wide shot",   "dancing_vibes"),
+                ("Someone on this flight is carrying my mum's birthday present.", "smiling woman at airport gate holding boarding pass wide shot",       "airport_vibes"),
+                ("The parcel got to Lagos in 2 days. Not DHL. BootHop.",          "stylish Black British man smiling confidently outdoors wide shot",    "money_moment"),
+                # ── Earning / traveller side ────────────────────────────────────────
+                ("Fam I'm not even going Naija but I'm still making money.",      "young man gym smiling holding phone confident medium shot",           "gym_energy"),
+                ("My cousin flew with empty suitcase space. BootHop paid her trip.","young woman pulling wheeled suitcase airport terminal excited wide", "airport_vibes"),
+                ("Omo I'm earning just by going home for Christmas. Different.",   "woman celebrating arms raised outdoors lifestyle wide shot",          "dancing_vibes"),
+                ("Every traveller is a courier now. BootHop changed the game.",   "stylish man loading suitcase into car boot confidently wide shot",    "luxury_travel"),
+                ("She said how did your parcel beat you to Lagos — BootHop did.", "two friends laughing excitedly outdoors lifestyle wide shot",         "dancing_vibes"),
+                # ── Savings / price shock ───────────────────────────────────────────
+                ("No stress fam — I used BootHop and saved bare money.",          "young woman happy dancing home bedroom confident wide shot",          "dancing_vibes"),
+                ("Bro the courier price was what?! BootHop saved my whole budget.","Black men gym talking laughing energetic medium shot",               "gym_energy"),
+                ("Diaspora hack: find someone already flying. That's BootHop.",   "stylish Black woman airport lounge confident medium shot",            "airport_vibes"),
+                ("Ayo how you manage that luggage allowance? BootHop money!",     "couple at airport departure gate excited wide shot",                  "airport_vibes"),
+                # ── Hype / energy ───────────────────────────────────────────────────
+                ("Pack that bag fam — BootHop got you sorted, trust!",            "beautiful Black British woman dancing confidently indoors lifestyle wide", "dancing_vibes"),
+                ("No cap, BootHop is the smartest thing in the diaspora right now.","Black men at gym talking laughing energetic medium shot",           "gym_energy"),
+                ("Omo this trip dey pay for itself, boothop money never lie!",    "stylish woman luxury car keys smiling confident medium shot",         "money_moment"),
+                ("Guy where you dey go? Make BootHop handle the logistics.",      "stylish Black British woman airport departure lounge wide shot",      "airport_vibes"),
+                ("Bro after the gym I sorted my mum's parcel. Quick quick.",      "Black man gym bag smiling confident leaving gym wide shot",           "gym_energy"),
+                ("Sending jollof to Manchester costs less than a Pret sandwich.", "woman laughing kitchen table food friends lifestyle wide shot",       "dancing_vibes"),
             ]
-            _fb = random.choice(_FALLBACK_HOOKS)
+            # Pick a fallback that isn't in the recent used set or permanently silenced
+            fresh = [
+                f for f in _FALLBACK_HOOKS
+                if f[0][:60].lower() not in used
+                and not any(s in f[0].lower() for s in _PERMANENTLY_SILENCED)
+            ]
+            _fb  = random.choice(fresh if fresh else _FALLBACK_HOOKS)
             data = {"dialogue": _fb[0], "scene_query": _fb[1], "scene_style": _fb[2]}
 
     dialogue    = data["dialogue"]
@@ -424,9 +497,9 @@ def generate_hook(client: str = "boothop", slot: int = 1) -> dict:
 
     # ── Visual: Pexels -> Pixabay -> DALL-E ──────────────────────────────────
     video_ok = False
-    clip_info = _pexels_video(scene_query)
+    clip_info = _pexels_video(scene_query, used_clips)
     if not clip_info:
-        clip_info = _pixabay_video(scene_query)
+        clip_info = _pixabay_video(scene_query, used_clips)
 
     if clip_info:
         print(f"  [HookEngine] {clip_info['source']} clip id={clip_info['id']}")
