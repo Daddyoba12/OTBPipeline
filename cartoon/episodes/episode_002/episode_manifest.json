@@ -1,0 +1,27 @@
+{
+  "episode": 2,
+  "title": "THE COUSIN",
+  "route": "Lagos -> London -> same London flat",
+  "status": "completed",
+  "started_at": "2026-09-13T06:19:59.399330",
+  "estimated_cost": {
+    "image_gen": 0.25,
+    "sora_video": 0.9,
+    "openai_tts": 0.0066,
+    "elevenlabs_music": 0.1,
+    "total": 1.26
+  },
+  "completed_at": "2026-09-13T06:23:34.622867",
+  "actual_cost": {
+    "image_gen": 0.252,
+    "sora_video": 0.9,
+    "openai_tts": 0.0066,
+    "elevenlabs_music": 0.1,
+    "total": 1.26
+  },
+  "qa": {
+    "passed": true,
+    "issues": [],
+    "duration": 30.0
+  }
+}
