@@ -63,15 +63,19 @@ def _tg(text: str, chat_id: str = TELEGRAM_CHAT_ID):
         _log(f"Telegram text failed: {e}")
 
 
-def _tg_video(path: Path, caption: str, chat_id: str = TELEGRAM_CHAT_ID):
-    import requests
+def _tg_video(path: Path, caption: str, chat_id: str = TELEGRAM_CHAT_ID,
+              reply_markup: dict = None):
+    import requests, json as _json
     _log(f"Sending video to Telegram ({path.stat().st_size // 1024}KB)...")
     try:
+        payload = {"chat_id": chat_id, "caption": caption,
+                   "supports_streaming": "true", "parse_mode": "Markdown"}
+        if reply_markup:
+            payload["reply_markup"] = _json.dumps(reply_markup)
         with open(path, "rb") as f:
             r = requests.post(
                 f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo",
-                data={"chat_id": chat_id, "caption": caption,
-                      "supports_streaming": "true", "parse_mode": "Markdown"},
+                data=payload,
                 files={"video": (path.name, f, "video/mp4")},
                 timeout=300,
             )
@@ -155,28 +159,114 @@ _DASH = (
     "always carrying a travel bag or small box"
 )
 
+# ── Special episode character styles ──────────────────────────────────────────
+_BOUNCE_CHURCH = (
+    "large fluffy orange tabby cat named BOUNCE, vivid green eyes, "
+    "wearing a stunning white agbada with intricate gold embroidery, "
+    "matching white fila cap, holding a small Bible, spotless white dress shoes, "
+    "looking sharp proud and slightly nervous"
+)
+_BOUNCE_PARTY = (
+    "large fluffy orange tabby cat named BOUNCE, vivid green eyes, "
+    "wearing a fitted vibrant silk Ankara dashiki in bold colours, tailored matching trousers, "
+    "clean fresh sneakers, gold chain necklace, looking fly confident and ready to have fun"
+)
+_DASH_CHURCH = (
+    "small grey-blue mouse named DASH, big round grey ears, "
+    "wearing a crisp fitted white senator suit with gold trim and a matching embroidered cap, "
+    "tiny gold pocket square, polished shoes, looking dapper and composed"
+)
+_DASH_PARTY = (
+    "small grey-blue mouse named DASH, big round grey ears, "
+    "wearing a sharp slim-fit Ankara print suit in complementary colours to Bounce, "
+    "clean dress shoes, small gold earring, looking stylish and cool"
+)
+_LADY_CAT = (
+    "glamorous Nigerian lady cat, graceful feline features, bright warm eyes, "
+    "elegant and beautiful, wearing a stunning Ankara or lace outfit with matching gele headtie for church "
+    "OR a chic party dress with accessories for a party — confident warm smile"
+)
+_PASTOR_CAT = (
+    "distinguished older grey cat in full Nigerian pastor's regalia — "
+    "white cassock with purple stole, reading glasses, wise expression, "
+    "commanding presence but with a kind face"
+)
+
 def _scene(desc: str, chars: str = "both") -> str:
     who = f"{_BOUNCE} and {_DASH}" if chars == "both" else (_BOUNCE if chars == "bounce" else _DASH)
     return f"{_STYLE}, {who}, {desc}"
 
+def _emotion_face(ctx: str) -> str:
+    """Map speaker context keywords to precise facial performance descriptors."""
+    c = ctx.lower()
+    if any(w in c for w in ("shock", "horrified", "wide", "surprise", "what")):
+        return ("eyes wide open in shock, eyebrows lifted high, mouth drops open at the exact moment of surprise, "
+                "jaw drops for the shocked syllable then closes again")
+    if any(w in c for w in ("worry", "nervous", "stress", "panic", "tense")):
+        return ("eyebrows pulled together and lowered, tense narrowed mouth, nervous rapid eye movement side to side, "
+                "brow furrowed, mouth tight and barely open")
+    if any(w in c for w in ("question", "curious", "tilt", "puzzled", "think")):
+        return ("one eyebrow raised higher than the other, slight head tilt to the side, "
+                "curious open eyes, mouth forms question shape — lips slightly parted")
+    if any(w in c for w in ("smirk", "deadpan", "dry", "calm", "cool", "relaxed")):
+        return ("one corner of mouth slightly raised in a dry smirk, eyes half-lidded and calm, "
+                "controlled minimal mouth movement, confidence in every word")
+    if any(w in c for w in ("excited", "energy", "bright", "happy", "cheer")):
+        return ("bright wide eyes, big smile showing teeth, eyebrows lifted with enthusiasm, "
+                "energetic slight head bob, mouth opens wide on emphasized syllables")
+    if any(w in c for w in ("guilty", "sheepish", "embarrass", "awkward")):
+        return ("eyes glancing away briefly, awkward slight smile, eyebrows raised apologetically, "
+                "mouth moving slowly as if choosing words carefully")
+    if any(w in c for w in ("confident", "direct", "swagger", "assertive")):
+        return ("direct eye contact, relaxed controlled smile, steady head, "
+                "mouth opens cleanly on each word with full intention")
+    if any(w in c for w in ("funny", "humour", "comic", "laugh", "grin")):
+        return ("exaggerated expression — mouth wide on the punchline, eyes crinkle, "
+                "brief comic pause after the line with mouth closed")
+    return ("natural expressive face, eyebrows matching the emotion of the words, "
+            "eyes alive and engaged, mouth forming each word clearly")
+
+
 def _speaker_prompt(char: str, ctx: str) -> str:
-    """Solo close-up prompt for a speaking character — only that character in frame."""
-    desc = _BOUNCE if char == "bounce" else _DASH
+    """Solo close-up for a speaking character — emotional face + only that char in frame."""
+    desc  = _BOUNCE if char == "bounce" else _DASH
     other = "DASH" if char == "bounce" else "BOUNCE"
+    face  = _emotion_face(ctx)
     return (
-        f"{_STYLE}, {desc}, {ctx}, mouth open and speaking expressively, "
+        f"{_STYLE}, {desc}, {ctx}, {face}, "
+        f"mouth CLOSED before speech begins then opens naturally to match words, "
         f"close-up or medium shot, only {char.upper()} visible in frame, "
-        f"{other} is NOT in this shot, no other character present"
+        f"{other} is completely absent from this shot, no other character present"
     )
 
-def _speaking_motion(char: str, ctx: str) -> str:
-    """Kling motion prompt — only the named character speaks, mouth animates."""
-    name = "BOUNCE (large orange tabby cat)" if char == "bounce" else "DASH (small grey-blue mouse)"
+
+def _speaking_motion(char: str, ctx: str, text: str = "") -> str:
+    """
+    Kling motion prompt — full phoneme/viseme lip-sync + emotional face performance.
+    Each clip: one character, one line, accurate mouth shapes for every syllable.
+    """
+    name  = "BOUNCE (large fluffy orange tabby cat)" if char == "bounce" else "DASH (small grey-blue mouse)"
     other = "DASH" if char == "bounce" else "BOUNCE"
+    face  = _emotion_face(ctx)
+
+    # Identify sounds needing closed-mouth frames (M, B, P stop consonants)
+    has_mbp = any(text.lower().startswith(c) or f" {c}" in text.lower() for c in ("m", "b", "p"))
+    mbp_note = (
+        "lips press together and fully close for M, B and P sounds before opening again, "
+        if has_mbp else ""
+    )
+
     return (
-        f"{name} speaking with natural expressive mouth movement and lip sync, "
-        f"{ctx}, animated speech, only {char.upper()} visible, "
-        f"{other} is completely absent from frame, smooth natural talking animation"
+        f"{name} performing one spoken line with precise phoneme-accurate lip-sync: "
+        f"{face}. "
+        f"Mouth is FULLY CLOSED in the first frame before speech starts. "
+        f"As speech begins, mouth shapes each syllable — opens wider on stressed vowels and shocked words, "
+        f"narrows on tight vowel sounds. {mbp_note}"
+        f"Mouth returns FULLY CLOSED at the end of the line and during any natural pause. "
+        f"NEVER leaves mouth hanging open without a spoken sound. "
+        f"The whole face performs the emotion: {ctx}. "
+        f"Smooth Pixar-quality natural talking animation. "
+        f"Only {char.upper()} in frame. {other} is completely absent from this shot."
     )
 
 
@@ -876,7 +966,8 @@ def _srt_ts(s: float) -> str:
 
 # ── Dialogue-first assembly (one clip per line, each muxed with its audio) ────
 def assemble_dialogue_video(line_clips: list[tuple], music_path: Path | None,
-                            ep_dir: Path) -> Path | None:
+                            ep_dir: Path,
+                            ep_num: int = 0, ep_title: str = "") -> Path | None:
     _log("  Muxing each speaker clip with its voice line...")
     muxed = []
     for i, (clip, audio, _dur) in enumerate(line_clips):
@@ -914,8 +1005,49 @@ def assemble_dialogue_video(line_clips: list[tuple], music_path: Path | None,
     total_dur = _ffprobe_duration(raw)
     _log(f"  Dialogue duration: {total_dur:.1f}s")
 
+    # Prepend 2.5s title card: "BOUNCE ON THE MOVE — Episode N: TITLE"
+    titled_raw = raw
+    if ep_num:
+        title_clip  = ep_dir / "title_card.mp4"
+        title_text  = f"BOUNCE ON THE MOVE"
+        ep_text     = f"Episode {ep_num}" + (f": {ep_title}" if ep_title else "")
+        # Get frame size from raw clip
+        title_vf = (
+            "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
+            f"drawtext=text='{title_text}':fontcolor=white:fontsize=56:x=(w-text_w)/2:y=(h/2)-80:"
+            f"shadowcolor=black:shadowx=3:shadowy=3:box=1:boxcolor=black@0.45:boxborderw=20,"
+            f"drawtext=text='{ep_text}':fontcolor=gold:fontsize=40:x=(w-text_w)/2:y=(h/2)+20:"
+            f"shadowcolor=black:shadowx=2:shadowy=2:box=1:boxcolor=black@0.45:boxborderw=14"
+        )
+        if not title_clip.exists():
+            _ff(
+                "-f", "lavfi", "-i", "color=c=black:s=1080x1920:d=2.5:r=25",
+                "-vf", title_vf,
+                "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-an",
+                str(title_clip),
+            )
+        if title_clip.exists():
+            titled_concat = ep_dir / "titled_concat.txt"
+            titled_concat.write_text(
+                f"file '{title_clip.resolve()}'\nfile '{raw.resolve()}'",
+                encoding="utf-8",
+            )
+            titled = ep_dir / "dialogue_titled.mp4"
+            if not titled.exists():
+                _ff(
+                    "-f", "concat", "-safe", "0", "-i", str(titled_concat),
+                    "-c:v", "libx264", "-c:a", "aac", "-pix_fmt", "yuv420p",
+                    str(titled),
+                )
+            if titled.exists():
+                titled_raw = titled
+                total_dur  = _ffprobe_duration(titled_raw)
+                _log(f"  Title card prepended — new duration: {total_dur:.1f}s")
+
     # Scale to 9:16 and overlay music at low volume (dialogue stays clear)
     final = ep_dir / "final_video.mp4"
+    raw   = titled_raw
     vf = "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920"
     if music_path and music_path.exists():
         audio_filter = (
@@ -1048,6 +1180,35 @@ def qa_check(final: Path, episode: dict) -> dict:
     return {"passed": len(issues) == 0, "issues": issues, "duration": dur}
 
 
+# ── YouTube queue ─────────────────────────────────────────────────────────────
+_YT_QUEUE_FILE = STATE / "youtube_queue.json"
+
+def _queue_for_youtube(ep_num: int, ep_title: str, video_path: str,
+                       caption: str, hashtags: str, story: str):
+    """Add episode to YouTube posting queue (posted Tue/Thu/Sat or via PostNow)."""
+    queue = []
+    if _YT_QUEUE_FILE.exists():
+        try:
+            queue = json.loads(_YT_QUEUE_FILE.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    # Remove any existing entry for this episode
+    queue = [e for e in queue if e.get("ep_num") != ep_num]
+    queue.append({
+        "ep_num":     ep_num,
+        "title":      ep_title,
+        "video_path": video_path,
+        "caption":    caption,
+        "hashtags":   hashtags,
+        "story":      story,
+        "queued_at":  datetime.now().isoformat(),
+        "posted":     False,
+    })
+    _YT_QUEUE_FILE.write_text(
+        json.dumps(queue, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+
+
 # ── Telegram delivery ─────────────────────────────────────────────────────────
 def deliver_to_telegram(episode: dict, ep_dir: Path, final: Path,
                         costs: dict, qa: dict):
@@ -1055,13 +1216,16 @@ def deliver_to_telegram(episode: dict, ep_dir: Path, final: Path,
     dur    = qa.get("duration", 0)
     passed = "PASS" if qa["passed"] else f"ISSUES: {'; '.join(qa['issues'])}"
     teaser = episode["shots"][-1].get("next_teaser", "Coming soon")
+    special_label = ""
+    if episode.get("special_type"):
+        special_label = f" 🎉 {episode['special_type'].upper()} SPECIAL"
     breakdown_lines = "\n".join(
         f"  {svc}: ${amt:.4f}"
         for svc, amt in costs.items()
         if svc != "total" and amt > 0
     )
     msg = (
-        f"*BOUNCE ON THE MOVE — EP{ep_num}: {episode['title']}*\n"
+        f"*BOUNCE ON THE MOVE — EP{ep_num}{special_label}: {episode['title']}*\n"
         f"Setting: {episode['setting']}\n"
         f"Duration: {dur:.1f}s\n\n"
         f"*Cost breakdown:*\n{breakdown_lines}\n"
@@ -1070,14 +1234,31 @@ def deliver_to_telegram(episode: dict, ep_dir: Path, final: Path,
         f"Caption:\n{episode['caption']}\n\n"
         f"Hashtags:\n{episode['hashtags']}\n\n"
         f"QA: {passed}\n"
-        f"Next: {teaser}"
+        f"Next: {teaser}\n\n"
+        f"_YouTube: auto-posts Tue/Thu/Sat — or tap Post Now below_"
     )
     _tg(msg)
     time.sleep(1)
-    _tg_video(final, f"Ep{ep_num}: {episode['title']}")
+
+    # Send video with Post Now inline button
+    post_now_button = {
+        "inline_keyboard": [[
+            {"text": "📤 Post to YouTube NOW",
+             "callback_data": f"cartoon_youtube_{ep_num}"},
+        ]]
+    }
+    _tg_video(final, f"Ep{ep_num}: {episode['title']}", reply_markup=post_now_button)
+
     thumb = ep_dir / "thumbnail.jpg"
     if thumb.exists():
         _tg_photo(thumb, f"Ep{ep_num} thumbnail")
+
+    # Add to YouTube queue for scheduled posting
+    _queue_for_youtube(
+        ep_num, episode["title"], str(final),
+        episode.get("caption", ""), episode.get("hashtags", ""),
+        episode.get("story_summary", ""),
+    )
 
 
 # ── Perplexity: weekly research brief ─────────────────────────────────────────
@@ -1106,18 +1287,23 @@ def research_weekly_brief() -> tuple[str | None, float]:
                     {
                         "role": "user",
                         "content": (
-                            "Search the web for trending stories this week relevant to:\n"
-                            "1. UK–Nigeria diaspora: luggage, sending items home, parcel costs\n"
-                            "2. Airport chaos, excess baggage fees, courier prices at UK airports\n"
-                            "3. Nigerian/British-Black community humour, viral slang, TikTok trends\n"
-                            "4. Student travel between UK cities (London, Manchester, Birmingham)\n"
-                            "5. Trending dances or sounds on UK/Nigerian TikTok or Instagram this week\n"
-                            "6. Upcoming Nigerian or diasporic holiday travel patterns\n\n"
-                            "Return a concise brief (200-300 words) with:\n"
-                            "- The #1 most relevant travel/parcel story or trend this week\n"
-                            "- 2-3 relatable UK diaspora frustrations (price shock, overpacking, etc.)\n"
-                            "- A trending dance name or cultural moment if one exists this week\n"
-                            "- A suggested episode angle: what BootHop problem should our characters face?\n"
+                            "Search the web for trending stories this week relevant to BOUNCE ON THE MOVE — "
+                            "an animated comedy series about a large orange tabby cat (Bounce) and his small grey mouse friend (Dash) "
+                            "living the UK/Nigeria diaspora adventure lifestyle.\n\n"
+                            "Research these angles:\n"
+                            "1. UK–Nigeria diaspora adventures: travel, moving, sending items home, airport chaos\n"
+                            "2. Nigerian/British-Black community humour and viral moments this week\n"
+                            "3. Trending Nigerian music, dances, slang on TikTok/Instagram this week\n"
+                            "4. Any funny or relatable diaspora life moments (food, family visits, overpacking)\n"
+                            "5. Adventure or lifestyle trends that a cool young cat and mouse in London would encounter\n"
+                            "6. Any guest character opportunity — a famous animal character, a footballer, a musician "
+                            "as a surprise cameo Bounce and Dash could meet this week\n\n"
+                            "Return a concise brief (250-350 words) with:\n"
+                            "- The #1 most relevant travel/diaspora/adventure story this week\n"
+                            "- 2-3 funny relatable moments for the episode\n"
+                            "- A trending cultural moment (music, slang, dance) to reference\n"
+                            "- A suggested episode angle: what adventure do Bounce and Dash go on?\n"
+                            "- Optional: a guest character suggestion (animal, cultural figure) who could appear\n"
                         ),
                     },
                 ],
@@ -1151,30 +1337,49 @@ def generate_episode_from_research(ep_num: int, research_brief: str | None) -> t
         if research_brief
         else "\n\n(No live research available — write a timeless diaspora travel story.)"
     )
+    # Occasionally introduce a guest character (every 4th episode)
+    guest_instruction = ""
+    if ep_num % 4 == 0:
+        guest_instruction = (
+            "\n\nGUEST CHARACTER (this episode only):\n"
+            "Introduce ONE guest character — an animal or cultural figure that Bounce and Dash "
+            "encounter on their adventure. The guest is NOT a recurring character. "
+            "Examples: a cool pelican at the airport, a fast-talking fox courier, a wise elderly tortoise, "
+            "a celebrity animal they unexpectedly meet. "
+            "The guest appears in shots s3 and s4 only, speaks 1-2 lines, then leaves. "
+            "Add a 'guest' key to those shots: {\"name\": \"...\", \"species\": \"...\", "
+            "\"char\": \"guest\", \"appearance\": \"brief description\"}. "
+            "Give the guest a memorable single line that kids find funny and adults find clever.\n"
+        )
+
     system = (
-        "You are the head writer for BOUNCE ON THE MOVE — a 30-second animated comedy "
-        "for UK/Nigeria diaspora audiences. Every episode ends with BootHop.com solving "
-        "a travel, parcel, or luggage problem.\n\n"
-        "CHARACTERS (must be described EXACTLY as below — they are the official BootHop brand characters):\n"
-        "- Bounce: LARGE fluffy ORANGE TABBY CAT, vivid green eyes, bold orange fur with "
-        "darker tabby stripes, white muzzle, big expressive face. Warm, funny, panicky, "
-        "British-Nigerian swagger. Voice: warm and youthful.\n"
-        "- Dash: SMALL GREY-BLUE MOUSE, big round grey ears, slim compact build — "
-        "much smaller than Bounce — always carrying a travel bag or small box. "
-        "Calm, quick, dry wit. Bounce's flatmate. Very different species from Bounce.\n\n"
+        "You are the head writer and movie director for BOUNCE ON THE MOVE — a premium animated comedy "
+        "series about Bounce and Dash living the adventure lifestyle as UK/Nigeria diaspora characters. "
+        "Episodes are dual-audience: kids enjoy the funny animal adventure, adults relate to the "
+        "diaspora humour and BootHop travel solution.\n\n"
+        "MAIN CHARACTERS:\n"
+        "- Bounce: LARGE fluffy ORANGE TABBY CAT, vivid green eyes, bold orange fur with darker tabby "
+        "stripes, white muzzle, big expressive face. Warm, funny, slightly panicky, British-Nigerian swagger. "
+        "The heart and emotion of every story.\n"
+        "- Dash: SMALL GREY-BLUE MOUSE, big round grey ears, slim compact build — much smaller than Bounce. "
+        "Always carries a travel bag. Calm, quick, dry wit. The organised one who knows BootHop.\n\n"
         "EPISODE RULES:\n"
-        "• 6 shots, ~30 seconds total\n"
-        "• Shots: s1_hook, s2_problem, s3_tension/chaos, s4_idea, s5_realisation, s6_ending\n"
-        "• Each shot has 1-3 dialogue lines (alternating chars: 'bounce' / 'dash')\n"
-        "• Tone: warm family comedy — funny to both 8-year-olds and 40-year-olds\n"
+        "• 6 shots (~30 seconds): s1_hook, s2_problem, s3_tension, s4_idea, s5_realisation, s6_ending\n"
+        "• Each shot has 1-3 dialogue lines — characters alternate (bounce/dash)\n"
+        "• Each line MUST include 'speaker_context' — a vivid emotional description for the actor: "
+        "e.g. 'horrified expression, eyes wide, holding phone', 'calm deadpan smirk, arms folded', "
+        "'panicking, sweating, gesturing wildly'. This drives the lip-sync performance.\n"
+        "• Tone: warm family comedy — a 9-year-old laughs at the joke, a 40-year-old feels it\n"
+        "• Adventures can be: travel chaos, diaspora life moments, food, family visits, British weather, "
+        "sending things home, airport drama, surprise encounters — always tied to BootHop lifestyle\n"
         "• BootHop solves the problem in shots 4-5\n"
         "• Never use: 'will earn', 'guaranteed earnings', 'you\\'ll make', 'earn every time'\n"
-        "• dalle_scene: full scene description starting with: "
-        "'3D animated Pixar-quality film style, original BootHop characters, premium cinema render, "
-        "warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce "
-        "with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears "
-        "and a travel bag, [then describe the scene action]'\n"
-        "• s6_ending must have a 'next_teaser' key\n"
+        "• dalle_scene: '3D animated Pixar-quality film style, original BootHop characters, premium cinema "
+        "render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with "
+        "vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, "
+        "[describe the specific scene action and location]'\n"
+        "• s6_ending must include 'next_teaser' key\n"
+        f"{guest_instruction}"
     )
     user = (
         f"Write Episode {ep_num} of BOUNCE ON THE MOVE.{research_section}\n\n"
@@ -1228,6 +1433,187 @@ def generate_episode_from_research(ep_num: int, research_brief: str | None) -> t
         return ep, cost
     except Exception as e:
         _log(f"  Episode generation failed: {e}")
+        return None, 0.0
+
+
+# ── Special monthly episode: church or party ──────────────────────────────────
+
+def _is_special_weekend() -> bool:
+    """True if today is the last Saturday or Sunday of the month."""
+    from calendar import monthrange
+    today = datetime.now()
+    last_day = monthrange(today.year, today.month)[1]
+    # Last Saturday (weekday 5) or Sunday (weekday 6) of the month
+    for d in range(last_day, last_day - 7, -1):
+        wd = datetime(today.year, today.month, d).weekday()
+        if wd in (5, 6) and today.day == d:
+            return True
+    return False
+
+
+def _special_episode_type() -> str:
+    """Alternate church (odd months) and party (even months)."""
+    return "church" if datetime.now().month % 2 == 1 else "party"
+
+
+def _fetch_special_music(episode_type: str, ep_dir: Path) -> Path | None:
+    """
+    Fetch trending Christian gospel (church) or R&B party track via SoundCloud.
+    Returns path to downloaded mp3 in ep_dir, or None.
+    """
+    import sys as _sys, subprocess as _sp, shutil as _sh
+    yt_dlp = r"C:\Python314\Scripts\yt-dlp.exe"
+    tmp    = ep_dir / "_music_tmp"
+    tmp.mkdir(parents=True, exist_ok=True)
+
+    if episode_type == "church":
+        queries = [
+            "Sinach Way Maker 2025",
+            "Nathaniel Bassey 2025",
+            "Frank Edwards Nigerian gospel 2025",
+            "Mercy Chinwo 2025",
+            "Sinach gospel 2026",
+            "Nigerian worship song 2025",
+            "Neon Adejo 2025",
+            "Tim Godfrey 2025",
+        ]
+    else:
+        queries = [
+            "Wizkid party 2026",
+            "Afrobeats party anthem 2025",
+            "Davido party 2025",
+            "Burna Boy 2025",
+            "Rema party 2025",
+            "Asake club 2025",
+        ]
+
+    out_path = ep_dir / "special_music.mp3"
+    if out_path.exists():
+        return out_path
+
+    for query in queries:
+        try:
+            # Collect candidates
+            list_res = _sp.run(
+                [yt_dlp, "--flat-playlist",
+                 "--print", "%(url)s|||%(title)s",
+                 "--match-filter", "duration < 600",
+                 "--quiet", "--no-warnings",
+                 f"scsearch5:{query}"],
+                timeout=30, capture_output=True, text=True,
+            )
+            for line in list_res.stdout.strip().splitlines():
+                parts = line.split("|||", 1)
+                if not parts[0].startswith("http"):
+                    continue
+                url = parts[0].strip()
+                for f in tmp.iterdir():
+                    try: f.unlink()
+                    except Exception: pass
+                dl = _sp.run(
+                    [yt_dlp, "--no-playlist",
+                     "--extract-audio", "--audio-format", "mp3", "--audio-quality", "192K",
+                     "--max-filesize", "12m", "--quiet", "--no-warnings",
+                     "-o", str(tmp / "track.%(ext)s"), url],
+                    timeout=90, capture_output=True, text=True,
+                )
+                if dl.returncode == 0:
+                    mp3s = [f for f in tmp.glob("*.mp3") if f.stat().st_size > 50_000]
+                    if mp3s:
+                        _sh.copy2(str(mp3s[0]), str(out_path))
+                        _log(f"  Special music: {parts[1].strip()[:60] if len(parts) > 1 else query}")
+                        return out_path
+        except Exception:
+            continue
+    return None
+
+
+def generate_special_episode(ep_num: int, episode_type: str,
+                              research_brief: str | None) -> tuple[dict | None, float]:
+    """
+    Generate a monthly church or party special episode.
+    Bounce and Dash are well dressed in Nigerian attire.
+    They try to chat up a lady cat. Church has a pastor cat.
+    """
+    import anthropic as _ant
+    _log(f"  Writing Special Episode {ep_num} ({episode_type}) with Claude...")
+
+    bounce_desc = _BOUNCE_CHURCH if episode_type == "church" else _BOUNCE_PARTY
+    dash_desc   = _DASH_CHURCH   if episode_type == "church" else _DASH_PARTY
+    lady_desc   = _LADY_CAT
+    pastor_desc = _PASTOR_CAT if episode_type == "church" else ""
+
+    if episode_type == "church":
+        setting_hint = "Nigerian Pentecostal church in London — Sunday morning service"
+        scenario = (
+            "Bounce and Dash arrive at church looking incredibly fresh in white agbada. "
+            "Bounce spots a beautiful lady cat across the aisle and tries to impress her. "
+            "The pastor cat notices everything. There is comedy, a bit of embarrassment, "
+            "and a warm heartfelt moment. BootHop is referenced naturally — maybe someone "
+            "needs to send an item back home after church."
+        )
+        guest_chars = f"- Pastor Cat: {pastor_desc}\n- Lady Cat: {lady_desc}"
+    else:
+        setting_hint = "Nigerian birthday party / Owambe in London — Saturday night"
+        scenario = (
+            "Bounce and Dash arrive at a vibrant Owambe party looking incredibly fly in Ankara. "
+            "There is a beautiful lady cat on the dance floor. Bounce tries to chat her up. "
+            "Dash is cool and smooth. There is dancing, laughter, and Nigerian party chaos. "
+            "BootHop saves the evening — maybe a gift didn't arrive or needs sending."
+        )
+        guest_chars = f"- Lady Cat: {lady_desc}"
+
+    research_section = (
+        f"\n\n## This week's research\n{research_brief}" if research_brief
+        else "\n\n(Write a timeless Nigerian diaspora church/party moment.)"
+    )
+
+    system = (
+        f"You are the head writer for BOUNCE ON THE MOVE — a special monthly {'church' if episode_type == 'church' else 'party'} episode. "
+        f"This is a warm romantic comedy episode — funny for kids (talking animals getting dressed up), "
+        f"relatable for adults (Nigerian church/Owambe culture, chatting someone up, looking sharp).\n\n"
+        f"CHARACTERS:\n"
+        f"- Bounce: {bounce_desc}. Warm, slightly nervous, trying to impress.\n"
+        f"- Dash: {dash_desc}. Calm, smooth, lightly teasing Bounce.\n"
+        f"{guest_chars}\n\n"
+        f"EPISODE RULES:\n"
+        f"• 6 shots (~30 seconds): s1_hook (arriving looking fresh), s2_problem (Bounce spots lady cat), "
+        f"s3_tension (awkward attempt to approach), s4_funny_moment (something goes wrong OR pastor/host reacts), "
+        f"s5_recovery (Dash saves it / BootHop mention), s6_ending (warm funny resolution)\n"
+        f"• Each line MUST include 'speaker_context' — vivid emotional description\n"
+        f"• Characters: use 'bounce', 'dash', 'lady_cat' (or 'pastor_cat' for church) as char keys\n"
+        f"• Tone: warm, funny, a little romantic — PG rated\n"
+        f"• dalle_scene: '3D animated Pixar-quality film style, premium cinema render, warm Nigerian "
+        f"party/church lighting, no text in image, {bounce_desc}, AND {dash_desc}, [scene action]'\n"
+        f"• s6_ending must include 'next_teaser' key\n"
+        f"• Include 'special_type': '{episode_type}' in the JSON\n"
+    )
+    user = (
+        f"Write Special Episode {ep_num} of BOUNCE ON THE MOVE — {episode_type.upper()} SPECIAL.\n"
+        f"Scenario: {scenario}{research_section}\n\n"
+        "Return ONLY valid JSON matching the standard episode structure with 'special_type' added."
+    )
+
+    try:
+        client = _ant.Anthropic(api_key=OPENAI_API_KEY)  # reuse same client pattern
+        # Use Anthropic client directly
+        import anthropic as _a2
+        c2 = _a2.Anthropic()
+        msg = c2.messages.create(
+            model="claude-sonnet-4-6",
+            max_tokens=2000,
+            messages=[{"role": "user", "content": f"{system}\n\n{user}"}],
+        )
+        raw = msg.content[0].text.strip()
+        raw = raw.lstrip("```json").lstrip("```").rstrip("```").strip()
+        ep  = json.loads(raw)
+        ep.setdefault("number",  ep_num)
+        ep.setdefault("special_type", episode_type)
+        cost = round((msg.usage.input_tokens * 3 + msg.usage.output_tokens * 15) / 1_000_000, 5)
+        _log(f"  Special episode written: {ep.get('title','?')} (${cost:.5f})")
+        return ep, cost
+    except Exception as e:
+        _log(f"  Special episode generation failed: {e}")
         return None, 0.0
 
 
@@ -1308,7 +1694,7 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
             kling_clip = ep_dir / f"{clip_id}_clip.mp4"
             if not kling_clip.exists():
                 if img and img.exists():
-                    motion = _speaking_motion(char, line.get("speaker_context", ""))
+                    motion = _speaking_motion(char, line.get("speaker_context", ""), line.get("text", ""))
                     kling_clip = image_to_video_kling(img, motion, ep_dir, clip_id)
                     if kling_clip:
                         _log_cost(actual_costs, "kling_video", 0.14, clip_id)
@@ -1331,15 +1717,31 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
         _tg(f"BOUNCE Ep{ep_num} FAILED: no clips generated")
         return
 
-    # Stage 3 — Music with BootHop stab
-    _log("Stage 3: Music (ElevenLabs + BootHop stab)...")
+    # Stage 3 — Music: special episode gets gospel/party track; regular gets trending daily track
+    _log("Stage 3: Music...")
     music_path = ep_dir / "music.mp3"
     total_dialogue_dur = sum(d for _, _, d in line_clips) + len(line_clips) * 0.3
     if not music_path.exists():
-        target_dur = max(total_dialogue_dur + 3, 30)
-        music_path = generate_music(target_dur, ep_dir)
-        if music_path:
-            _log_cost(actual_costs, "elevenlabs_music", 0.10, "sound generation")
+        special_type = episode.get("special_type")
+        if special_type:
+            # Church → gospel, Party → R&B — fetched fresh from SoundCloud
+            music_path = _fetch_special_music(special_type, ep_dir) or music_path
+            if music_path.exists():
+                _log(f"  Using {special_type} track")
+        if not music_path.exists():
+            # Regular episode: use today's trending track from the music pipeline
+            daily_track = BASE.parent / "music" / "daily" / "track_1.mp3"
+            if not daily_track.exists():
+                daily_track = BASE.parent / "music" / "daily" / "track_2.mp3"
+            if daily_track.exists():
+                import shutil as _sh
+                _sh.copy2(str(daily_track), str(music_path))
+                _log(f"  Using trending track: {daily_track.name}")
+            else:
+                target_dur = max(total_dialogue_dur + 3, 30)
+                music_path = generate_music(target_dur, ep_dir)
+                if music_path:
+                    _log_cost(actual_costs, "elevenlabs_music", 0.10, "sound generation")
     else:
         _log("  Reusing music")
 
@@ -1374,7 +1776,10 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
     _log("Stage 5: Final assembly (per-line lip-sync mux)...")
     final = ep_dir / "final_video.mp4"
     if not final.exists():
-        final = assemble_dialogue_video(line_clips, music_path, ep_dir)
+        final = assemble_dialogue_video(
+            line_clips, music_path, ep_dir,
+            ep_num=ep_num, ep_title=episode["title"],
+        )
 
     if not final or not final.exists():
         _tg(f"BOUNCE Ep{ep_num} FAILED: assembly failed")
@@ -1427,9 +1832,12 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
     )
     _save_json(STATE / "cost_history.json", cost_h)
 
-    # Stage 7 — Deliver
+    # Stage 7 — Deliver: Telegram + YouTube
     _log("Stage 7: Telegram delivery...")
     deliver_to_telegram(episode, ep_dir, final, actual_costs, qa)
+
+    # YouTube posting handled via queue — auto Tue/Thu/Sat or user taps Post Now in Telegram
+
     _log(f"=== Episode {ep_num} DONE — ${actual_costs['total']:.4f} ===")
 
 
@@ -1498,10 +1906,17 @@ if __name__ == "__main__":
         _ai_costs = {}  # perplexity + claude costs to inject into this episode
 
         if not episode:
-            # Episode 3+ — auto-generate using Perplexity research + Claude
             if _research_brief is None:
                 _research_brief, _research_cost = research_weekly_brief()
-            episode, claude_cost = generate_episode_from_research(ep_num, _research_brief)
+
+            # Last weekend of the month → special church or party episode
+            if _is_special_weekend():
+                ep_type = _special_episode_type()
+                _log(f"  Special weekend detected — generating {ep_type.upper()} episode...")
+                episode, claude_cost = generate_special_episode(ep_num, ep_type, _research_brief)
+            else:
+                episode, claude_cost = generate_episode_from_research(ep_num, _research_brief)
+
             if not episode:
                 _log(f"Failed to generate episode {ep_num} — stopping batch")
                 break
