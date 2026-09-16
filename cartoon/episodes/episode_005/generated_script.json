@@ -1,0 +1,146 @@
+{
+  "number": 5,
+  "title": "ONE SMALL SUITCASE (THEY SAID)",
+  "route": "London Heathrow → Lagos Murtala Muhammed Airport",
+  "shots": [
+    {
+      "id": "s1_hook",
+      "time": "0:00-0:05",
+      "label": "Hook",
+      "on_screen_text": "When family says 'just one small bag'...",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. Dash. DASH. Auntie said one small suitcase. ONE. Why am I looking at three boxes, two coolers, and what I think is a FULL MATTRESS?",
+          "speaker_context": "eyes bulging wide, fur standing on end, spinning around in disbelief, gesturing wildly at a mountain of luggage that nearly touches the ceiling of his flat"
+        },
+        {
+          "char": "dash",
+          "text": "The mattress is a 'small item' according to your uncle. His words, not mine.",
+          "speaker_context": "calm deadpan smirk, leaning against the doorframe with tiny arms folded, sipping a cup of tea without a care in the world"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes standing in a cluttered London living room absolutely overwhelmed, fur spiked in shock, surrounded by an absurd towering mountain of mismatched suitcases, taped-up cardboard boxes, two large coolers, and a rolled mattress strapped with duct tape, AND small grey-blue mouse named Dash with big round grey ears and a travel bag leaning calmly at the door sipping tea, cosy London flat morning light streaming through the window"
+    },
+    {
+      "id": "s2_problem",
+      "time": "0:05-0:10",
+      "label": "Problem",
+      "on_screen_text": "The family group chat has entered the chat.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "My phone is VIBRATING off the table — Mum wants stockfish, Cousin Temi wants six jars of Marmite, and Grandma is asking me to bring 'a little fresh air from London.' HOW?!",
+          "speaker_context": "phone buzzing violently in his paw, fur frazzled, reading notifications with escalating horror, one eye twitching"
+        },
+        {
+          "char": "dash",
+          "text": "To be fair, the Marmite I understand. The fresh air is ambitious.",
+          "speaker_context": "peering over at Bounce's phone screen, tiny eyebrow raised, expression perfectly dry and unimpressed"
+        },
+        {
+          "char": "bounce",
+          "text": "Dash, we check in at SIX AM. We are going to get stopped. We are going to be that family at the airport. I cannot be that family!",
+          "speaker_context": "clutching his head with both paws, tail puffed up in full panic mode, dramatically sinking to the floor"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes sitting on the floor of a London flat dramatically surrounded by luggage chaos, holding a wildly buzzing phone with a look of total overwhelm, fur completely frazzled, tail puffed up enormous, AND small grey-blue mouse named Dash with big round grey ears and a travel bag standing nearby reading the phone screen with a calm amused expression, warm interior lighting, scattered lists and packing tape everywhere"
+    },
+    {
+      "id": "s3_tension",
+      "time": "0:10-0:17",
+      "label": "Tension",
+      "on_screen_text": "Heathrow security did NOT come to play.",
+      "lines": [
+        {
+          "char": "dash",
+          "text": "Right. Small update. I may be... detained at security.",
+          "speaker_context": "voice coming through a tiny earpiece, eerily calm considering the situation, whispering with the faintest trace of concern"
+        },
+        {
+          "char": "bounce",
+          "text": "DETAINED?! Dash, what did you PUT in that bag?! I told you the pepper soup seasoning looked suspicious on an X-ray — I TOLD YOU!",
+          "speaker_context": "frozen mid-stride at the airport departure gate, orange fur bristling in all directions, paw pressed over his mouth, green eyes nearly popping out of his head, other passengers staring"
+        },
+        {
+          "char": "dash",
+          "text": "It is not the pepper soup. It is the stockfish. Apparently it has its own... atmosphere. The security owl is giving it a full investigation.",
+          "speaker_context": "small and composed inside a glass security booth, travel bag on the conveyor belt, watching a very serious uniformed owl in a hi-vis vest sniff the bag with intense professional suspicion"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, Heathrow Airport security zone, small grey-blue mouse named Dash with big round grey ears calmly standing inside a glass security screening booth with his travel bag on the belt, a very official-looking uniformed owl in a hi-vis vest examining the bag with extreme suspicion and a tiny nose clip, AND large fluffy orange tabby cat named Bounce with vivid green eyes frozen in panic at the departure gate visible through the glass, fur spiked, paw over mouth, busy airport terminal background, bright fluorescent terminal lighting"
+    },
+    {
+      "id": "s4_idea",
+      "time": "0:17-0:21",
+      "label": "Idea",
+      "on_screen_text": "BootHop to the rescue — no drama, no X-ray.",
+      "lines": [
+        {
+          "char": "dash",
+          "text": "Bounce. Listen. Next time — all of this? The boxes, the coolers, the Marmite, even Grandma's symbolic fresh air — goes through BootHop. Door to door, Lagos delivery, zero airport drama.",
+          "speaker_context": "reunited outside security, absolutely unruffled, holding up his phone showing the BootHop app interface, one small finger tapping the screen with quiet authority"
+        },
+        {
+          "char": "bounce",
+          "text": "You mean I don't have to CHECK IN with a mattress?! I can just... send it? Like a normal person?!",
+          "speaker_context": "staring at Dash's phone with jaw dropped open, green eyes wide and glistening, one paw on his chest like a weight has been physically lifted off him"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, Heathrow Airport departures lounge seating area, small grey-blue mouse named Dash with big round grey ears holding up a smartphone showing a clean app interface to large fluffy orange tabby cat named Bounce with vivid green eyes, Bounce staring at the phone with jaw-dropped amazement and both paws on his cheeks, bright airy airport lounge setting, other animated animal travellers in soft background, golden morning terminal light"
+    },
+    {
+      "id": "s5_realisation",
+      "time": "0:21-0:26",
+      "label": "Realisation",
+      "on_screen_text": "Lagos. The delivery arrives before they do.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. Dash. The BootHop parcel is already at Auntie's house. We just landed. How is it already THERE?!",
+          "speaker_context": "standing outside Lagos arrivals in the warm Nigerian sun, straw hat slightly askew, jaw hanging, holding his phone showing a delivery confirmed notification, absolutely delighted and baffled"
+        },
+        {
+          "char": "dash",
+          "text": "That is what happens when you stop arguing with airport scales and let the professionals handle it.",
+          "speaker_context": "pulling down tiny sunglasses onto his nose, travel bag slung over one shoulder, cool composed smile, the picture of effortless calm in the Lagos heat"
+        },
+        {
+          "char": "bounce",
+          "text": "Bro. I am emotional. I am actually emotional right now.",
+          "speaker_context": "paw placed over his heart, eyes welling up with genuine moved-ness, bottom lip trembling in that big dramatic Bounce way, sunshine glowing on his orange fur"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, exterior of Lagos Murtala Muhammed Airport arrivals, vibrant warm Nigerian sunshine, large fluffy orange tabby cat named Bounce with vivid green eyes wearing a slightly lopsided straw hat, holding phone showing delivery confirmed screen, expression cycling between shock and joy, AND small grey-blue mouse named Dash with big round grey ears wearing tiny sunglasses, travel bag over shoulder, composed cool smile, bustling colourful Lagos airport exterior background, palm trees, bright sky"
+    },
+    {
+      "id": "s6_ending",
+      "time": "0:26-0:30",
+      "label": "Ending",
+      "on_screen_text": "One small suitcase. Delivered. No stress.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Right. Next trip — I pack light, BootHop sends the madness ahead, and I arrive fresh. Like a KING.",
+          "speaker_context": "striking a triumphant pose outside arrivals, chest puffed, orange fur gleaming in the Lagos sun, sunglasses finally on, one paw pointing to the sky with absolute confidence"
+        },
+        {
+          "char": "dash",
+          "text": "You still told your auntie you'd bring the mattress IN PERSON. She's outside. She has a look.",
+          "speaker_context": "glancing slowly to the left with a tiny grimace, travel bag clutched, preparing to take a calm step backwards away from the incoming situation"
+        },
+        {
+          "char": "bounce",
+          "text": "...BootHop does mattresses, yeah?",
+          "speaker_context": "frozen mid-pose, sunglasses sliding down nose, green eyes darting left in pure dread, voice dropping to a desperate whisper"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, Lagos airport exterior bright and vibrant, large fluffy orange tabby cat named Bounce with vivid green eyes frozen in a triumphant pose with sunglasses sliding off nose, expression shifting from confident to terrified, AND small grey-blue mouse named Dash with big round grey ears taking a cautious small step backwards with a tiny wince, both characters bathed in gorgeous warm Lagos afternoon golden light, lush greenery and blue sky in background, joyful colourful scene",
+      "next_teaser": "NEXT: Bounce tries to send money home through five different apps — Dash knows there's only one that won't eat his data, crash at 11pm, or ask for seventeen forms of ID."
+    }
+  ],
+  "caption": "Auntie said 'one small suitcase.' Bounce showed up with a mattress. Dash had a better idea. 📦✈️ #BounceOnTheMove #BootHop",
+  "hashtags": "#BootHop #BounceOnTheMove #NigerianDiaspora #UKNigeria #DiasporaLife #LagosLanding #AfricanComedy #BlackBritish #TravelComedy #FamilyPackingChaos",
+  "setting": "London Heathrow Airport → Lagos Murtala Muhammed Airport, Nigeria",
+  "story_summary": "Bounce is ambushed by his family's ever-expanding list of items to carry to Lagos — one small suitcase has become a mountain of boxes, coolers, and a mattress. At Heathrow, chaos erupts when Dash gets detained at security over suspicious stockfish, and Bounce nearly has a breakdown at the check-in desk. Dash reveals that BootHop could have handled all of it — door-to-door delivery to Lagos, no X-rays, no excess baggage fees, no drama — and when they land in Nigeria to find the parcel already delivered, Bounce is genuinely moved. The kicker: Auntie is still waiting for that mattress in person."
+}

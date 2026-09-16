@@ -52,6 +52,16 @@
         "ok": 47,
         "failed": []
       }
+    },
+    {
+      "date": "14 Sep 2026",
+      "pages": {},
+      "sitemap": {
+        "total": 105,
+        "checked": 47,
+        "ok": 47,
+        "failed": []
+      }
     }
   ]
 }

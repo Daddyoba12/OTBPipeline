@@ -1,0 +1,126 @@
+{
+  "number": 3,
+  "title": "ONE BAG. THEY SAID ONE BAG.",
+  "route": "London Heathrow → Lagos Murtala Muhammed",
+  "shots": [
+    {
+      "id": "s1_hook",
+      "time": "0:00-0:05",
+      "label": "Hook",
+      "on_screen_text": "One bag. Simple.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. I have one suitcase. One! Very reasonable. Very calm. Very me."
+        },
+        {
+          "char": "dash",
+          "text": "...Why is it shaped like a pyramid?"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, both standing in a cluttered London flat living room, Bounce proudly gesturing toward a wildly overstuffed suitcase that bulges in every direction and leans at a comedic angle, Dash staring at it with one eyebrow raised, bags and gift boxes and wrapped parcels stacked everywhere around them"
+    },
+    {
+      "id": "s2_problem",
+      "time": "0:05-0:10",
+      "label": "Problem",
+      "on_screen_text": "£65 per overweight bag. Per bag.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "It's just clothes. And Aunty Bisi's shea butter. And the biscuits she specifically said to bring. And a few—"
+        },
+        {
+          "char": "dash",
+          "text": "Bounce. The scale says thirty-eight kilos."
+        },
+        {
+          "char": "bounce",
+          "text": "The scale is lying and I won't hear otherwise."
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, Bounce standing on a bathroom scale next to his enormous suitcase looking horrified at the number, fur standing on end, green eyes wide with panic, Dash standing calmly nearby holding a small notepad with calculations on it, the suitcase visibly straining at its zips"
+    },
+    {
+      "id": "s3_tension",
+      "time": "0:10-0:17",
+      "label": "Tension / Chaos",
+      "on_screen_text": "Heathrow check-in. The moment of truth.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Sir it's mostly air in there— soft air— culturally significant air—"
+        },
+        {
+          "char": "dash",
+          "text": "The screen says sixty-five pounds. Per. Bag."
+        },
+        {
+          "char": "bounce",
+          "text": "SIXTY FIVE? For LUGGAGE? They are taxing my AUNTY'S BISCUITS?!"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, at a busy airport check-in desk, Bounce leaning dramatically over the counter with claws out gesturing wildly at a baggage scale, fur puffed up in outrage, Dash standing a few steps back looking at his phone with a calm expression, bright overhead airport lighting, a long queue of passengers visible behind them looking bemused"
+    },
+    {
+      "id": "s4_idea",
+      "time": "0:17-0:21",
+      "label": "Idea",
+      "on_screen_text": "BootHop.com — ship it smarter",
+      "lines": [
+        {
+          "char": "dash",
+          "text": "Or... we could have sent Aunty Bisi's parcel ahead with BootHop. Cheaper than this fee. Arrives before you do."
+        },
+        {
+          "char": "bounce",
+          "text": "...BootHop ships to Lagos?"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, Dash holding up his phone showing the BootHop website with a bright cheerful glow on his face, Bounce leaning in close with enormous curious green eyes reflecting the screen, the chaotic airport bustling in the background, a warm golden light emanating from the phone screen"
+    },
+    {
+      "id": "s5_realisation",
+      "time": "0:21-0:25",
+      "label": "Realisation",
+      "on_screen_text": "Parcels sent. Bag sorted. Sorted.",
+      "lines": [
+        {
+          "char": "dash",
+          "text": "Book the courier, split the parcel off, and your bag drops under the limit. Done in two minutes."
+        },
+        {
+          "char": "bounce",
+          "text": "I have been carrying shame in suitcase form my entire adult life and this was always the answer?!"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, both back at the check-in desk, the suitcase now sitting flat and slim on the scale showing a perfectly legal weight, Bounce covering his face with both large fluffy paws in a mix of relief and embarrassment, Dash tapping the confirm button on the BootHop app with a satisfied tiny smile, a green confirmation tick glowing on the screen"
+    },
+    {
+      "id": "s6_ending",
+      "time": "0:25-0:30",
+      "label": "Ending",
+      "on_screen_text": "BootHop.com — Travel light. Send smart.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "The biscuits will arrive before us. Aunty Bisi will never know."
+        },
+        {
+          "char": "dash",
+          "text": "She's going to ask why the tin is half empty."
+        },
+        {
+          "char": "bounce",
+          "text": "I was nervous! Snacking is a coping mechanism!"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag, walking through the departure gate together looking triumphant, Bounce holding a single sleek manageable suitcase and grinning broadly, Dash striding coolly beside him with his small travel bag, a warm sunset-orange glow flooding through the departure lounge windows, the BootHop logo glowing subtly on a screen in the background",
+      "next_teaser": "NEXT: Dash's 'small box' to Port Harcourt somehow ends up in Portugal — and Bounce is not helping."
+    }
+  ],
+  "caption": "Sixty-five pounds per bag?! Bounce nearly left his dignity at Heathrow — until Dash found BootHop.com. Ship the gifts ahead, fly light, keep the peace. 🧳🐱🐭",
+  "hashtags": "#BootHop #BounceOnTheMove #DiasporaLife #LondonToLagos #ExcessBaggage #NigerianUK #ShipSmart #TravelComedy #AuntyBiscuits #BootHopIt",
+  "setting": "London flat → Heathrow Terminal departures → departure gate",
+  "story_summary": "Bounce insists his one suitcase is perfectly reasonable — until it clocks in at thirty-eight kilos and the check-in screen flashes a £65 excess baggage fee. Full airport meltdown ensues. Dash quietly opens BootHop.com, books a parcel courier for Aunty Bisi's gifts, and the bag drops under the limit in minutes. They make their flight — though half the biscuits didn't survive Bounce's pre-boarding anxiety snack."
+}

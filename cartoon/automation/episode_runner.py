@@ -26,7 +26,7 @@ sys.path.insert(0, str(PIPELINE))
 from config import (
     ANTHROPIC_API_KEY, OPENAI_API_KEY, ELEVENLABS_API_KEY,
     TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, DATA, ASSETS,
-    KLING_API_KEY, KLING_API_BASE, PERPLEXITY_KEY,
+    RUNWAY_API_KEY, PERPLEXITY_KEY,
 )
 
 COST_CAP = 5.00
@@ -125,6 +125,41 @@ def _ffprobe_duration(path: Path) -> float:
         return float(json.loads(r.stdout)["format"]["duration"])
     except Exception:
         return 0.0
+
+
+def _ffprobe_validate(path: Path) -> dict:
+    """Return dict with validation results. 'ok' is True only if video+audio streams exist."""
+    r = subprocess.run(
+        ["ffprobe", "-v", "quiet", "-print_format", "json",
+         "-show_streams", str(path)],
+        capture_output=True, text=True,
+    )
+    result = {"ok": False, "video": False, "audio": False, "channels": 0,
+              "sample_rate": 0, "audio_duration": 0.0, "errors": []}
+    try:
+        streams = json.loads(r.stdout).get("streams", [])
+    except Exception:
+        result["errors"].append("ffprobe parse failed")
+        return result
+    for s in streams:
+        ct = s.get("codec_type", "")
+        if ct == "video":
+            result["video"] = True
+        elif ct == "audio":
+            result["audio"] = True
+            result["channels"] = s.get("channels", 0)
+            result["sample_rate"] = int(s.get("sample_rate", 0))
+            result["audio_duration"] = float(s.get("duration", 0) or 0)
+    if not result["video"]:
+        result["errors"].append("no video stream")
+    if not result["audio"]:
+        result["errors"].append("no audio stream")
+    if result["audio"] and result["channels"] == 0:
+        result["errors"].append("audio has 0 channels")
+    if result["audio"] and result["sample_rate"] == 0:
+        result["errors"].append("invalid sample rate")
+    result["ok"] = result["video"] and result["audio"] and result["channels"] > 0
+    return result
 
 
 def _b64(path: Path) -> str:
@@ -270,8 +305,11 @@ def _speaking_motion(char: str, ctx: str, text: str = "") -> str:
     )
 
 
-# ── Episode voices — BOUNCE: warm dramatic Nigerian male, DASH: quick cheeky energetic ──
-VOICES = {"bounce": "onyx", "dash": "echo"}
+# ── Character voices — DASH: warm dramatic Nigerian male, ZIP: quick cheeky energetic ──
+# DASH = orange cat (was "bounce" in old code)
+# ZIP  = grey mouse (was "dash" in old code)
+# BOUNCE is the name of the SERIES, not a character
+VOICES = {"dash": "onyx", "zip": "echo"}
 
 
 # ── EPISODE 1: THE DHL RECEIPT ─────────────────────────────────────────────────
@@ -472,7 +510,7 @@ def estimate_cost(episode: dict, is_dynamic: bool = False) -> dict:
     total_chars = sum(len(l["text"]) for l in _all_lines(episode["shots"]))
     costs = {
         "image_gen":        round(n_scenes * 0.042, 2),   # gpt-image-1 edits ~$0.042/image
-        "kling_video":      round(n_scenes * 0.14,  2),   # Kling v1 5s clip  ~$0.14/clip
+        "runway_video":     round(n_scenes * 0.10,  2),   # Runway hailuo3 4s ~$0.10/clip
         "openai_tts":       round(total_chars / 1_000_000 * 15, 4),   # TTS-1 $15/1M chars
         "elevenlabs_music": 0.10,                          # ElevenLabs sound gen
         "perplexity":       0.005 if is_dynamic else 0.0, # Perplexity sonar ~$0.005/call
@@ -522,6 +560,36 @@ def _trim_clip(src: Path, duration: float, out: Path) -> Path | None:
     return out if (ok and out.exists()) else None
 
 
+# ── Retry helper for OpenAI 429 rate-limit errors ─────────────────────────────
+def _openai_post_with_retry(url, headers, payload=None, files=None, data=None,
+                             timeout=90, max_retries=4):
+    """POST to OpenAI with exponential backoff on 429. Returns response or raises."""
+    import requests as _rq
+    delays = [5, 15, 30, 60]
+    for attempt in range(max_retries + 1):
+        try:
+            if files is not None:
+                r = _rq.post(url, headers=headers, data=data, files=files, timeout=timeout)
+            else:
+                r = _rq.post(url, headers=headers, json=payload, timeout=timeout)
+            if r.status_code == 429:
+                if attempt < max_retries:
+                    wait = delays[min(attempt, len(delays)-1)]
+                    _log(f"    [429] Rate-limited — waiting {wait}s then retrying...")
+                    time.sleep(wait)
+                    continue
+            r.raise_for_status()
+            return r
+        except Exception as e:
+            if "429" in str(e) and attempt < max_retries:
+                wait = delays[min(attempt, len(delays)-1)]
+                _log(f"    [429] Rate-limited — waiting {wait}s then retrying...")
+                time.sleep(wait)
+                continue
+            raise
+    raise RuntimeError(f"OpenAI API still rate-limited after {max_retries} retries")
+
+
 # ── Solo speaker image — only the named character, close/medium shot ───────────
 def generate_speaker_image(line: dict, ep_dir: Path,
                            scene_id: str, line_idx: int) -> Path | None:
@@ -529,7 +597,8 @@ def generate_speaker_image(line: dict, ep_dir: Path,
     char     = line["char"]
     ctx      = line.get("speaker_context", "speaking expressively")
     prompt   = _speaker_prompt(char, ctx)
-    ref      = CHAR_REF_BOUNCE if char == "bounce" else CHAR_REF_DASH
+    # DASH = orange cat (CHAR_REF_BOUNCE file), ZIP = grey mouse (CHAR_REF_DASH file)
+    ref      = CHAR_REF_BOUNCE if char == "dash" else CHAR_REF_DASH
     img_path = ep_dir / f"{scene_id}_l{line_idx:02}_{char}.png"
 
     if img_path.exists():
@@ -541,7 +610,7 @@ def generate_speaker_image(line: dict, ep_dir: Path,
     if ref and ref.exists():
         try:
             with open(ref, "rb") as ref_f:
-                r = _rq.post(
+                r = _openai_post_with_retry(
                     "https://api.openai.com/v1/images/edits",
                     headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
                     data={"model": "gpt-image-1", "prompt": prompt,
@@ -549,7 +618,6 @@ def generate_speaker_image(line: dict, ep_dir: Path,
                     files={"image": (ref.name, ref_f, "image/png")},
                     timeout=90,
                 )
-            r.raise_for_status()
             item = r.json()["data"][0]
             if item.get("b64_json"):
                 img_path.write_bytes(_b64m.b64decode(item["b64_json"]))
@@ -561,15 +629,14 @@ def generate_speaker_image(line: dict, ep_dir: Path,
             _log(f"    Ref-edit failed: {e} — falling back to generation")
 
     try:
-        r = _rq.post(
+        r = _openai_post_with_retry(
             "https://api.openai.com/v1/images/generations",
             headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
                      "Content-Type": "application/json"},
-            json={"model": "gpt-image-1", "prompt": prompt,
-                  "n": 1, "size": "1024x1536", "quality": "medium"},
+            payload={"model": "gpt-image-1", "prompt": prompt,
+                     "n": 1, "size": "1024x1536", "quality": "medium"},
             timeout=90,
         )
-        r.raise_for_status()
         item = r.json()["data"][0]
         if item.get("b64_json"):
             img_path.write_bytes(_b64m.b64decode(item["b64_json"]))
@@ -674,15 +741,14 @@ def generate_voiceover_lines(shots: list, ep_dir: Path) -> Path | None:
             continue
         voice = VOICES.get(line["char"], "echo")
         try:
-            r = _rq.post(
+            r = _openai_post_with_retry(
                 "https://api.openai.com/v1/audio/speech",
                 headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
                          "Content-Type": "application/json"},
-                json={"model": "tts-1", "input": line["text"],
-                      "voice": voice, "speed": 0.95},
+                payload={"model": "tts-1", "input": line["text"],
+                         "voice": voice, "speed": 0.95},
                 timeout=30,
             )
-            r.raise_for_status()
             seg.write_bytes(r.content)
             segments.append(seg)
             _log(f"    [{line['char']:6}] {line['text'][:55]}...")
@@ -879,65 +945,91 @@ def _still_to_video(img: Path, ep_dir: Path, shot_id: str, duration: int = 5) ->
     return None
 
 
-# ── Image -> 5s animated clip (Kling AI, primary video engine) ────────────────
-def image_to_video_kling(image_path: Path, motion_prompt: str,
-                         ep_dir: Path, shot_id: str) -> Path | None:
-    import requests as _rq, base64 as _b64m
-    _log(f"  Kling video: {shot_id}...")
+# ── Runway helpers ────────────────────────────────────────────────────────────
+def _runway_client():
+    from runwayml import RunwayML
+    return RunwayML(api_key=RUNWAY_API_KEY)
+
+
+def _runway_poll(task_id: str, label: str, max_attempts: int = 120) -> list[str] | None:
+    """Poll a Runway task until SUCCEEDED. Returns output URL list or None."""
+    client = _runway_client()
+    for attempt in range(max_attempts):
+        time.sleep(5)
+        result = client.tasks.retrieve(task_id)
+        _log(f"  Runway {label}: {result.status} ({attempt+1}/{max_attempts})")
+        if result.status == "SUCCEEDED":
+            return result.output
+        if result.status in ("FAILED", "CANCELLED"):
+            _log(f"  Runway {label} failed: {result.status}")
+            return None
+    _log(f"  Runway {label}: timeout after {max_attempts*5}s")
+    return None
+
+
+def image_to_video_runway_speaking(image_path: Path, audio_path: Path,
+                                    ep_dir: Path, clip_id: str) -> Path | None:
+    """Runway hailuo3 — audio-driven lip sync for speaking shots."""
+    import requests as _rq
+    _log(f"  Runway speaking: {clip_id}...")
     try:
-        img_b64 = _b64m.b64encode(image_path.read_bytes()).decode()
-        r = _rq.post(
-            f"{KLING_API_BASE}/v1/videos/image2video",
-            headers={"Authorization": f"Bearer {KLING_API_KEY}",
-                     "Content-Type": "application/json"},
-            json={
-                "model_name": "kling-v1",
-                "image":       img_b64,
-                "prompt":      motion_prompt,
-                "duration":    "5",
-                "aspect_ratio": "9:16",
-                "cfg_scale":   0.5,
-            },
-            timeout=60,
+        client = _runway_client()
+        with open(image_path, "rb") as f:
+            img_up = client.uploads.create_ephemeral(file=f)
+        with open(audio_path, "rb") as f:
+            aud_up = client.uploads.create_ephemeral(file=f)
+        aud_dur = _ffprobe_duration(audio_path)
+        duration = 8 if aud_dur > 5 else 5
+        task = client.image_to_video.create(
+            model="hailuo3",
+            prompt_image=[{"uri": img_up.uri}],
+            prompt_text="character speaking with natural lip movement and facial expression",
+            reference_audio=[{"type": "audio", "uri": aud_up.uri}],
+            ratio="9:16",
+            duration=duration,
         )
-        if r.status_code != 200:
-            _log(f"  Kling submit error {r.status_code}: {r.text[:200]}")
-            return _still_to_video(image_path, ep_dir, shot_id)
-
-        task_id = (r.json().get("data") or {}).get("task_id")
-        if not task_id:
-            _log(f"  Kling: no task_id — {r.json()}")
-            return _still_to_video(image_path, ep_dir, shot_id)
-
-        _log(f"  Kling task: {task_id}")
-        for attempt in range(48):          # up to ~4 min
-            time.sleep(5)
-            pr = _rq.get(
-                f"{KLING_API_BASE}/v1/videos/image2video/{task_id}",
-                headers={"Authorization": f"Bearer {KLING_API_KEY}"},
-                timeout=20,
-            )
-            td = pr.json().get("data", {})
-            status = td.get("task_status", "")
-            _log(f"  Kling: {status} ({attempt+1}/48)")
-            if status == "succeed":
-                works = (td.get("task_result") or {}).get("videos", [])
-                url = works[0].get("url") if works else None
-                if url:
-                    vid = _rq.get(url, timeout=120).content
-                    out = ep_dir / f"{shot_id}_clip.mp4"
-                    out.write_bytes(vid)
-                    _log(f"  Kling OK: {out.name} ({len(vid)//1024}KB)")
-                    return out
-                break
-            elif status in ("failed", "error"):
-                _log(f"  Kling failed: {td.get('task_status_msg', 'unknown')}")
-                break
-
-        return _still_to_video(image_path, ep_dir, shot_id)
+        _log(f"  Runway task: {task.id}")
+        urls = _runway_poll(task.id, clip_id)
+        if urls:
+            vid = _rq.get(urls[0], timeout=120).content
+            out = ep_dir / f"{clip_id}_clip.mp4"
+            out.write_bytes(vid)
+            _log(f"  Runway OK: {out.name} ({len(vid)//1024}KB)")
+            return out
+        return _still_to_video(image_path, ep_dir, clip_id)
     except Exception as e:
-        _log(f"  Kling error: {e}")
-        return _still_to_video(image_path, ep_dir, shot_id)
+        _log(f"  Runway speaking error: {e}")
+        return _still_to_video(image_path, ep_dir, clip_id)
+
+
+def image_to_video_runway_silent(image_path: Path, prompt: str,
+                                  ep_dir: Path, clip_id: str) -> Path | None:
+    """Runway Gen-4.5 — cinematic animation for silent/action/reaction shots."""
+    import requests as _rq
+    _log(f"  Runway silent: {clip_id}...")
+    try:
+        client = _runway_client()
+        with open(image_path, "rb") as f:
+            img_up = client.uploads.create_ephemeral(file=f)
+        task = client.image_to_video.create(
+            model="gen4_turbo",
+            prompt_image=img_up.uri,
+            prompt_text=prompt,
+            ratio="9:16",
+            duration=5,
+        )
+        _log(f"  Runway task: {task.id}")
+        urls = _runway_poll(task.id, clip_id)
+        if urls:
+            vid = _rq.get(urls[0], timeout=120).content
+            out = ep_dir / f"{clip_id}_clip.mp4"
+            out.write_bytes(vid)
+            _log(f"  Runway OK: {out.name} ({len(vid)//1024}KB)")
+            return out
+        return _still_to_video(image_path, ep_dir, clip_id)
+    except Exception as e:
+        _log(f"  Runway silent error: {e}")
+        return _still_to_video(image_path, ep_dir, clip_id)
 
 
 # ── Caption SRT builder ───────────────────────────────────────────────────────
@@ -1409,7 +1501,7 @@ def generate_episode_from_research(ep_num: int, research_brief: str | None) -> t
         client = _ant.Anthropic(api_key=ANTHROPIC_API_KEY)
         resp = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=2500,
+            max_tokens=4000,
             system=system,
             messages=[{"role": "user", "content": user}],
         )
@@ -1418,7 +1510,33 @@ def generate_episode_from_research(ep_num: int, research_brief: str | None) -> t
             raw = raw.split("```")[1]
             if raw.startswith("json"):
                 raw = raw[4:]
-        ep = json.loads(raw)
+        # Repair truncated JSON if needed (stop_reason == "max_tokens")
+        if resp.stop_reason == "max_tokens":
+            _log("  Warning: response hit max_tokens, attempting JSON repair...")
+            # Find the last complete top-level value by trimming after last closing brace/bracket
+            for end_char in ("}", "]"):
+                idx = raw.rfind(end_char)
+                if idx != -1:
+                    candidate = raw[: idx + 1]
+                    # Balance open/close braces
+                    depth = 0
+                    for ch in candidate:
+                        if ch in "{[":
+                            depth += 1
+                        elif ch in "}]":
+                            depth -= 1
+                    # Close any unclosed structures
+                    if depth > 0:
+                        candidate += "}]" * depth
+                    try:
+                        ep = json.loads(candidate)
+                        break
+                    except Exception:
+                        continue
+            else:
+                ep = json.loads(raw)  # will raise naturally if still broken
+        else:
+            ep = json.loads(raw)
         # Claude Sonnet 4.6 pricing: $3/1M input, $15/1M output
         usage = resp.usage
         cost  = round(
@@ -1653,7 +1771,7 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
     _save_json(manifest_path, manifest)
     actual_costs = {
         "image_gen":        0.0,
-        "kling_video":      0.0,
+        "runway_video":     0.0,
         "openai_tts":       0.0,
         "elevenlabs_music": 0.0,
         "perplexity":       (ai_costs or {}).get("perplexity",    0.0),
@@ -1672,42 +1790,47 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
     else:
         _log("  Reusing voiceover")
 
-    # Stage 2 — One Kling clip per spoken line (shot/reverse-shot)
-    _log("Stage 2: Speaker clips — one per dialogue line...")
+    # Stage 2 — One Runway clip per spoken line (hailuo3 audio-driven lip sync)
+    _log("Stage 2: Speaker clips — Runway audio-driven lip sync...")
     line_clips = []   # [(video_clip, audio_file, duration_s)]
     global_line_idx = 0
 
     for shot in episode["shots"]:
         _log(f"  Scene: {shot['id']}")
         for line in shot.get("lines", []):
-            char     = line["char"]
-            audio_f  = ep_dir / f"vo_{global_line_idx:03}.mp3"
+            char      = line["char"]
+            audio_f   = ep_dir / f"vo_{global_line_idx:03}.mp3"
             audio_dur = _ffprobe_duration(audio_f) if audio_f.exists() else 2.5
-            clip_id  = f"{shot['id']}_l{global_line_idx:02}"
+            clip_id   = f"{shot['id']}_l{global_line_idx:02}"
 
-            # Generate solo speaker image (only this character in frame)
+            # Generate solo speaker image (character close-up for lip sync)
             img = generate_speaker_image(line, ep_dir, shot["id"], global_line_idx)
             if img:
                 _log_cost(actual_costs, "image_gen", 0.042, clip_id)
 
-            # Kling: animate the speaker with mouth movement
-            kling_clip = ep_dir / f"{clip_id}_clip.mp4"
-            if not kling_clip.exists():
-                if img and img.exists():
-                    motion = _speaking_motion(char, line.get("speaker_context", ""), line.get("text", ""))
-                    kling_clip = image_to_video_kling(img, motion, ep_dir, clip_id)
-                    if kling_clip:
-                        _log_cost(actual_costs, "kling_video", 0.14, clip_id)
+            # Runway hailuo3: audio-driven lip sync
+            runway_clip = ep_dir / f"{clip_id}_clip.mp4"
+            if not runway_clip.exists():
+                if img and img.exists() and audio_f.exists():
+                    runway_clip = image_to_video_runway_speaking(img, audio_f, ep_dir, clip_id)
+                    if runway_clip:
+                        _log_cost(actual_costs, "runway_video", 0.10, clip_id)
+                elif img and img.exists():
+                    # No audio (TTS failed) — silent animation fallback
+                    motion = _speaking_motion(char, line.get("speaker_context",""), line.get("text",""))
+                    runway_clip = image_to_video_runway_silent(img, motion, ep_dir, clip_id)
+                    if runway_clip:
+                        _log_cost(actual_costs, "runway_video", 0.10, clip_id)
             else:
-                _log(f"    Reusing clip: {kling_clip.name}")
+                _log(f"    Reusing clip: {runway_clip.name}")
 
-            # Trim Kling clip to audio duration + 0.3s natural pause
-            if kling_clip and kling_clip.exists():
+            # Trim clip to audio duration + 0.3s natural pause
+            if runway_clip and runway_clip.exists():
                 trim_dur = max(audio_dur + 0.3, 1.0)
                 trimmed  = ep_dir / f"{clip_id}_trimmed.mp4"
                 if not trimmed.exists():
-                    _trim_clip(kling_clip, trim_dur, trimmed)
-                clip_to_use = trimmed if trimmed.exists() else kling_clip
+                    _trim_clip(runway_clip, trim_dur, trimmed)
+                clip_to_use = trimmed if trimmed.exists() else runway_clip
                 line_clips.append((clip_to_use, audio_f, audio_dur))
 
             global_line_idx += 1
@@ -1730,9 +1853,9 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
                 _log(f"  Using {special_type} track")
         if not music_path.exists():
             # Regular episode: use today's trending track from the music pipeline
-            daily_track = BASE.parent / "music" / "daily" / "track_1.mp3"
+            daily_track = CARTOON.parent / "music" / "daily" / "track_1.mp3"
             if not daily_track.exists():
-                daily_track = BASE.parent / "music" / "daily" / "track_2.mp3"
+                daily_track = CARTOON.parent / "music" / "daily" / "track_2.mp3"
             if daily_track.exists():
                 import shutil as _sh
                 _sh.copy2(str(daily_track), str(music_path))
@@ -1842,6 +1965,218 @@ def produce_episode(episode: dict, dry_run: bool = False, force: bool = False,
 
 
 # ── Entry point ────────────────────────────────────────────────────────────────
+# ── Lip-sync test clips (run before any full episode) ─────────────────────────
+def produce_test_clips():
+    """
+    Produce two lip-sync test clips and send to Telegram for approval.
+    TEST A — DASH (orange cat):  "Forty-seven pounds? For this small bag?!" — shock
+    TEST B — ZIP  (grey mouse):  "Small bag? Dash, you packed your whole village!" — sarcastic
+    Runway returns a SILENT video. Audio is always muxed in explicitly via FFmpeg.
+    FFprobe validates audio stream before Telegram delivery — FAILED clips are not sent.
+    """
+    import requests as _rq
+    test_dir = STATE / "test_clips"
+    test_dir.mkdir(parents=True, exist_ok=True)
+
+    TESTS = [
+        {
+            "id":    "test_a",
+            "label": "TEST A — DASH",
+            "char":  "dash",
+            "text":  "Forty-seven pounds? For this small bag?!",
+            "ctx":   "horrified shock and disbelief, eyes wide open, eyebrows lifted high, "
+                     "mouth drops open on forty-seven, body pulls back slightly",
+            "voice": VOICES.get("dash", "onyx"),
+        },
+        {
+            "id":    "test_b",
+            "label": "TEST B — ZIP",
+            "char":  "zip",
+            "text":  "Small bag? Dash, you packed your whole village!",
+            "ctx":   "sarcastic cheeky side-eye at Dash, deadpan smirk, "
+                     "controlled amused delivery, knowing smile",
+            "voice": VOICES.get("zip", "echo"),
+        },
+    ]
+
+    delivered = []
+
+    for t in TESTS:
+        _log(f"[Test] {t['label']}: {t['text']}")
+        clip_ok = False
+
+        # ── Step 1: Generate TTS voice ─────────────────────────────────────────
+        audio_raw = test_dir / f"{t['id']}_voice.mp3"
+        if not audio_raw.exists():
+            try:
+                r = _openai_post_with_retry(
+                    "https://api.openai.com/v1/audio/speech",
+                    headers={"Authorization": f"Bearer {OPENAI_API_KEY}",
+                             "Content-Type": "application/json"},
+                    payload={"model": "tts-1", "input": t["text"],
+                             "voice": t["voice"], "speed": 0.95},
+                    timeout=30,
+                )
+                audio_raw.write_bytes(r.content)
+                _log(f"  Voice generated: {audio_raw.name} ({audio_raw.stat().st_size//1024}KB)")
+            except Exception as e:
+                _log(f"  FAILED — voice generation: {e}")
+                continue
+        else:
+            _log(f"  Voice reused: {audio_raw.name}")
+
+        # Verify audio is audible (not empty/corrupt)
+        voice_dur = _ffprobe_duration(audio_raw)
+        if voice_dur < 0.5:
+            _log(f"  FAILED — voice file too short ({voice_dur:.2f}s)")
+            continue
+        _log(f"  Voice duration: {voice_dur:.2f}s — OK")
+
+        # ── Step 2: Generate speaker image ────────────────────────────────────
+        img_f = test_dir / f"{t['id']}_{t['char']}.png"
+        if not img_f.exists():
+            line_data = {"char": t["char"], "text": t["text"], "speaker_context": t["ctx"]}
+            result = generate_speaker_image(line_data, test_dir, t["id"], 0)
+            # generate_speaker_image saves to scene_id_l00_char.png — rename to our expected path
+            auto_name = test_dir / f"{t['id']}_l00_{t['char']}.png"
+            if result and result.exists() and result != img_f:
+                shutil.copy2(str(result), str(img_f))
+            elif not img_f.exists():
+                # Fallback: use character reference image directly
+                ref = CHAR_REF_BOUNCE if t["char"] == "dash" else CHAR_REF_DASH
+                if ref.exists():
+                    shutil.copy2(str(ref), str(img_f))
+                    _log(f"  Image: using character reference as fallback")
+                else:
+                    _log(f"  FAILED — no image available for {t['char']}")
+                    continue
+        _log(f"  Image ready: {img_f.name}")
+
+        # ── Step 3: Runway hailuo3 — returns SILENT video ─────────────────────
+        runway_raw = test_dir / f"{t['id']}_runway.mp4"
+        if not runway_raw.exists():
+            result = image_to_video_runway_speaking(img_f, audio_raw, test_dir,
+                                                     f"{t['id']}_runway")
+            if not (result and result.exists()):
+                _log(f"  FAILED — Runway returned nothing")
+                continue
+            runway_raw = result
+        _log(f"  Runway silent clip: {runway_raw.name} ({runway_raw.stat().st_size//1024}KB)")
+
+        # ── Step 4: Pad audio (0.2s before, 0.3s after) and convert to WAV ───
+        audio_padded = test_dir / f"{t['id']}_voice_padded.wav"
+        ok = _ff(
+            "-i", str(audio_raw),
+            "-af", "adelay=200|200,apad=pad_dur=0.3",
+            "-ar", "48000", "-ac", "2",
+            str(audio_padded),
+        )
+        if not (ok and audio_padded.exists()):
+            _log(f"  FAILED — audio padding")
+            continue
+        padded_dur = _ffprobe_duration(audio_padded)
+        _log(f"  Padded audio: {padded_dur:.2f}s")
+
+        # ── Step 5: Ensure video is long enough to cover padded audio ─────────
+        vid_dur = _ffprobe_duration(runway_raw)
+        video_src = runway_raw
+        if vid_dur < padded_dur + 0.2:
+            extended = test_dir / f"{t['id']}_extended.mp4"
+            ok = _ff(
+                "-stream_loop", "-1", "-i", str(runway_raw),
+                "-t", str(padded_dur + 1.0),
+                "-c:v", "libx264", "-pix_fmt", "yuv420p", "-r", "24",
+                str(extended),
+            )
+            if ok and extended.exists():
+                video_src = extended
+                _log(f"  Video extended to {_ffprobe_duration(extended):.2f}s")
+
+        # ── Step 6: Mux video + audio — AAC 48kHz 192kbps, loudnorm ──────────
+        final_f = test_dir / f"{t['id']}_final.mp4"
+        ok = _ff(
+            "-i", str(video_src),
+            "-i", str(audio_padded),
+            "-map", "0:v:0",
+            "-map", "1:a:0",
+            "-c:v", "copy",
+            "-c:a", "aac",
+            "-ar", "48000",
+            "-b:a", "192k",
+            "-af", "volume=6dB,loudnorm=I=-16:TP=-1.5:LRA=11:linear=true",
+            "-shortest",
+            str(final_f),
+        )
+        if not (ok and final_f.exists()):
+            _log(f"  FAILED — mux stage")
+            continue
+
+        # ── Step 7: Mandatory FFprobe validation ──────────────────────────────
+        probe = _ffprobe_validate(final_f)
+        _log(f"  FFprobe: video={probe['video']} audio={probe['audio']} "
+             f"channels={probe['channels']} sample_rate={probe['sample_rate']} "
+             f"audio_dur={probe['audio_duration']:.2f}s")
+
+        if not probe["ok"]:
+            _log(f"  VALIDATION FAILED: {probe['errors']} — NOT sending to Telegram")
+            continue
+
+        # Verify audio duration covers the dialogue
+        if probe["audio_duration"] < voice_dur:
+            _log(f"  VALIDATION FAILED: audio duration {probe['audio_duration']:.2f}s "
+                 f"shorter than dialogue {voice_dur:.2f}s — NOT sending")
+            continue
+
+        _log(f"  Validation PASSED — {final_f.name} ({final_f.stat().st_size//1024}KB)")
+        clip_ok = True
+        delivered.append({
+            "label": t["label"],
+            "char":  t["char"],
+            "text":  t["text"],
+            "file":  final_f,
+            "probe": probe,
+            "dur":   padded_dur,
+        })
+
+    # ── Send to Telegram ───────────────────────────────────────────────────────
+    if not delivered:
+        _log("[Test] All clips FAILED validation — nothing sent to Telegram")
+        _tg("BOUNCE test clips FAILED validation — check pipeline logs")
+        return
+
+    _tg("*BOUNCE ON THE MOVE — Lip-Sync Test Clips*\n\n"
+        "Review mouth movement, emotion and sync.\n"
+        "Reply APPROVED to proceed to Episode 01, or report issues.")
+
+    for d in delivered:
+        probe = d["probe"]
+        probe_summary = (
+            f"Video: {'OK' if probe['video'] else 'MISSING'} | "
+            f"Audio: AAC {probe['sample_rate']}Hz {probe['channels']}ch | "
+            f"Audio dur: {probe['audio_duration']:.2f}s"
+        )
+        caption = (
+            f"*{d['label']}*\n"
+            f'"{d["text"]}"\n\n'
+            f"File: `{d['file'].name}`\n"
+            f"FFprobe: {probe_summary}\n\n"
+            f"Check: mouth follows syllables, closes after final word, "
+            f"expression matches emotion, no cut-off."
+        )
+        try:
+            with open(d["file"], "rb") as vf:
+                _rq.post(
+                    f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendVideo",
+                    data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption,
+                          "parse_mode": "Markdown", "supports_streaming": "true"},
+                    files={"video": vf},
+                    timeout=120,
+                )
+            _log(f"  Sent {d['label']} to Telegram")
+        except Exception as e:
+            _log(f"  Telegram send FAILED: {e}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="BOUNCE ON THE MOVE episode runner")
     parser.add_argument("--episode", type=int, default=None)
@@ -1850,7 +2185,13 @@ if __name__ == "__main__":
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--force",   action="store_true",    help="Re-produce even if already completed")
     parser.add_argument("--costs",   action="store_true",    help="Print cost history and exit")
+    parser.add_argument("--test",    action="store_true",    help="Produce 2 lip-sync test clips and send to Telegram")
     args = parser.parse_args()
+
+    # ── --test: produce lip-sync test clips and exit ──────────────────────────
+    if args.test:
+        produce_test_clips()
+        sys.exit(0)
 
     # ── --costs: print history and exit ───────────────────────────────────────
     if args.costs:

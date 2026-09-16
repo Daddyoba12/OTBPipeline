@@ -1,0 +1,146 @@
+{
+  "number": 6,
+  "title": "PASSPORT WAHALA IN THE ENDS",
+  "route": "South London flat → Nigerian consular pop-up → Manchester queue chaos → BootHop rescue",
+  "shots": [
+    {
+      "id": "s1_hook",
+      "time": "0:00-0:05",
+      "label": "Hook",
+      "on_screen_text": "LONDON. 7AM. NAIJA PASSPORT RENEWAL POP-UP DAY.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. DASH. My passport expires in THREE WEEKS and Aunty Funke says if I miss this intervention pop-up she will personally fly here to haunt me.",
+          "speaker_context": "bug-eyed panic, fur standing on end, waving a crumpled letter with both paws, eyes darting wildly"
+        },
+        {
+          "char": "dash",
+          "text": "Good morning to you too. Breathe. I already know about it. I booked your appointment slot at six-fifteen this morning.",
+          "speaker_context": "calm deadpan smirk, sipping from a tiny travel mug, one ear raised, completely unbothered"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes standing in a cluttered South London flat kitchen in morning light, fur completely frazzled, holding a crumpled official-looking letter in both paws with massive panicked eyes, AND small grey-blue mouse named Dash with big round grey ears and a travel bag sitting calmly on the kitchen counter sipping from a tiny mug, looking completely composed and slightly amused"
+    },
+    {
+      "id": "s2_problem",
+      "time": "0:05-0:12",
+      "label": "Problem",
+      "on_screen_text": "THE CHECKLIST: passport, appointment slip, £20 postal order, self-addressed envelope, Aunty's parcel... and snacks.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Right. Appointment slip — yes. Old passport — yes. £20 postal order — WHERE IS THE POSTAL ORDER, DASH?!",
+          "speaker_context": "frantic, rummaging through a massive overflowing bag, items flying everywhere, tail puffed to double size"
+        },
+        {
+          "char": "dash",
+          "text": "It's in the side zip. Also, Bounce — why is there a full tray of puff-puff in your 'documents bag'?",
+          "speaker_context": "peering into the bag with one eyebrow raised, holding up a greasy paper napkin with two fingers, deeply unimpressed"
+        },
+        {
+          "char": "bounce",
+          "text": "Queue snacks are ESSENTIAL, Dash. The British government invented queuing — I'm simply prepared.",
+          "speaker_context": "completely serious expression, paw on chest, nodding slowly as if stating profound wisdom"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes frantically rummaging through an overstuffed bag on a kitchen table, papers and snacks flying everywhere, tail massive and puffed with stress, AND small grey-blue mouse named Dash with big round grey ears and a travel bag standing on the table holding up a greasy paper napkin with two fingers, expression deeply unimpressed, items scattered everywhere around them"
+    },
+    {
+      "id": "s3_tension",
+      "time": "0:12-0:18",
+      "label": "Tension",
+      "on_screen_text": "THE POP-UP QUEUE. CENTRAL LONDON. 9AM. 300 PEOPLE AHEAD.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Three. Hundred. People. Dash, this queue goes round the corner, round the NEXT corner, and I think I can see someone I went to secondary school with near the bus stop.",
+          "speaker_context": "standing on tiptoe, squinting into the far distance with paw shielding eyes, expression collapsing into despair"
+        },
+        {
+          "char": "dash",
+          "text": "Plot twist — the man at the desk just announced they've run out of the self-addressed envelopes. You needed to bring your own.",
+          "speaker_context": "reading calmly from his phone screen, completely neutral tone, only the tiniest flicker of sympathy at the corner of his mouth"
+        },
+        {
+          "char": "bounce",
+          "text": "I HAVE PUFF-PUFF. I HAVE THE POSTAL ORDER. I DO NOT HAVE AN ENVELOPE, DASH. AUNTY FUNKE IS GOING TO END ME.",
+          "speaker_context": "both paws gripping his own face, green eyes enormous, fur standing fully on end, doing a slow horrified slide down a nearby lamppost"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes doing a dramatic slow slide down a London street lamppost in despair, green eyes enormous and horrified, fur frazzled, a massive queue of animated characters stretching around the corner behind him on a busy London street, AND small grey-blue mouse named Dash with big round grey ears and a travel bag standing beside him reading calmly from a tiny phone, expression composed and gentle"
+    },
+    {
+      "id": "s4_idea",
+      "time": "0:18-0:22",
+      "label": "Idea",
+      "on_screen_text": "DASH PULLS UP BOOTHOP.",
+      "lines": [
+        {
+          "char": "dash",
+          "text": "Okay. Stop sliding. BootHop. I book a same-day courier via the app — envelope, printing, Aunty Funke's parcel registered and tracked, all sorted before we reach the desk.",
+          "speaker_context": "holding up phone with BootHop app glowing on screen, calm authoritative energy, one paw pointing at each item on screen with precise efficiency"
+        },
+        {
+          "char": "bounce",
+          "text": "...You booked all of that just now? While I was sliding down a lamppost?",
+          "speaker_context": "slowly peeling himself off the lamppost, jaw dropped, staring at Dash's phone in pure disbelief, one ear flopped sideways"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, small grey-blue mouse named Dash with big round grey ears and a travel bag holding up a glowing smartphone showing a bright clean app interface, standing confidently on a stack of envelopes that has just been delivered, expression calm and satisfied, AND large fluffy orange tabby cat named Bounce with vivid green eyes staring at the phone in absolute jaw-dropped disbelief, one paw still touching the lamppost he was sliding down, fur slowly un-frazzling"
+    },
+    {
+      "id": "s5_realisation",
+      "time": "0:22-0:27",
+      "label": "Realisation",
+      "on_screen_text": "EVERYTHING SORTED. AUNTY FUNKE'S PARCEL: REGISTERED. DOCUMENTS: READY. BOUNCE: CRYING SLIGHTLY.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. My man. My brother from another mother — or whatever mice have. You saved my entire life AND my relationship with Aunty Funke.",
+          "speaker_context": "one paw over heart, eyes genuinely glistening with grateful tears, other arm thrown around Dash's tiny shoulders dramatically"
+        },
+        {
+          "char": "dash",
+          "text": "BootHop saved it. I just pressed four buttons. Now eat the puff-puff before we get to the desk — no food past the entrance.",
+          "speaker_context": "gentle dry smile, patting Bounce's enormous paw with one tiny finger, already pointing toward the queue entrance with businesslike efficiency"
+        },
+        {
+          "char": "bounce",
+          "text": "Eating stress food because I'm RELIEVED — this is peak diaspora.",
+          "speaker_context": "laughing through sniffles, already cramming puff-puff into his mouth with both paws, queue moving forward around him"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes eating puff-puff with both paws while crying happy tears, one arm draped around small grey-blue mouse named Dash with big round grey ears who stands beside him looking fondly exasperated, a neatly organised stack of documents and a labelled parcel visible at their feet, the pop-up passport office entrance visible ahead, golden warm London morning light"
+    },
+    {
+      "id": "s6_ending",
+      "time": "0:27-0:30",
+      "label": "Ending",
+      "on_screen_text": "PASSPORT: SORTED. PARCEL: ON ITS WAY. AUNTY FUNKE: TEMPORARILY APPEASED.",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Right. Passport renewed, parcel sent, puff-puff demolished. Diaspora life: conquered.",
+          "speaker_context": "standing triumphantly outside the pop-up office, brand new appointment receipt held aloft like a trophy, fur perfectly groomed, chest puffed with pride"
+        },
+        {
+          "char": "dash",
+          "text": "Aunty Funke just texted. She wants to know why the parcel smells like puff-puff.",
+          "speaker_context": "reading the text with a tiny smirk, completely straight face, one eyebrow perfectly arched"
+        },
+        {
+          "char": "bounce",
+          "text": "...BootHop cannot save me from THAT.",
+          "speaker_context": "triumphant pose instantly collapsing, ears drooping, receipt slowly lowering, looking directly into camera with resigned wide eyes"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes standing outside a London building in bright afternoon sun, triumphant pose completely deflated, appointment receipt drooping in one paw, ears flat, staring directly at camera with a look of pure defeated resignation, AND small grey-blue mouse named Dash with big round grey ears and a travel bag beside him reading from a tiny phone with a barely-suppressed smirk, warm golden light behind them both",
+      "next_teaser": "NEXT: Bounce discovers his connecting flight to Lagos has a six-hour layover in Amsterdam — and Dash has already planned the entire city using BootHop. Bounce was NOT consulted."
+    }
+  ],
+  "caption": "When the Nigerian passport pop-up is calling AND Aunty Funke is watching — Bounce and Dash navigate the most stressful errand in diaspora history. 🇳🇬🐱🐭 BootHop to the rescue (the puff-puff was NOT a mistake).",
+  "hashtags": "#BounceOnTheMove #BootHop #NigerianPassport #DiasporaLife #NigeriansinUK #PassportWahala #AuntyFunkeKnows #BritishNigerian #PuffPuffIsEssential #NaijaInLondon",
+  "setting": "South London flat + Nigerian consular passport intervention pop-up, Central London",
+  "story_summary": "Bounce wakes up in full panic mode when he realises the Nigeria Immigration Service passport pop-up intervention is TODAY and he is catastrophically underprepared — no self-addressed envelope, a bag full of snacks, and a parcel for Aunty Funke that somehow got mixed into his document pile. The queue is 300 people deep and the desk has already run out of envelopes. Dash calmly opens BootHop, sorts the courier, the printing, and the registered parcel tracking in the time it takes Bounce to complete one dramatic lamppost slide. Everything gets resolved with warmth and puff-puff, until Aunty Funke texts about the smell."
+}
