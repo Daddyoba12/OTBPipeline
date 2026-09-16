@@ -1,0 +1,158 @@
+{
+  "number": 4,
+  "title": "PASSPORT WAHALA: LONDON TO NAIJA EXPRESS",
+  "route": "London consular pop-up → post office → family drop-off → Heathrow",
+  "shots": [
+    {
+      "id": "s1_hook",
+      "time": "0:00-0:05",
+      "label": "Hook",
+      "on_screen_text": "When Naija calls... the paperwork answers first 📋🇬🇧🇳🇬",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Dash. DASH. My passport renewal is TODAY and I've got seventeen things to bring to Lagos, a £20 postal order to find, and Auntie's wig is STILL in a Lidl bag!",
+          "speaker_context": "full panic mode, standing in the middle of a chaotic living room surrounded by overstuffed suitcases, holding phone in one paw and a crumpled form in the other, green eyes popping wide, fur visibly puffed up with stress"
+        },
+        {
+          "char": "dash",
+          "text": "Good morning to you too. I've had my coffee. Have you?",
+          "speaker_context": "leaning calmly against a neatly packed travel bag by the front door, arms folded, one eyebrow raised, tiny smirk, completely unbothered"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes standing in a chaotic UK flat living room surrounded by overstuffed suitcases, Lidl carrier bags, printed forms and scattered snacks, fur puffed up in panic, AND small grey-blue mouse named Dash with big round grey ears and a travel bag standing calmly by the front door, morning light streaming through a window"
+    },
+    {
+      "id": "s2_problem",
+      "time": "0:05-0:10",
+      "label": "Problem",
+      "on_screen_text": "Nigeria Immigration pop-up. London. ONE day only. 👀",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "The Nigeria Immigration Service intervention is TODAY in London — forms, old passport, appointment slip, self-addressed envelope — and I printed everything on the wrong paper size!",
+          "speaker_context": "frantically waving a crumpled stack of A3 printouts that are clearly too large, eyes darting left and right, tail puffed like a bottle brush, voice cracking on the word 'wrong'"
+        },
+        {
+          "char": "dash",
+          "text": "A3. You printed a passport form on A3. That is… genuinely impressive, Bounce.",
+          "speaker_context": "deadpan, holding one corner of the enormous paper between two tiny fingers, looking up at it slowly, dry disbelief written across his face"
+        },
+        {
+          "char": "bounce",
+          "text": "AND Mum texted — she wants chin-chin, a bottle of Bigi Cola, two bags of Indomie and quote: 'don't forget my THING.' What thing?! She never said what thing!",
+          "speaker_context": "reading frantically from phone screen, voice going higher with each item listed, free paw gesturing helplessly at the ceiling, tail lashing"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes holding up a comically oversized A3 printed passport form in a cluttered UK flat kitchen, surrounded by chin-chin bags, Indomie noodle packets and a large bottle of cola on the counter, AND small grey-blue mouse named Dash with big round grey ears holding one corner of the huge paper with two fingers, looking at it with calm disbelief"
+    },
+    {
+      "id": "s3_tension",
+      "time": "0:10-0:17",
+      "label": "Tension",
+      "guest": {
+        "name": "Kolade",
+        "species": "Slow Loris",
+        "char": "guest",
+        "appearance": "elderly slow loris in a neat navy Nigerian agbada with small round reading glasses perched on his nose, moves at an impossibly dignified pace, carries a clipboard with a very long queue list, speaks in a slow, deliberate, Lagos-Elder cadence"
+      },
+      "on_screen_text": "The Queue Has Entered The Chat 😰",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "The queue — Dash — THE QUEUE. It goes around the building. Twice. A man brought a camping chair. A woman has a flask of egusi soup. This is not a queue, this is a SETTLEMENT.",
+          "speaker_context": "pressed flat against the wall outside the consular pop-up venue, eyes enormous, scanning the impossibly long queue with mounting despair, one paw over his heart"
+        },
+        {
+          "char": "guest",
+          "text": "Number four hundred and thirty-seven? …No? …Four hundred and thirty-eight? …My friend, the queue does not rush. The queue has been here since 1999.",
+          "speaker_context": "Kolade the slow loris moves at glacial pace down the queue line, squinting through reading glasses at his clipboard, utterly serene, completely immune to the chaos around him, one deliberate step every three seconds"
+        },
+        {
+          "char": "bounce",
+          "text": "Four hundred and THIRTY-SEVEN?! I am number four hundred and EIGHTY-TWO!",
+          "speaker_context": "staring at his numbered ticket with full horror, holding it up with both paws, mouth open wide, fur standing on end, knees visibly wobbling"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes looking horrified at a numbered ticket outside a busy London consular pop-up building, a comically long queue of animals snaking around the building with some sitting in camping chairs, AND small grey-blue mouse named Dash with big round grey ears standing beside him, AND an elderly slow loris in a navy Nigerian agbada with small round glasses moving slowly along the queue holding a clipboard, overcast London sky above, red-brick building backdrop"
+    },
+    {
+      "id": "s4_idea",
+      "time": "0:17-0:22",
+      "label": "Idea",
+      "guest": {
+        "name": "Kolade",
+        "species": "Slow Loris",
+        "char": "guest",
+        "appearance": "elderly slow loris in a neat navy Nigerian agbada with small round reading glasses perched on his nose, moves at an impossibly dignified pace, carries a clipboard with a very long queue list, speaks in a slow, deliberate, Lagos-Elder cadence"
+      },
+      "on_screen_text": "Dash has entered: CALM MODE 🐭✨",
+      "lines": [
+        {
+          "char": "guest",
+          "text": "Young mouse. Your friend is making a scene. In my experience… the organised man does not queue. He arrives prepared.",
+          "speaker_context": "Kolade pauses beside Dash, peering down at him over his glasses with ancient slow wisdom, tapping the clipboard twice very slowly, then shuffles away without another word"
+        },
+        {
+          "char": "dash",
+          "text": "Right. Bounce. Stop. Breathe. BootHop. I've already pre-sorted your parcel collection, booked the post office slot for the postal order, and your documents are reprinted — A4 this time — in the BootHop app. Everything's tracked, timed and ready.",
+          "speaker_context": "holds up phone screen showing the BootHop app interface, calm and precise, making direct eye contact, one paw on Bounce's arm to stop his pacing, voice steady and assured"
+        },
+        {
+          "char": "bounce",
+          "text": "…You did all of that while I was catastrophising?",
+          "speaker_context": "blinking slowly, fur beginning to settle, looking from the phone screen to Dash with a complicated mix of relief, embarrassment and deep gratitude, tail curling uncertainly"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, small grey-blue mouse named Dash with big round grey ears holding up a glowing smartphone showing a travel app interface outside a London consular building, placing one tiny paw reassuringly on the arm of the large fluffy orange tabby cat named Bounce with vivid green eyes whose fur is just beginning to calm down, AND an elderly slow loris in a navy Nigerian agbada shuffling away slowly in the background with a clipboard, warm golden afternoon light"
+    },
+    {
+      "id": "s5_realisation",
+      "time": "0:22-0:27",
+      "label": "Realisation",
+      "on_screen_text": "BootHop: so you can move like you've got it together 💛",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Documents submitted. Parcel collected. Postal order DONE. Auntie's wig — re-packed properly, not in a Lidl bag. And Mum's 'thing'… turned out to be a specific brand of Tura soap. I found it. I found the soap, Dash.",
+          "speaker_context": "standing tall and proud outside the post office, arms full of neatly labelled parcels, green eyes glowing with the deep satisfaction of a man who has conquered the diaspora errand run, fur smooth and gleaming"
+        },
+        {
+          "char": "dash",
+          "text": "BootHop had a pharmacy partner two streets away. I added it to the route forty minutes ago.",
+          "speaker_context": "walking beside him, travel bag on shoulder, glancing up with a small satisfied smile, tapping the side of his head as if to say 'obviously', completely matter-of-fact"
+        },
+        {
+          "char": "bounce",
+          "text": "You know what, for a tiny mouse, you are enormous where it counts.",
+          "speaker_context": "looking down at Dash with genuine warmth and big brotherly affection, putting one large fluffy orange paw on Dash's tiny shoulder, voice soft and sincere before breaking into a wide grin"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes standing triumphantly outside a London post office holding neatly wrapped and labelled parcels including a recognisable soap box on top, AND small grey-blue mouse named Dash with big round grey ears walking beside him with a satisfied smile and travel bag on shoulder, warm golden late-afternoon London street light, red post box visible in background, both characters looking at ease and accomplished"
+    },
+    {
+      "id": "s6_ending",
+      "time": "0:27-0:30",
+      "label": "Ending",
+      "on_screen_text": "Sorted. Sealed. On the move. 🧡🐭✈️",
+      "lines": [
+        {
+          "char": "bounce",
+          "text": "Next time I'll start the passport renewal before the actual intervention squad has to fly in from Abuja to save me.",
+          "speaker_context": "walking toward Heathrow departures entrance rolling a neat suitcase, looking back at camera with a self-aware grin, shaking his big fluffy head slowly at his own past self"
+        },
+        {
+          "char": "dash",
+          "text": "I'll put a reminder in BootHop. Four reminders. With escalating alarm sounds.",
+          "speaker_context": "already tapping on phone without looking up, tiny smirk, completely deadpan, travel bag bouncing on his small shoulder as they walk through the automatic doors together"
+        }
+      ],
+      "dalle_scene": "3D animated Pixar-quality film style, original BootHop characters, premium cinema render, warm cinematic lighting, no text in image, large fluffy orange tabby cat named Bounce with vivid green eyes rolling a neat suitcase through the entrance of a bright modern airport terminal, looking back at the camera with a warm self-aware grin, AND small grey-blue mouse named Dash with big round grey ears walking beside him looking down at his phone with a small smirk, warm amber terminal lighting, wide shot capturing both characters from behind walking into the departures hall together, sense of easy confidence and adventure",
+      "next_teaser": "NEXT: Bounce discovers his Lagos hotel is triple-booked, Dash has a BootHop backup and a VERY interesting neighbour — you will not believe who is in room 204."
+    }
+  ],
+  "caption": "Passport forms. Family parcels. A queue that started in 1999. Bounce and Dash take on the full UK-Nigeria diaspora errand run — and somehow only BootHop keeps it from becoming a national emergency. 🧡🐭 #BounceOnTheMove",
+  "hashtags": "#BounceOnTheMove #BootHop #PassportWahala #NigerianDiaspora #BritishNigerian #DiasporaLife #NaijaUK #AnimatedComedy #NigerianMums #WahalaNoFit Finish",
+  "setting": "London consular pop-up venue, post office, London street pharmacy, Heathrow Airport departures",
+  "story_summary": "Bounce faces a full-scale diaspora emergency: a same-day Nigeria Immigration Service passport intervention appointment, a mountain of family parcels to collect including the infamous unspecified 'thing' from Mum, and documents printed on the wrong paper size. At the chaotic consular queue they meet Kolade, a magnificently unhurried slow loris queue marshal whose single wise remark about arriving prepared nudges Dash into full BootHop mode. Dash quietly uses BootHop to re-route their entire day — reprinting documents, booking post office slots and locating the exact soap brand Bounce's mum wanted — turning certain disaster into a smooth, triumphant departure."
+}

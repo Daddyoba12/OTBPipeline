@@ -1,28 +1,3 @@
 {
-  "episodes": [
-    {
-      "number": 1,
-      "title": "SPARE SPACE",
-      "route": "London -> Manchester",
-      "date": "2026-09-13"
-    },
-    {
-      "number": 2,
-      "title": "THE HANDOVER",
-      "route": "Nottingham -> Cardiff",
-      "date": "2026-09-13"
-    },
-    {
-      "number": 1,
-      "title": "THE DHL RECEIPT",
-      "route": "London flat — Saturday morning",
-      "date": "2026-09-13"
-    },
-    {
-      "number": 2,
-      "title": "THE COUSIN",
-      "route": "Lagos -> London -> same London flat",
-      "date": "2026-09-13"
-    }
-  ]
+  "episodes": []
 }

@@ -1,165 +1,5 @@
 [
   {
-    "query": "35-year-old mixed heritage woman london anxious medium shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old mixed heritage woman courier phone frustrated medium shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old mixed heritage woman home stressed laptop medium shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "black man parcel handover train station smiling wide shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old nigerian woman confident london street wide shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old mixed heritage woman receiving parcel smiling wide shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old mixed heritage woman relieved indoors medium shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "35-year-old mixed heritage woman thoughtful office medium shot",
-    "date": "2026-08-28",
-    "slot": 1
-  },
-  {
-    "query": "26-year-old black woman worried phone medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "african woman phone call frustrated office medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "nigerian woman laptop stressed deadline medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "black man train station parcel handover smiling wide shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "nigerian woman receives parcel doorstep happy wide shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "black couple laptop satisfaction home medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "young black couple relaxed happy park medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "black british couple reflective home library medium shot",
-    "date": "2026-08-30",
-    "slot": 1
-  },
-  {
-    "query": "26-year-old black woman typing worried medium shot",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "black woman at courier counter price shocked medium",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "26-year-old african woman stressed phone home medium",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "black man handing parcel train station smiling wide",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "nigerian family member receiving parcel smiling wide",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "black woman happy family delivery arrival wide shot",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "26-year-old black woman relieved group smiles wide",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "black couple smiling at park thoughtful wide shot",
-    "date": "2026-08-30",
-    "slot": 2
-  },
-  {
-    "query": "26-year-old black woman worried typing flat",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "african woman courier counter reacting price medium",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "nigerian woman home upset deadline phone medium",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "black man smiling parcel handover station wide",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "nigerian family member smiling receiving parcel wide",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "black couple celebrating together living room wide",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "black couple relieved checking prints living room wide",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
-    "query": "black couple embracing relief living room wide",
-    "date": "2026-08-30",
-    "slot": 3
-  },
-  {
     "query": "nigerian woman holding prescription worried medium shot",
     "date": "2026-09-01",
     "slot": 2
@@ -998,5 +838,205 @@
     "query": "40-year-old nigerian man thoughtful cityscape wide",
     "date": "2026-09-11",
     "slot": 4
+  },
+  {
+    "query": "28-year-old british-nigerian woman london flat worried medium shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "african woman courier counter surprised medium shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "black woman stressed phone deadline medium shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "black man station parcel handover smiling wide shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "black woman london street confident smile wide shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "british-nigerian woman happy delivery success medium shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "black traveller parcel handover success wide shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "british-nigerian woman relaxed phone success medium shot",
+    "date": "2026-09-12",
+    "slot": 3
+  },
+  {
+    "query": "55-year-old nigerian woman typing stressed shot",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman courier counter",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman phone deadline worry",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "black man handover parcel train station",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "nigerian family parcel delivery home smile",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman thanks traveller pleasant",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman family celebration relaxed",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman smile urban setting",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman typing london flat",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman courier counter reaction",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman phone stress home",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "black man handing parcel train station wide",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman parcel receipt door smile",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "nigerian family home assembling wedding cake",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "55-year-old nigerian woman proud family gathering",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "nigerian family celebrating wedding success home",
+    "date": "2026-09-13",
+    "slot": 2
+  },
+  {
+    "query": "32-year-old black woman london flat worried phone",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "middle-aged african woman phone call frustration medium",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman stressed laptop courier website medium",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "32-year-old black man parcel train station wide",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman smiling doorstep parcel handover wide",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "diverse black man casual modern urban street smiling",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "same black man relaxed conversation london street medium",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "black man streetwear pondering busy cityscape wide",
+    "date": "2026-09-14",
+    "slot": 3
+  },
+  {
+    "query": "22-year-old nigerian woman london flat worried medium shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "heathrow airport departure gate",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman airport departure gate worried medium shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman train station parcel handover wide shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman london street stressed medium shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "african woman delivery doorstep relief wide shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman london street pride wide shot",
+    "date": "2026-09-15",
+    "slot": 3
+  },
+  {
+    "query": "nigerian woman university campus thoughtful wide shot",
+    "date": "2026-09-15",
+    "slot": 3
   }
 ]

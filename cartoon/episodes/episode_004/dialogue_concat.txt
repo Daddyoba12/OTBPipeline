@@ -1,0 +1,4 @@
+file 'C:\Users\babso\Desktop\OTB_Pipeline\cartoon\episodes\episode_004\muxed_000.mp4'
+file 'C:\Users\babso\Desktop\OTB_Pipeline\cartoon\episodes\episode_004\muxed_001.mp4'
+file 'C:\Users\babso\Desktop\OTB_Pipeline\cartoon\episodes\episode_004\muxed_002.mp4'
+file 'C:\Users\babso\Desktop\OTB_Pipeline\cartoon\episodes\episode_004\muxed_003.mp4'

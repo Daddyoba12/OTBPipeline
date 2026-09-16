@@ -1,0 +1,33 @@
+{
+  "episode": 4,
+  "title": "PASSPORT WAHALA: LONDON TO NAIJA EXPRESS",
+  "route": "London consular pop-up → post office → family drop-off → Heathrow",
+  "status": "completed",
+  "started_at": "2026-09-13T16:50:41.416581",
+  "estimated_cost": {
+    "image_gen": 0.25,
+    "kling_video": 0.84,
+    "openai_tts": 0.0299,
+    "elevenlabs_music": 0.1,
+    "perplexity": 0.0,
+    "claude_writer": 0.0,
+    "total": 1.22
+  },
+  "completed_at": "2026-09-13T16:51:13.040701",
+  "actual_cost": {
+    "image_gen": 0.168,
+    "kling_video": 0.0,
+    "openai_tts": 0.0,
+    "elevenlabs_music": 0.0,
+    "perplexity": 0.00073,
+    "claude_writer": 0.05829,
+    "total": 0.227
+  },
+  "qa": {
+    "passed": false,
+    "issues": [
+      "Duration 20.4s — must be 25-36s"
+    ],
+    "duration": 20.433008
+  }
+}

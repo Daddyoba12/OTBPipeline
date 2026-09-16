@@ -10,10 +10,10 @@
 **Dash:** He says he's bringing a few things from home.
 **Bounce:** How many bags?
 **Dash:** Seven.
-**Bounce:** Na wetin be this?! Is that a FRIDGE?!
-**Dash:** I told him to pack light...
-**Bounce:** The Uber driver said he's not a removal van.
-**Dash:** So what do we do with five bags we can't carry?
+**Bounce:** NAAA WETIIIN BE THESE?! E dey jaapa ni?! Is this man moving house or moving continent?!
+**Dash:** I told him... pack. light.
+**Bounce:** The Uber man talk say he no be Pickfords ooo.
+**Dash:** So wetin we go do with seven bags?!
 **Bounce:** ...I know a guy. BootHop.
 **Dash:** Wait — is that BootHop?
 **Bounce:** Someone's always going your way, fam.

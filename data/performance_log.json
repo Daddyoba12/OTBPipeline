@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-07T05:30:42.872674",
+  "generated_at": "2026-09-14T07:53:43.408423",
   "platforms": {
     "youtube": {
-      "count": 17,
-      "total_views": 425,
+      "count": 16,
+      "total_views": 422,
       "by_pillar": {
         "smart": {
           "avg": 60,
@@ -46,14 +46,9 @@
           "total": 14
         },
         "travel_hacks": {
-          "avg": 10,
+          "avg": 11,
           "count": 2,
-          "total": 21
-        },
-        "airport": {
-          "avg": 4,
-          "count": 1,
-          "total": 4
+          "total": 22
         },
         "founder_story": {
           "avg": 0,
@@ -68,9 +63,9 @@
           "count": 5
         },
         "2": {
-          "avg": 26,
+          "avg": 28,
           "label": "14:00 afternoon",
-          "count": 10
+          "count": 9
         },
         "1": {
           "avg": 14,
@@ -123,8 +118,8 @@
           "avg": 14,
           "count": 1
         },
-        "the courier wanted £59.": {
-          "avg": 4,
+        "nobody told us there": {
+          "avg": 1,
           "count": 1
         },
         "i watched my cousin": {
@@ -132,10 +127,6 @@
           "count": 1
         },
         "the competition loomed, but": {
-          "avg": 0,
-          "count": 1
-        },
-        "nobody told us there": {
           "avg": 0,
           "count": 1
         }
@@ -160,10 +151,6 @@
         "Tuesday": {
           "avg": 14,
           "count": 5
-        },
-        "Saturday": {
-          "avg": 4,
-          "count": 1
         }
       },
       "top_posts": [
