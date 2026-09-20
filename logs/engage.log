@@ -1401,3 +1401,66 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [20:00:04] [Engage] Instagram done — 0 replies sent
 [20:00:04] [Engage] No recent YT posts to engage on
 [20:00:04] [Engage] === Engagement run complete ===
+[10:08:54] [Engage] === Engagement run starting ===
+[10:08:56] [Engage] Instagram done — 0 replies sent
+[10:08:57] [Engage] No recent YT posts to engage on
+[10:08:57] [Engage] === Engagement run complete ===
+[12:00:02] [Engage] === Engagement run starting ===
+[12:00:03] [Engage] Instagram done — 0 replies sent
+[12:00:04] [Engage] No recent YT posts to engage on
+[12:00:04] [Engage] === Engagement run complete ===
+[14:00:02] [Engage] === Engagement run starting ===
+[14:00:03] [Engage] Instagram done — 0 replies sent
+[14:00:03] [Engage] No recent YT posts to engage on
+[14:00:03] [Engage] === Engagement run complete ===
+[16:00:02] [Engage] === Engagement run starting ===
+[16:00:03] [Engage] Instagram done — 0 replies sent
+[16:00:04] [Engage] No recent YT posts to engage on
+[16:00:04] [Engage] === Engagement run complete ===
+[08:41:01] [Engage] === Engagement run starting ===
+[08:41:12] [Engage] Instagram done — 0 replies sent
+[08:41:13] [Engage] No recent YT posts to engage on
+[08:41:13] [Engage] === Engagement run complete ===
+[10:00:02] [Engage] === Engagement run starting ===
+[10:00:04] [Engage] Instagram done — 0 replies sent
+[10:00:05] [Engage] No recent YT posts to engage on
+[10:00:05] [Engage] === Engagement run complete ===
+[12:55:12] [Engage] === Engagement run starting ===
+[12:55:14] [Engage] Instagram done — 0 replies sent
+[12:55:18] [Engage] No recent YT posts to engage on
+[12:55:18] [Engage] === Engagement run complete ===
+[14:35:10] [Engage] === Engagement run starting ===
+[14:35:14] [Engage] Instagram done — 0 replies sent
+[14:35:17] [Engage] No recent YT posts to engage on
+[14:35:17] [Engage] === Engagement run complete ===
+[16:16:40] [Engage] === Engagement run starting ===
+[16:16:43] [Engage] Instagram done — 0 replies sent
+[16:16:44] [Engage] No recent YT posts to engage on
+[16:16:44] [Engage] === Engagement run complete ===
+[12:58:43] [Engage] === Engagement run starting ===
+[12:58:46] [Engage] Instagram done — 0 replies sent
+[12:58:47] [Engage] No recent YT posts to engage on
+[12:58:47] [Engage] === Engagement run complete ===
+[14:00:02] [Engage] === Engagement run starting ===
+[14:00:03] [Engage] Instagram done — 0 replies sent
+[14:00:04] [Engage] No recent YT posts to engage on
+[14:00:04] [Engage] === Engagement run complete ===
+[16:00:03] [Engage] === Engagement run starting ===
+[16:00:05] [Engage] Instagram done — 0 replies sent
+[16:00:06] [Engage] No recent YT posts to engage on
+[16:00:06] [Engage] === Engagement run complete ===
+[18:00:02] [Engage] === Engagement run starting ===
+[18:00:03] [Engage] Instagram done — 0 replies sent
+[18:00:05] [Engage] No recent YT posts to engage on
+[18:00:05] [Engage] === Engagement run complete ===
+[20:00:02] [Engage] === Engagement run starting ===
+[20:00:04] [Engage] Instagram done — 0 replies sent
+[20:00:05] [Engage] No recent YT posts to engage on
+[20:00:05] [Engage] === Engagement run complete ===
+[12:09:19] [Engage] === Engagement run starting ===
+[12:09:19] [Engage] IG comments fetch error (18095683925561563): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18095683925561563/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGJlc1kySXZAPVGFYYzI2SDBsVEV2dERTMDRLUGZAYTWNFUHp2MWU2N21zTFVBQ3hkR29TTF9qS1luY1ZAyNGh6d1ZA1SlpLbGVJRk1JOVFzWGtuNWlUdF9CSXgxY3hxeWR4ODZAXR2tWaHlR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[12:09:19] [Engage] IG comments fetch error (18143052322604454): HTTPSConnectionPool(host='graph.instagram.com', port=443): Max retries exceeded with url: /v21.0/18143052322604454/comments?fields=id%2Ctext%2Cusername%2Ctimestamp&access_token=IGAAgWs2SWFstBZAGJlc1kySXZAPVGFYYzI2SDBsVEV2dERTMDRLUGZAYTWNFUHp2MWU2N21zTFVBQ3hkR29TTF9qS1luY1ZAyNGh6d1ZA1SlpLbGVJRk1JOVFzWGtuNWlUdF9CSXgxY3hxeWR4ODZAXR2tWaHlR (Caused by NameResolutionError("HTTPSConnection(host='graph.instagram.com', port=443): Failed to resolve 'graph.instagram.com' ([Errno 11001] getaddrinfo failed)"))
+[12:09:19] [Engage] Instagram done — 0 replies sent
+[12:09:20] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
+[12:09:20] [Engage] No YT token — skipping YouTube
+[12:09:20] [Engage] === Engagement run complete ===

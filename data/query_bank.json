@@ -10148,5 +10148,555 @@
     "video_hits": 0,
     "photo_hits": 0,
     "added": "2026-09-15"
+  },
+  {
+    "query": "taxi racing through traffic",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "high-speed train departure",
+    "role": "hook",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "passengers queuing at customs",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "crowded airport boarding gate",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "frustrated travellers in line",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "delay announcement at station",
+    "role": "problem",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "tearful goodbye at airport",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "nervous waiting for luggage",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "lone traveller on platform",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "child waving at departing train",
+    "role": "stakes",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "parcel handed over happily",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "reunion at airport arrivals",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "taxi arrival at destination",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "successful train connection made",
+    "role": "resolution",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "professional taxi service london",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "confident commute in lagos",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "efficient train terminal scene",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "busy london street crossing",
+    "role": "lesson_pre",
+    "source": "weekly_refresh",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "black british woman london flat worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "african woman frustrated phone call medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "nigerian woman receiving parcel smiling door wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "black man traveler train station parcel wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "nigerian man train station smiling handover wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "nigerian man london walking relaxed wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-16"
+  },
+  {
+    "query": "35-year-old mixed-heritage woman london apartment worried medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old mixed-heritage woman courier counter expensive medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old african man phone stressed deadline medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old african man train station handover wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old mixed-heritage woman london street confident medium shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old african man london positive conversation medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old mixed-heritage woman station parcel reception wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old mixed-heritage woman office reflecting medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old Black British woman flat emotional medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old African woman courier counter stressed medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "Black traveller train station receiving parcel wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "Black family home handover parcel recipient smiling wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old Black woman train platform determined medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "Black woman at front door secure handover medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "35-year-old Black woman community gathering pride medium shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-17"
+  },
+  {
+    "query": "Black British woman worried phone london flat medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "African woman frustrated courier counter expensive medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Nigerian woman stressed laptop courier website medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Black man smiling parcel handover train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Nigerian grandfather proud expression london street wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Nigerian grandfather parcel delivery warm handover wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Nigerian grandfather indoor proud expression medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "Nigerian grandfather jersey relaxed expression airport wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "black british woman london earnings medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "african woman laptop expensive courier medium shot",
+    "role": "hook",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "nigerian man train station parcel worried medium shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "nigerian woman handing parcel train station wide shot",
+    "role": "problem",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "black travellers arriving lagos airport wide shot",
+    "role": "stakes",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "nigerian man airport confident arrival medium shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "nigerian woman receiving parcel airport wide shot",
+    "role": "resolution",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
+  },
+  {
+    "query": "nigerian man looking proud smart travel wide shot",
+    "role": "lesson_pre",
+    "source": "claude",
+    "status": "trial",
+    "uses": 0,
+    "video_hits": 0,
+    "photo_hits": 0,
+    "added": "2026-09-18"
   }
 ]

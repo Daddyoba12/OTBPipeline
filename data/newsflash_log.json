@@ -1,14 +1,14 @@
 {
   "route_history": {
-    "LGW-LOS": "2026-09-11",
+    "LGW-LOS": "2026-09-18",
     "LHR-LOS": "2026-09-13",
     "MAN-LOS": "2026-09-09",
     "LHR-ABV": "2026-09-14",
     "LHR-PHC": "2026-08-02"
   },
-  "next_story_index": 9,
-  "next_closing_index": 4,
-  "next_engagement_index": 4,
+  "next_story_index": 1,
+  "next_closing_index": 1,
+  "next_engagement_index": 1,
   "posts": [
     {
       "date": "2026-07-07",
@@ -450,6 +450,24 @@
       "airline": "Kenya Airways",
       "hook": "£379 London to Port Harcourt. That's someone already making the journey.",
       "status": "failed"
+    },
+    {
+      "date": "2026-09-17",
+      "platform": "tiktok",
+      "route": "Manchester → Lagos",
+      "price_gbp": 312,
+      "airline": "Air France",
+      "hook": "£312 Manchester to Lagos. That's someone already making the journey.",
+      "status": "failed"
+    },
+    {
+      "date": "2026-09-18",
+      "platform": "instagram",
+      "route": "London → Lagos",
+      "price_gbp": 289,
+      "airline": "Turkish Airlines",
+      "hook": "£289 London Gatwick to Lagos. That's someone already making the journey.",
+      "status": "posted"
     }
   ]
 }
