@@ -1914,9 +1914,9 @@ def poll_for_decision(slot: int, timeout_sec: int = 20 * 60) -> str:
                 return "regen"
 
     _pa.unlink(missing_ok=True)
-    print(f"[Cmdr] Slot {slot} — approval window passed, slot skipped.")
-    _send(f"⏱ Slot {slot} — no approval received. Slot SKIPPED.\n\nUse /rerun {slot} to post manually.")
-    return "skip"
+    print(f"[Cmdr] Slot {slot} — 30 min elapsed, auto-posting.")
+    _send(f"⏱ Slot {slot} — 30 min window passed, posting V1 + V2 now.")
+    return "timeout"
 
 
 _RESULT_LABELS = {
