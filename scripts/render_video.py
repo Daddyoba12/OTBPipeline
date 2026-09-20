@@ -23,15 +23,13 @@ from config import (
     PROGRESS_COLOR, PROGRESS_H, DATA,
 )
 
-# -- 14-day video clip dedup ---------------------------------------------------
+# -- 60-day video clip dedup ---------------------------------------------------
 _VIDEO_LOG = DATA / "video_clip_log.json"
-_VIDEO_COOLDOWN_DAYS = 28
+_VIDEO_COOLDOWN_DAYS = 60
 
 # -- User clip cooldown --------------------------------------------------------
-# Prevents the same user-supplied clip from appearing in consecutive renders.
-# Each clip gets a 3-day rest after being used so the feed stays visually fresh.
 _USER_CLIP_LOG  = DATA / "user_clip_log.json"
-_USER_CLIP_COOLDOWN_DAYS = 28
+_USER_CLIP_COOLDOWN_DAYS = 60
 
 def _recently_used_user_clip_names(days: int = _USER_CLIP_COOLDOWN_DAYS) -> set:
     from datetime import datetime, timedelta
