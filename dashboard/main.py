@@ -44,7 +44,7 @@ PIPELINE_SECRET = os.environ.get("PIPELINE_SECRET", "")
 BASE_PATH       = os.environ.get("BASE_PATH", "")
 
 # ── Oracle SSH ─────────────────────────────────────────────────────────────────
-_ORACLE_IP   = "140.238.73.32"
+_ORACLE_IP   = "130.162.162.189"
 _ORACLE_USER = "ubuntu"
 _ORACLE_KEY  = Path.home() / ".ssh" / "oracle_boothop.pem"
 _G_INS_LOCAL = PIPELINE.parent / "g_inspired" / "client_profile.json"

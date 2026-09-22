@@ -95,7 +95,7 @@ def _push_ran_signal_to_oracle(slot: int):
             ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
              "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
              str(f),
-             f"ubuntu@140.238.73.32:/opt/g_inspired/data/{f.name}"],
+             f"ubuntu@130.162.162.189:/opt/g_inspired/data/{f.name}"],
             timeout=12, capture_output=True,
         )
     except Exception:
