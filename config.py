@@ -266,7 +266,7 @@ APPROVAL_TIMEOUT = 30 * 60   # fallback only — pipeline uses TELEGRAM_BUFFER_M
 # ── Oracle dashboard routing ───────────────────────────────────────────────────
 # After each slot, platform videos are copied/SCP'd to companies/{slug}/ so the
 # Revoice Studio dashboard can show them with proper human-readable labels.
-ORACLE_IP        = "140.238.73.32"
+ORACLE_IP        = "130.162.162.189"
 ORACLE_USER      = "ubuntu"
 ORACLE_KEY       = (Path(r"C:\Users\babso\.ssh\oracle_boothop.pem")
                     if _ON_WINDOWS else None)

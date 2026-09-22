@@ -329,7 +329,7 @@ def _push_ran_signal_to_oracle():
             ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
              "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
              str(RAN_TODAY),
-             "ubuntu@140.238.73.32:/opt/otb_pipeline/data/pipeline_ran_today.json"],
+             "ubuntu@130.162.162.189:/opt/otb_pipeline/data/pipeline_ran_today.json"],
             timeout=12, capture_output=True,
         )
     except Exception:
@@ -353,7 +353,7 @@ def _sync_music_to_oracle():
     tracks    = list(daily_dir.glob("track_*.mp3"))
     if not tracks:
         return
-    oracle = "ubuntu@140.238.73.32"
+    oracle = "ubuntu@130.162.162.189"
     dest   = "/opt/otb_pipeline/music/daily/"
     pushed = 0
     for t in sorted(tracks):

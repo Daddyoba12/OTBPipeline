@@ -5,7 +5,7 @@ Run once on Windows laptop (opens a browser tab):
 
 Creates a new youtube_token.json with both upload + comment scopes.
 Then SCP the new token to Oracle:
-    scp -i %USERPROFILE%\.ssh\oracle_boothop.pem scripts\youtube_token.json ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/
+    scp -i %USERPROFILE%\.ssh\oracle_boothop.pem scripts\youtube_token.json ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
 """
 
 import sys
@@ -32,4 +32,4 @@ YOUTUBE_TOKEN.write_text(creds.to_json())
 print(f"\nToken saved to {YOUTUBE_TOKEN}")
 print(f"Scopes: {creds.scopes}")
 print("\nNow copy to Oracle:")
-print(f'  scp -i %USERPROFILE%\\.ssh\\oracle_boothop.pem scripts\\youtube_token.json ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/')
+print(f'  scp -i %USERPROFILE%\\.ssh\\oracle_boothop.pem scripts\\youtube_token.json ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/')

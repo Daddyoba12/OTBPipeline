@@ -7,7 +7,7 @@
 # Stop:   Ctrl+C
 
 param(
-    [string]$OracleIP    = "140.238.73.32",
+    [string]$OracleIP    = "130.162.162.189",
     [string]$KeyFile     = "$env:USERPROFILE\.ssh\oracle_boothop.pem",
     [string]$OracleUser  = "ubuntu",
     [string]$RemotePath  = "/opt/otb_pipeline"

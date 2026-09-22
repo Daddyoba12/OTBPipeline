@@ -3,7 +3,7 @@
 # Run once from laptop.
 
 param(
-    [string]$OracleIP   = "140.238.73.32",
+    [string]$OracleIP   = "130.162.162.189",
     [string]$OracleUser = "ubuntu",
     [string]$BasePath   = "/opt/otb_pipeline",
     [string]$KeyFile    = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
