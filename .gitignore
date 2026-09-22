@@ -19,13 +19,7 @@ music/yt_downloads/
 music/_tmp/
 
 # Runtime data — sync separately, not via git
-data/pipeline_step.txt
-data/pipeline_crash.log
-data/pipeline_ran_today.json
-data/post_log.json
-data/backups/
-data/tg_offset.json
-data/tg_message_log.json
+data/
 
 # Oracle runtime directories — generated at deploy time, not tracked
 dashboard/companies/
