@@ -198,3 +198,31 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: Depreca
 [12:09:19] [TikTokAnalytics] Request failed: HTTPSConnectionPool(host='open.tiktokapis.com', port=443): Max retries exceeded with url: /v2/video/list/ (Caused by NameResolutionError("HTTPSConnection(host='open.tiktokapis.com', port=443): Failed to resolve 'open.tiktokapis.com' ([Errno 11001] getaddrinfo failed)"))
 [12:09:19] [TikTokAnalytics] No video data returned — nothing to sync
 [12:09:19] [TikTokAnalytics] === Done ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [TikTokAnalytics] {msg}")
+[05:50:10] [TikTokAnalytics] === TikTok analytics sync starting ===
+[05:50:13] [TikTokAnalytics] 401 Unauthorized — TikTok token expired or missing video.list scope
+[05:50:13] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
+[05:50:13] [TikTokAnalytics] No video data returned — nothing to sync
+[05:50:13] [TikTokAnalytics] === Done ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [TikTokAnalytics] {msg}")
+[11:13:19] [TikTokAnalytics] === TikTok analytics sync starting ===
+[11:13:22] [TikTokAnalytics] 401 Unauthorized — TikTok token expired or missing video.list scope
+[11:13:22] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
+[11:13:22] [TikTokAnalytics] No video data returned — nothing to sync
+[11:13:22] [TikTokAnalytics] === Done ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [TikTokAnalytics] {msg}")
+[13:44:24] [TikTokAnalytics] === TikTok analytics sync starting ===
+[13:44:31] [TikTokAnalytics] 401 Unauthorized — TikTok token expired or missing video.list scope
+[13:44:31] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
+[13:44:31] [TikTokAnalytics] No video data returned — nothing to sync
+[13:44:31] [TikTokAnalytics] === Done ===
+C:\Users\babso\Desktop\OTB_Pipeline\scripts\sync_tiktok_analytics.py:26: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+  print(f"[{datetime.utcnow():%H:%M:%S}] [TikTokAnalytics] {msg}")
+[09:59:17] [TikTokAnalytics] === TikTok analytics sync starting ===
+[09:59:20] [TikTokAnalytics] 401 Unauthorized — TikTok token expired or missing video.list scope
+[09:59:20] [TikTokAnalytics] Fix: re-authorise in TikTok developer portal to add video.list scope
+[09:59:20] [TikTokAnalytics] No video data returned — nothing to sync
+[09:59:20] [TikTokAnalytics] === Done ===

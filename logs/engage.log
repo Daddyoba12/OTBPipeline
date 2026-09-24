@@ -1464,3 +1464,105 @@ C:\Users\babso\Desktop\OTB_Pipeline\scripts\engage.py:90: DeprecationWarning: da
 [12:09:20] [Engage] YT token error: HTTPSConnectionPool(host='oauth2.googleapis.com', port=443): Max retries exceeded with url: /token (Caused by NameResolutionError("HTTPSConnection(host='oauth2.googleapis.com', port=443): Failed to resolve 'oauth2.googleapis.com' ([Errno 11001] getaddrinfo failed)"))
 [12:09:20] [Engage] No YT token — skipping YouTube
 [12:09:20] [Engage] === Engagement run complete ===
+[06:00:01] [Engage] === Engagement run starting ===
+[06:00:03] [Engage] Instagram done — 0 replies sent
+[06:00:04] [Engage] No recent YT posts to engage on
+[06:00:04] [Engage] === Engagement run complete ===
+[05:50:10] [Engage] === Engagement run starting ===
+[05:50:15] [Engage] Instagram done — 0 replies sent
+[05:50:17] [Engage] No recent YT posts to engage on
+[05:50:17] [Engage] === Engagement run complete ===
+[06:00:02] [Engage] === Engagement run starting ===
+[06:00:04] [Engage] Instagram done — 0 replies sent
+[06:00:05] [Engage] No recent YT posts to engage on
+[06:00:05] [Engage] === Engagement run complete ===
+[11:13:19] [Engage] === Engagement run starting ===
+[11:13:22] [Engage] Instagram done — 0 replies sent
+[11:13:24] [Engage] No recent YT posts to engage on
+[11:13:24] [Engage] === Engagement run complete ===
+[15:16:31] [Engage] === Engagement run starting ===
+[15:16:34] [Engage] Instagram done — 0 replies sent
+[15:16:35] [Engage] No recent YT posts to engage on
+[15:16:35] [Engage] === Engagement run complete ===
+[16:00:03] [Engage] === Engagement run starting ===
+[16:00:05] [Engage] Instagram done — 0 replies sent
+[16:00:06] [Engage] No recent YT posts to engage on
+[16:00:06] [Engage] === Engagement run complete ===
+[18:00:02] [Engage] === Engagement run starting ===
+[18:00:04] [Engage] Instagram done — 0 replies sent
+[18:00:05] [Engage] No recent YT posts to engage on
+[18:00:05] [Engage] === Engagement run complete ===
+[20:00:03] [Engage] === Engagement run starting ===
+[20:00:06] [Engage] Instagram done — 0 replies sent
+[20:00:07] [Engage] No recent YT posts to engage on
+[20:00:07] [Engage] === Engagement run complete ===
+[06:08:40] [Engage] === Engagement run starting ===
+[06:08:49] [Engage] Instagram done — 0 replies sent
+[06:08:55] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[06:08:55] [Engage] YouTube done — 0 replies sent
+[06:08:55] [Engage] === Engagement run complete ===
+[13:43:40] [Engage] === Engagement run starting ===
+[13:43:45] [Engage] Instagram done — 0 replies sent
+[13:43:50] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[13:43:50] [Engage] YouTube done — 0 replies sent
+[13:43:50] [Engage] === Engagement run complete ===
+[14:00:02] [Engage] === Engagement run starting ===
+[14:00:05] [Engage] Instagram done — 0 replies sent
+[14:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[14:00:07] [Engage] YouTube done — 0 replies sent
+[14:00:07] [Engage] === Engagement run complete ===
+[16:00:02] [Engage] === Engagement run starting ===
+[16:00:05] [Engage] Instagram done — 0 replies sent
+[16:00:07] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[16:00:07] [Engage] YouTube done — 0 replies sent
+[16:00:07] [Engage] === Engagement run complete ===
+[18:00:02] [Engage] === Engagement run starting ===
+[18:00:05] [Engage] Instagram done — 0 replies sent
+[18:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[18:00:08] [Engage] YouTube done — 0 replies sent
+[18:00:08] [Engage] === Engagement run complete ===
+[20:00:02] [Engage] === Engagement run starting ===
+[20:00:06] [Engage] Instagram done — 0 replies sent
+[20:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[20:00:08] [Engage] YouTube done — 0 replies sent
+[20:00:08] [Engage] === Engagement run complete ===
+[22:00:02] [Engage] === Engagement run starting ===
+[22:00:06] [Engage] Instagram done — 0 replies sent
+[22:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[22:00:08] [Engage] YouTube done — 0 replies sent
+[22:00:08] [Engage] === Engagement run complete ===
+[00:00:02] [Engage] === Engagement run starting ===
+[00:00:06] [Engage] Instagram done — 0 replies sent
+[00:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[00:00:08] [Engage] YouTube done — 0 replies sent
+[00:00:08] [Engage] === Engagement run complete ===
+[09:59:18] [Engage] === Engagement run starting ===
+[09:59:25] [Engage] Instagram done — 0 replies sent
+[09:59:29] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[09:59:29] [Engage] YouTube done — 0 replies sent
+[09:59:29] [Engage] === Engagement run complete ===
+[10:00:02] [Engage] === Engagement run starting ===
+[10:00:07] [Engage] Instagram done — 0 replies sent
+[10:00:08] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[10:00:08] [Engage] YouTube done — 0 replies sent
+[10:00:08] [Engage] === Engagement run complete ===
+[12:00:02] [Engage] === Engagement run starting ===
+[12:00:07] [Engage] Instagram done — 0 replies sent
+[12:00:10] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[12:00:10] [Engage] YouTube done — 0 replies sent
+[12:00:10] [Engage] === Engagement run complete ===
+[14:00:02] [Engage] === Engagement run starting ===
+[14:00:07] [Engage] Instagram done — 0 replies sent
+[14:00:09] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[14:00:09] [Engage] YouTube done — 0 replies sent
+[14:00:09] [Engage] === Engagement run complete ===
+[18:36:43] [Engage] === Engagement run starting ===
+[18:36:49] [Engage] Instagram done — 0 replies sent
+[18:36:51] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[18:36:51] [Engage] YouTube done — 0 replies sent
+[18:36:51] [Engage] === Engagement run complete ===
+[20:00:02] [Engage] === Engagement run starting ===
+[20:00:07] [Engage] Instagram done — 0 replies sent
+[20:00:09] [Engage] YT comment access denied — token may need re-auth with youtube.force-ssl scope
+[20:00:09] [Engage] YouTube done — 0 replies sent
+[20:00:09] [Engage] === Engagement run complete ===
