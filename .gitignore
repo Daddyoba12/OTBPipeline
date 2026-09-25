@@ -17,6 +17,7 @@ music/archive/
 music/clips/
 music/yt_downloads/
 music/_tmp/
+assets/d818/user_clips/
 
 # Runtime data — sync separately, not via git
 data/
@@ -30,8 +31,8 @@ scripts/scripts/
 .env
 keys.env
 social_credentials.json
-youtube_token.json
-youtube_credentials.json
+youtube_token*.json
+youtube_credentials*.json
 blog/config.json
 client_profile.json
 client_profiles/

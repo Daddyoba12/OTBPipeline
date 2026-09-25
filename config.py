@@ -26,6 +26,9 @@ G_INSPIRED_MUSIC_ARCHIVE = BASE / "g_inspired_music" / "archive"
 CREDS_PATH    = BASE / "scripts" / "social_credentials.json"
 YOUTUBE_TOKEN = BASE / "scripts" / "youtube_token.json"
 YOUTUBE_CREDS = BASE / "scripts" / "youtube_credentials.json"
+# D818's own YouTube channel — separate token file, same OAuth client (YOUTUBE_CREDS)
+# as BootHop. auth_youtube_d818.py generates this by authorizing against D818's channel.
+YOUTUBE_TOKEN_D818 = BASE / "scripts" / "youtube_token_d818.json"
 
 # FFmpeg / font paths
 FONT_TITLE    = str(ASSETS / "fonts" / "BebasNeue-Regular.ttf")
@@ -58,6 +61,11 @@ if True:
         PERPLEXITY_KEY    = _env_pairs.get("PERPLEXITY_KEY",    os.environ.get("PERPLEXITY_KEY",    ""))
         ZERNIO_API_KEY        = _env_pairs.get("ZERNIO_API_KEY",         os.environ.get("ZERNIO_API_KEY",         ""))
         ZERNIO_ACCOUNT_ID     = _env_pairs.get("ZERNIO_ACCOUNT_ID",      os.environ.get("ZERNIO_ACCOUNT_ID",      ""))
+        # D818 (catering) — separate Zernio workspace, strictly D818-only. Never used
+        # as a fallback for BootHop's ZERNIO_API_KEY/ZERNIO_ACCOUNT_ID above.
+        ZERNIO_API_KEY_D818          = _env_pairs.get("ZERNIO_API_KEY_D818",          os.environ.get("ZERNIO_API_KEY_D818",          ""))
+        ZERNIO_TIKTOK_ACCOUNT_ID_D818 = _env_pairs.get("ZERNIO_TIKTOK_ACCOUNT_ID_D818", os.environ.get("ZERNIO_TIKTOK_ACCOUNT_ID_D818", ""))
+        ZERNIO_IG_ACCOUNT_ID_D818     = _env_pairs.get("ZERNIO_IG_ACCOUNT_ID_D818",     os.environ.get("ZERNIO_IG_ACCOUNT_ID_D818",     ""))
         INSTAGRAM_ACCESS_TOKEN= _env_pairs.get("INSTAGRAM_ACCESS_TOKEN",  os.environ.get("INSTAGRAM_ACCESS_TOKEN",  ""))
         INSTAGRAM_ACCOUNT_ID  = _env_pairs.get("INSTAGRAM_ACCOUNT_ID",   os.environ.get("INSTAGRAM_ACCOUNT_ID",   ""))
         GMAIL_USER            = _env_pairs.get("GMAIL_USER",              os.environ.get("GMAIL_USER",             ""))
@@ -89,6 +97,9 @@ if True:
             PERPLEXITY_KEY    = ""
             ZERNIO_API_KEY         = os.environ.get("ZERNIO_API_KEY",         "")
             ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
+            ZERNIO_API_KEY_D818           = os.environ.get("ZERNIO_API_KEY_D818",           "")
+            ZERNIO_TIKTOK_ACCOUNT_ID_D818 = os.environ.get("ZERNIO_TIKTOK_ACCOUNT_ID_D818",  "")
+            ZERNIO_IG_ACCOUNT_ID_D818     = os.environ.get("ZERNIO_IG_ACCOUNT_ID_D818",      "")
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
             KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")
@@ -112,6 +123,9 @@ if True:
             PERPLEXITY_KEY         = os.environ.get("PERPLEXITY_KEY",         "")
             ZERNIO_API_KEY         = os.environ.get("ZERNIO_API_KEY",         "")
             ZERNIO_ACCOUNT_ID      = os.environ.get("ZERNIO_ACCOUNT_ID",      "")
+            ZERNIO_API_KEY_D818           = os.environ.get("ZERNIO_API_KEY_D818",           "")
+            ZERNIO_TIKTOK_ACCOUNT_ID_D818 = os.environ.get("ZERNIO_TIKTOK_ACCOUNT_ID_D818",  "")
+            ZERNIO_IG_ACCOUNT_ID_D818     = os.environ.get("ZERNIO_IG_ACCOUNT_ID_D818",      "")
             INSTAGRAM_ACCESS_TOKEN = os.environ.get("INSTAGRAM_ACCESS_TOKEN",  "")
             INSTAGRAM_ACCOUNT_ID   = os.environ.get("INSTAGRAM_ACCOUNT_ID",   "")
             KLING_API_KEY          = os.environ.get("KLING_API_KEY",           "")

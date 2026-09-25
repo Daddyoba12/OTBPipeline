@@ -363,6 +363,23 @@ _BANNED_FETCH_TERMS = {
     "handshake","trophy","medal","piggy bank","cartoon","illustration",
 }
 
+# D818 (catering) needs food/dining terms allowed — that IS its entire visual domain.
+# Everything else in _BANNED_FETCH_TERMS (animals, farm/rural scenery, holidays,
+# generic stock clichés) stays banned for D818 too — still not appropriate there.
+# _BANNED_FETCH_TERMS itself is left untouched so BootHop/G-Inspired are unaffected.
+_FOOD_TERMS_ALLOWED_FOR_D818 = {
+    "food","food delivery","uber eats","ubereats","deliveroo","just eat","doordash",
+    "grubhub","restaurant","takeaway","takeout","pizza delivery","meal delivery",
+    "grocery delivery","grocery","meal","cooking","chef","kitchen","cafe","diner",
+    "burger","bakery","supermarket","fast food","dining","breakfast",
+    # Meat/protein words that are West African DISH ingredients (peppered chicken,
+    # goat meat suya/pepper soup, grilled fish, beef suya), not live-animal imagery.
+    # Generic pet/wildlife terms (dog, cat, horse, lion, rabbit, wildlife, zoo,
+    # hamster, turtle, snake, insect, puppy, kitten, parrot...) stay banned.
+    "chicken","goat","goats","fish","cow","cattle","lamb",
+}
+_BANNED_FETCH_TERMS_D818 = _BANNED_FETCH_TERMS - _FOOD_TERMS_ALLOWED_FOR_D818
+
 # Transport-focused fallbacks organised by clip index (beat order)
 # Black/African diaspora subjects — medium/wide shots only, no close-ups
 _TRANSPORT_FALLBACKS = [
@@ -386,6 +403,19 @@ _CAR_FALLBACKS = [
     "car salesman handshake customer smiling",   # 5 resolution
     "couple drives new car dealership exit",     # 6 resolution
     "businessman walking to luxury car",         # 7 lesson
+]
+
+# West African catering fallbacks for D818 — used when stock footage fails.
+# food_origin_rule (client_profiles/d818.json): West African dishes only.
+_D818_FALLBACKS = [
+    "jollof rice party platter close up",        # 0 hook
+    "suya skewers grilling wide shot",           # 1 hook
+    "small chops party platter closeup",         # 2 problem
+    "egusi soup pot closeup",                    # 3 problem
+    "West African wedding buffet table",         # 4 stakes
+    "catering staff serving jollof rice event",  # 5 resolution
+    "puff puff dessert plate closeup",           # 6 resolution
+    "party jollof rice table decor",             # 7 lesson
 ]
 
 
@@ -481,25 +511,30 @@ _WEBSITE_SCREENS_DIR = ASSETS / "website_screens"
 # Beat-tag files: prefix filename with beat name (hook_, problem_, resolution_, etc.)
 # Untagged files are used for any beat position.
 _USER_CLIPS_DIR = ASSETS / "user_clips"
+# D818's own real catering footage (weddings/plated food/event setups) — separate
+# folder so it never mixes with BootHop's travel/parcel user_clips library.
+_USER_CLIPS_DIR_D818 = ASSETS / "d818" / "user_clips"
 _BEAT_TAGS = ["hook", "problem", "stakes", "resolution", "lesson"]
 
 
 _USER_CLIP_CAP = 3   # max user assets per video — rest come from Pexels/Pixabay
 
-def _pick_user_clip(beat: str, exclude_paths: set, allow_untagged: bool = False) -> Path | None:
+def _pick_user_clip(beat: str, exclude_paths: set, allow_untagged: bool = False,
+                     clips_dir: Path | None = None) -> Path | None:
     """
-    Pick a user clip from assets/user_clips/.
+    Pick a user clip from assets/user_clips/ (or clips_dir, e.g. D818's own folder).
     Beat-tagged files (e.g. hook_*, resolution_*) are preferred.
     allow_untagged=True (assets-only mode): if no tagged clip is fresh, fall back to
     any untagged clip, then any available clip, so we never reach external stock sources.
     """
-    if not _USER_CLIPS_DIR.exists():
+    _dir = clips_dir if clips_dir is not None else _USER_CLIPS_DIR
+    if not _dir.exists():
         return None
-    all_clips = (list(_USER_CLIPS_DIR.glob("*.mp4"))
-                 + list(_USER_CLIPS_DIR.glob("*.mov"))
-                 + list(_USER_CLIPS_DIR.glob("*.jpg"))
-                 + list(_USER_CLIPS_DIR.glob("*.jpeg"))
-                 + list(_USER_CLIPS_DIR.glob("*.png")))
+    all_clips = (list(_dir.glob("*.mp4"))
+                 + list(_dir.glob("*.mov"))
+                 + list(_dir.glob("*.jpg"))
+                 + list(_dir.glob("*.jpeg"))
+                 + list(_dir.glob("*.png")))
     if not all_clips:
         return None
 
@@ -548,10 +583,32 @@ _AIRPORT_FALLBACKS = [
 ]
 
 
-def _guard_query(query: str, clip_index: int = 0) -> str:
-    """Block any banned term before it hits Pexels/Pixabay."""
-    if any(term in query.lower() for term in _BANNED_FETCH_TERMS):
-        safe = _TRANSPORT_FALLBACKS[clip_index % len(_TRANSPORT_FALLBACKS)]
+def _contains_banned_term(text: str, terms: set, whole_word: bool = False) -> bool:
+    """Substring match (original behaviour, default) or whole-word match.
+
+    Whole-word matters for clients whose own vocabulary contains a banned term as
+    a substring — e.g. D818's "catering" contains the banned animal term "cat".
+    whole_word=False preserves the exact original substring-matching behaviour
+    (BootHop/G-Inspired), so this is opt-in only."""
+    text_l = text.lower()
+    if not whole_word:
+        return any(term in text_l for term in terms)
+    import re
+    return any(re.search(rf"\b{re.escape(term)}\b", text_l) for term in terms)
+
+
+def _guard_query(query: str, clip_index: int = 0,
+                  banned_terms: set | None = None, fallback_bank: list | None = None,
+                  whole_word: bool = False) -> str:
+    """Block any banned term before it hits Pexels/Pixabay.
+
+    banned_terms/fallback_bank: optional per-client override (e.g. D818's reduced
+    banned set + catering fallback bank). Defaults to BootHop's original globals,
+    so every existing call site is unaffected."""
+    _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
+    _bank  = fallback_bank if fallback_bank is not None else _TRANSPORT_FALLBACKS
+    if _contains_banned_term(query, _terms, whole_word=whole_word):
+        safe = _bank[clip_index % len(_bank)]
         print(f"    [QueryGuard] Blocked '{query}' -> '{safe}'")
         return safe
     return query
@@ -855,7 +912,9 @@ def _apply_caption_overlay(clip: Path, text: str) -> None:
 
 # "" Video clip fetching """"""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-def _pexels_video(query: str, exclude_ids: set) -> dict | None:
+def _pexels_video(query: str, exclude_ids: set, banned_terms: set | None = None,
+                   whole_word: bool = False) -> dict | None:
+    _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
     try:
         r = requests.get(
             "https://api.pexels.com/videos/search",
@@ -872,7 +931,7 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
             page_slug  = v.get("url", "").lower()
             image_slug = v.get("image", "").lower()
             combined   = f"{page_slug} {image_slug}"
-            if any(term in combined for term in _BANNED_FETCH_TERMS):
+            if _contains_banned_term(combined, _terms, whole_word=whole_word):
                 print(f"    [Pexels] Skipped banned metadata: {page_slug.split('/')[-2]}")
                 continue
             files = sorted(v.get("video_files", []), key=lambda f: f.get("width", 0), reverse=True)
@@ -891,7 +950,8 @@ def _pexels_video(query: str, exclude_ids: set) -> dict | None:
     return None
 
 
-def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
+def _pixabay_video(query: str, exclude_ids: set, banned_terms: set | None = None) -> dict | None:
+    _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
     if not PIXABAY_KEY:
         return None
     try:
@@ -910,7 +970,7 @@ def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
             # block "pigeon", "cat" doesn't block "aircraft", etc.
             tags = v.get("tags", "").lower()
             tag_set = {t.strip() for t in tags.split(",")}
-            if tag_set & _BANNED_FETCH_TERMS:
+            if tag_set & _terms:
                 continue
             sizes = v.get("videos", {})
             url = (sizes.get("large", {}).get("url") or
@@ -923,8 +983,10 @@ def _pixabay_video(query: str, exclude_ids: set) -> dict | None:
     return None
 
 
-def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR,
+                           banned_terms: set | None = None, whole_word: bool = False) -> bool:
     """Fallback: download Pexels photo and convert to Ken Burns clip."""
+    _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
     try:
         r = requests.get(
             "https://api.pexels.com/v1/search",
@@ -938,9 +1000,8 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR) -> b
         # Filter out photos whose URL or photographer alt text contains banned terms
         photos = [
             p for p in photos
-            if not any(
-                term in (p.get("url", "") + " " + p.get("alt", "")).lower()
-                for term in _BANNED_FETCH_TERMS
+            if not _contains_banned_term(
+                p.get("url", "") + " " + p.get("alt", ""), _terms, whole_word=whole_word
             )
         ]
         if not photos:
@@ -1473,9 +1534,15 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
     tc_hex  = pal.get("title", "FFE600")   # title / accent colour
     bc_hex  = pal.get("body",  "FFFFFF")   # body text colour
 
-    # ── Pick a random CTA phrase ─────────────────────────────────────────────
+    # ── Pick a CTA phrase ─────────────────────────────────────────────────────
+    # D818 only: weight cta_phrases[0] heavily (the recurring "African plug in
+    # Nottingham" brand hook) instead of picking uniformly at random. Every other
+    # client keeps the original uniform random.choice behaviour, unchanged.
     phrases = client_profile.get("cta_phrases", ["Visit us today"])
-    cta     = random.choice(phrases)
+    if client == "d818" and len(phrases) > 1:
+        cta = phrases[0] if random.random() < 0.7 else random.choice(phrases[1:])
+    else:
+        cta = random.choice(phrases)
 
     # ── Contact info (non-BootHop only) ─────────────────────────────────────
     phone   = client_profile.get("phone", "")
@@ -1549,19 +1616,39 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
 
 # ── Instagram end card constants ───────────────────────────────────────────────
 _IG_END_PALETTE = {"bg": "1A1200", "title": "FFB800", "body": "FFEAA0"}
-_IG_CTA_PHRASES = [
-    "Follow @boothop on Instagram",
-    "Save this + follow @boothop",
-    "Tag someone who needs this",
-    "Share with a traveller ↗",
-]
+
+
+def _ig_cta_phrases(client_profile: dict) -> list[str]:
+    """
+    Build IG-native CTA phrases from THIS client's own @handle — was previously
+    hardcoded to "@boothop" for every client (bug: D818/G-Inspired videos were
+    telling viewers to follow BootHop's account instead of their own).
+    """
+    handle = ((client_profile.get("social") or {}).get("instagram") or "").strip()
+    if handle:
+        at = "@" + handle.lstrip("@")
+        return [
+            f"Follow {at} on Instagram",
+            f"Save this + follow {at}",
+            "Tag someone who needs this",
+            "Share this ↗",
+        ]
+    # No IG handle on file yet — generic phrasing, no @mention to avoid a wrong one
+    brand = client_profile.get("brand_name", "")
+    label = f"Follow {brand}" if brand else "Follow us"
+    return [
+        f"{label} on Instagram",
+        "Save this + share",
+        "Tag someone who needs this",
+        "Share this ↗",
+    ]
 
 
 def _make_ig_end_card(lesson: str, client: str, client_profile: dict, dest: Path) -> bool:
     """Instagram-specific end card: warm amber palette + IG-native CTA phrases."""
     ig_cp = dict(client_profile)
     ig_cp["end_card_palettes"] = [_IG_END_PALETTE]
-    ig_cp["cta_phrases"]       = _IG_CTA_PHRASES
+    ig_cp["cta_phrases"]       = _ig_cta_phrases(client_profile)
     return _make_merged_end_card(lesson, client, ig_cp, dest)
 
 
@@ -2011,7 +2098,24 @@ def render_video(content: dict, slot: int, output_path: str,
     _client     = content.get("client", "boothop")
     _is_car     = (_client == "g-inspired")
     _is_boothop = (_client == "boothop" or not _client)
+    _is_d818    = (_client == "d818")
     _car_data   = content.get("car", {})
+
+    # Per-client query-fetch guard: D818's entire visual domain is food/dining,
+    # which BootHop's global _BANNED_FETCH_TERMS blocks outright. Everything else
+    # (animals, farm/rural, holidays, generic clichés) stays banned for D818 too.
+    _banned_terms          = _BANNED_FETCH_TERMS_D818 if _is_d818 else _BANNED_FETCH_TERMS
+    _fallback_bank_default = _D818_FALLBACKS if _is_d818 else _TRANSPORT_FALLBACKS
+    # Whole-word matching for D818 only — its own vocabulary ("catering") contains
+    # banned substrings ("cat"). BootHop keeps the original substring-matching
+    # behaviour, which some of its banned-term entries may rely on.
+    _banned_whole_word = _is_d818
+
+    # Per-client user-clip library: D818's real catering footage lives in its own
+    # folder, untagged (no beat prefixes) — mix freely across beats. BootHop keeps
+    # its existing tagged-first assets/user_clips/ behaviour untouched.
+    _user_clips_dir      = _USER_CLIPS_DIR_D818 if _is_d818 else _USER_CLIPS_DIR
+    _allow_untagged_clips = _is_d818
 
     # ── Hook engine setup ────────────────────────────────────────────────────
     # When a hook_clip is supplied the video starts with a 2-second clean visual,
@@ -2101,9 +2205,12 @@ def render_video(content: dict, slot: int, output_path: str,
     _clip_end   = _clip_start + _n_clips_eff
 
     for i in range(_clip_start, _clip_end):
-        query  = _guard_query(queries[i], i)
-        # Problem beat: rotate through 4 close-up styles so the opening visual varies daily
-        if i == 1:
+        query  = _guard_query(queries[i], i, banned_terms=_banned_terms, fallback_bank=_fallback_bank_default, whole_word=_banned_whole_word)
+        # Problem beat: rotate through 4 close-up styles so the opening visual varies daily.
+        # BootHop-only — _closeup_query's templates are parcel/luggage/departure-board
+        # specific (its whole domain), so D818 (and any other non-BootHop client) keeps
+        # its own on-domain query for this beat instead.
+        if i == 1 and not _is_d818:
             query = _closeup_query(pillar, slot)
         beat   = CLIP_BEAT[i]
         text   = beat_texts[i]
@@ -2151,7 +2258,9 @@ def render_video(content: dict, slot: int, output_path: str,
         # repeating the same supplied photos). Falls through to AI/stock sources.
         user_clip = None
         if not _user_clips_disabled and user_clip_count < _USER_CLIP_CAP and beat not in used_user_beat_types:
-            user_clip = _pick_user_clip(beat, used_user_clips)
+            user_clip = _pick_user_clip(beat, used_user_clips,
+                                         allow_untagged=_allow_untagged_clips,
+                                         clips_dir=_user_clips_dir)
         if user_clip:
             if user_clip.suffix.lower() in (".jpg", ".jpeg", ".png"):
                 # Image → Ken Burns animated clip
@@ -2211,7 +2320,8 @@ def render_video(content: dict, slot: int, output_path: str,
 
         clip_info = None
         if not got_video:
-            clip_info = _pexels_video(query, used_ids) or _pixabay_video(query, used_ids)
+            clip_info = (_pexels_video(query, used_ids, banned_terms=_banned_terms, whole_word=_banned_whole_word)
+                         or _pixabay_video(query, used_ids, banned_terms=_banned_terms))
 
         if clip_info:
             used_ids.add(clip_info["id"])
@@ -2227,7 +2337,7 @@ def render_video(content: dict, slot: int, output_path: str,
         if not got_video:
             print(f"    Clip {i}: falling back to Pexels photo")
             photo_raw = TEMP / f"{prefix}_photo_{i}.mp4"
-            if _pexels_photo_as_clip(query, photo_raw):
+            if _pexels_photo_as_clip(query, photo_raw, banned_terms=_banned_terms, whole_word=_banned_whole_word):
                 if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
                     try: report_hit(query, "photo")
@@ -2238,8 +2348,9 @@ def render_video(content: dict, slot: int, output_path: str,
             # Ask Perplexity for better search terms and try Pexels/Pixabay again
             print(f"    Clip {i}: asking Perplexity for alternative queries")
             for alt_q in _perplexity_suggest_queries(query, beat):
-                alt_q = _guard_query(alt_q, i)
-                clip_info = _pexels_video(alt_q, used_ids) or _pixabay_video(alt_q, used_ids)
+                alt_q = _guard_query(alt_q, i, banned_terms=_banned_terms, fallback_bank=_fallback_bank_default, whole_word=_banned_whole_word)
+                clip_info = (_pexels_video(alt_q, used_ids, banned_terms=_banned_terms, whole_word=_banned_whole_word)
+                             or _pixabay_video(alt_q, used_ids, banned_terms=_banned_terms))
                 if clip_info:
                     used_ids.add(clip_info["id"])
                     own_ids.add(clip_info["id"])
@@ -2255,7 +2366,7 @@ def render_video(content: dict, slot: int, output_path: str,
                 # Try as photo fallback too
                 if not got_video:
                     photo_alt = TEMP / f"{prefix}_photo_alt_{i}.mp4"
-                    if _pexels_photo_as_clip(alt_q, photo_alt):
+                    if _pexels_photo_as_clip(alt_q, photo_alt, banned_terms=_banned_terms, whole_word=_banned_whole_word):
                         if _process_clip(photo_alt, proc, beat, text, beat_style, top_caption=top_caption):
                             got_video = True
                             try: report_hit(alt_q, "perplexity_alt_photo")
@@ -2309,14 +2420,18 @@ def render_video(content: dict, slot: int, output_path: str,
             # Final safety net — client-appropriate fallback queries
             if _is_car:
                 fb_bank = _CAR_FALLBACKS
+            elif _is_d818:
+                fb_bank = _D818_FALLBACKS
             elif slot == 2:
                 fb_bank = _AIRPORT_FALLBACKS
             else:
                 fb_bank = _TRANSPORT_FALLBACKS
             transport_q = fb_bank[i % len(fb_bank)]
             print(f"    Clip {i}: safety fallback -> {transport_q}")
-            clip_info = (_pexels_video(transport_q, used_ids) or _pixabay_video(transport_q, used_ids)
-                         or _pexels_video(transport_q, own_ids) or _pixabay_video(transport_q, own_ids))
+            clip_info = (_pexels_video(transport_q, used_ids, banned_terms=_banned_terms, whole_word=_banned_whole_word)
+                         or _pixabay_video(transport_q, used_ids, banned_terms=_banned_terms)
+                         or _pexels_video(transport_q, own_ids, banned_terms=_banned_terms, whole_word=_banned_whole_word)
+                         or _pixabay_video(transport_q, own_ids, banned_terms=_banned_terms))
             if clip_info:
                 used_ids.add(clip_info["id"])
                 own_ids.add(clip_info["id"])
@@ -2329,7 +2444,7 @@ def render_video(content: dict, slot: int, output_path: str,
                     raw.unlink(missing_ok=True)
             if not got_video:
                 photo_raw = TEMP / f"{prefix}_photo_fb_{i}.mp4"
-                if _pexels_photo_as_clip(transport_q, photo_raw):
+                if _pexels_photo_as_clip(transport_q, photo_raw, banned_terms=_banned_terms, whole_word=_banned_whole_word):
                     if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
                         try: report_hit(transport_q, "transport_photo_fallback")

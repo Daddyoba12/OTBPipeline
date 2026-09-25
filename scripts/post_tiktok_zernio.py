@@ -25,19 +25,21 @@ def _log(msg: str):
     print(f"[{datetime.utcnow():%H:%M:%S}] [TikTok/Zernio] {msg}")
 
 
-def _auth_headers() -> dict:
+def _auth_headers(api_key: str = None) -> dict:
     return {
-        "Authorization": f"Bearer {ZERNIO_API_KEY}",
+        "Authorization": f"Bearer {api_key or ZERNIO_API_KEY}",
         "Content-Type":  "application/json",
     }
 
 
-def _last_post_time() -> datetime | None:
+def _last_post_time(company_slug: str = "boothop") -> datetime | None:
     log_path = DATA / "post_log.json"
     try:
         if log_path.exists():
             log = json.loads(log_path.read_text())
-            entries = [e for e in log if e.get("platform") == "tiktok"]
+            entries = [e for e in log
+                       if e.get("platform") == "tiktok"
+                       and e.get("company_slug", "boothop") == company_slug]
             if entries:
                 last = entries[-1].get("posted_at", "")
                 return datetime.fromisoformat(last) if last else None
@@ -46,8 +48,8 @@ def _last_post_time() -> datetime | None:
     return None
 
 
-def _check_rate_limit(min_gap_hours: float = 2.5) -> bool:
-    last = _last_post_time()
+def _check_rate_limit(min_gap_hours: float = 2.5, company_slug: str = "boothop") -> bool:
+    last = _last_post_time(company_slug)
     if last is None:
         return True
     gap = (datetime.utcnow() - last).total_seconds() / 3600
@@ -57,7 +59,8 @@ def _check_rate_limit(min_gap_hours: float = 2.5) -> bool:
     return True
 
 
-def _log_post(slot: int, publish_id: str, zernio_raw: dict | None = None):
+def _log_post(slot: int, publish_id: str, zernio_raw: dict | None = None,
+              company_slug: str = "boothop"):
     log_path = DATA / "post_log.json"
     log_path.parent.mkdir(exist_ok=True)
     try:
@@ -65,10 +68,11 @@ def _log_post(slot: int, publish_id: str, zernio_raw: dict | None = None):
     except Exception:
         log = []
     entry = {
-        "platform":   "tiktok",
-        "slot":       slot,
-        "publish_id": publish_id,
-        "posted_at":  datetime.utcnow().isoformat(),
+        "platform":     "tiktok",
+        "slot":         slot,
+        "publish_id":   publish_id,
+        "posted_at":    datetime.utcnow().isoformat(),
+        "company_slug": company_slug,
     }
     if zernio_raw:
         entry["zernio_response"] = zernio_raw
@@ -94,13 +98,13 @@ def _build_caption(content: dict) -> tuple[str, str]:
     return title, description[:2200]
 
 
-def _presign_upload(filename: str) -> tuple[str, str] | tuple[None, None]:
+def _presign_upload(filename: str, api_key: str = None) -> tuple[str, str] | tuple[None, None]:
     """Returns (uploadUrl, publicUrl) or (None, None) on failure."""
     import requests
     try:
         r = requests.post(
             f"{BASE_URL}/media/presign",
-            headers=_auth_headers(),
+            headers=_auth_headers(api_key),
             json={"filename": filename, "contentType": "video/mp4"},
             timeout=30,
         )
@@ -135,12 +139,13 @@ def _upload_file(upload_url: str, video_path: str) -> bool:
         return False
 
 
-def _build_body(public_url: str, title: str, description: str, draft: bool = False) -> dict:
+def _build_body(public_url: str, title: str, description: str, draft: bool = False,
+                 account_id: str = None) -> dict:
     return {
         "publishNow": not draft,
         "title":      title,
         "content":    description,
-        "platforms": [{"platform": "tiktok", "accountId": ZERNIO_ACCOUNT_ID}],
+        "platforms": [{"platform": "tiktok", "accountId": account_id or ZERNIO_ACCOUNT_ID}],
         "mediaItems": [{"type": "video", "url": public_url}],
         "tiktokSettings": {
             "privacy_level":             "PUBLIC_TO_EVERYONE",
@@ -157,15 +162,16 @@ def _build_body(public_url: str, title: str, description: str, draft: bool = Fal
     }
 
 
-def _publish(public_url: str, title: str, description: str, slot: int = 0) -> str | None:
+def _publish(public_url: str, title: str, description: str, slot: int = 0,
+             api_key: str = None, account_id: str = None) -> str | None:
     """POST to Zernio /v1/posts. Returns Zernio post _id on success, None on failure."""
     import requests
 
     def _attempt(draft: bool = False) -> tuple[int, dict]:
         r = requests.post(
             f"{BASE_URL}/posts",
-            headers=_auth_headers(),
-            json=_build_body(public_url, title, description, draft=draft),
+            headers=_auth_headers(api_key),
+            json=_build_body(public_url, title, description, draft=draft, account_id=account_id),
             timeout=60,
         )
         data = r.json() if r.content else {}
@@ -231,23 +237,38 @@ def _publish(public_url: str, title: str, description: str, slot: int = 0) -> st
         return None
 
 
-def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
+def post_video(video_path: str, content: dict, slot: int = 0,
+                api_key: str = None, account_id: str = None,
+                company_slug: str = "boothop") -> str | None:
     """
     Upload video to TikTok via Zernio.
     Returns Zernio post _id on success, None on failure.
+
+    api_key/account_id: optional per-client override. When omitted, falls back to
+    BootHop's ZERNIO_API_KEY/ZERNIO_ACCOUNT_ID (this file's original single-tenant
+    behaviour, unchanged). Other clients (e.g. D818) must always pass their own
+    credentials explicitly — this default is BootHop-only and never resolves to
+    another client's key.
+
+    company_slug: tags the shared post_log.json entry and scopes the rate-limit
+    check to that client, so two clients posting close together never throttle
+    each other.
     """
     try:
         import requests  # noqa: F401 — confirm installed
     except ImportError:
         _log("requests not installed"); return None
 
-    if not ZERNIO_API_KEY:
+    _api_key    = api_key or ZERNIO_API_KEY
+    _account_id = account_id or ZERNIO_ACCOUNT_ID
+
+    if not _api_key:
         _log("ZERNIO_API_KEY not set in keys.env"); return None
 
-    if not ZERNIO_ACCOUNT_ID:
+    if not _account_id:
         _log("ZERNIO_ACCOUNT_ID not set in keys.env"); return None
 
-    if not _check_rate_limit():
+    if not _check_rate_limit(company_slug=company_slug):
         return None
 
     if not os.path.isfile(video_path):
@@ -259,7 +280,7 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     _log(f"Slot {slot} | '{title[:60]}...'")
 
     # Step 1 — presign
-    upload_url, public_url = _presign_upload(filename)
+    upload_url, public_url = _presign_upload(filename, api_key=_api_key)
     if not upload_url:
         return None
 
@@ -270,9 +291,10 @@ def post_video(video_path: str, content: dict, slot: int = 0) -> str | None:
     _log(f"Upload complete. publicUrl={public_url[:60]}...")
 
     # Step 3 — publish
-    post_id = _publish(public_url, title, description, slot=slot)
+    post_id = _publish(public_url, title, description, slot=slot,
+                        api_key=_api_key, account_id=_account_id)
     if post_id:
-        _log_post(slot, post_id)
+        _log_post(slot, post_id, company_slug=company_slug)
         _log(f"Posted! zernio_id={post_id}")
         if post_id == "queued":
             _log("WARNING: Zernio returned no post ID — check pipeline_crash.log for full response")
