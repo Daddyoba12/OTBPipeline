@@ -71,6 +71,16 @@ CLIENTS = [
         "slot_arg":    True,
         "env_base":    str(G_INS),
     },
+    # D818 Catering — commander-integrated pipeline (pipeline_d818.py). Slot times
+    # come from client_profiles/d818.json's schedule.slots (12:30 lunch, 20:00 evening).
+    {
+        "name":        "D818 Catering",
+        "profile":     BASE / "client_profiles" / "d818.json",
+        "script":      BASE / "pipeline_d818.py",
+        "cwd":         BASE,
+        "slot_arg":    True,
+        "env_base":    None,
+    },
 ]
 
 

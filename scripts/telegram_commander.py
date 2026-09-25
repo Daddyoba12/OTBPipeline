@@ -98,6 +98,17 @@ def _write_web_approval(slot: int, decision: str):
         print(f"[Cmdr] Could not write approval file: {e}")
 
 
+def _write_web_approval_d818(slot: int, decision: str):
+    """Same as _write_web_approval but namespaced for D818 — separate file so its
+    slot numbers (1-3) never collide with BootHop's slot numbers (1-4)."""
+    try:
+        f = DATA / f"web_approval_d818_{slot}.json"
+        f.write_text(json.dumps({"decision": decision, "source": "telegram_button"}))
+        print(f"[Cmdr] D818 approval written → {decision} (Slot {slot})")
+    except Exception as e:
+        print(f"[Cmdr] Could not write D818 approval file: {e}")
+
+
 def _log_message(msg_id: int):
     try:
         log = json.loads(MSG_LOG_FILE.read_text(encoding="utf-8")) if MSG_LOG_FILE.exists() else []
@@ -1266,10 +1277,13 @@ _PIPELINES = {
     },
     "d818": {
         "label":         "D818",
-        "local_profile": None,
+        # Updated for the pipeline_d818.py orchestrator (client_profiles/d818.json
+        # schedule.active flag), same pattern as BootHop/G-Inspired — not the old
+        # standalone D818Pipeline\ prototype's WhatsApp-approval task names, which
+        # were never actually registered in Task Scheduler.
+        "local_profile": BASE / "client_profiles" / "d818.json",
         "oracle_profile": None,
-        "tasks":         ["D818-Morning", "D818-Afternoon", "D818-Evening",
-                          "D818-Weekend", "D818-Weekly", "D818-ApprovalCheck"],
+        "tasks":         [],
     },
 }
 _NEWSFLASH_TASK = "OTB-NewsFlash"
@@ -1950,6 +1964,153 @@ def send_result(slot: int, results: dict, content: dict = None):
     _send("\n".join(lines))
 
 
+# ── D818 approval flow ────────────────────────────────────────────────────────
+# Same shape as send_video_preview / poll_for_decision / send_result above, but
+# fully namespaced (callback_data prefix "d818", own pending/approval files) so
+# D818's slot numbers (1-3) can never collide with BootHop's (1-4) in the same
+# Telegram chat/bot. Reuses the same bot token + chat id — same operator, same phone.
+
+def send_video_preview_d818(video_path: str, caption: str, slot: int, content: dict) -> int | None:
+    """Send D818 video preview to Telegram with Post / Skip / Regen buttons."""
+    pillar = content.get("pillar", "")
+
+    v1_caption = (
+        f"🍽️ <b>D818 Slot {slot}</b>  {pillar.upper()}\n"
+        f"<b>Hook:</b> {content.get('hook', '')}\n"
+        f"<b>Lesson:</b> {content.get('lesson', '')}"
+    )
+    try:
+        with open(video_path, "rb") as vf:
+            r1 = requests.post(
+                f"{BASE_URL}/sendVideo",
+                data={"chat_id": TELEGRAM_CHAT_ID, "caption": v1_caption,
+                      "parse_mode": "HTML", "supports_streaming": "true"},
+                files={"video": vf}, timeout=120,
+            )
+        if r1.ok:
+            _log_message(r1.json().get("result", {}).get("message_id", 0))
+    except Exception as e:
+        print(f"[Cmdr] D818 preview failed: {e}")
+
+    approval_text = (
+        f"🍽️ <b>D818 Slot {slot}</b> ready.\n\n"
+        f"<b>Hashtags:</b>\n<code>{content.get('hashtags_tiktok', '')[:200]}</code>\n\n"
+        f"<i>Tap Post Now to go live immediately, or Skip/Regen.</i>"
+    )
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": "✅ Post Now (D818)", "callback_data": f"d818post_{slot}"},
+                {"text": "⏭ Skip",             "callback_data": f"d818skip_{slot}"},
+            ],
+            [
+                {"text": "🔄 Regen", "callback_data": f"d818regen_{slot}"},
+            ],
+        ]
+    }
+    msg = _send(approval_text, keyboard)
+    return msg.get("result", {}).get("message_id")
+
+
+def poll_for_decision_d818(slot: int, timeout_sec: int = 20 * 60) -> str:
+    """
+    Poll for Post / Skip / Regen decision on a D818 slot.
+    Returns "post" | "skip" | "regen" | "timeout"
+
+    File-based only (no Supabase web-dashboard integration — that's BootHop/web
+    commander infra scoped to slots 1-4 and not wired up for D818 yet). If the
+    commander process is running, it owns the Telegram update queue, so this
+    writes/reads a pending file exactly like poll_for_decision does for BootHop.
+    """
+    start        = time.time()
+    offset       = _load_offset()
+    cmdr_running = _is_commander_running()
+    print(
+        f"[Cmdr] Polling for D818 Slot {slot} decision ({timeout_sec//60}min window) "
+        f"— commander {'RUNNING (file mode)' if cmdr_running else 'not running (TG mode)'}…"
+    )
+    _pa = DATA / f"pending_approval_d818_{slot}.json"
+    _pa.write_text(json.dumps({"slot": slot, "since": datetime.now().isoformat()}),
+                   encoding="utf-8")
+
+    while time.time() - start < timeout_sec:
+        web_approval = DATA / f"web_approval_d818_{slot}.json"
+        if web_approval.exists():
+            try:
+                d = json.loads(web_approval.read_text(encoding="utf-8"))
+                decision = d.get("decision", "")
+                web_approval.unlink(missing_ok=True)
+                if decision in ("post", "skip", "regen"):
+                    _pa.unlink(missing_ok=True)
+                    print(f"[Cmdr] D818 decision: {decision} (Slot {slot})")
+                    return decision
+            except Exception:
+                web_approval.unlink(missing_ok=True)
+
+        if cmdr_running:
+            time.sleep(5)
+            continue
+
+        try:
+            r = requests.get(
+                f"{BASE_URL}/getUpdates",
+                params={"offset": offset, "timeout": 20, "allowed_updates": ["callback_query"]},
+                timeout=30,
+            )
+            updates = r.json().get("result", [])
+        except Exception as e:
+            print(f"[Cmdr] D818 poll error: {e}")
+            time.sleep(5)
+            continue
+
+        for upd in updates:
+            offset = upd["update_id"] + 1
+            _save_offset(offset)
+            cb   = upd.get("callback_query", {})
+            data = cb.get("data", "")
+            try:
+                requests.post(f"{BASE_URL}/answerCallbackQuery",
+                              json={"callback_query_id": cb.get("id", "")}, timeout=5)
+            except Exception:
+                pass
+
+            if data == f"d818post_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🍽️ D818 Slot {slot} — posting now!")
+                return "post"
+            elif data == f"d818skip_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🍽️ D818 Slot {slot} — skipped.")
+                return "skip"
+            elif data == f"d818regen_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🍽️ D818 Slot {slot} — regenerating…")
+                return "regen"
+
+    _pa.unlink(missing_ok=True)
+    print(f"[Cmdr] D818 Slot {slot} — window elapsed, auto-posting.")
+    _send(f"🍽️ D818 Slot {slot} — approval window passed, posting now.")
+    return "timeout"
+
+
+def send_result_d818(slot: int, results: dict, content: dict = None):
+    """Send post-slot results summary to Telegram for a D818 slot."""
+    lines = [f"🍽️ <b>D818 Slot {slot} — Results</b>"]
+    if content:
+        hook = content.get("hook", "")[:120]
+        if hook:
+            lines.append(f"🎯 <i>{hook}</i>")
+        lines.append("")
+    for platform, result in results.items():
+        icon  = "✅" if result else "❌"
+        label = _RESULT_LABELS.get(platform, platform.replace("_", " ").title())
+        if result and result not in ("posted", "failed"):
+            lines.append(f"{icon} {label}: <code>{result}</code>")
+        else:
+            lines.append(f"{icon} {label}: {'posted' if result else 'failed'}")
+    _send("\n".join(lines))
+
+
 # ── Control panel keyboard ────────────────────────────────────────────────────
 
 def _control_panel_keyboard() -> dict:
@@ -2372,6 +2533,20 @@ def _poll_once(offset: int) -> int:
                         "post":  f"✅ Slot {_slot_str} — posting now!",
                         "skip":  f"⏭ Slot {_slot_str} — skipped.",
                         "regen": f"🔄 Slot {_slot_str} — regenerating…",
+                    }
+                    _send(_msgs.get(_decision, f"OK: {data}"))
+
+            # D818 approval buttons from send_video_preview_d818 (d818post_N, d818skip_N,
+            # d818regen_N). Distinct prefix — can never collide with BootHop's post_/skip_/regen_.
+            elif data.startswith("d818post_") or data.startswith("d818skip_") or data.startswith("d818regen_"):
+                _decision = data.split("_")[0][len("d818"):]  # "post"/"skip"/"regen"
+                _slot_str = data.split("_")[1] if "_" in data else ""
+                if _slot_str.isdigit():
+                    _write_web_approval_d818(int(_slot_str), _decision)
+                    _msgs = {
+                        "post":  f"🍽️ D818 Slot {_slot_str} — posting now!",
+                        "skip":  f"🍽️ D818 Slot {_slot_str} — skipped.",
+                        "regen": f"🍽️ D818 Slot {_slot_str} — regenerating…",
                     }
                     _send(_msgs.get(_decision, f"OK: {data}"))
 
