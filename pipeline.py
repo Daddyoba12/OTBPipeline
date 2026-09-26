@@ -358,13 +358,16 @@ def _sync_music_to_oracle():
     pushed = 0
     for t in sorted(tracks):
         try:
-            subprocess.run(
+            r = subprocess.run(
                 ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
                  "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
                  str(t), f"{oracle}:{dest}"],
                 timeout=30, capture_output=True,
             )
-            pushed += 1
+            if r.returncode == 0:
+                pushed += 1
+            else:
+                _log(f"[Music sync] {t.name} SCP exited {r.returncode}: {r.stderr[:150]}")
         except Exception as e:
             _log(f"[Music sync] {t.name} SCP failed: {e}")
     if pushed:

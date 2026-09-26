@@ -63,14 +63,36 @@ def _log(msg: str):
 
 
 def _already_ran_today(slot: int) -> bool:
+    """Checks local file first, then the shared Supabase claim (catches the
+    OTHER machine's run — needed now that either laptop or Oracle can run
+    first; SSH push alone can't reach a laptop that's asleep/offline)."""
     f = RAN_TODAY_S4 if slot == 4 else RAN_TODAY_S1
-    if not f.exists():
-        return False
+    today = datetime.now().strftime("%Y-%m-%d")
+    if f.exists():
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+            if d.get("date") == today:
+                return True
+        except Exception:
+            pass
     try:
-        d = json.loads(f.read_text(encoding="utf-8"))
-        return d.get("date") == datetime.now().strftime("%Y-%m-%d")
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        import requests as _req
+        r = _req.get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.919&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        if r.ok:
+            rows = r.json()
+            if rows:
+                raw = rows[0].get("ran_slots_json") or "[]"
+                claimed = json.loads(raw) if isinstance(raw, str) else raw
+                if f"{today}:{slot}" in claimed:
+                    _log(f"[Guard] Slot {slot} already claimed in Supabase (other machine) — skipping")
+                    return True
     except Exception:
-        return False
+        pass  # Supabase offline — fall through to local-only check
+    return False
 
 
 def _mark_ran_today(slot: int):
@@ -100,6 +122,36 @@ def _push_ran_signal_to_oracle(slot: int):
         )
     except Exception:
         pass
+
+
+def _claim_slot_supabase(slot: int):
+    """Write today's G-Inspired slot claim to Supabase (slot=919 row) so both
+    machines see it instantly, regardless of which one ran first."""
+    today = datetime.now().strftime("%Y-%m-%d")
+    try:
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        import requests as _req
+        r = _req.get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.919&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        claimed = []
+        if r.ok and r.json():
+            raw = r.json()[0].get("ran_slots_json") or "[]"
+            claimed = json.loads(raw) if isinstance(raw, str) else raw
+        claimed = [e for e in claimed if not e.startswith(("20", "19")) or e >= f"{today}:"]
+        entry = f"{today}:{slot}"
+        if entry not in claimed:
+            claimed.append(entry)
+        patch_hdrs = {**_HDR, "Prefer": "resolution=merge-duplicates"}
+        _req.patch(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.919",
+            headers=patch_hdrs,
+            json={"ran_slots_json": json.dumps(claimed), "updated_at": "now()"},
+            timeout=8,
+        )
+    except Exception:
+        pass  # Non-fatal — local file + laptop/Oracle SCP sync remain the fallback
 
 
 def _load_profile() -> dict:
@@ -489,6 +541,7 @@ def run(slot: int = 1, force: bool = False):
     if ok:
         _mark_ran_today(slot)
         _push_ran_signal_to_oracle(slot)
+        _claim_slot_supabase(slot)
         _log(f"G-Inspired Slot {slot} complete ✓")
     else:
         _log(f"G-Inspired Slot {slot} finished with errors")

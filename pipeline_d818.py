@@ -43,6 +43,7 @@ except Exception:
 from config import (
     DATA, OUTPUT, TEMP, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID,
     ZERNIO_API_KEY_D818, ZERNIO_TIKTOK_ACCOUNT_ID_D818, ZERNIO_IG_ACCOUNT_ID_D818,
+    D818_MUSIC_DIR, D818_MUSIC_ARCHIVE,
 )
 
 COMPANY_SLUG   = "d818"
@@ -88,6 +89,9 @@ def _tg_send(text: str) -> None:
 
 
 def _already_ran_today(slot: int) -> bool:
+    """Prevent double-runs of the same slot on the same day. Checks local file
+    first, then the shared Supabase claim (catches the OTHER machine's run —
+    critical now that either laptop or Oracle can run first)."""
     today = str(date.today())
     try:
         if RAN_TODAY.exists():
@@ -95,9 +99,27 @@ def _already_ran_today(slot: int) -> bool:
             existing = ran.get(today, [])
             if isinstance(existing, int):
                 existing = [existing]
-            return slot in existing
+            if slot in existing:
+                return True
     except Exception:
         pass
+    try:
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        import requests as _req
+        r = _req.get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.818&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        if r.ok:
+            rows = r.json()
+            if rows:
+                raw = rows[0].get("ran_slots_json") or "[]"
+                claimed = json.loads(raw) if isinstance(raw, str) else raw
+                if f"{today}:{slot}" in claimed:
+                    _log(f"[Guard] Slot {slot} already claimed in Supabase (other machine) — skipping")
+                    return True
+    except Exception:
+        pass  # Supabase offline — fall through to local-only check
     return False
 
 
@@ -116,6 +138,36 @@ def _mark_ran_today(slot: int):
         RAN_TODAY.write_text(json.dumps(ran, indent=2))
     except Exception:
         pass
+
+
+def _claim_slot_supabase(slot: int):
+    """Write today's D818 slot claim to Supabase (slot=818 row) so both
+    machines see it instantly, regardless of which one ran first."""
+    today = str(date.today())
+    try:
+        from scripts.push_pipeline_state import SUPABASE_URL, SUPABASE_KEY, _HDR
+        import requests as _req
+        r = _req.get(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.818&select=ran_slots_json",
+            headers=_HDR, timeout=6,
+        )
+        claimed = []
+        if r.ok and r.json():
+            raw = r.json()[0].get("ran_slots_json") or "[]"
+            claimed = json.loads(raw) if isinstance(raw, str) else raw
+        claimed = [e for e in claimed if not e.startswith(("20", "19")) or e >= f"{today}:"]
+        entry = f"{today}:{slot}"
+        if entry not in claimed:
+            claimed.append(entry)
+        patch_hdrs = {**_HDR, "Prefer": "resolution=merge-duplicates"}
+        _req.patch(
+            f"{SUPABASE_URL}/rest/v1/otb_pipeline_state?slot=eq.818",
+            headers=patch_hdrs,
+            json={"ran_slots_json": json.dumps(claimed), "updated_at": "now()"},
+            timeout=8,
+        )
+    except Exception:
+        pass  # Non-fatal — local file + laptop/Oracle SCP sync remain the fallback
 
 
 def _acquire_lock(slot: int) -> bool:
@@ -180,7 +232,23 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _release_lock()
         return
 
+    # Claim the slot immediately — local file + Supabase so both machines see
+    # it at once, whichever one got here first.
     _mark_ran_today(slot)
+    _claim_slot_supabase(slot)
+
+    # ── 0. Music refresh — fallback only; the daily 05:30 UK "Music Refresh" job
+    # normally already has fresh tracks in place before any slot runs. This is
+    # just a safety net in case that job failed today.
+    try:
+        from fetch_trending_music import fetch_d818_music, _d818_already_fresh_today
+        if not _d818_already_fresh_today():
+            _log("D818 music not fresh today — fetching now (fallback)")
+            fetch_d818_music()
+        else:
+            _log("D818 music already fresh today")
+    except Exception as e:
+        _log(f"D818 music refresh failed (will use yesterday's tracks): {e}")
 
     # ── 1. Pillar + content generation ─────────────────────────────────────────
     from generate_content_d818 import get_pillar_for_slot, get_bucket, generate_content
@@ -213,7 +281,8 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _log("Rendering...")
 
         from render_video import render_video, render_for_platforms
-        ok, used_ids = render_video(content, slot, str(video_file), version="v1")
+        ok, used_ids = render_video(content, slot, str(video_file), version="v1",
+                                     music_dir=D818_MUSIC_DIR, music_archive=D818_MUSIC_ARCHIVE)
 
         if not ok or not video_file.exists():
             _crash(f"D818 render failed for slot {slot}")
