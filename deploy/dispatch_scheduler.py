@@ -16,7 +16,7 @@ Usage:
   python deploy/dispatch_scheduler.py --status  # show all clients + next fire times
 """
 
-import argparse, json, subprocess, sys
+import argparse, json, platform, subprocess, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -38,7 +38,18 @@ except ImportError:
 BASE     = Path(__file__).parent.parent           # OTB_Pipeline root
 G_INS    = BASE.parent / "g_inspired"             # sibling client folder
 PYTHON   = sys.executable
-WINDOW   = 30                                      # minutes either side of scheduled time (30 = catches wakeups up to 30 min late)
+WINDOW   = 30                                      # minutes tolerance on each machine's own side of its window
+
+# ── Primary/backup role ─────────────────────────────────────────────────────
+# Oracle (Linux, always-on) is primary — fires at the optimized time. The
+# Windows laptop is backup — its window doesn't open until HEAD_START minutes
+# after the nominal time, so its window never overlaps the primary's. Without
+# this gap, both machines could check "already posted?", both see "no" within
+# the same few seconds, and both proceed — a real duplicate-post race, not
+# just a redundant check. HEAD_START guarantees Oracle's Supabase claim (if it
+# ran) is long since visible before the laptop ever looks.
+IS_PRIMARY = platform.system() != "Windows"
+HEAD_START = 20  # minutes
 
 
 # ── Client registry ───────────────────────────────────────────────────────────
@@ -97,15 +108,27 @@ def _next_fire(slot_time: str, tz: ZoneInfo) -> datetime:
 
 
 def _in_window(now_utc: datetime, slot_time: str, tz: ZoneInfo, days: list | None = None) -> bool:
-    """True if the current UTC time is within WINDOW minutes of slot_time in the given tz.
-    If days is set (list of weekday ints, 0=Mon), only fires on those days."""
+    """
+    True if now falls in THIS machine's firing window for slot_time — asymmetric
+    and non-overlapping between primary and backup (see IS_PRIMARY/HEAD_START above):
+
+      Primary (Oracle): [nominal - WINDOW, nominal + HEAD_START]
+      Backup (laptop):  [nominal + HEAD_START, nominal + HEAD_START + WINDOW]
+
+    The two windows touch exactly at nominal + HEAD_START but never overlap, so
+    there's no moment where both machines would consider a slot "due" at once.
+    If days is set (list of weekday ints, 0=Mon), only fires on those days.
+    """
     now_local = now_utc.astimezone(tz)
     if days is not None and now_local.weekday() not in days:
         return False
     h, m      = [int(x) for x in slot_time.split(":")]
     sched     = now_local.replace(hour=h, minute=m, second=0, microsecond=0)
-    diff_secs = abs((now_local - sched).total_seconds())
-    return diff_secs <= WINDOW * 60
+    delta_min = (now_local - sched).total_seconds() / 60
+
+    if IS_PRIMARY:
+        return -WINDOW <= delta_min <= HEAD_START
+    return HEAD_START <= delta_min <= HEAD_START + WINDOW
 
 
 def _run_client(client: dict, slot: dict, dry_run: bool):
