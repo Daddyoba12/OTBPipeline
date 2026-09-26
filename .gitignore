@@ -17,6 +17,10 @@ music/archive/
 music/clips/
 music/yt_downloads/
 music/_tmp/
+music_d818/daily/
+music_d818/archive/
+g_inspired_music/daily/
+g_inspired_music/archive/
 assets/d818/user_clips/
 
 # Runtime data — sync separately, not via git

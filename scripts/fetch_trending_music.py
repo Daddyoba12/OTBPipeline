@@ -32,7 +32,8 @@ if _platform.system() == "Windows":
         if Path(_fp).exists() and _fp not in os.environ.get("PATH", ""):
             os.environ["PATH"] = _fp + os.pathsep + os.environ.get("PATH", "")
 
-from config import DATA, MUSIC_ARCHIVE, G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE, PERPLEXITY_KEY
+from config import (DATA, MUSIC_ARCHIVE, G_INSPIRED_MUSIC_DIR, G_INSPIRED_MUSIC_ARCHIVE,
+                    D818_MUSIC_DIR, D818_MUSIC_ARCHIVE, PERPLEXITY_KEY)
 
 DAILY_DIR = BASE / "music" / "daily"
 ARCHIVE   = MUSIC_ARCHIVE
@@ -46,11 +47,21 @@ GI_ARCHIVE   = G_INSPIRED_MUSIC_ARCHIVE
 GI_MUSIC_LOG = DATA / "gi_music_log.json"
 GI_INFO_FILE = GI_DAILY_DIR / "daily_info.json"
 
+# D818 Catering — separate music dirs and log (never mixes with BootHop's picks,
+# even though both draw from the same broader Afrobeats/West African genre pool —
+# see _used_recently_cross() below for the cross-brand duplicate guard).
+D818_DAILY_DIR = D818_MUSIC_DIR
+D818_ARCHIVE   = D818_MUSIC_ARCHIVE
+D818_MUSIC_LOG = DATA / "d818_music_log.json"
+D818_INFO_FILE = D818_DAILY_DIR / "daily_info.json"
+
 DAILY_DIR.mkdir(parents=True, exist_ok=True)
 ARCHIVE.mkdir(parents=True, exist_ok=True)
 TMP_DIR.mkdir(parents=True, exist_ok=True)
 GI_DAILY_DIR.mkdir(parents=True, exist_ok=True)
 GI_ARCHIVE.mkdir(parents=True, exist_ok=True)
+D818_DAILY_DIR.mkdir(parents=True, exist_ok=True)
+D818_ARCHIVE.mkdir(parents=True, exist_ok=True)
 
 
 # ── Priority artists per slot ──────────────────────────────────────────────────
@@ -215,6 +226,26 @@ _GI_ARTISTS = ["SZA", "Bruno Mars", "The Weeknd", "Benson Boone",
 
 _SLOT_ARTISTS[4] = _GI_ARTISTS  # reuse _build_slot_queries with slot 4
 GI_SLOT_QUERIES = {1: _build_slot_queries(4)}
+
+# D818 Catering — West African wedding/party/highlife-leaning Afrobeats.
+# Deliberately a different mix from BootHop's club-Afrobeats list (slots 1-3)
+# even though it's the same broader genre/diaspora audience — plus the
+# cross-brand check in _used_recently_cross() below guards against the two
+# brands ever posting the identical track on the same day.
+_D818_ARTISTS_SLOT1 = ["Flavour", "Chike", "Waje", "Yemi Alade", "Simi",
+                       "Adekunle Gold", "Made Kuti", "Teni", "Ayra Starr"]
+_D818_ARTISTS_SLOT2 = ["Kizz Daniel", "Tems", "CKay", "Flavour", "Simi",
+                       "Yemi Alade", "Chike", "Waje", "Ayra Starr"]
+
+_SLOT_ARTISTS[5] = _D818_ARTISTS_SLOT1  # D818 slot 1 — lunch (12:30 UK)
+_SLOT_ARTISTS[6] = _D818_ARTISTS_SLOT2  # D818 slot 2 — evening (20:00 UK)
+D818_SLOT_QUERIES = {1: _build_slot_queries(5), 2: _build_slot_queries(6)}
+
+
+def _used_recently_cross(title: str, days: int = 1) -> bool:
+    """D818-only guard: also skip a title if BootHop already used it today/
+    yesterday, so the two brands never post the identical track same-day."""
+    return _used_yesterday(title, log_file=MUSIC_LOG)
 
 
 # ── Music log helpers ──────────────────────────────────────────────────────────
@@ -603,6 +634,93 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
     return info
 
 
+def fetch_d818_music(archive_only: bool = False) -> dict:
+    """
+    Download 2 daily tracks for D818 Catering (slot 1 lunch, slot 2 evening).
+    Own artist pool + own 14-day log (d818_music_log.json) — separate from
+    BootHop's, plus a cross-brand same-day check so the two never post the
+    identical track even when an artist overlaps both pools.
+    """
+    mode = "archive-only" if archive_only else "SoundCloud+archive"
+    print(f"\n[D818 Music] Selecting today's tracks ({mode})...")
+
+    SLOT_LABELS = {1: "Lunch 12:30", 2: "Evening 20:00"}
+    info = {"date": datetime.now().strftime("%Y-%m-%d"), "tracks": []}
+    used_titles: set = set()
+
+    for slot_num in (1, 2):
+        slot_out = D818_DAILY_DIR / f"track_{slot_num}.mp3"
+        print(f"\n  [D818 Slot {slot_num}] {SLOT_LABELS[slot_num]}")
+
+        result = None
+
+        if not archive_only:
+            queries = D818_SLOT_QUERIES.get(slot_num, D818_SLOT_QUERIES[1])
+            for query in queries:
+                print(f"    Trying SoundCloud: {query}")
+                raw  = TMP_DIR / f"d818_raw_{slot_num}.mp3"
+                meta = _download_soundcloud(query, raw, log_file=D818_MUSIC_LOG)
+                if not meta:
+                    continue
+
+                if meta["title"] in used_titles or _used_recently_cross(meta["title"]):
+                    print(f"    [D818] Skip (used today, incl. BootHop's list): {meta['title'][:50]}")
+                    raw.unlink(missing_ok=True)
+                    continue
+
+                hooked = _extract_hook(raw, slot_out, duration_s=30)
+                raw.unlink(missing_ok=True)
+
+                if hooked and slot_out.exists() and _has_audio(slot_out):
+                    result = {**meta, "logged_at": datetime.now().isoformat()}
+                    used_titles.add(meta["title"])
+                    _save_log(result, log_file=D818_MUSIC_LOG)
+                    size = slot_out.stat().st_size // 1024
+                    print(f"  [D818 Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
+                    break
+                else:
+                    slot_out.unlink(missing_ok=True)
+
+        if not result:
+            src = "archive-only" if archive_only else "SoundCloud failed"
+            print(f"  [D818 Slot {slot_num}] {src} — trying D818 archive (14-day gap)")
+            archive_result = _archive_fallback(slot_out, slot_num, used_titles,
+                                              archive_dir=D818_ARCHIVE, log_file=D818_MUSIC_LOG)
+            if archive_result is None:
+                msg = ("[D818 Music] CRITICAL: No non-repeat track available. "
+                       "Add tracks to music_d818/archive/.")
+                print(msg)
+                raise RuntimeError(msg)
+            result = archive_result
+            result["logged_at"] = datetime.now().isoformat()
+            used_titles.add(result.get("title", ""))
+            _save_log(result, log_file=D818_MUSIC_LOG)
+
+        info["tracks"].append({
+            "slot": slot_num, "title": result.get("title", "?"),
+            "artist": result.get("artist", "?"), "source": result.get("source", "?"),
+        })
+
+    D818_INFO_FILE.write_text(json.dumps(info, indent=2, ensure_ascii=False), encoding="utf-8")
+    print("\n  [D818 Music] Summary:")
+    for t in info["tracks"]:
+        flag = "SC" if t["source"] == "soundcloud" else "A"
+        print(f"    [{flag}] track_{t['slot']}.mp3 — {t['title'][:50]}")
+    return info
+
+
+def _d818_already_fresh_today() -> bool:
+    if not D818_INFO_FILE.exists():
+        return False
+    try:
+        info = json.loads(D818_INFO_FILE.read_text(encoding="utf-8"))
+        if info.get("date") != datetime.now().strftime("%Y-%m-%d"):
+            return False
+        return len(info.get("tracks", [])) >= 2
+    except Exception:
+        return False
+
+
 if __name__ == "__main__":
     _archive_only = "--archive-only" in sys.argv
     _client       = None
@@ -614,12 +732,17 @@ if __name__ == "__main__":
 
     if _client == "g_inspired":
         fetch_gi_music(archive_only=_archive_only)
+    elif _client == "d818":
+        if "--skip-if-fresh" in sys.argv and _d818_already_fresh_today():
+            print("[D818 Music] Fresh tracks already downloaded today — skipping.")
+        else:
+            fetch_d818_music(archive_only=_archive_only)
     elif "--skip-if-fresh" in sys.argv and _already_fresh_today():
         print("[Music] Fresh tracks already downloaded today — skipping.")
     else:
         fetch_trending_music(archive_only=_archive_only)
 
-    if _client != "g_inspired":
+    if _client not in ("g_inspired", "d818"):
         # Pre-warm trending hashtags (BootHop only)
         print("\n[Hashtags] Pre-warming trending hashtags...")
         try:
