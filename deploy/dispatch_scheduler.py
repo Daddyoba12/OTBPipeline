@@ -69,6 +69,7 @@ CLIENTS = [
     # Oracle after a laptop run, as a second signal in case the window check
     # alone ever misses it.
     {
+        "slug":        "boothop",
         "name":        "BootHop",
         "profile":     BASE / "client_profile.json",
         "script":      BASE / "pipeline.py",
@@ -78,6 +79,7 @@ CLIENTS = [
     },
     # G-Inspired Automall — Oracle primary, laptop backup HEAD_START min later
     {
+        "slug":        "g_inspired",
         "name":        "G-Inspired Automall",
         "profile":     G_INS / "client_profile.json",
         "script":      G_INS / "run.py",
@@ -88,6 +90,7 @@ CLIENTS = [
     # D818 Catering — commander-integrated pipeline (pipeline_d818.py). Slot times
     # come from client_profiles/d818.json's schedule.slots (12:30 lunch, 20:00 evening).
     {
+        "slug":        "d818",
         "name":        "D818 Catering",
         "profile":     BASE / "client_profiles" / "d818.json",
         "script":      BASE / "pipeline_d818.py",
@@ -200,20 +203,30 @@ def _show_status():
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    slugs = [c["slug"] for c in CLIENTS]
     parser = argparse.ArgumentParser(description="OTB multi-client dispatcher")
     parser.add_argument("--dry-run", action="store_true", help="Show what would run, no execution")
     parser.add_argument("--status",  action="store_true", help="Show client schedules + next fire times")
+    parser.add_argument("--client",  choices=slugs, default=None,
+                         help="Only check/run this one client (slug). Omit to process all clients "
+                              "sequentially (legacy single-task mode). Each client has its own lock "
+                              "file, so running one client's dispatcher instance can never be blocked "
+                              "by another client hanging — this is what lets BootHop/G-Inspired/D818 "
+                              "run as three independent scheduled tasks instead of one shared loop.")
     args = parser.parse_args()
+
+    clients = [c for c in CLIENTS if c["slug"] == args.client] if args.client else CLIENTS
 
     if args.status:
         _show_status()
         return
 
     now_utc = datetime.now(timezone.utc)
-    print(f"[Dispatcher] {now_utc.strftime('%Y-%m-%d %H:%M UTC')} — checking {len(CLIENTS)} clients...")
+    print(f"[Dispatcher] {now_utc.strftime('%Y-%m-%d %H:%M UTC')} — checking {len(clients)} client(s)"
+          f"{f' (filtered: {args.client})' if args.client else ''}...")
 
     fired = 0
-    for client in CLIENTS:
+    for client in clients:
         if not client["profile"].exists():
             print(f"  [{client['name']}] profile not found — skipping")
             continue
