@@ -62,9 +62,12 @@ def _load_profile(path: Path) -> dict:
 
 
 CLIENTS = [
-    # BootHop — laptop is primary. Oracle runs 1 hour later as failsafe.
-    # After laptop runs, pipeline.py pushes pipeline_ran_today.json to Oracle
-    # so Oracle skips if laptop already handled the slot.
+    # BootHop — Oracle is primary (fires at the nominal time). The Windows
+    # laptop is backup — its window doesn't open until HEAD_START minutes
+    # later (see IS_PRIMARY above), and only fires if Oracle didn't already
+    # handle the slot. pipeline.py also pushes pipeline_ran_today.json to
+    # Oracle after a laptop run, as a second signal in case the window check
+    # alone ever misses it.
     {
         "name":        "BootHop",
         "profile":     BASE / "client_profile.json",
@@ -73,7 +76,7 @@ CLIENTS = [
         "slot_arg":    True,
         "env_base":    None,
     },
-    # G-Inspired Automall — laptop primary, Oracle 1h later as failsafe
+    # G-Inspired Automall — Oracle primary, laptop backup HEAD_START min later
     {
         "name":        "G-Inspired Automall",
         "profile":     G_INS / "client_profile.json",
