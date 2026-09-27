@@ -145,11 +145,19 @@ def _run_client(client: dict, slot: dict, dry_run: bool):
     print(f"  [FIRE] {client['name']} -- {label} slot -> {' '.join(cmd)}")
 
     if not dry_run:
-        subprocess.run(
-            cmd,
-            cwd=str(client["cwd"]),
-            env=env_override if env_override else None,
-        )
+        try:
+            # Hard ceiling so one wedged child (e.g. a stalled download inside
+            # the render step) can't freeze the dispatcher itself — a frozen
+            # dispatcher process blocks every future 30-min Task Scheduler tick
+            # for every client, not just the one that hung.
+            subprocess.run(
+                cmd,
+                cwd=str(client["cwd"]),
+                env=env_override if env_override else None,
+                timeout=90 * 60,
+            )
+        except subprocess.TimeoutExpired:
+            print(f"  [TIMEOUT] {client['name']} -- {label} slot exceeded 90m — killed, continuing dispatcher")
 
 
 # ── Status display ────────────────────────────────────────────────────────────

@@ -1348,7 +1348,11 @@ def _website_fallback_as_clip(beat: str, query: str, dest: Path, duration: int =
 
 def _download_clip(url: str, dest: Path) -> bool:
     try:
-        r = requests.get(url, stream=True)
+        # (connect_timeout, read_timeout) — read_timeout is the max gap between
+        # chunks, not total download time, so slow-but-live downloads still finish.
+        # Without this, a stalled connection hangs the request forever (no
+        # exception, no timeout) and freezes the whole pipeline run indefinitely.
+        r = requests.get(url, stream=True, timeout=(10, 30))
         r.raise_for_status()
         with open(dest, "wb") as f:
             for chunk in r.iter_content(65536):
