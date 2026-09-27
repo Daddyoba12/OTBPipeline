@@ -47,7 +47,7 @@ def get_access_token(cfg):
         "client_secret": cfg["client_secret"],
         "refresh_token": cfg["refresh_token"],
         "grant_type":    "refresh_token",
-    })
+    }, timeout=20)
     if not r.ok:
         raise RuntimeError(f"Failed to get access token: {r.text}")
     return r.json()["access_token"]
@@ -123,6 +123,7 @@ def post_to_blogger(cfg, access_token, title, labels, html_content):
             "Content-Type":  "application/json",
         },
         json=body,
+        timeout=30,
     )
     if r.ok:
         post_url = r.json().get("url", "")

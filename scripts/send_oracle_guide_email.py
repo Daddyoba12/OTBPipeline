@@ -77,7 +77,8 @@ r = requests.post(
         'to': ['titobalo12@gmail.com'],
         'subject': 'Oracle London Server Setup Complete | 130.162.162.189',
         'html': html,
-    }
+    },
+    timeout=20,
 )
 print('Status:', r.status_code)
 print(r.json())
