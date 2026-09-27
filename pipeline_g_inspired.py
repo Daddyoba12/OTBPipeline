@@ -344,11 +344,15 @@ def _run_slot1(profile: dict):
     _log("Step 2a: Refreshing G-Inspired music...")
     try:
         import subprocess as _sp
-        _sp.run(
-            [sys.executable, str(BASE / "scripts" / "fetch_trending_music.py"),
-             "--client", "g_inspired"],
-            timeout=300,
-        )
+        import platform as _pd
+        # On Oracle (Linux), never try SoundCloud directly — datacenter IPs get
+        # blocked/rate-limited there. The laptop's 05:30 job normally already
+        # synced fresh tracks; this is an archive-only fallback if that failed.
+        _cmd = [sys.executable, str(BASE / "scripts" / "fetch_trending_music.py"),
+                "--client", "g_inspired"]
+        if _pd.system() != "Windows":
+            _cmd.append("--archive-only")
+        _sp.run(_cmd, timeout=300)
     except Exception as _me:
         _log(f"[Music] Refresh skipped: {_me}")
 

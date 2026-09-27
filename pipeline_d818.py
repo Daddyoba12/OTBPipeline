@@ -243,8 +243,12 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
     try:
         from fetch_trending_music import fetch_d818_music, _d818_already_fresh_today
         if not _d818_already_fresh_today():
-            _log("D818 music not fresh today — fetching now (fallback)")
-            fetch_d818_music()
+            # On Oracle (Linux), never try SoundCloud directly — datacenter IPs
+            # get blocked/rate-limited there. Archive-only fallback instead;
+            # the laptop remains the sole SoundCloud downloader.
+            _archive_only = _plat_detect.system() != "Windows"
+            _log(f"D818 music not fresh today — fetching now (fallback, archive_only={_archive_only})")
+            fetch_d818_music(archive_only=_archive_only)
         else:
             _log("D818 music already fresh today")
     except Exception as e:
