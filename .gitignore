@@ -25,6 +25,7 @@ assets/d818/user_clips/
 
 # Runtime data — sync separately, not via git
 data/
+logs/
 
 # Oracle runtime directories — generated at deploy time, not tracked
 dashboard/companies/
