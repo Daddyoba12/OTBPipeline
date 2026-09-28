@@ -24,16 +24,16 @@ foreach ($c in $clients) {
     $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $arg
 
     if (Get-ScheduledTask -TaskName $c.TaskName -ErrorAction SilentlyContinue) {
-        Write-Output "$($c.TaskName) already exists — skipping (delete it first if you want to recreate)"
+        Write-Output "$($c.TaskName) already exists - skipping (delete it first if you want to recreate)"
         continue
     }
     Register-ScheduledTask -TaskName $c.TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings | Out-Null
     Write-Output "Created $($c.TaskName) (--client $($c.Slug), every 15 min)"
 }
 
-# Disable (not delete) the old combined task — kept as a manual fallback.
+# Disable (not delete) the old combined task - kept as a manual fallback.
 Disable-ScheduledTask -TaskName "OTB_MultiClientDispatcher" | Out-Null
-Write-Output "Disabled OTB_MultiClientDispatcher (old combined task) — the 3 new tasks replace it."
+Write-Output "Disabled OTB_MultiClientDispatcher (old combined task) - the 3 new tasks replace it."
 
 Write-Output ""
 Write-Output "Done. Verify with:"
