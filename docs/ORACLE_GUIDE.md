@@ -171,17 +171,31 @@ OPENAI_API_KEY=...
 
 Or add a new section to `/opt/otb_pipeline/scripts/social_credentials.json`.
 
-### Step 4 — Add cron jobs
+### Step 4 — Register the client with the dispatcher (do not hand-add cron slot times)
 
+Add an entry for the new client to `CLIENTS` in `deploy/dispatch_scheduler.py`, with a unique `slug`:
+```python
+{
+    "slug":        "<client_slug>",
+    "name":        "<Brand Name>",
+    "profile":     Path("/opt/<client_slug>/client_profile.json"),
+    "script":      Path("/opt/otb_pipeline/pipeline.py"),  # or the client's own entrypoint
+    "cwd":         BASE,
+    "slot_arg":    True,
+    "env_base":    "/opt/<client_slug>",
+},
+```
+The actual slot **times** live in that client's own `client_profile.json` (`schedule.slots`), not in cron — the dispatcher reads them and handles timezone conversion + primary/backup windowing for you.
+
+Then add **one** cron line for this client (not one per slot):
 ```bash
 crontab -e
 ```
+```
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client <client_slug> >> /home/ubuntu/<client_slug>.log 2>&1
+```
 
-Add:
-```
-0 9 * * * cd /opt/otb_pipeline && OTB_CLIENT_BASE=/opt/<client_slug> python3 pipeline.py --slot 1 >> /home/ubuntu/<client>.log 2>&1
-0 18 * * * cd /opt/otb_pipeline && OTB_CLIENT_BASE=/opt/<client_slug> python3 pipeline.py --slot 2 >> /home/ubuntu/<client>.log 2>&1
-```
+> **Do not** add hardcoded `pipeline.py --slot N` cron lines directly, one per slot/time. That pattern was used for BootHop early on, silently duplicated what the dispatcher already did correctly, and was removed on 2026-09-28 (see `docs/HOW_IT_RUNS.md` §3 and `deploy/set_cron.sh`). One dispatcher cron line per client, with times configured in that client's `client_profile.json`, is the only supported pattern now.
 
 ### Step 5 — Add to commander
 

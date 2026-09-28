@@ -44,10 +44,13 @@ Oracle backup fires exactly 1 hour after each UTC time above (08:00, 14:00, 21:0
 
 There are 10+ scheduled tasks under the `OTB_*` prefix. The key ones:
 
-- **OTB_MultiClientDispatcher** — runs every 15 minutes. Calls `deploy/dispatch_scheduler.py`, which checks if any slot is within a 30-minute window of its scheduled time. If yes, it calls `pipeline.py --slot N`. This is a **blocking call** — the dispatcher waits for the pipeline to finish before the task ends.
+- **OTB_Dispatch_BootHop / OTB_Dispatch_GInspired / OTB_Dispatch_D818** — three **independent** tasks (as of 2026-09-28; see incident note below), each running every 15 minutes, each calling `deploy/dispatch_scheduler.py --client <slug>`. Each checks only its own client's schedule and, if a slot is in-window, runs that client's pipeline script (blocking, with a 90-minute hard timeout — see below). Because each client has its own lock file and now its own task/process entirely, one client hanging can never block another's slot from firing.
+- **OTB_MultiClientDispatcher** — the old combined task (all 3 clients in one sequential loop). Disabled, kept only as a manual fallback. Do not re-enable without understanding why it was retired (see below).
 - **OTB_Commander** — starts `scripts/telegram_commander.py` and keeps it running.
 - **OTB_MusicRefresh** — runs at 06:00, fetches today's trending music tracks.
 - **OTB_WeeklyIntelligence** — runs every **Monday at 05:30** (before slot 1). Chains `trend_scout.py` + `weekly_review.py`. Writes `data/trend_report.json` and `data/pillar_weights.json` which the pipeline reads every slot to bias content toward best performers.
+
+> **Why 3 separate tasks instead of 1 (2026-09-28 incident):** on 2026-09-27, BootHop's Slot 3 hung mid-run. Because the old `OTB_MultiClientDispatcher` processed all clients in one sequential loop/process, D818's 20:00 slot never got a turn that night — not a D818 bug, just stuck behind a hung sibling in the same queue. Splitting into 3 independent tasks (via the `--client` flag added to `dispatch_scheduler.py`) removes that class of failure entirely: each client's dispatcher instance is its own OS process with its own lock file, so a hang in one can't touch the others. See `deploy/split_dispatcher_tasks.ps1` for the exact task definitions if these ever need to be recreated.
 
 If any of these tasks are **Disabled**, nothing runs. Check status with:
 ```powershell
@@ -61,32 +64,38 @@ Get-ScheduledTask | Where-Object TaskName -like "OTB_*" | Enable-ScheduledTask
 ### Oracle side — Linux cron
 
 ```cron
-# BootHop backup — fires 1h after laptop primary
-0  8 * * *     cd /opt/otb_pipeline && python3 pipeline.py --slot 1
-0 14 * * *     cd /opt/otb_pipeline && python3 pipeline.py --slot 2
-0 21 * * *     cd /opt/otb_pipeline && python3 pipeline.py --slot 3
-0  8 * * 2,5   cd /opt/otb_pipeline && python3 pipeline.py --slot 4
+# 3 independent per-client dispatcher runs — see the incident note above.
+# dispatch_scheduler.py + each client's client_profile.json is the single
+# source of truth for *when* each client posts. Do not add hardcoded
+# "pipeline.py --slot N" cron lines here — that was tried before, produced
+# near-duplicate runs of the same slot, and was removed on 2026-09-28.
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client boothop    >> /home/ubuntu/dispatch_scheduler.log 2>&1
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client g_inspired >> /home/ubuntu/dispatch_scheduler.log 2>&1
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client d818       >> /home/ubuntu/dispatch_scheduler.log 2>&1
 
 # Weekly intelligence — Monday 05:30 UTC (06:30 London BST) before slot 1 fires
 30  5 * * 1    cd /opt/otb_pipeline && python3 scripts/weekly_run.py
 
 # Engagement bot — every 2 hours
-10 */2 * * *   cd /opt/otb_pipeline && python3 scripts/engage.py
+0 */2 * * *    cd /opt/otb_pipeline && python3 scripts/engage.py
 ```
+
+Rebuildable from `deploy/set_cron.sh` (kept in sync with the above).
 
 ---
 
 ## 4. The Dispatcher (`deploy/dispatch_scheduler.py`)
 
-Every time the Task Scheduler fires it (every 15 min), the dispatcher:
+Every time a `--client <slug>` task/cron entry fires it (every 10–15 min depending on machine), the dispatcher:
 
-1. Reads `client_profile.json` → gets timezone + slot times
-2. Converts each slot time to UTC
-3. Checks if current UTC time is within **±30 minutes** of any slot
-4. If a slot is in-window → runs `python pipeline.py --slot N` (blocking)
-5. Only one slot fires per dispatcher run
+1. Filters to just that one client (or, with no `--client` flag, all of them — legacy single-task mode, not used in production anymore)
+2. Reads that client's `client_profile.json` → gets timezone + slot times
+3. Converts each slot time to UTC
+4. Checks if current UTC time is within its machine's window of any slot — Oracle (primary) checks `[nominal-30min, nominal+20min]`, the laptop (backup) checks `[nominal+20min, nominal+50min]`, so the two never overlap and never race
+5. If a slot is in-window → runs that client's pipeline script (blocking within this one process, **capped at 90 minutes** — if a child hangs longer than that, the dispatcher force-kills it and exits cleanly rather than freezing forever)
+6. Only one slot fires per dispatcher run
 
-The 30-minute window means if the laptop woke up late (e.g., from sleep), it can still catch a missed slot as long as it's within 30 minutes.
+Because each client is now its own process (see above), a slow/hung run only ever delays *that* client's next slot by up to 90 minutes — it no longer has any effect on the other two clients' schedules.
 
 ---
 
@@ -323,7 +332,7 @@ A separate `scripts/commander_watchdog.py` runs via Task Scheduler and restarts 
 |---|---|
 | `pipeline.py` | Main orchestrator — called per slot |
 | `pipeline_kling.py` | V2 orchestrator — called by pipeline.py when V2's turn |
-| `deploy/dispatch_scheduler.py` | Multi-client scheduler, runs every 15 min |
+| `deploy/dispatch_scheduler.py` | Per-client scheduler — run once per client via `--client <slug>`, every 10-15 min |
 | `scripts/telegram_commander.py` | Always-on Telegram bot + approval handler |
 | `scripts/generate_content.py` | AI content generation (story, captions, hashtags) |
 | `scripts/render_video.py` | V1 video assembly (25s Pexels/Pixabay) |
@@ -385,7 +394,7 @@ There's also a **wildcard pillar** (`flight_discovery`) that randomly injects in
 ### Check if pipeline is running
 ```powershell
 Get-Content data\pipeline_step.txt
-Get-ScheduledTaskInfo -TaskName "OTB_MultiClientDispatcher" | Select LastRunTime, LastTaskResult
+Get-ScheduledTask -TaskName "OTB_Dispatch_*" | Get-ScheduledTaskInfo | Select TaskName, LastRunTime, LastTaskResult
 ```
 
 ### Force-run a slot now
