@@ -16,7 +16,7 @@ from datetime import date
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import ANTHROPIC_API_KEY
+from config import ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY
 import requests
 
 CLIENT_PROFILE = Path(__file__).parent.parent / "client_profiles" / "d818.json"
@@ -48,6 +48,59 @@ def _call_claude(prompt: str, model: str = "claude-sonnet-4-6", max_tokens: int 
     )
     resp.raise_for_status()
     return resp.json()["content"][0]["text"].strip()
+
+
+def _call_openai(prompt: str, model: str = "gpt-4o", max_tokens: int = 1200) -> str:
+    resp = requests.post(
+        "https://api.openai.com/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {OPENAI_API_KEY}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}],
+            "response_format": {"type": "json_object"},
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["choices"][0]["message"]["content"].strip()
+
+
+def _call_gemini(prompt: str, model: str = "gemini-3.8-flash", max_tokens: int = 1200) -> str:
+    resp = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        params={"key": GEMINI_API_KEY},
+        json={
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
+                "temperature": 0.7,
+                "thinkingConfig": {"thinkingBudget": 0},
+            },
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+
+def _call_story_ai(prompt: str) -> str:
+    """Fallback chain (same order/shape as BootHop's generate_content._call_story_ai):
+    OpenAI -> Gemini -> Claude. D818 used to call Claude only with no fallback at
+    all, so a single provider outage (billing, rate limit, dead model id) took the
+    whole client down for days. This mirrors BootHop's resilience."""
+    last_err = None
+    for _p, _fn in (("openai", _call_openai), ("gemini", _call_gemini), ("claude", _call_claude)):
+        try:
+            print(f"  [D818 StoryWriter] Using {_p}")
+            return _fn(prompt)
+        except Exception as _e:
+            print(f"  [D818 StoryWriter] {_p} failed: {_e} — trying next")
+            last_err = _e
+    raise RuntimeError(f"All D818 story AI providers failed. Last error: {last_err}")
 
 
 def _parse_json(raw: str) -> dict:
@@ -289,7 +342,7 @@ def generate_content(slot: int, pillar: str, bucket: str = "") -> dict:
 
     print(f"  [D818] Slot {slot} | Pillar: {pillar}")
 
-    raw  = _call_claude(_build_prompt(pillar, profile))
+    raw  = _call_story_ai(_build_prompt(pillar, profile))
     data = _parse_json(raw)
 
     # Normalise fields render_video.py expects

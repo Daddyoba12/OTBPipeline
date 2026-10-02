@@ -527,11 +527,11 @@ Return ONLY valid JSON with no markdown:
 
     try:
         resp = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5},
+                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=20,
         )
@@ -590,11 +590,11 @@ Return ONLY valid JSON:
 
     try:
         resp = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5},
+                "generationConfig": {"maxOutputTokens": 300, "temperature": 0.5, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=20,
         )

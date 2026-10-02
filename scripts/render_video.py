@@ -1029,6 +1029,40 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR,
     return False
 
 
+def _real_car_photo_as_clip(photo_url: str, dest: Path, duration: int = CLIP_DUR) -> bool:
+    """G-Inspired: download a real photo of the actual car being featured (scraped
+    from the dealer's own site) and Ken-Burns animate it into a clip. Preferred
+    over DALL-E (which only approximates the make/model) and over generic Pexels
+    stock (which doesn't match the specific car or its colour at all)."""
+    try:
+        img = requests.get(
+            photo_url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"},
+            timeout=20,
+        ).content
+        if not img:
+            return False
+        img_path = dest.with_suffix(".jpg")
+        img_path.write_bytes(img)
+        frames = duration * VIDEO_FPS
+        ok = _ff(
+            "-loop", "1", "-i", str(img_path),
+            "-vf",
+            f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+            f"zoompan=z='min(zoom+0.003,1.2)':d={frames}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={W}x{H},"
+            "setsar=1",
+            "-t", str(duration),
+            "-c:v", "libx264", "-crf", "22", "-preset", "fast",
+            "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
+        )
+        img_path.unlink(missing_ok=True)
+        return ok and dest.exists()
+    except Exception as e:
+        print(f"    [RealCarPhoto] {photo_url}: {e}")
+    return False
+
+
 def _dalle_image_as_clip(beat: str, query: str, dest: Path, duration: int = CLIP_DUR,
                          dalle_prompt: str | None = None, cheap: bool = False) -> bool:
     """Generate an AI image and Ken-Burns animate it into a clip.
@@ -2179,6 +2213,7 @@ def render_video(content: dict, slot: int, output_path: str,
     own_ids: set   = set()   # IDs found by THIS render (returned to caller + local log)
     own_clips: list = []     # metadata for new clips → Supabase upsert
     proc_clips: list = []
+    used_car_photos: set = set()  # real G-Inspired photo URLs already used this render
 
     # ── Remix engine: ~20% chance of recycling eligible archived clips ────────
     _remix_mode:          bool  = False
@@ -2298,9 +2333,28 @@ def render_video(content: dict, slot: int, output_path: str,
         setattr(render_video, "_user_clip_count_this_run", user_clip_count)
         setattr(render_video, "_used_user_beat_types_this_run", used_user_beat_types)
 
-        # ── G-Inspired: DALL-E first for slot 1 (morning/premium render only) ──
+        # ── G-Inspired: real photo of the actual car first, every slot ──────────
+        # Scraped from the dealer's own site (ginspiredautomall.com) — this is a
+        # real photo of the exact car being featured, in its actual colour, not
+        # an AI approximation or unrelated stock footage of a different car.
+        if not got_video and _is_car and _car_data:
+            _available_photos = [p for p in _car_data.get("photos", []) if p not in used_car_photos]
+            if _available_photos:
+                _photo_url = random.choice(_available_photos)
+                print(f"    Clip {i}: [car-{beat}] using real photo of this "
+                      f"{_car_data.get('year','')} {_car_data.get('make','')} {_car_data.get('model','')}")
+                real_photo_raw = TEMP / f"{prefix}_realcar_{beat}_{i}.mp4"
+                if _real_car_photo_as_clip(_photo_url, real_photo_raw):
+                    if _process_clip(real_photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
+                        got_video = True
+                        used_car_photos.add(_photo_url)
+                        try: report_hit(query, f"real_car_photo_{beat}")
+                        except Exception: pass
+                real_photo_raw.unlink(missing_ok=True)
+
+        # ── G-Inspired fallback: DALL-E for slot 1 only, when out of real photos ──
         if not got_video and _is_car and _car_data and slot == 1:
-            print(f"    Clip {i}: [car-{beat}] generating {_car_data.get('make','')}/{_car_data.get('model','')} via AI image")
+            print(f"    Clip {i}: [car-{beat}] no unused real photo left — generating {_car_data.get('make','')}/{_car_data.get('model','')} via AI image")
             dalle_first_raw = TEMP / f"{prefix}_dalle_{beat}_{i}.mp4"
             _dp = _car_dalle_prompt(_car_data, beat)
             if _dalle_image_as_clip(beat, query, dalle_first_raw, dalle_prompt=_dp):

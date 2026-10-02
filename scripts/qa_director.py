@@ -75,11 +75,11 @@ def _call_openai_qa(prompt: str) -> str:
 def _call_gemini_qa(prompt: str) -> str:
     from quota_alert import alert as _qa
     resp = requests.post(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
         params={"key": GEMINI_API_KEY},
         json={
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": 1400, "temperature": 0.5},
+            "generationConfig": {"maxOutputTokens": 1400, "temperature": 0.5, "thinkingConfig": {"thinkingBudget": 0}},
         },
         timeout=35,
     )

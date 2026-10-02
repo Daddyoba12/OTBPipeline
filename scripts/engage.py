@@ -66,11 +66,11 @@ def _generate_reply(comment_text: str, platform: str) -> str:
     try:
         combined = f"{BRAND_SYSTEM}\n\nPlatform: {platform}\nComment: {comment_text}\n\nWrite a reply."
         resp = requests.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
                 "contents": [{"parts": [{"text": combined}]}],
-                "generationConfig": {"maxOutputTokens": 120, "temperature": 0.7},
+                "generationConfig": {"maxOutputTokens": 120, "temperature": 0.7, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=15,
         )

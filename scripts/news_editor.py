@@ -165,11 +165,11 @@ If no stories are worth extracting, return []."""
         else:
             from config import GEMINI_API_KEY as _GEM_KEY
             resp = requests.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
                 params={"key": _GEM_KEY},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"maxOutputTokens": 900, "temperature": 0.5},
+                    "generationConfig": {"maxOutputTokens": 900, "temperature": 0.5, "thinkingConfig": {"thinkingBudget": 0}},
                 },
                 timeout=30,
             )

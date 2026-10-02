@@ -294,14 +294,18 @@ def _call_openai(prompt: str, model: str = "gpt-4o", max_tokens: int = 1200) -> 
     return resp.json()["choices"][0]["message"]["content"].strip()
 
 
-def _call_gemini(prompt: str, model: str = "gemini-2.0-flash", max_tokens: int = 1200) -> str:
+def _call_gemini(prompt: str, model: str = "gemini-3.8-flash", max_tokens: int = 1200) -> str:
     from quota_alert import alert as _qa
     resp = requests.post(
         f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
         params={"key": GEMINI_API_KEY},
         json={
             "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"maxOutputTokens": max_tokens, "temperature": 0.7},
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
+                "temperature": 0.7,
+                "thinkingConfig": {"thinkingBudget": 0},
+            },
         },
         timeout=30,
     )
@@ -330,7 +334,7 @@ def _call_story_ai(prompt: str, v2: bool = False) -> str:
                 print(f"  [StoryWriter] Using OpenAI {_m}")
                 return _call_openai(prompt, model=_m)
             elif _p == "gemini":
-                print("  [StoryWriter] Using Gemini 2.0 Flash")
+                print("  [StoryWriter] Using Gemini 3.8 Flash")
                 return _call_gemini(prompt)
             else:
                 _m = "claude-haiku-4-5-20251001" if v2 else "claude-sonnet-4-6"

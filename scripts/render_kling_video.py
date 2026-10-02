@@ -202,11 +202,11 @@ def _select_clips(story: dict, clips: list[dict], n_target: int = 1) -> list[dic
         import requests as _req
         from config import GEMINI_API_KEY as _GEM_KEY
         resp = _req.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": _GEM_KEY},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 100, "temperature": 0.5},
+                "generationConfig": {"maxOutputTokens": 100, "temperature": 0.5, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=20,
         )

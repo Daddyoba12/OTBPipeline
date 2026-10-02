@@ -298,11 +298,11 @@ Extract and return as JSON ONLY (no markdown):
 
     try:
         r = requests.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 800, "temperature": 0.3},
+                "generationConfig": {"maxOutputTokens": 800, "temperature": 0.3, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=30,
         )

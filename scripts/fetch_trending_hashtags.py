@@ -156,9 +156,9 @@ def _get_trending_tag(force: bool = False) -> str:
         try:
             import requests as _hr
             _gr = _hr.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
                 params={"key": GEMINI_API_KEY},
-                json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"maxOutputTokens": 20}},
+                json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"maxOutputTokens": 20, "thinkingConfig": {"thinkingBudget": 0}}},
                 timeout=10,
             )
             _gr.raise_for_status()

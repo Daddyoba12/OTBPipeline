@@ -16,7 +16,7 @@ Output:
 14-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
 """
 
-import json, subprocess, shutil, sys, os, platform as _platform, re
+import difflib, json, subprocess, shutil, sys, os, platform as _platform, re
 from datetime import datetime, timedelta, date
 from pathlib import Path
 
@@ -267,11 +267,40 @@ def _save_log(entry: dict, log_file: Path | None = None):
     f.write_text(json.dumps(log[-90:], indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+# SoundCloud search returns dozens of differently-titled uploads of the same
+# trending song (remixes, edits, re-touches, spacing variants like "Holy Ghost"
+# vs "Holyghost") — exact title matching let the same song slip past the
+# cooldown over and over under a new title each time. _title_core() strips the
+# edition-specific noise down to the artist+song core, and _titles_match() adds
+# a fuzzy-similarity check on top so near-spellings still count as a repeat.
+_TITLE_NOISE_RE = re.compile(
+    r"\[[^\]]*\]|\([^)]*\)|\b(remix|edit|version|re-?touch|flip|bootleg|mashup|vip|"
+    r"extended|radio\s*edit|slowed(?:\s*(?:\+|and)\s*reverb)?|sped\s*up|speed\s*up|"
+    r"instrumental|acoustic|cover|mix)\b",
+    re.IGNORECASE,
+)
+
+
+def _title_core(title: str) -> str:
+    t = _TITLE_NOISE_RE.sub(" ", title)
+    t = re.sub(r"[^a-z0-9]+", " ", t.lower())
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _titles_match(a: str, b: str, threshold: float = 0.82) -> bool:
+    ca, cb = _title_core(a), _title_core(b)
+    if not ca or not cb:
+        return a.strip().lower() == b.strip().lower()
+    if ca == cb:
+        return True
+    return difflib.SequenceMatcher(None, ca, cb).ratio() >= threshold
+
+
 def _used_recently(title: str, days: int = 14, log_file: Path | None = None) -> bool:
     log    = _load_log(log_file)
     cutoff = (datetime.now() - timedelta(days=days)).isoformat()
     return any(
-        e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
+        e.get("logged_at", "") > cutoff and _titles_match(e.get("title", ""), title)
         for e in log
     )
 
@@ -280,7 +309,7 @@ def _used_yesterday(title: str, log_file: Path | None = None) -> bool:
     log    = _load_log(log_file)
     cutoff = (datetime.now() - timedelta(days=2)).isoformat()
     return any(
-        e.get("logged_at", "") > cutoff and e.get("title", "").lower() == title.lower()
+        e.get("logged_at", "") > cutoff and _titles_match(e.get("title", ""), title)
         for e in log
     )
 

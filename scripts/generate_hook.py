@@ -183,11 +183,11 @@ def _claude_generate(client: str, used: set) -> dict:
 
     try:
         resp = requests.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
             params={"key": GEMINI_API_KEY},
             json={
                 "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"maxOutputTokens": 220, "temperature": 0.7},
+                "generationConfig": {"maxOutputTokens": 220, "temperature": 0.7, "thinkingConfig": {"thinkingBudget": 0}},
             },
             timeout=25,
         )

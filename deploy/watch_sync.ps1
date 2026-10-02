@@ -61,8 +61,16 @@ function Do-OracleSync {
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: full sync..." -ForegroundColor Cyan
         & scp @scp "$LocalPath\pipeline.py"  "${dest}/pipeline.py"  2>&1 | Out-Null
         & scp @scp "$LocalPath\config.py"    "${dest}/config.py"    2>&1 | Out-Null
-        & scp @scp -r "$LocalPath\scripts"   "${dest}/scripts"      2>&1 | Out-Null
-        & scp @scp -r "$LocalPath\deploy"    "${dest}/deploy"       2>&1 | Out-Null
+        # NOTE: destination is the PARENT dir ($dest), not "$dest/scripts" or
+        # "$dest/deploy". scp -r nests the source folder one level deeper
+        # whenever the literal destination path already exists as a directory
+        # on the remote — pointing at "$dest/scripts" (which already exists)
+        # silently created scripts/scripts/ on Oracle instead of updating the
+        # real scripts/ folder. Pointing at $dest (which also already exists)
+        # still works because scp only applies that nesting rule once, so the
+        # copy lands at exactly "$dest/scripts" / "$dest/deploy" as intended.
+        & scp @scp -r "$LocalPath\scripts"   "${dest}/"      2>&1 | Out-Null
+        & scp @scp -r "$LocalPath\deploy"    "${dest}/"       2>&1 | Out-Null
     }
 
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Oracle: done" -ForegroundColor Green

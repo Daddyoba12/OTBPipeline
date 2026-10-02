@@ -10,7 +10,7 @@ from pathlib import Path
 
 import os, re as _re
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from config import DATA as _DATA, OPENAI_API_KEY
+from config import DATA as _DATA, OPENAI_API_KEY, GEMINI_API_KEY, ANTHROPIC_API_KEY
 import requests
 
 # Respect OTB_CLIENT_BASE so data stays in the client folder
@@ -82,9 +82,12 @@ def pick_car() -> dict | None:
     return random.choice(eligible)
 
 
-# ── Claude call ───────────────────────────────────────────────────────────────
+# ── AI callers + fallback chain ─────────────────────────────────────────────────
+# (was Claude-only in name but OpenAI-only in practice, no fallback at all — one
+# OpenAI outage took the whole client down. Now mirrors BootHop's OpenAI -> Gemini
+# -> Claude chain.)
 
-def _call_claude(prompt: str, max_tokens: int = 1400) -> str:
+def _call_openai(prompt: str, max_tokens: int = 1400) -> str:
     resp = requests.post(
         "https://api.openai.com/v1/chat/completions",
         headers={"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"},
@@ -97,6 +100,57 @@ def _call_claude(prompt: str, max_tokens: int = 1400) -> str:
     )
     resp.raise_for_status()
     return resp.json()["choices"][0]["message"]["content"].strip()
+
+
+def _call_gemini(prompt: str, max_tokens: int = 1400, model: str = "gemini-3.8-flash") -> str:
+    resp = requests.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        params={"key": GEMINI_API_KEY},
+        json={
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
+                "temperature": 0.7,
+                "thinkingConfig": {"thinkingBudget": 0},
+            },
+        },
+        timeout=45,
+    )
+    resp.raise_for_status()
+    return resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+
+def _call_claude(prompt: str, max_tokens: int = 1400, model: str = "claude-sonnet-4-6") -> str:
+    resp = requests.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": model,
+            "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}],
+        },
+        timeout=45,
+    )
+    resp.raise_for_status()
+    return resp.json()["content"][0]["text"].strip()
+
+
+def _call_story_ai(prompt: str, max_tokens: int = 1400) -> str:
+    """Fallback chain, same order/shape as BootHop's generate_content._call_story_ai:
+    OpenAI -> Gemini -> Claude."""
+    last_err = None
+    for _p, _fn in (("openai", _call_openai), ("gemini", _call_gemini), ("claude", _call_claude)):
+        try:
+            print(f"  [G-Inspired StoryWriter] Using {_p}")
+            return _fn(prompt, max_tokens=max_tokens)
+        except Exception as _e:
+            print(f"  [G-Inspired StoryWriter] {_p} failed: {_e} — trying next")
+            last_err = _e
+    raise RuntimeError(f"All G-Inspired story AI providers failed. Last error: {last_err}")
 
 
 def _parse_json(raw: str) -> dict:
@@ -354,7 +408,7 @@ def generate_content(car: dict | None = None) -> dict:
 
     print(f"  [G-Inspired] Featuring: {car['year']} {car['make']} {car['model']} — ${car['price']:,}")
 
-    raw  = _call_claude(_build_prompt(car, profile))
+    raw  = _call_story_ai(_build_prompt(car, profile))
     data = _parse_json(raw)
 
     # Normalise fields render_video.py expects
@@ -543,7 +597,7 @@ Write a LinkedIn post (200-280 words) that:
 TONE: knowledgeable dealership owner, straight-talking, community-focused, not salesy.
 Return ONLY the post text (no labels, no commentary)."""
 
-    linkedin_text = _call_claude(li_prompt, max_tokens=600)
+    linkedin_text = _call_story_ai(li_prompt, max_tokens=600)
 
     # ── Blog HTML ──────────────────────────────────────────────────────────────
     blog_prompt = f"""Write a complete SEO-optimised blog post for {brand} ({website}).
@@ -579,7 +633,7 @@ CTA box template (use this exactly):
   <a href="{website}" style="display:inline-block;background:#FFE600;color:#1D3A6E;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;">Browse Inventory →</a>
 </div>"""
 
-    blog_html_raw = _call_claude(blog_prompt, max_tokens=3500)
+    blog_html_raw = _call_story_ai(blog_prompt, max_tokens=3500)
 
     # Extract title and labels, strip comment lines from body
     title_m  = re.search(r'<!-- title:\s*(.+?)\s*-->', blog_html_raw)
