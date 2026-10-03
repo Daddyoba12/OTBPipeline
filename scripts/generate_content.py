@@ -180,6 +180,11 @@ TIKTOK_PILLAR = {
     "celebration_weekend":    ["#WeekendVibes", "#CelebrationSzn", "#AfrobeatsUK", "#NigerianWedding", "#PartyHard"],
     "flight_discovery":       ["#CheapFlights", "#FlightDeals", "#UKToNigeria", "#LagosFlights", "#BootHopFlights"],
     "supply_chain":           ["#SupplyChain", "#Logistics", "#BusinessTips", "#OperationsLife", "#TradeRoutes"],
+    "uk_domestic_consumer":   ["#UKDelivery", "#SameDayDelivery", "#UKLogistics", "#DeliveryHack", "#MovingCity"],
+    "uk_domestic_business":   ["#UKBusiness", "#SmallBusinessUK", "#EcommerceUK", "#SameDayDelivery", "#SME"],
+    "uk_europe":              ["#UKToEurope", "#EuropeDelivery", "#CrossBorder", "#SameDayDelivery", "#UKLogistics"],
+    "europe_europe":          ["#EuropeDelivery", "#CrossBorder", "#EuropeLogistics", "#SameDayDelivery", "#EuropeTravel"],
+    "business_critical":      ["#UrgentDelivery", "#SameDayDelivery", "#BusinessCritical", "#LogisticsUK", "#SupplyChain"],
 }
 
 INSTAGRAM_TAGS = {
@@ -197,6 +202,11 @@ INSTAGRAM_TAGS = {
     "celebration_weekend":    "#BootHop #WeekendVibes #CelebrationSzn #AfrobeatsUK #NigerianWedding #NamingCeremony #NaijaParty #UKNigeria #AfricanWedding #GraduationParty #PartyHard #DanceChallenge #AfrobeatsLife #LagosToUK #NaijaUK #DiasporaLife #CelebrationVibes #WeekendMood #AfricanCelebration #JoyfulDelivery",
     "flight_discovery":       "#BootHop #CheapFlights #FlightDeals #UKToNigeria #LagosFlights #AbujFlights #CheapFlightsToNigeria #NigeriaTravel #AfricaFlights #FlightComparison #TravelDeals #NaijaUK #DiasporaTravel #UKNigeria #AfricaTravel #BudgetTravel #CheapFlightsUK #TravelTips #FlightHack #BootHopFlights",
     "supply_chain":           "#BootHop #SupplyChain #Logistics #BusinessTips #OperationsLife #TradeRoutes #GlobalTrade #BusinessUK #LogisticsLife #FreightLife #ShippingIndustry #DiasporaMagic #LondonToLagos #SameDayDelivery #BusinessOwner #SME #StartupUK #HumanLogistics #TradeUK #LogisticsUK",
+    "uk_domestic_consumer":   "#BootHop #UKDelivery #SameDayDelivery #UKLogistics #DeliveryHack #MovingCity #StudentLife #UKMoving #ManchesterToLondon #LondonLife #ParcelDelivery #FastDelivery #UKWide #CityToCity #DeliveryUK #TrustedDelivery #PeerDelivery #HumanLogistics #UKTravel #ModernLogistics",
+    "uk_domestic_business":   "#BootHop #UKBusiness #SmallBusinessUK #EcommerceUK #SameDayDelivery #SME #BusinessDelivery #RetailUK #StartupUK #B2BDelivery #SupplyChainUK #UKLogistics #FastDelivery #BusinessGrowthUK #TradeUK #LogisticsPartner #SameDayCourier #ManufacturingUK #EventsUK #HospitalityUK",
+    "uk_europe":              "#BootHop #UKToEurope #EuropeDelivery #CrossBorder #SameDayDelivery #UKLogistics #AmsterdamDelivery #ParisDelivery #BrusselsDelivery #EuropeTravel #InternationalDelivery #TrustedDelivery #BusinessDelivery #StudentAbroad #FastDelivery #ModernLogistics #EuropeBusiness #UKEuropeTrade #PeerDelivery #CityToCity",
+    "europe_europe":          "#BootHop #EuropeDelivery #CrossBorder #EuropeLogistics #SameDayDelivery #EuropeTravel #ParisToBerlin #AmsterdamToFrankfurt #InternationalDelivery #TrustedDelivery #BusinessDelivery #FastDelivery #ModernLogistics #EuropeBusiness #PeerDelivery #CityToCity #EuropeWide #EuropeanMarket #SupplyChain #DeliveryNetwork",
+    "business_critical":      "#BootHop #UrgentDelivery #SameDayDelivery #BusinessCritical #LogisticsUK #SupplyChain #EngineeringUK #AerospaceUK #AutomotiveUK #LegalDelivery #EventLogistics #TimeCritical #EmergencyDelivery #B2BDelivery #FastDelivery #TrustedDelivery #OperationsUK #ManufacturingUK #SameDayCourier #BusinessGrowthUK",
 }
 
 YOUTUBE_CATEGORIES = {
@@ -225,7 +235,7 @@ def _instagram_hashtags(pillar: str, tags_311: list[str]) -> str:
 
 
 def _youtube_tags(pillar: str, hook: str) -> list:
-    base = ["BootHop", "London to Lagos", "diaspora delivery", "same day delivery", "peer to peer delivery"]
+    base = ["BootHop", "same day delivery", "peer to peer delivery", "UK logistics"]
     pillar_map = {
         "community":          ["nigerian diaspora uk", "uk nigeria community", "diaspora life uk"],
         "family":             ["care package abroad", "sending parcel home", "family abroad uk"],
@@ -235,6 +245,11 @@ def _youtube_tags(pillar: str, hook: str) -> list:
         "logistics_stories":  ["logistics uk", "delivery stories", "courier alternatives"],
         "airport_deliveries": ["airport delivery", "customs uk", "freight stories"],
         "supply_chain":       ["supply chain uk", "logistics business", "trade routes uk"],
+        "uk_domestic_consumer": ["uk city delivery", "same day delivery uk", "student moving delivery"],
+        "uk_domestic_business": ["uk business delivery", "sme logistics uk", "ecommerce delivery uk"],
+        "uk_europe":            ["uk to europe delivery", "cross border delivery", "london to amsterdam delivery"],
+        "europe_europe":        ["europe delivery", "cross border europe", "paris to berlin delivery"],
+        "business_critical":    ["urgent business delivery", "time critical logistics", "same day business delivery"],
     }
     extra = pillar_map.get(pillar, [])
     all_tags = base + extra
@@ -638,27 +653,38 @@ DISCOVERY SCENARIOS — how they found BootHop (rotate these too):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ABOUT BOOTHOP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-TRAVELLER = earns money carrying a parcel on a trip they were ALREADY making
-SENDER    = pays a traveller — far cheaper than couriers, often next-day
-Always two different people. BootHop connects them. The traveller was going ANYWAY.
+BootHop is a UK/Europe logistics marketplace — within the UK, UK<->Europe, and Europe<->Europe,
+for personal AND business customers. It is NOT just a UK-Nigeria/airport service — that is one
+segment among several (see the pillar angle above for which segment this story is).
+
+TRAVELLER/CAPACITY = earns money or saves on their own trip by carrying a parcel on a journey
+  they were ALREADY making — by car, van, train, or flight, whichever actually fits the route.
+SENDER    = pays for the match — far cheaper than a traditional courier, often faster
+Always two different people/parties. BootHop connects them. The movement was happening ANYWAY.
 
 COURIER RULE: NEVER name DHL, FedEx, Royal Mail, Hermes, Parcelforce, UPS.
 Write "a reputable courier" or "a traditional courier service".
 
-PRICE RANGES:
-- Reputable courier UK → Nigeria: £35–75 small parcel
-- BootHop peer-to-peer: £8–25 same route
-- Traveller earnings: £20–85 per trip
+PRICING — always relative, never a fixed number for every route:
+- A traditional courier costs noticeably more for the same route and urgency.
+- BootHop is a fraction of that, and the traveller/driver earns money they wouldn't have otherwise.
+- If you give a specific price, make it fit the ACTUAL route and distance in this story (a London-
+  Manchester van trip costs differently than a London-Lagos flight) — do not reuse a generic
+  UK-Nigeria price range for a UK-domestic or European route.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BRAND CLOSING LINES — lesson MUST use one of these EXACTLY
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. "The flight was already going. The parcel just needed a seat."
-2. "Movement already exists. BootHop makes it useful."
-3. "Someone was already flying. BootHop connected the dots."
-4. "The journey already existed. The parcel just joined it."
-5. "Every journey has value."
-6. "When time matters more than distance, BootHop finds another way."
+Mode-agnostic (use for any route — UK domestic, UK-Europe, Europe-Europe, or international):
+1. "Movement already exists. BootHop makes it useful."
+2. "The journey already existed. The parcel just joined it."
+3. "Every journey has value."
+4. "When time matters more than distance, BootHop finds another way."
+5. "Someone was already going that way. BootHop connected the dots."
+Flight-specific (ONLY use for airport/flight-based stories — do not use for UK-domestic or
+European van/car/train routes):
+6. "The flight was already going. The parcel just needed a seat."
+7. "Someone was already flying. BootHop connected the dots."
 
 SOCIAL PROOF — add one specific verifiable fact in RESOLUTION or LESSON when it fits naturally:
   Timing: "Matched in 18 minutes." / "Delivered in 41 hours." / "She replied in eight seconds."
@@ -1170,6 +1196,103 @@ _PILLAR_ANGLES = {
 
     # ── Sunday — Founder Story (Format 6, first-person, fictionalized, does not sell) ─
     "founder_story": "__DYNAMIC__",     # prompt built by _build_founder_story_prompt()
+
+    # ── UK domestic — personal/consumer ─────────────────────────────────────────
+    "uk_domestic_consumer": (
+        "HARD RULE — MANDATORY, no exceptions:\n"
+        "  1. The route is UK CITY TO UK CITY ONLY. Name BOTH cities explicitly in the story "
+        "(e.g. 'London to Manchester', 'Derby to Leeds'). Never Nigeria, never any country "
+        "outside the UK, never 'abroad' or 'back home'.\n"
+        "  2. The character's name MUST be English/British — pick from: Emma, James, Sarah, "
+        "Jack, Olivia, Chloe, Ryan, Sophie, Daniel, Lucy, Tom, Megan. Do NOT use a Nigerian, "
+        "African, or diaspora name for this pillar.\n"
+        "  3. NO airport, NO flight, NO 'traveller flying'. The mover is going by VAN, CAR, or "
+        "TRAIN. If a vehicle appears, it's a van, car, or train — never a plane.\n"
+        "Story: a relatable everyday reason — a student moving between term-time and home, "
+        "someone sending a forgotten item to a relative in another city, an online marketplace "
+        "seller/buyer handover, someone relocating for a new job, a gift that needs to arrive "
+        "faster than a normal parcel service. "
+        "Open with the everyday pressure (exam tomorrow, moving day, a sold item needs to ship "
+        "today), not a price. Resolution: BootHop matched them with someone already making that "
+        "exact UK journey. Lesson: fast, human, UK-wide."
+    ),
+
+    "uk_domestic_business": (
+        "HARD RULE — MANDATORY, no exceptions:\n"
+        "  1. The route is UK CITY TO UK CITY ONLY. Name BOTH cities explicitly (e.g. "
+        "'Manchester to Glasgow', 'Leeds to Nottingham'). Never Nigeria, never diaspora.\n"
+        "  2. The sender is a UK BUSINESS, not a person sending a personal item. Pick one: "
+        "ecommerce seller, retail shop with branches, small manufacturer, events company, "
+        "hotel/hospitality business, SME owner.\n"
+        "  3. The character's name MUST be English/British — pick from: Emma, James, Sarah, "
+        "Jack, Olivia, Ryan, Sophie, Daniel, Lucy, Mark, Claire, David. Do NOT use a Nigerian, "
+        "African, or diaspora name for this pillar.\n"
+        "  4. NO airport, NO flight. The mover is going by VAN or CAR.\n"
+        "Open with the business pressure — a customer waiting, a branch short of stock, an order "
+        "that has to ship today — not logistics jargon. Resolution: BootHop matched the business "
+        "with capacity already moving that route, visible handover at an office, warehouse, shop, "
+        "or depot. Lesson: a serious logistics option for UK businesses, not just a courier app."
+    ),
+
+    # ── UK <-> Europe ────────────────────────────────────────────────────────────
+    "uk_europe": (
+        "HARD RULE — MANDATORY, no exceptions:\n"
+        "  1. The route is UK <-> EUROPE ONLY — name BOTH a UK city and a European city "
+        "explicitly (e.g. 'London to Amsterdam', 'Birmingham to Brussels', 'UK to Paris'). "
+        "Never Nigeria, never Africa, never diaspora.\n"
+        "  2. Mix personal and business senders across different stories: a student studying "
+        "abroad, a small business shipping a sample to a European client, someone relocating, a "
+        "family sending something to a relative who moved to Europe, a company needing a "
+        "document or part moved across the Channel quickly.\n"
+        "  3. Character name: mix English/British names (Emma, James, Sarah, Jack) and "
+        "European names (Sophie, Lukas, Marie, Hans, Elena) story to story. Do NOT use a "
+        "Nigerian or African name for this pillar.\n"
+        "  4. Prefer train, car, van, or ferry for the journey. A flight is allowed ONLY if the "
+        "story explicitly needs it (e.g. a same-day business trip) — it is not the default.\n"
+        "Open with the specific pressure (a meeting tomorrow in Amsterdam, a flat move to "
+        "Brussels, a client needs the sample before a pitch) — not a generic 'international "
+        "shipping' line. Resolution: BootHop matched them with someone already travelling that "
+        "exact UK-Europe route. Lesson: BootHop works across the Channel, not just within the UK."
+    ),
+
+    "europe_europe": (
+        "HARD RULE — MANDATORY, no exceptions:\n"
+        "  1. The route is BETWEEN TWO EUROPEAN CITIES, NEITHER of which is in the UK — name "
+        "both cities explicitly (e.g. 'Paris to Berlin', 'Amsterdam to Frankfurt', 'Brussels to "
+        "Paris'). Never the UK, never Nigeria, never diaspora.\n"
+        "  2. Character name: European names — Sophie, Lukas, Marie, Hans, Elena, Pierre, Anna, "
+        "Claire, Marco, Ingrid. Do NOT use a Nigerian, African, or British name for this pillar.\n"
+        "  3. Prefer train, car, or van. A flight is allowed only if the story explicitly needs "
+        "it — not the default.\n"
+        "The sender can be personal or business — a student, a small business, a family, a "
+        "company moving a sample or document between European offices. "
+        "Open with the specific pressure, not a generic shipping line. Resolution: BootHop "
+        "matched them with someone already travelling that exact European route. Show a real "
+        "European city setting (street, station, office, home, hotel). Lesson: BootHop is a "
+        "European movement option too, not only a UK-Nigeria service."
+    ),
+
+    # ── Urgent / business-critical ───────────────────────────────────────────────
+    "business_critical": (
+        "HARD RULE — MANDATORY, no exceptions:\n"
+        "  1. This is a UK-DOMESTIC OR UK-EUROPE BUSINESS route — name both cities explicitly "
+        "(e.g. 'Derby to London', 'Manchester to Birmingham', 'UK to Amsterdam'). Never Nigeria, "
+        "never diaspora, never a personal/family story.\n"
+        "  2. The sender is a BUSINESS PROFESSIONAL under real time pressure — pick one: an "
+        "engineer, a factory operations manager, a legal professional, an events company owner, "
+        "a warehouse/logistics manager. Character name MUST be English/British or European "
+        "(Mark, Claire, David, Hans, Sophie, James) — do NOT use a Nigerian or African name.\n"
+        "  3. The item is ONE of: an engineering/machine part needed on a factory line, a legal "
+        "document needed before a deadline today, event equipment needed before an event starts, "
+        "a high-value business document, a product sample or prototype needed for a pitch, "
+        "emergency stock for a shop/warehouse running out. An aircraft component is allowed only "
+        "if the story is genuinely aviation/aerospace-industry (not a default airport scene).\n"
+        "Open with the deadline and what breaks if it's missed (the line stops, the case is "
+        "delayed, the event can't start) — real stakes, not exaggerated drama. Resolution: "
+        "BootHop matched them with someone already making that exact journey, today, in time. "
+        "Show the handover at an office, factory, warehouse, or depot. Lesson: when a normal "
+        "courier can't move fast enough, BootHop can."
+    ),
 }
 
 

@@ -79,16 +79,24 @@ def _parse_json(raw: str) -> dict:
 # Rotates by day so the same visual archetype never dominates the grid.
 # PAUSED: shocked woman / hand-over-mouth / wide-eyes / phone-staring pose.
 _CHARACTER_CAST = [
+    # BootHop is a UK/Europe logistics marketplace — this cast should look like its
+    # actual customer base, not one ethnicity. Rotates daily via day_index; keep a
+    # real mix rather than any one background dominating.
     "40-year-old Nigerian man, business professional, sharp suit, calm confident expression",
-    "28-year-old British-Nigerian woman, casual smart, natural smile, relaxed",
+    "28-year-old white British woman, casual smart, natural smile, relaxed",
     "55-year-old Nigerian woman, warm maternal energy, modest clothing, gentle expression",
     "32-year-old Black British man, streetwear, laughing or mid-conversation",
-    "22-year-old Nigerian female student, university setting, curious attentive look",
-    "48-year-old Nigerian man, slightly tired but relieved expression, everyday clothing",
-    "35-year-old mixed-heritage woman, airport smart-casual, purposeful stride",
-    "60-year-old Nigerian grandfather, dignified, proud expression, traditional or neat dress",
-    "26-year-old Black British couple (man and woman), laughing together, casual",
+    "22-year-old British Asian female student, university setting, curious attentive look",
+    "48-year-old white British man, slightly tired but relieved expression, everyday clothing",
+    "35-year-old European woman, business smart-casual, purposeful stride",
+    "60-year-old white British grandfather, dignified, proud expression, neat casual dress",
+    "26-year-old British Asian couple (man and woman), laughing together, casual",
     "38-year-old Nigerian woman, entrepreneur energy, blazer, focused expression",
+    "45-year-old white British tradesman, workwear, warehouse or van setting, practical",
+    "30-year-old European man, smart-casual, train station or office setting",
+    "50-year-old British Asian businessman, suit, office setting, confident",
+    "27-year-old mixed-heritage woman, casual, city street, relaxed energy",
+    "33-year-old white British woman, business professional, office setting, focused",
 ]
 
 _VISUAL_BANNED = (
@@ -150,7 +158,11 @@ YOUR JOB — for each of the 8 scenes produce TWO things:
    lighting, shot type, emotion, format.
    Example: "Photorealistic. 40-year-old Nigerian man in a business suit at Heathrow departures.
    He checks his phone with a calm, confident expression. Warm terminal lighting. Medium shot.
-   No text. No logos. Vertical 9:16 portrait."
+   Vertical 9:16 portrait."
+   If a parcel, bag, or van appears: describe it with BootHop's orange brand colour
+   (a bright orange delivery bag/box/van livery) for natural, visible — but not
+   necessarily legible-text — branding. Don't rely on the model to render exact
+   logo text; the real BootHop logo is composited separately in post-production.
    NOT: "woman in apartment"
 
 RULES FOR BOTH:

@@ -197,11 +197,20 @@ SLOT_PLATFORMS = {
 
 # ── Content pillars per slot — 7-day rotation (indexed by weekday: 0=Mon … 6=Sun)
 # No pillar appears twice on the same day. Each angle repeats once per week per slot.
+# Rebalanced per the BootHop creative-strategy brief (2026-10): BootHop is a UK/Europe
+# logistics marketplace, not a UK-Nigeria diaspora-only service. uk_domestic_consumer/
+# uk_domestic_business/uk_europe/europe_europe/business_critical now carry the bulk of
+# the weekly schedule; community/family (diaspora/personal) are kept as real segments,
+# not the default framing. cost_pain/urgent_medical/cultural_earn were previously
+# scheduled here with NO entry in _PILLAR_ANGLES — they silently ran with a blank
+# content angle. airport/airport_deliveries are kept in the code (and in
+# WILDCARD_PILLARS-style occasional use) but removed from the default weekly rotation
+# per the brief's "airports only where appropriate" rule.
 SLOT_PILLARS = {
-    #              Mon                   Tue                   Wed                   Thu                   Fri (alternates weekly)            Sat                    Sun
-    1: ["family",           "travel_hacks",     "airport",          "cost_pain",        ["community",        "faith_friday"],     "humans_of_boothop",   "founder_story"],
-    2: ["courier_business", "airport_deliveries","personal_shopper","community",         "multi_courier",     "airport",           "family"],
-    3: ["urgent_medical",   "travel_hacks",     "cultural_earn",    "airport_deliveries","smart",             "cost_pain",         "family"],
+    #              Mon                      Tue                      Wed                   Thu                      Fri (alternates weekly)         Sat                      Sun
+    1: ["family",              "uk_domestic_consumer", "uk_europe",          "uk_domestic_business",  ["community",       "faith_friday"],   "humans_of_boothop",     "founder_story"],
+    2: ["courier_business",    "business_critical",    "personal_shopper",   "uk_domestic_business",  "multi_courier",    "uk_europe",        "family"],
+    3: ["business_critical",   "uk_domestic_consumer",  "europe_europe",     "uk_europe",              "smart",            "uk_domestic_consumer", "europe_europe"],
     4: "brand_authority",   # LinkedIn/blog — consistent thought-leadership angle
 }
 
@@ -237,6 +246,11 @@ PILLAR_LABELS = {
     "urgent_family":          "Urgent Family",
     "traveller_earnings":     "Traveller Earnings",
     "funny":                  "Relatable & Funny",
+    "uk_domestic_consumer":   "UK Domestic — Consumer",
+    "uk_domestic_business":   "UK Domestic — Business",
+    "uk_europe":              "UK <-> Europe",
+    "europe_europe":          "Europe <-> Europe",
+    "business_critical":      "Urgent & Business-Critical",
 }
 
 # Pillars that route to specific platforms only (never TikTok for B2B/business content)

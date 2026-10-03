@@ -148,7 +148,14 @@ STORY TO REVIEW:
   Lesson: {story.get('lesson', '')}
 {anchor_block}
 ABOUT BOOTHOP (context for scoring):
-BootHop is a peer-to-peer parcel delivery app. Travellers already flying between UK and Nigeria carry parcels for senders and earn money. BootHop should appear ONLY in the Resolution beat — never earlier.
+BootHop is a UK/Europe logistics marketplace — within the UK, UK<->Europe, and Europe<->Europe,
+for personal and business customers, moving parcels, documents, and business-critical items.
+People and businesses who need something moved are matched with travellers or delivery capacity
+already going that way (car, van, train, or flight — whatever actually fits the route), who carry
+the item and earn money or save on their own trip. UK-Nigeria/diaspora delivery is one segment of
+this, not the whole product — do not penalise a story for being UK-domestic, UK-Europe, or
+Europe-Europe rather than UK-Nigeria. BootHop should appear ONLY in the Resolution beat — never
+earlier.
 
 SCORE EACH DIMENSION 0-10:
 

@@ -90,41 +90,61 @@ _ITEM_VISUAL_TERMS = {
     "signed":            "signed jersey shirt framed memorabilia",
     "perfume":           "luxury perfume bottle fragrance gift box",
     "gift":              "gift wrapped box ribbon bow",
+    # Business / engineering / legal / events — business-critical pillar
+    "engineering part":  "metal machine component part engineering workshop",
+    "spare part":        "metal machine component part engineering workshop",
+    "machine component": "metal machine component part engineering workshop",
+    "aircraft component": "aircraft part component engineering case",
+    "legal document":    "legal document folder envelope official",
+    "contract":          "business contract document folder signing",
+    "prototype":         "product prototype sample box engineering",
+    "sample":            "product sample box packaging business",
+    "event equipment":   "event equipment flight case technical gear",
+    "stock":             "boxed retail stock inventory warehouse",
     # Generic fallback
     "parcel":            "small parcel package wrapped box",
     "package":           "small parcel package wrapped box",
 }
 
 # Maps protagonist role keywords to visual description for search queries
+# Ethnicity/background is varied deliberately across entries — UK and Europe's
+# actual population isn't one ethnicity, and the brief requires "vary... people"
+# across the whole portfolio, not just a subset of pillars. Some entries keep
+# Black/Nigerian representation (legitimate, existing audience); none are the
+# universal default any more.
 _ROLE_VISUAL_TERMS = {
     "nurse":             "Black nurse woman blue scrubs uniform",
-    "doctor":            "Black doctor woman white coat stethoscope",
-    "pharmacist":        "Nigerian pharmacist counter white coat",
+    "doctor":            "white British doctor woman white coat stethoscope",
+    "pharmacist":        "British Asian pharmacist counter white coat",
     "midwife":           "Black midwife nurse uniform hospital",
-    "care worker":       "Black care worker uniform compassionate",
-    "nhs":               "Black NHS worker uniform hospital corridor",
+    "care worker":       "white British care worker uniform compassionate",
+    "nhs":               "British Asian NHS worker uniform hospital corridor",
     "teacher":           "Nigerian woman teacher classroom professional",
-    "lecturer":          "Black university lecturer professional smart",
-    "accountant":        "Nigerian woman accountant office professional",
-    "finance":           "Black professional finance office suit",
-    "architect":         "Nigerian woman architect office drawing plans",
-    "software":          "Black software developer laptop coding",
+    "lecturer":          "white British university lecturer professional smart",
+    "accountant":        "British Asian accountant office professional",
+    "finance":           "white British professional finance office suit",
+    "architect":         "Black woman architect office drawing plans",
+    "software":          "British Asian software developer laptop coding",
     "it consultant":     "Black IT consultant laptop office suit",
-    "consultant":        "Black professional consultant office suit jacket",
-    "analyst":           "Black analyst office professional laptop",
+    "consultant":        "white British professional consultant office suit jacket",
+    "analyst":           "British Asian analyst office professional laptop",
     "manager":           "Nigerian woman manager office professional",
     "security":          "Black security guard uniform professional",
-    "chef":              "Black chef apron kitchen uniform",
+    "chef":              "white British chef apron kitchen uniform",
     "driver":            "Black delivery driver van uniform",
-    "plumber":           "Black tradesman tools work clothes",
+    "plumber":           "white British tradesman tools work clothes",
     "market trader":     "Nigerian woman market stall colourful clothes",
-    "photographer":      "Black photographer camera professional",
+    "photographer":      "British Asian photographer camera professional",
     "social worker":     "Black social worker professional compassionate",
-    "student":           "Black student university backpack casual",
+    "student":           "white British student university backpack casual",
     "corporate":         "Black professional suit jacket office shirt",
-    "businessman":       "Black businessman suit jacket tie",
-    "professional":      "Black professional suit jacket office",
+    "businessman":       "British Asian businessman suit jacket tie",
+    "professional":      "European professional suit jacket office",
     "traveller":         "Black traveller cabin luggage airport confident",
+    "engineer":          "white British engineer workwear factory floor",
+    "events":            "British Asian events manager clipboard venue",
+    "legal":             "white British solicitor suit office documents",
+    "logistics manager": "Black logistics manager warehouse clipboard",
 }
 
 
@@ -189,6 +209,14 @@ _LOCATION_VISUAL_TERMS = {
     "slough":        "Slough train station commuter UK",
     "milton keynes": "Milton Keynes city centre modern street UK",
     "london":        "London city street busy UK",
+    "glasgow":       "Glasgow city centre street Scotland UK",
+    "derby":         "Derby city centre street East Midlands UK",
+    # ── Europe ───────────────────────────────────────────────────────────────
+    "amsterdam":     "Amsterdam canal street city centre Netherlands",
+    "brussels":      "Brussels Grand Place city centre street Belgium",
+    "paris":         "Paris city street boulevard France",
+    "berlin":        "Berlin city centre street Germany",
+    "frankfurt":     "Frankfurt city centre skyline street Germany",
 }
 
 def _extract_location_visual(story: dict) -> tuple[str, str]:
@@ -407,6 +435,41 @@ PILLAR_BLUEPRINTS = {
         "African man and Black woman professional parcel handover smiling — wide shot",                            # resolution
         "Diverse Black diaspora people celebrating community London — wide shot",                                  # lesson
     ],
+    "uk_domestic_consumer": [
+        "white British woman hands typing stressed message on phone — close up vertical portrait shot",            # hook
+        "British Asian student at courier counter reacting to expensive price — medium shot",                      # problem
+        "white British man upset on phone at home deadline approaching — medium shot",                             # stakes
+        "British Asian woman at train station handing small parcel to driver — friendly wide shot",                # resolution
+        "white British woman smiling receiving parcel at door — warm wide shot",                                   # lesson
+    ],
+    "uk_domestic_business": [
+        "white British shop owner over shoulder checking phone order — vertical portrait shot",                    # hook
+        "British Asian business owner frustrated expensive courier quote on laptop — medium shot",                 # problem
+        "white British warehouse manager worried about delivery timing — medium shot",                             # stakes
+        "British Asian driver handing parcel to shop owner at counter — wide shot",                                # resolution
+        "white British business owner satisfied parcel delivered on time — wide shot",                             # lesson
+    ],
+    "uk_europe": [
+        "white British woman over shoulder reading flight/train booking on phone — vertical shot",                 # hook
+        "European man frustrated expensive courier quote on laptop — medium shot",                                 # problem
+        "white British woman upset checking train times deadline — medium shot",                                   # stakes
+        "European man at station handing small parcel to traveller smiling — wide shot",                           # resolution
+        "white British woman smiling receiving parcel in European city — warm wide shot",                          # lesson
+    ],
+    "europe_europe": [
+        "European woman hands typing stressed message on phone — close up vertical portrait shot",                 # hook
+        "European man at courier counter reacting to expensive price — medium shot",                               # problem
+        "European woman upset on phone at office deadline approaching — medium shot",                              # stakes
+        "European man at train station handing small parcel to traveller — friendly wide shot",                    # resolution
+        "European woman smiling receiving parcel at office — warm wide shot",                                      # lesson
+    ],
+    "business_critical": [
+        "white British engineer over shoulder checking phone urgent message — vertical portrait shot",             # hook
+        "British Asian operations manager frustrated on phone factory line stopped — medium shot",                 # problem
+        "white British manager anxious checking clock deadline today — medium shot",                               # stakes
+        "European driver handing engineering part to manager at warehouse — wide shot",                            # resolution
+        "white British engineer relieved factory line running again — wide shot",                                  # lesson
+    ],
 }
 
 # Safe fallback queries — used when the API call fails (5 beats: hook/problem/stakes/resolution/lesson)
@@ -460,11 +523,14 @@ RULES FOR EVERY QUERY (non-negotiable):
 - NEVER name courier companies: DHL, FedEx, Royal Mail, Hermes, UPS
 
 DIVERSITY PREFERENCE:
-BootHop serves the UK-Nigeria diaspora. Where the story character is Nigerian or African,
-all person-focused queries MUST reflect this. Preferred identifiers:
+BootHop is a UK/Europe logistics marketplace serving a wide range of customers, including
+but not limited to the UK-Nigeria diaspora. Where the story character is specifically Nigerian
+or African, all person-focused queries MUST reflect this. Preferred identifiers:
   "Black British woman", "Nigerian woman", "African man", "Black traveller",
   "African couple", "Black man", "Nigerian man", "diverse Black people"
-If the character has an English name, queries may show any appropriate ethnicity.
+Otherwise, use whatever ethnicity is appropriate to the character's name/story — vary it
+across stories (white British, Black British, British Asian, European, etc.) rather than
+defaulting to one.
 
 DYNAMIC CONTENT (prefer for hook scene 0 and lesson scene 4):
   Use active subjects: "woman talking animated", "man laughing phone",
@@ -511,13 +577,13 @@ INCORRECT — NEVER write these for scene 0:
 
 Scenes 1–4 (medium/wide required):
     "Nigerian woman post office counter medium shot"
-    "African man train station parcel handover wide shot"
-    "Black traveller parcel handover station smiling wide shot"
-    "diverse Black people london street wide shot"
+    "white British man train station parcel handover wide shot"
+    "British Asian traveller parcel handover station smiling wide shot"
+    "diverse group london street wide shot"
 
 {_get_scene_trends()}
 WRONG — never do this:
-  "woman close up face shocked"   ← missing ethnicity (Black British / Nigerian / African)
+  "woman close up face shocked"   ← missing ethnicity — specify one appropriate to the character/story
   "close up face only"            ← no ethnicity, no context
   "DHL courier tracking parcel"   ← brand name
   "farm green field landscape"    ← no people, banned
@@ -582,7 +648,7 @@ SCENE BLUEPRINT (same structure as V1 — follow this order):
 V1 already used these queries — do NOT repeat them, find fresh alternatives:
 {v1_str}
 {specificity_block}
-RULES: same as V1 — scene 0 uses close-up face + emotion, scenes 1–4 use medium/wide shots only. No animals, no food, no courier brand names. Always include ethnicity (Black British / Nigerian / African).{airport_rule}
+RULES: same as V1 — scene 0 uses close-up face + emotion, scenes 1–4 use medium/wide shots only. No animals, no food, no courier brand names. Always include an ethnicity appropriate to the character/story — vary it across stories, don't default to one.{airport_rule}
 
 {_get_scene_trends()}
 Return ONLY valid JSON:

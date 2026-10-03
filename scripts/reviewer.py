@@ -119,7 +119,7 @@ SCORE EACH DIMENSION 0-10:
    - 0: Random scenes — farm, motorbike, plane when story is about a pharmacy, etc.
 
 5. engagement_potential
-   - 10: Viewer will comment their own story, tag a friend, or save the video. Story is universally relatable to UK/Nigeria diaspora.
+   - 10: Viewer will comment their own story, tag a friend, or save the video. Story is universally relatable to its target audience (UK/Nigeria diaspora, UK domestic consumer/business, UK-Europe, Europe-Europe, or urgent business-critical — judge relatability WITHIN the pillar's actual audience, not against one fixed audience).
    - 5: Interesting but not strongly shareable.
    - 0: Niche, irrelevant to the audience, or no emotional reason to engage.
 
