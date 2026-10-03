@@ -120,39 +120,72 @@ def _to_hashtag(term: str) -> str:
     return "#" + "".join(w.capitalize() for w in words) if words else ""
 
 
-def _get_trending_tag(force: bool = False) -> str:
-    """Return one trending hashtag for today, Claude-picked from Nigerian news. Cached per day."""
-    today = str(date.today())
+# Pillars where a Nigeria/Africa-diaspora-framed trending tag actually fits the
+# audience. Everything else (UK-domestic, UK-Europe, Europe-Europe, business-
+# critical, and any pillar not listed here) gets a UK/Europe-neutral trending
+# tag instead — this is one of several places that previously defaulted to
+# diaspora framing regardless of pillar.
+_DIASPORA_PILLARS = {
+    "community", "family", "personal_shopper", "courier_business",
+    "multi_courier", "airport", "airport_deliveries", "cultural_earn",
+    "flight_discovery",
+}
+
+
+def _get_trending_tag(pillar: str = "community", force: bool = False) -> str:
+    """Return one trending hashtag for today, picked from news headlines.
+    Cached per (day, segment) — diaspora-framed pillars and UK/Europe pillars
+    get their own trending tag, not one shared value for the whole day."""
+    today   = str(date.today())
+    segment = "diaspora" if pillar in _DIASPORA_PILLARS else "uk_europe"
+    cache_key = f"{today}:{segment}"
 
     if not force and HASHTAG_FILE.exists():
         try:
             cached = json.loads(HASHTAG_FILE.read_text(encoding="utf-8"))
-            if cached.get("date") == today and cached.get("trending"):
+            if cached.get("cache_key") == cache_key and cached.get("trending"):
                 return cached["trending"]
         except Exception:
             pass
 
-    print("  [Hashtags] Fetching news for trending tag...")
+    print(f"  [Hashtags] Fetching news for trending tag ({segment})...")
     sources = _fetch_news()
     total = sum(len(v) for v in sources.values())
 
     if total > 0:
-        all_terms = (
-            [f"[Nigeria] {t}" for t in sources.get("nigeria", [])] +
-            [f"[Africa] {t}"  for t in sources.get("africa",  [])] +
-            [f"[Global] {t}"  for t in sources.get("global",  [])]
-        )
-        prompt = (
-            "BootHop is a UK-to-Nigeria peer-to-peer parcel delivery service. "
-            "Audience: UK-based Nigerian diaspora (25-45), small business owners, travellers.\n\n"
-            "From these today's news headlines, pick ONE hashtag that:\n"
-            "1. Is brand-safe (no gambling, crypto, violence, explicit content)\n"
-            "2. Would resonate with Nigerian diaspora in the UK\n"
-            "3. Is genuinely trending — football, music, diaspora, economy, travel are ideal\n"
-            "4. Prefer Nigerian/African headlines over global\n\n"
-            "Headlines:\n" + "\n".join(all_terms) +
-            "\n\nReply with ONLY ONE hashtag in CamelCase with # prefix. Example: #NigeriaVsEngland"
-        )
+        if segment == "diaspora":
+            all_terms = (
+                [f"[Nigeria] {t}" for t in sources.get("nigeria", [])] +
+                [f"[Africa] {t}"  for t in sources.get("africa",  [])] +
+                [f"[Global] {t}"  for t in sources.get("global",  [])]
+            )
+            prompt = (
+                "BootHop is a UK-to-Nigeria peer-to-peer parcel delivery service. "
+                "Audience: UK-based Nigerian diaspora (25-45), small business owners, travellers.\n\n"
+                "From these today's news headlines, pick ONE hashtag that:\n"
+                "1. Is brand-safe (no gambling, crypto, violence, explicit content)\n"
+                "2. Would resonate with Nigerian diaspora in the UK\n"
+                "3. Is genuinely trending — football, music, diaspora, economy, travel are ideal\n"
+                "4. Prefer Nigerian/African headlines over global\n\n"
+                "Headlines:\n" + "\n".join(all_terms) +
+                "\n\nReply with ONLY ONE hashtag in CamelCase with # prefix. Example: #NigeriaVsEngland"
+            )
+        else:
+            all_terms = [f"[Global] {t}" for t in sources.get("global", [])]
+            prompt = (
+                "BootHop is a UK/Europe logistics marketplace — personal and business parcel "
+                "delivery within the UK, UK<->Europe, and Europe<->Europe. "
+                "Audience: UK and European consumers and businesses (SMEs, ecommerce, engineering, "
+                "events, retail) who need something moved quickly.\n\n"
+                "From these today's news headlines, pick ONE hashtag that:\n"
+                "1. Is brand-safe (no gambling, crypto, violence, explicit content)\n"
+                "2. Would resonate with a UK/Europe general audience — business, economy, travel, "
+                "logistics, or current events are ideal\n"
+                "3. Is genuinely trending\n"
+                "4. Is NOT Nigeria/Africa-specific — this is for a UK-domestic or European story\n\n"
+                "Headlines:\n" + "\n".join(all_terms) +
+                "\n\nReply with ONLY ONE hashtag in CamelCase with # prefix. Example: #UKEconomy"
+            )
         try:
             import requests as _hr
             _gr = _hr.post(
@@ -165,17 +198,17 @@ def _get_trending_tag(force: bool = False) -> str:
             tag = _gr.json()["candidates"][0]["content"]["parts"][0]["text"].strip().split()[0]
             if tag.startswith("#") and len(tag) > 2 and not any(b in tag.lower() for b in _BLOCKED):
                 HASHTAG_FILE.write_text(
-                    json.dumps({"date": today, "trending": tag, "sources": {k: v[:3] for k, v in sources.items()}}),
+                    json.dumps({"cache_key": cache_key, "trending": tag, "sources": {k: v[:3] for k, v in sources.items()}}),
                     encoding="utf-8"
                 )
                 print(f"  [Hashtags] Trending tag: {tag}")
                 return tag
         except Exception as e:
-            print(f"  [Hashtags] Claude trending pick failed: {e}")
+            print(f"  [Hashtags] Trending tag pick failed: {e}")
 
-    # Fallback if news fetch or Claude fails
-    fallback = "#DiasporaLife"
-    HASHTAG_FILE.write_text(json.dumps({"date": today, "trending": fallback}), encoding="utf-8")
+    # Fallback if news fetch or the API call fails
+    fallback = "#DiasporaLife" if segment == "diaspora" else "#UKLogistics"
+    HASHTAG_FILE.write_text(json.dumps({"cache_key": cache_key, "trending": fallback}), encoding="utf-8")
     return fallback
 
 
@@ -255,7 +288,7 @@ def fetch_today(pillar: str = "community", force: bool = False,
     topic_tags = _pick_topic_tags(pillar, lib, used, n=3, client_config=client_config)
 
     # 1 — trending tag from today's news
-    trending = _get_trending_tag(force=force)
+    trending = _get_trending_tag(pillar=pillar, force=force)
 
     final = [brand] + topic_tags + [trending]
 

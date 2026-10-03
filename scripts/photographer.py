@@ -149,16 +149,21 @@ CURRENT BASIC QUERIES (upgrade these):
 YOUR JOB — for each of the 8 scenes produce TWO things:
 
 1. pexels_query (max 8 words): A highly specific Pexels search query.
-   Include: character description + location + action + shot type
-   Example: "40-year-old nigerian man airport departure confident medium shot"
+   Include: character description (from TODAY'S LEAD CHARACTER above, every time)
+   + location + action + shot type.
+   Format example (match this STRUCTURE, not the ethnicity — always use today's
+   actual cast, never this example's): "40-year-old nigerian man airport
+   departure confident medium shot"
    NOT: "woman apartment medium shot"
 
 2. ai_image_prompt (max 60 words): A detailed prompt for AI image generation.
    Include: age, ethnicity, gender, exact location, specific prop or action,
-   lighting, shot type, emotion, format.
-   Example: "Photorealistic. 40-year-old Nigerian man in a business suit at Heathrow departures.
-   He checks his phone with a calm, confident expression. Warm terminal lighting. Medium shot.
-   Vertical 9:16 portrait."
+   lighting, shot type, emotion, format — all matching TODAY'S LEAD CHARACTER
+   above, every single scene, including scenes 5-7.
+   Format example (match this STRUCTURE, not the ethnicity): "Photorealistic.
+   40-year-old Nigerian man in a business suit at Heathrow departures. He checks
+   his phone with a calm, confident expression. Warm terminal lighting. Medium
+   shot. Vertical 9:16 portrait."
    If a parcel, bag, or van appears: describe it with BootHop's orange brand colour
    (a bright orange delivery bag/box/van livery) for natural, visible — but not
    necessarily legible-text — branding. Don't rely on the model to render exact
@@ -170,7 +175,12 @@ RULES FOR BOTH:
 - No animals, pets, birds, livestock, insects or wildlife of any kind — none held, carried, standing beside a person, in the background, on a table, in a cage, or as decoration, not even incidentally. No food, no Christmas, no Halloween
 - No farm or rural scenery (no plantation, farmland, barn, countryside, rural, crops, harvest, ranch, savanna)
 - No courier brand names (DHL, FedEx, Royal Mail, Hermes)
-- Characters must be consistent across scenes (same person as cast above, same story)
+- MANDATORY — CHECK THIS FOR EVERY SCENE, INCLUDING 5, 6, AND 7: the character
+  in every one of the 8 scenes MUST be TODAY'S LEAD CHARACTER stated above —
+  same age, same ethnicity, same gender, same description. Scenes do not drift
+  to a different archetype partway through. Re-read TODAY'S LEAD CHARACTER
+  before writing scenes 5-7 specifically — these are the scenes most likely to
+  drift.
 - Location must make sense for the story pillar: {pillar}
 
 Return ONLY valid JSON:
