@@ -338,10 +338,16 @@ def _push_ran_signal_to_oracle():
 
 def _sync_music_to_oracle():
     """
-    SCP today's daily music tracks to Oracle after laptop downloads them.
+    SCP today's daily music tracks (+ daily_info.json) to Oracle after laptop downloads them.
     Oracle's cron uses --archive-only, so it never downloads from SoundCloud.
     This push ensures Oracle always has the freshest tracks without needing internet access.
     Only runs from Windows laptop (Oracle never calls this).
+
+    daily_info.json MUST be pushed too, not just the .mp3 files — Oracle's own
+    _already_fresh_today() check reads ITS copy of daily_info.json for today's
+    date. Previously only the mp3s were pushed, so Oracle's freshness check
+    never saw today's date, concluded the tracks were stale, and ran its own
+    fetch anyway — silently overwriting the fresh tracks the laptop just sent.
     """
     import os
     if os.name != "nt":
@@ -353,10 +359,12 @@ def _sync_music_to_oracle():
     tracks    = list(daily_dir.glob("track_*.mp3"))
     if not tracks:
         return
+    info_file = daily_dir / "daily_info.json"
+    files_to_push = sorted(tracks) + ([info_file] if info_file.exists() else [])
     oracle = "ubuntu@130.162.162.189"
     dest   = "/opt/otb_pipeline/music/daily/"
     pushed = 0
-    for t in sorted(tracks):
+    for t in files_to_push:
         try:
             r = subprocess.run(
                 ["scp", "-i", str(key), "-o", "StrictHostKeyChecking=no",
@@ -371,7 +379,7 @@ def _sync_music_to_oracle():
         except Exception as e:
             _log(f"[Music sync] {t.name} SCP failed: {e}")
     if pushed:
-        _log(f"[Music sync] Pushed {pushed} track(s) to Oracle")
+        _log(f"[Music sync] Pushed {pushed} file(s) to Oracle")
 
 
 def _tg_send(text: str) -> None:
@@ -520,13 +528,22 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False, version: str
                 _log("Music already fresh today — skipping refresh")
                 _tg_send("🎵 Music already fresh today — tracks carry over")
             else:
-                _log("Fetching today's music tracks...")
-                info = fetch_trending_music()
+                # Oracle (Linux, primary) never hits SoundCloud directly — yt-dlp there
+                # isn't the Windows laptop's install, so a SoundCloud attempt just fails
+                # and falls through to the archive anyway (wasted time, and on a 30-day
+                # gap that fallback can legitimately run out of room). The laptop is the
+                # sole SoundCloud downloader; Oracle draws from the archive it already
+                # has, same as its own cron job already does with --archive-only.
+                _on_windows = _plat_detect.system() == "Windows"
+                _log("Fetching today's music tracks..." if _on_windows
+                     else "Fetching today's music tracks (archive-only — Oracle)...")
+                info = fetch_trending_music(archive_only=not _on_windows)
                 tracks = info.get("tracks", [])
                 _log(f"Music ready: {[t['title'][:40] for t in tracks]}")
                 lines = [f"  [{t.get('source','?')[:8]}] {t['title'][:45]}" for t in tracks]
                 _tg_send("🎵 Music refresh done:\n" + "\n".join(lines))
-                _sync_music_to_oracle()
+                if _on_windows:
+                    _sync_music_to_oracle()
         except Exception as e:
             _log(f"Music refresh failed (pipeline will use yesterday's tracks): {e}")
             _tg_send(f"⚠️ Music refresh failed — using yesterday's tracks\n{e}")

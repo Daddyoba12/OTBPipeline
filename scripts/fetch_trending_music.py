@@ -484,6 +484,31 @@ def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None
     return None
 
 
+# ── Archive growth ──────────────────────────────────────────────────────────────
+# The archive was a static, manually-seeded pool (69 tracks) that nothing ever
+# wrote back to — every successful SoundCloud fetch was used once and discarded,
+# so the archive could never outgrow its original size. Combined with the 30-day
+# gap, a pool that size runs out of headroom (3 slots x 30 days = up to 90
+# track-slots needed). Archiving each fresh SoundCloud download here means the
+# pool grows ~1-3 tracks/day whenever SoundCloud succeeds, so the least-recently-
+# used fallback in _archive_fallback() has an actual growing pool to draw from
+# instead of permanently recycling the same fixed set.
+
+def _archive_track(src: Path, title: str, archive_dir: Path | None = None) -> None:
+    ar = archive_dir or ARCHIVE
+    safe = re.sub(r"[^A-Za-z0-9]+", "_", title).strip("_")[:80] or "track"
+    dest = ar / f"{safe}.mp3"
+    n = 2
+    while dest.exists():
+        dest = ar / f"{safe}_{n}.mp3"
+        n += 1
+    try:
+        shutil.copy2(str(src), str(dest))
+        print(f"    [Archive] Added fresh track to archive pool: {dest.name}")
+    except Exception as e:
+        print(f"    [Archive] Failed to archive {title[:40]}: {e}")
+
+
 # ── Archive fallback ───────────────────────────────────────────────────────────
 
 def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set,
@@ -493,7 +518,11 @@ def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set,
     if not tracks:
         return None
     day = datetime.now().timetuple().tm_yday
-    # Strict 30-day gap — never loosen this rule regardless of archive size
+    # Strict 30-day gap — preferred, not guaranteed: an archive too small to cover
+    # 30 days x 3 daily slots (e.g. <90 tracks if SoundCloud is unavailable) can
+    # legitimately exhaust every track's 30-day window. Previously that raised
+    # CRITICAL and failed the whole slot (silently skipping a scheduled post) —
+    # now it degrades to the least-recently-used track instead of blocking.
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
         if not _used_recently(t.stem, days=30, log_file=log_file) and t.stem not in used_titles:
@@ -501,8 +530,24 @@ def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set,
                 continue
             shutil.copy2(str(t), str(slot_out))
             return {"title": t.stem, "artist": "archive", "source": "archive"}
-    # All archive tracks used within 30 days — caller raises RuntimeError
-    return None
+
+    # No track clears the 30-day gap — fall back to whichever usable track was
+    # used longest ago (or never), rather than failing the slot outright.
+    log = _load_log(log_file)
+    last_used: dict = {}
+    for e in log:
+        title = e.get("title", "")
+        ts    = e.get("logged_at", "")
+        if title and ts > last_used.get(title, ""):
+            last_used[title] = ts
+    candidates = [t for t in tracks if t.stem not in used_titles and _has_audio(t)]
+    if not candidates:
+        return None
+    candidates.sort(key=lambda t: last_used.get(t.stem, ""))  # "" (never used) sorts first
+    oldest = candidates[0]
+    shutil.copy2(str(oldest), str(slot_out))
+    print(f"    [Archive] WARNING: no track clears the 30-day gap — using least-recently-used: {oldest.stem}")
+    return {"title": oldest.stem, "artist": "archive", "source": "archive"}
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
@@ -547,6 +592,7 @@ def fetch_trending_music(archive_only: bool = False) -> dict:
                     result = {**meta, "logged_at": datetime.now().isoformat()}
                     used_titles.add(meta["title"])
                     _save_log(result)
+                    _archive_track(slot_out, meta["title"], archive_dir=ARCHIVE)
                     size = slot_out.stat().st_size // 1024
                     print(f"  [Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
                     break
@@ -634,6 +680,7 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
                 result = {**meta, "logged_at": datetime.now().isoformat()}
                 used_titles.add(meta["title"])
                 _save_log(result, log_file=GI_MUSIC_LOG)
+                _archive_track(slot_out, meta["title"], archive_dir=GI_ARCHIVE)
                 size = slot_out.stat().st_size // 1024
                 print(f"  [GI Slot 1] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
                 break
@@ -704,6 +751,7 @@ def fetch_d818_music(archive_only: bool = False) -> dict:
                     result = {**meta, "logged_at": datetime.now().isoformat()}
                     used_titles.add(meta["title"])
                     _save_log(result, log_file=D818_MUSIC_LOG)
+                    _archive_track(slot_out, meta["title"], archive_dir=D818_ARCHIVE)
                     size = slot_out.stat().st_size // 1024
                     print(f"  [D818 Slot {slot_num}] OK [soundcloud] {meta['title'][:50]} ({size}KB)")
                     break
