@@ -25,7 +25,10 @@ BASE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE))
 sys.path.insert(0, str(BASE / "scripts"))
 
-from config import MUSIC_DIR, D818_MUSIC_DIR, G_INSPIRED_MUSIC_DIR
+from config import (
+    MUSIC_DIR, D818_MUSIC_DIR, G_INSPIRED_MUSIC_DIR,
+    MUSIC_ARCHIVE, D818_MUSIC_ARCHIVE, G_INSPIRED_MUSIC_ARCHIVE,
+)
 
 ORACLE_KEY = Path.home() / ".ssh" / "oracle_boothop.pem"
 ORACLE     = "ubuntu@130.162.162.189"
@@ -67,6 +70,44 @@ def _fetch_all():
         _log(f"  G-Inspired fetch failed: {e}")
 
 
+def _remote_listing(remote_dir: str) -> set:
+    """One SSH call to list filenames already on Oracle in remote_dir, so the
+    archive sync only pushes files Oracle doesn't have yet instead of
+    re-uploading the whole (growing) pool every single day."""
+    try:
+        r = subprocess.run(
+            ["ssh", "-i", str(ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+             "-o", "ConnectTimeout=8", "-o", "BatchMode=yes", ORACLE,
+             f"ls -1 {remote_dir} 2>/dev/null"],
+            timeout=15, capture_output=True,
+        )
+        if r.returncode == 0:
+            return set(r.stdout.decode(errors="replace").split())
+    except Exception as e:
+        _log(f"  remote listing failed for {remote_dir}: {e}")
+    return set()
+
+
+def _push_files(label: str, files: list, remote_dir: str):
+    pushed = 0
+    for f in sorted(files):
+        try:
+            r = subprocess.run(
+                ["scp", "-i", str(ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+                 "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
+                 str(f), f"{ORACLE}:{remote_dir}"],
+                timeout=30, capture_output=True,
+            )
+            if r.returncode == 0:
+                pushed += 1
+            else:
+                _log(f"[{label}] SCP failed for {f.name} (exit {r.returncode}): "
+                     f"{r.stderr.decode(errors='replace')[:150]}")
+        except Exception as e:
+            _log(f"[{label}] SCP error for {f.name}: {e}")
+    return pushed
+
+
 def _sync_to_oracle():
     """Push all three clients' daily music folders to Oracle. Laptop only."""
     if os.name != "nt":
@@ -86,23 +127,35 @@ def _sync_to_oracle():
         if not files:
             _log(f"[{label}] nothing to sync")
             continue
-        pushed = 0
-        for f in sorted(files):
-            try:
-                r = subprocess.run(
-                    ["scp", "-i", str(ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
-                     "-o", "ConnectTimeout=8", "-o", "BatchMode=yes",
-                     str(f), f"{ORACLE}:{remote_dir}"],
-                    timeout=30, capture_output=True,
-                )
-                if r.returncode == 0:
-                    pushed += 1
-                else:
-                    _log(f"[{label}] SCP failed for {f.name} (exit {r.returncode}): "
-                         f"{r.stderr.decode(errors='replace')[:150]}")
-            except Exception as e:
-                _log(f"[{label}] SCP error for {f.name}: {e}")
+        pushed = _push_files(label, files, remote_dir)
         _log(f"[{label}] synced {pushed}/{len(files)} file(s) -> {remote_dir}")
+
+    # ── Archive pools ─────────────────────────────────────────────────────────
+    # fetch_trending_music.py's _archive_track() grows each client's LOCAL
+    # archive whenever a fresh SoundCloud track is found, but nothing used to
+    # carry that growth to Oracle — the archive just kept accumulating on the
+    # laptop only, while Oracle's copy (what its own archive-only fallback
+    # actually draws from) stayed frozen at whatever it started with. Only
+    # push files Oracle doesn't already have — these pools only grow, so a
+    # full re-upload every day would be pure waste.
+    archive_folders = [
+        ("BootHop archive",    MUSIC_ARCHIVE,            "/opt/otb_pipeline/music/archive/"),
+        ("D818 archive",       D818_MUSIC_ARCHIVE,       "/opt/otb_pipeline/music_d818/archive/"),
+        ("G-Inspired archive", G_INSPIRED_MUSIC_ARCHIVE, "/opt/otb_pipeline/g_inspired_music/archive/"),
+    ]
+    for label, local_dir, remote_dir in archive_folders:
+        local_dir = Path(local_dir)
+        local_files = list(local_dir.glob("*.mp3")) + list(local_dir.glob("*.m4a"))
+        if not local_files:
+            _log(f"[{label}] empty locally — nothing to sync")
+            continue
+        remote_names = _remote_listing(remote_dir)
+        new_files = [f for f in local_files if f.name not in remote_names]
+        if not new_files:
+            _log(f"[{label}] Oracle already has all {len(local_files)} track(s)")
+            continue
+        pushed = _push_files(label, new_files, remote_dir)
+        _log(f"[{label}] synced {pushed}/{len(new_files)} new track(s) -> {remote_dir}")
 
 
 if __name__ == "__main__":
