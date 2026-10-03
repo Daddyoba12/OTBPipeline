@@ -21,10 +21,10 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID, GOOGLE_API_KEY
+
 # ── Config ────────────────────────────────────────────────────────────────────
-TELEGRAM_TOKEN   = "***REMOVED-TELEGRAM-TOKEN***"
-TELEGRAM_CHAT_ID = "8641867751"
-GOOGLE_API_KEY   = "***REMOVED-GOOGLE-KEY***"
 SITE_URL         = "https://www.boothop.com"
 SITEMAP_URL      = f"{SITE_URL}/sitemap.xml"
 DATA_FILE        = Path(__file__).parent.parent / "data" / "seo_log.json"

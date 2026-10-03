@@ -6,11 +6,15 @@ param(
     [string]$OracleIP   = "130.162.162.189",
     [string]$OracleUser = "ubuntu",
     [string]$BasePath   = "/opt/otb_pipeline",
-    [string]$KeyFile    = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
+    [string]$KeyFile    = "$env:USERPROFILE\.ssh\oracle_boothop.pem",
+    [string]$TgToken       = $env:TELEGRAM_TOKEN,
+    [string]$AdminPassword = $env:OTB_ADMIN_PASSWORD
 )
 
-$TgToken       = "***REMOVED-TELEGRAM-TOKEN***"
-$AdminPassword = "otb-admin-2026"
+if (-not $TgToken -or -not $AdminPassword) {
+    Write-Host "Set TELEGRAM_TOKEN and OTB_ADMIN_PASSWORD env vars (or pass -TgToken/-AdminPassword) before running this script." -ForegroundColor Red
+    exit 1
+}
 
 Write-Host ""
 Write-Host "OTB Dashboard -- Deploying to Oracle ($OracleIP)" -ForegroundColor Cyan

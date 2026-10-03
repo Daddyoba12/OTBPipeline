@@ -83,6 +83,9 @@ if True:
         RUNWAY_API_KEY        = _env_pairs.get("RUNWAY_API_KEY",           os.environ.get("RUNWAY_API_KEY",          ""))
         RUNWAY_VIDEO_MODEL    = _env_pairs.get("RUNWAY_VIDEO_MODEL",       os.environ.get("RUNWAY_VIDEO_MODEL",      "gen4_turbo"))
         RUNWAY_VIDEO_DURATION = int(_env_pairs.get("RUNWAY_VIDEO_DURATION", os.environ.get("RUNWAY_VIDEO_DURATION",  "5")))
+        TELEGRAM_TOKEN        = _env_pairs.get("TELEGRAM_TOKEN",           os.environ.get("TELEGRAM_TOKEN",          ""))
+        TELEGRAM_CHAT_ID      = _env_pairs.get("TELEGRAM_CHAT_ID",         os.environ.get("TELEGRAM_CHAT_ID",        ""))
+        GOOGLE_API_KEY        = _env_pairs.get("GOOGLE_API_KEY",           os.environ.get("GOOGLE_API_KEY",          ""))
     else:
         # Fallback: try legacy BHP config path, then environment variables
         _bhp_path = Path("/opt/boothop/config.py")
@@ -115,6 +118,9 @@ if True:
             RUNWAY_API_KEY           = os.environ.get("RUNWAY_API_KEY",           "")
             RUNWAY_VIDEO_MODEL       = os.environ.get("RUNWAY_VIDEO_MODEL",       "gen4_turbo")
             RUNWAY_VIDEO_DURATION    = int(os.environ.get("RUNWAY_VIDEO_DURATION", "5"))
+            TELEGRAM_TOKEN           = os.environ.get("TELEGRAM_TOKEN",           "")
+            TELEGRAM_CHAT_ID         = os.environ.get("TELEGRAM_CHAT_ID",         "")
+            GOOGLE_API_KEY           = os.environ.get("GOOGLE_API_KEY",           "")
         except Exception:
             ANTHROPIC_API_KEY      = os.environ.get("ANTHROPIC_API_KEY",      "")
             PEXELS_KEY             = os.environ.get("PEXELS_KEY",             "")
@@ -140,10 +146,11 @@ if True:
             AZURE_TTS_REGION         = os.environ.get("AZURE_TTS_REGION",         "eastus")
             RUNWAY_API_KEY           = os.environ.get("RUNWAY_API_KEY",           "")
             RUNWAY_VIDEO_MODEL       = os.environ.get("RUNWAY_VIDEO_MODEL",       "gen4_turbo")
+            TELEGRAM_TOKEN           = os.environ.get("TELEGRAM_TOKEN",           "")
+            TELEGRAM_CHAT_ID         = os.environ.get("TELEGRAM_CHAT_ID",         "")
+            GOOGLE_API_KEY           = os.environ.get("GOOGLE_API_KEY",           "")
             RUNWAY_VIDEO_DURATION    = int(os.environ.get("RUNWAY_VIDEO_DURATION", "5"))
 
-TELEGRAM_TOKEN   = "***REMOVED-TELEGRAM-TOKEN***"
-TELEGRAM_CHAT_ID = "8641867751"
 
 # "zernio" = managed OAuth via Zernio API (current)
 # "direct" = TikTok Content Posting API v2 (legacy, kept in post_tiktok.py)

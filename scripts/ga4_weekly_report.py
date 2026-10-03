@@ -39,9 +39,10 @@ from pathlib import Path
 
 import requests
 
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from config import TELEGRAM_TOKEN, TELEGRAM_CHAT_ID
+
 # ── Config ────────────────────────────────────────────────────────────────────
-TELEGRAM_TOKEN   = "***REMOVED-TELEGRAM-TOKEN***"
-TELEGRAM_CHAT_ID = "8641867751"
 GA4_PROPERTY_ID  = "properties/YOUR_GA4_PROPERTY_ID"  # e.g. properties/123456789
 CREDS_FILE       = Path(__file__).parent / "ga4_credentials.json"
 DATA_FILE        = Path(__file__).parent.parent / "data" / "ga4_log.json"
