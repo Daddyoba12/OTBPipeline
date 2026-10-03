@@ -495,7 +495,16 @@ def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None
 # instead of permanently recycling the same fixed set.
 
 def _archive_track(src: Path, title: str, archive_dir: Path | None = None) -> None:
+    """Add a fresh SoundCloud download to the archive pool — but only if it
+    isn't already there. Uses the same fuzzy title matching as the cooldown
+    logic (_titles_match) so "Holy Ghost" vs "Holyghost (Remix)" are
+    recognised as the same song, not two separate archive entries."""
     ar = archive_dir or ARCHIVE
+    existing = list(ar.glob("*.mp3")) + list(ar.glob("*.m4a"))
+    for t in existing:
+        if _titles_match(title, t.stem.replace("_", " ")):
+            print(f"    [Archive] Skip — already in archive as {t.name}: {title[:40]}")
+            return
     safe = re.sub(r"[^A-Za-z0-9]+", "_", title).strip("_")[:80] or "track"
     dest = ar / f"{safe}.mp3"
     n = 2
