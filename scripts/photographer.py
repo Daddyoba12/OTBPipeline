@@ -155,7 +155,7 @@ YOUR JOB — for each of the 8 scenes produce TWO things:
 
 RULES FOR BOTH:
 - Medium shot or wide shot ONLY — no close-ups
-- No animals (no dogs, cats, cattle, birds, livestock, or any creature), no food, no Christmas, no Halloween
+- No animals, pets, birds, livestock, insects or wildlife of any kind — none held, carried, standing beside a person, in the background, on a table, in a cage, or as decoration, not even incidentally. No food, no Christmas, no Halloween
 - No farm or rural scenery (no plantation, farmland, barn, countryside, rural, crops, harvest, ranch, savanna)
 - No courier brand names (DHL, FedEx, Royal Mail, Hermes)
 - Characters must be consistent across scenes (same person as cast above, same story)

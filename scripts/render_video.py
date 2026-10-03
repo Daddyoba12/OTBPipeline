@@ -1441,15 +1441,26 @@ def _hex_to_rgb(h: str) -> tuple:
 
 
 def _load_pil_font(kind: str, size: int):
+    """Fallback chain used to be hardcoded to C:\\Windows\\Fonts\\... — worked by
+    accident on Windows (masked a broken custom font) but had nowhere to land
+    on Oracle's Linux box, where a corrupt/unparseable custom font could still
+    produce a "valid" FreeTypeFont object at a few px tall instead of raising.
+    FONT_TITLE_FB/FONT_BODY_FB (config.py) are already OS-aware — use those."""
     from PIL import ImageFont
-    custom = FONT_TITLE if kind == "title" else FONT_BODY
-    custom = custom.replace("C\\:/", "C:/").replace("\\", "/")
-    for path in [custom,
-                 r"C:\Windows\Fonts\impact.ttf" if kind == "title" else r"C:\Windows\Fonts\arialbd.ttf",
-                 r"C:\Windows\Fonts\arial.ttf"]:
+    custom   = FONT_TITLE if kind == "title" else FONT_BODY
+    custom   = custom.replace("C\\:/", "C:/").replace("\\", "/")
+    fallback = FONT_TITLE_FB if kind == "title" else FONT_BODY_FB
+    fallback = fallback.replace("C\\:/", "C:/").replace("\\", "/")
+    for path in [custom, fallback]:
         try:
             if Path(path).exists():
-                return ImageFont.truetype(path, size)
+                font = ImageFont.truetype(path, size)
+                # Sanity check: a corrupt-but-parseable font file can still
+                # return a FreeTypeFont that renders near-invisibly small —
+                # reject it and fall through instead of shipping unreadable text.
+                bbox = font.getbbox("Mg")
+                if bbox[3] - bbox[1] >= size * 0.4:
+                    return font
         except Exception:
             pass
     return ImageFont.load_default()
@@ -1465,6 +1476,32 @@ def _pil_draw_centered(draw, text: str, y: int, font, color: tuple, shadow: bool
     if shadow:
         draw.text((x + 3, y + 3), text, font=font, fill=(0, 0, 0))
     draw.text((x, y), text, font=font, fill=color)
+
+
+# ── Social-media safe zone (TikTok/Reels/Shorts end cards) ─────────────────────
+# Platform chrome that end-card text must never sit under: profile/sound icon
+# near the top, caption + nav bar across the bottom, like/comment/share rail
+# down the right edge. Mirrored on the left so centred text stays clear of both.
+SAFE_TOP_FRAC    = 0.15   # clear space above content
+SAFE_BOTTOM_FRAC = 0.25   # clear space below content (captions/UI)
+SAFE_SIDE_FRAC   = 0.18   # clear space each side (right = control rail)
+SAFE_MAX_W       = int(W * (1 - 2 * SAFE_SIDE_FRAC))
+
+
+def _pil_draw_centered_safe(draw, text: str, y: int, font_key: str, size: int,
+                             color: tuple, shadow: bool = True, min_size: int = 24) -> int:
+    """Centred text that shrinks to fit the horizontal safe zone (SAFE_MAX_W)
+    instead of running past it toward the TikTok/Reels control rail. Returns
+    the font size actually used."""
+    font = _load_pil_font(font_key, size)
+    while size > min_size:
+        bbox = draw.textbbox((0, 0), text, font=font)
+        if bbox[2] - bbox[0] <= SAFE_MAX_W:
+            break
+        size -= 4
+        font = _load_pil_font(font_key, size)
+    _pil_draw_centered(draw, text, y, font, color, shadow=shadow)
+    return size
 
 
 def _eval_y(expr: str) -> int:
@@ -1552,14 +1589,12 @@ def _text_card_clip(hook_text: str, dest: Path, duration: int = CLIP_DUR) -> boo
 
 def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: Path) -> bool:
     """
-    Single 10-second end card that merges the lesson takeaway + CTA contact block.
-    Layout  (top → bottom):
-      - Lesson text  (large yellow, centred, upper half)
-      - Divider line
-      - CTA phrase   (rotating, body font, white)
-      - Brand name   (title font, yellow)
-      - Contact info (phone / email / website)
-    Background colour picked randomly from client’s palette each render.
+    Single 10-second end card — tagline + brand + contact, max 3-4 pieces of
+    information, laid out inside the TikTok/Reels/Shorts safe zone (15% clear
+    top, 25% clear bottom for captions/UI, 18% clear each side for the control
+    rail) so nothing sits under platform chrome or runs off-screen.
+    Layout (top → bottom): tagline, divider, brand name, phone (non-BootHop),
+    website. Background colour picked randomly from client's palette each render.
     """
     duration = LESSON_DUR + BRAND_DUR   # 10 seconds
 
@@ -1572,19 +1607,20 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
     tc_hex  = pal.get("title", "FFE600")   # title / accent colour
     bc_hex  = pal.get("body",  "FFFFFF")   # body text colour
 
-    # ── Pick a CTA phrase ─────────────────────────────────────────────────────
-    # D818 only: weight cta_phrases[0] heavily (the recurring "African plug in
-    # Nottingham" brand hook) instead of picking uniformly at random. Every other
-    # client keeps the original uniform random.choice behaviour, unchanged.
-    phrases = client_profile.get("cta_phrases", ["Visit us today"])
-    if client == "d818" and len(phrases) > 1:
-        cta = phrases[0] if random.random() < 0.7 else random.choice(phrases[1:])
-    else:
-        cta = random.choice(phrases)
+    # ── Tagline — exactly one short line/phrase, never a full marketing
+    # sentence. Prefer a short CTA phrase (<=45 chars); otherwise fall back to
+    # the video's own short lesson line. A long multi-clause CTA (e.g. a full
+    # "visit our website, call us, or email..." sentence) is never shown here
+    # — that copy belongs earlier in the video, not on the end card. ─────────
+    phrases       = client_profile.get("cta_phrases") or []
+    short_phrases = [p for p in phrases if len(p) <= 45]
+    lesson_clean  = (lesson
+                      .replace("’", "").replace("‘", "").replace("’", "")
+                      .replace("—", "-").replace("–", "-"))
+    tagline = random.choice(short_phrases) if short_phrases else lesson_clean
 
     # ── Contact info (non-BootHop only) ─────────────────────────────────────
     phone   = client_profile.get("phone", "")
-    email   = client_profile.get("contact_email", "")
     website = (client_profile.get("website", "")
                .replace("https://www.", "").replace("https://", ""))
     brand   = client_profile.get("brand_name", "")
@@ -1599,42 +1635,41 @@ def _make_merged_end_card(lesson: str, client: str, client_profile: dict, dest: 
         tc = _hex_to_rgb(tc_hex)
         bc = _hex_to_rgb(bc_hex)
 
-        # ── Lesson text (upper ~40% of frame) ───────────────────────────────
-        lesson_clean = (lesson
-                        .replace("’", "").replace("‘", "").replace("’", "")
-                        .replace("—", "-").replace("–", "-"))
-        lesson_lines = _split_lines(lesson_clean, 26, 3)
-        ft_lesson    = _load_pil_font("title", 66)
-        n            = len(lesson_lines)
-        line_gap     = 90
-        y_lesson     = int(H * 0.22)
-        for i, ln in enumerate(lesson_lines):
-            _pil_draw_centered(draw, ln, y_lesson + i * line_gap, ft_lesson, tc, shadow=True)
+        # 3 lines x 27 chars (~75 char budget) — covers a realistic max-length
+        # (10-word) lesson/CTA line without silently truncating mid-sentence.
+        tagline_lines = _split_lines(tagline, 27, 3)
 
-        # ── Divider ──────────────────────────────────────────────────────────
-        div_y = int(H * 0.48)
-        draw.rectangle([(80, div_y), (W - 80, div_y + 4)], fill=_hex_to_rgb(tc_hex))
+        # ── Row stack — max 4 pieces of information total ───────────────────
+        logical_rows = [("tagline", tagline_lines), ("divider", None)]
+        if brand:
+            logical_rows.append(("brand", brand))
+        if client != "boothop" and phone:
+            logical_rows.append(("contact", phone))
+        if website:
+            logical_rows.append(("contact", website))
 
-        # ── CTA phrase ───────────────────────────────────────────────────────
-        ft_cta = _load_pil_font("body", 42)
-        _pil_draw_centered(draw, cta, int(H * 0.54), ft_cta, bc, shadow=False)
+        # ── Evenly distribute inside the safe zone, regardless of how many
+        # rows this client needs — never under top/bottom/side platform chrome.
+        top_y    = H * SAFE_TOP_FRAC
+        bottom_y = H * (1 - SAFE_BOTTOM_FRAC)
+        step     = (bottom_y - top_y) / len(logical_rows)
 
-        # ── Brand + contact (BootHop: just website; others: full contact) ───
-        ft_brand   = _load_pil_font("title", 72)
-        ft_contact = _load_pil_font("body",  38)
-        ft_small   = _load_pil_font("body",  32)
-
-        if client == "boothop" or not client:
-            _pil_draw_centered(draw, brand,   int(H * 0.64), ft_brand,   tc, shadow=True)
-            _pil_draw_centered(draw, website, int(H * 0.76), ft_contact, bc, shadow=False)
-        else:
-            _pil_draw_centered(draw, brand,   int(H * 0.62), ft_brand,   tc, shadow=True)
-            if phone:
-                _pil_draw_centered(draw, phone, int(H * 0.72), ft_contact, bc, shadow=False)
-            if email:
-                _pil_draw_centered(draw, email, int(H * 0.80), ft_small,   bc, shadow=False)
-            if website:
-                _pil_draw_centered(draw, website, int(H * 0.87), ft_small, tc, shadow=False)
+        for i, (kind, val) in enumerate(logical_rows):
+            cy = top_y + step * (i + 0.5)
+            if kind == "tagline":
+                n        = len(val)
+                size     = 60 if n <= 2 else 50   # smaller when a 3rd line is needed
+                line_gap = 76 if n <= 2 else 64
+                start    = cy - (n - 1) * line_gap / 2 - size // 2
+                for j, ln in enumerate(val):
+                    _pil_draw_centered_safe(draw, ln, int(start + j * line_gap), "title", size, tc, shadow=True)
+            elif kind == "divider":
+                dy = int(cy)
+                draw.rectangle([(int(W * SAFE_SIDE_FRAC), dy), (int(W * (1 - SAFE_SIDE_FRAC)), dy + 4)], fill=tc)
+            elif kind == "brand":
+                _pil_draw_centered_safe(draw, val, int(cy - 36), "title", 70, tc, shadow=True)
+            else:
+                _pil_draw_centered_safe(draw, val, int(cy - 21), "body", 42, bc, shadow=False)
 
         img.save(str(png))
         ok = _pil_png_to_video(png, dest, duration)

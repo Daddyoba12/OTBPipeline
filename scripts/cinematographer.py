@@ -126,7 +126,7 @@ RULES:
 - No close-ups, no extreme face shots
 - Keep characters consistent with the story (same person, same location)
 - Each clip must visually advance the story
-- ABSOLUTE BAN: No animals, pets, wildlife, or creatures of any kind in any prompt
+- ABSOLUTE BAN: No animals, birds, pets, livestock, insects, wildlife, or creatures of any kind in any prompt — none held, carried, standing beside a person, in the background, on a table, in a cage, as decoration, or on clothing graphics, not even incidentally
 - ABSOLUTE BAN: No farm or rural scenery — no plantation, farmland, barn, pasture, countryside, rural, orchard, crops, harvest, ranch, savanna. All settings must be urban.
 
 Return ONLY valid JSON:

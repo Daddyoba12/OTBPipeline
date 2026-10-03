@@ -13,7 +13,7 @@ Output:
   music/daily/track_2.mp3 -> Slot 2  14:00 afternoon
   music/daily/track_3.mp3 -> Slot 3  21:00 evening
 
-14-day no-repeat: tracks logged to data/music_log.json (90-day rolling).
+30-day no-repeat (archive fallback): tracks logged to data/music_log.json (90-day rolling).
 """
 
 import difflib, json, subprocess, shutil, sys, os, platform as _platform, re
@@ -493,15 +493,15 @@ def _archive_fallback(slot_out: Path, slot_num: int, used_titles: set,
     if not tracks:
         return None
     day = datetime.now().timetuple().tm_yday
-    # Strict 14-day gap — never loosen this rule regardless of archive size
+    # Strict 30-day gap — never loosen this rule regardless of archive size
     for offset in range(len(tracks)):
         t = tracks[(day * 4 + slot_num + offset) % len(tracks)]
-        if not _used_recently(t.stem, log_file=log_file) and t.stem not in used_titles:
+        if not _used_recently(t.stem, days=30, log_file=log_file) and t.stem not in used_titles:
             if not _has_audio(t):
                 continue
             shutil.copy2(str(t), str(slot_out))
             return {"title": t.stem, "artist": "archive", "source": "archive"}
-    # All archive tracks used within 14 days — caller raises RuntimeError
+    # All archive tracks used within 30 days — caller raises RuntimeError
     return None
 
 
@@ -514,8 +514,8 @@ def fetch_trending_music(archive_only: bool = False) -> dict:
     archive_only=True  — skip SoundCloud entirely, pull from local archive only.
                          Used by Oracle cron so the laptop remains the sole SoundCloud
                          downloader. Oracle never tries SoundCloud; it only draws from
-                         the archive library with the full 14-day gap enforced.
-    archive_only=False — SoundCloud primary, archive 14-day fallback (laptop default).
+                         the archive library with the full 30-day gap enforced.
+    archive_only=False — SoundCloud primary, archive 30-day fallback (laptop default).
     """
     mode = "archive-only" if archive_only else "SoundCloud+archive"
     print(f"\n[Music] Selecting today's tracks ({mode})...")
@@ -553,16 +553,16 @@ def fetch_trending_music(archive_only: bool = False) -> dict:
                 else:
                     slot_out.unlink(missing_ok=True)
 
-        # ── Archive fallback (strict 14-day gap) ────────────────────────────────
+        # ── Archive fallback (strict 30-day gap) ────────────────────────────────
         if not result:
             src = "archive-only" if archive_only else "SoundCloud failed"
-            print(f"  [Slot {slot_num}] {src} — trying archive (14-day gap enforced)")
+            print(f"  [Slot {slot_num}] {src} — trying archive (30-day gap enforced)")
             archive_result = _archive_fallback(slot_out, slot_num, used_titles,
                                               archive_dir=ARCHIVE, log_file=MUSIC_LOG)
             if archive_result is None:
                 msg = (
                     f"[Music] CRITICAL: Slot {slot_num} — no non-repeat track available "
-                    f"within 14-day gap. Add more tracks to music/archive/."
+                    f"within 30-day gap. Add more tracks to music/archive/."
                 )
                 print(msg)
                 raise RuntimeError(msg)
@@ -604,7 +604,7 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
     """
     Download 1 daily track for G-Inspired Automall slot 1.
     Uses US R&B/hip-hop/pop queries. Writes to g_inspired_music/daily/track_1.mp3.
-    Separate 14-day log (gi_music_log.json) — never mixes with BootHop music log.
+    Separate 30-day log (gi_music_log.json) — never mixes with BootHop music log.
     """
     mode = "archive-only" if archive_only else "SoundCloud+archive"
     print(f"\n[GI Music] Selecting G-Inspired track ({mode})...")
@@ -642,7 +642,7 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
 
     if not result:
         src = "archive-only" if archive_only else "SoundCloud failed"
-        print(f"  [GI Slot 1] {src} — trying G-Inspired archive (14-day gap)")
+        print(f"  [GI Slot 1] {src} — trying G-Inspired archive (30-day gap)")
         archive_result = _archive_fallback(slot_out, slot_num, used_titles,
                                            archive_dir=GI_ARCHIVE, log_file=GI_MUSIC_LOG)
         if archive_result is None:
@@ -666,7 +666,7 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
 def fetch_d818_music(archive_only: bool = False) -> dict:
     """
     Download 2 daily tracks for D818 Catering (slot 1 lunch, slot 2 evening).
-    Own artist pool + own 14-day log (d818_music_log.json) — separate from
+    Own artist pool + own 30-day log (d818_music_log.json) — separate from
     BootHop's, plus a cross-brand same-day check so the two never post the
     identical track even when an artist overlaps both pools.
     """
@@ -712,7 +712,7 @@ def fetch_d818_music(archive_only: bool = False) -> dict:
 
         if not result:
             src = "archive-only" if archive_only else "SoundCloud failed"
-            print(f"  [D818 Slot {slot_num}] {src} — trying D818 archive (14-day gap)")
+            print(f"  [D818 Slot {slot_num}] {src} — trying D818 archive (30-day gap)")
             archive_result = _archive_fallback(slot_out, slot_num, used_titles,
                                               archive_dir=D818_ARCHIVE, log_file=D818_MUSIC_LOG)
             if archive_result is None:

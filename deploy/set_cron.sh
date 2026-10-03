@@ -22,7 +22,7 @@
 #    scheduling; if a client's times need to change, edit its
 #    client_profile.json, not this file.
 cat > /tmp/newcron << 'CRON'
-# Music refresh at 06:00 UTC — Oracle uses archive only (14-day gap enforced).
+# Music refresh at 06:00 UTC — Oracle uses archive only (30-day gap enforced).
 # Laptop slot 1 is the sole SoundCloud downloader; Oracle just draws from local archive.
 0 6 * * * cd /opt/otb_pipeline && python3 scripts/fetch_trending_music.py --skip-if-fresh --archive-only >> /home/ubuntu/music_refresh.log 2>&1
 # Engagement bot — reply to comments every 2h

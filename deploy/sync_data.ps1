@@ -2,7 +2,7 @@
 # Syncs runtime data files between Oracle and laptop WITHOUT touching code.
 # Code sync is handled by git (watch_sync.ps1). Data sync is separate because:
 #   - post_log.json, query_bank.json — Oracle writes these, laptop needs them
-#   - query_log.json, music_log.json — 14-day dedup logs, must stay in sync
+#   - query_log.json — 14-day dedup log, music_log.json — 30-day dedup log, must stay in sync
 #
 # Usage:
 #   Pull Oracle data to laptop:  .\deploy\sync_data.ps1

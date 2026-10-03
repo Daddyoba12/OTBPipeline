@@ -335,7 +335,7 @@ VISUAL QUERIES — 8 Pexels/Pixabay automotive search terms.
 
 CRITICAL RULES — Pexels has NO year-specific clips. Short queries (2-5 words) find the most results.
 DO NOT add years (e.g. "2015"), DO NOT add "wide shot" or "medium shot" — Pexels ignores those.
-ALL queries MUST be automotive or dealership. Never: farm, plantation, countryside, rural, animals, crowd, nature, sport arena, food.
+ALL queries MUST be automotive or dealership. Never: farm, plantation, countryside, rural, animals, pets, birds, livestock, insects, wildlife, crowd, nature, sport arena, food. No animal held, carried, standing beside a person, in the background, or as decoration — not even incidentally.
 
 I will AUTOMATICALLY override clips 0 and 1 with car-specific queries. Write clips 2-7 only:
 

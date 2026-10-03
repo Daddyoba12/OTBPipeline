@@ -177,6 +177,43 @@ _NEUTRAL_QUERIES = [
     "African party food spread", "West African wedding buffet table",
 ]
 
+# ── Animal exclusion — hard rule (global, see _build_prompt below) ────────────
+# D818 is food/catering content, so dish names like "chicken", "beef", "goat"
+# and "fish" are expected and fine — but a bare query made of just the animal
+# word (no cooking/dish qualifier) can return stock footage of the live animal
+# instead of the finished dish (e.g. a man holding a chicken). BootHop's own
+# generator has a BANNED_QUERY_TERMS guard for this; D818 deliberately doesn't
+# reuse it (see module docstring) so it needs its own, dish-aware version.
+_ANIMAL_TERMS = {
+    "animal", "animals", "dog", "dogs", "cat", "cats", "horse", "horses",
+    "pet", "pets", "puppy", "puppies", "kitten", "kittens", "bird", "birds",
+    "lion", "tiger", "elephant", "monkey", "rabbit", "wildlife", "livestock",
+    "cattle", "cow", "cows", "pig", "pigs", "sheep", "goat", "goats",
+    "chicken", "chickens", "hen", "hens", "rooster", "duck", "ducks",
+    "turkey", "fish", "insect", "insects", "farm animal", "farm animals",
+}
+# Cooking/finished-dish qualifiers that make an animal/meat word safe — the
+# query is clearly asking for the prepared dish, not the live creature.
+_DISH_QUALIFIERS = {
+    "grilled", "grilling", "cooked", "roast", "roasted", "fried", "frying",
+    "suya", "jollof", "skewer", "skewers", "soup", "stew", "pot", "dish",
+    "plate", "platter", "closeup", "seasoned", "spice", "being", "meat",
+    "peppered", "catering", "party", "served", "serving",
+}
+
+
+def _sanitize_visual_query(query: str) -> str:
+    """Hard rule: never return a query that could surface a live animal/bird.
+    A dish word like "chicken" is fine alongside a cooking qualifier
+    ("grilled chicken skewers"); a bare animal word with no such qualifier
+    gets replaced with a safe neutral dish query instead of risking stock
+    footage of the live animal."""
+    words = set(re.findall(r"[a-z]+", query.lower()))
+    hit = words & _ANIMAL_TERMS
+    if hit and not (words & _DISH_QUALIFIERS):
+        return random.choice(_NEUTRAL_QUERIES)
+    return query
+
 # Process/ingredient close-ups — variety alongside finished-dish photography.
 # Mixed in occasionally for every pillar, more heavily for the behind-the-scenes
 # pillar. Same sourcing path as any other beat (Pexels/Pixabay -> DALL-E/user-clips
@@ -260,6 +297,18 @@ close West African relative: {visual_kw}.
 Do NOT invent or reference generic/European/other-cuisine dishes (no pasta, no roast
 dinners, no generic "fine dining" plates) — always name the actual West African dish.
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ANIMAL EXCLUSION — HARD RULE (non-negotiable)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Never generate, describe, or write a visual query for an animal, bird, pet, livestock
+creature, insect, or wildlife anywhere in the video. No animal may be held, carried,
+standing beside a person, visible in the background, on a table, in a cage, as
+decoration, or appearing incidentally. Show only prepared/cooked food — never a live
+animal or an animal being handled.
+If the pillar or hook involves chicken, beef, goat, fish, or any other meat, describe
+and query ONLY the finished, cooked dish (e.g. "grilled suya skewers", "peppered
+chicken plate") — never the live animal.
+
 RECURRING BRAND HOOK (use often, in spirit or verbatim in the resolution/lesson beats
 or captions — this is D818's recognizable recurring line):
 "{brand_line}"
@@ -294,6 +343,10 @@ Short queries (2-5 words), no years, no camera-shot jargon (no "wide shot" etc).
 Name the actual dish. Mix finished-dish shots with a couple of process/ingredient
 close-ups for variety (e.g. "suya being seasoned", "jollof rice being stirred pot",
 "plantain being fried") — not every query needs to be a plated final dish.
+Every query naming a meat (chicken, beef, goat, fish) MUST include a cooking/dish
+word too (grilled, suya, soup, skewers, plate, platter, closeup, seasoned, pot) —
+never a bare animal word on its own, which can return a live-animal photo instead
+of the dish.
 Examples: "jollof rice party platter", "suya skewers grilling",
 "puff puff dessert plate", "egusi soup closeup", "West African wedding buffet table".
 
@@ -359,7 +412,10 @@ def generate_content(slot: int, pillar: str, bucket: str = "") -> dict:
     queries = (claude_queries + bank_queries)[:8]
     while len(queries) < 8:
         queries.append(random.choice(_NEUTRAL_QUERIES))
-    data["visual_queries"] = queries
+    # Animal-exclusion hard rule — runtime safety net in case Claude's own
+    # queries slip past the prompt instruction (D818 has no qa_director/reviewer
+    # pass like BootHop's generator, so this guard is this brand's only backstop).
+    data["visual_queries"] = [_sanitize_visual_query(q) for q in queries]
 
     hashtags_tiktok, hashtags_instagram = _build_hashtags(profile)
     data["hashtags_tiktok"]    = data.get("hashtags_tiktok", hashtags_tiktok) or hashtags_tiktok
