@@ -483,6 +483,19 @@ def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False, vers
     OUTPUT.mkdir(exist_ok=True)
     TEMP.mkdir(exist_ok=True)
 
+    if not force and _already_ran_today(slot):
+        _log(f"Slot {slot} already ran today — skipping (use --force to override)")
+        return
+
+    # Claim the slot immediately — local file + Supabase so both machines see
+    # it at once — before V2 routing, not just before V1. V2's own approval
+    # wait releases this same lock right after it renders (see pipeline_kling
+    # .run_v2), so this claim has to be in place first or a retry during that
+    # wait could start a second, duplicate render instead of seeing "already
+    # ran today" and skipping quietly.
+    _mark_ran_today(slot)
+    _claim_slot_supabase(slot)
+
     # ── Version routing: V1 (Pexels 25s) or V2 (Kling 15s) ──────────────────
     chosen_version = version or _get_next_version(slot)
     _log(f"Version: {chosen_version.upper()}")
@@ -494,10 +507,7 @@ def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False, vers
             ok = run_v2(slot=slot, force=force)
             if ok:
                 _log(f"V2 slot {slot} completed successfully")
-                _mark_ran_today(slot)
-                _claim_slot_supabase(slot)
                 _push_ran_signal_to_oracle()
-                _release_lock()
                 return
             else:
                 _log(f"V2 slot {slot} failed — falling back to V1")
@@ -522,13 +532,7 @@ def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False, vers
         except Exception:
             pass  # Oracle offline — proceed with local data
 
-    if not force and _already_ran_today(slot):
-        _log(f"Slot {slot} already ran today — skipping (use --force to override)")
-        return
-
-    # Claim the slot immediately — local file + Supabase so both machines see it at once
-    _mark_ran_today(slot)
-    _claim_slot_supabase(slot)
+    # (already-ran check + slot claim now happen before V2 routing, above)
 
     # ── 0. Refresh daily music tracks (slot 1 only, once per day) ────────────
     if slot == 1:
@@ -747,6 +751,15 @@ def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False, vers
         _log(f"Variants: {list(platform_videos.keys())}")
 
         video_path = str(video_file)
+
+        # Release the pipeline lock now — the slot was already claimed (local +
+        # Supabase) before rendering started, so no other trigger can duplicate
+        # this work. From here it's just the Telegram approval wait and
+        # posting, neither of which needs exclusive access. Holding the lock
+        # through that whole wait is what caused every dispatcher retry in
+        # between to report "pipeline lock held" instead of the quiet
+        # "already ran today" skip it should've gotten.
+        _release_lock()
 
         # ── no-post mode: skip approval + posting ─────────────────────────────
         if no_post:

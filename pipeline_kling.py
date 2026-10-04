@@ -283,6 +283,18 @@ def run_v2(slot: int, force: bool = False) -> bool:
         encoding="utf-8"
     )
 
+    # Release the shared pipeline lock now — pipeline.py already claimed this
+    # slot (local + Supabase) before routing here, so no other trigger can
+    # duplicate the render. From here it's just the Telegram approval wait and
+    # posting, neither of which needs exclusive access. Holding the lock
+    # through the wait is what caused dispatcher retries to report "pipeline
+    # lock held" instead of a quiet "already ran today" skip.
+    try:
+        from pipeline import _release_lock
+        _release_lock()
+    except Exception as _rle:
+        _log(f"Lock release skipped: {_rle}")
+
     # ── Telegram approval ──────────────────────────────────────────────────────
     tiktok_path = Path(platform_paths.get("tiktok", ""))
     if tiktok_path.exists():

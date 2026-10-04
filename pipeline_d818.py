@@ -311,9 +311,17 @@ def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False):
         platform_videos = render_for_platforms(content, slot, str(video_file), tiktok_ig_only=True)
         video_path = str(video_file)
 
+        # Release the pipeline lock now — the slot was already claimed (local +
+        # Supabase) before rendering started, so no other trigger can duplicate
+        # this work. From here it's just the Telegram approval wait (up to
+        # APPROVAL_MINUTES) and posting, neither of which needs exclusive
+        # access. Holding the lock through that whole wait is what caused every
+        # dispatcher retry in between to report "pipeline lock held" instead of
+        # the quiet "already ran today" skip it should've gotten.
+        _release_lock()
+
         if no_post:
             _log(f"--no-post: video ready → {video_path}")
-            _release_lock()
             return
 
         # ── 3. Telegram approval ─────────────────────────────────────────────

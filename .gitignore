@@ -35,6 +35,7 @@ scripts/scripts/
 # Credentials & secrets
 .env
 keys.env
+credentials/
 social_credentials.json
 youtube_token*.json
 youtube_credentials*.json
