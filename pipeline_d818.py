@@ -223,6 +223,18 @@ def run_slot(slot: int, force: bool = False, no_post: bool = False):
         _tg_send(f"🍽️ D818 Slot {slot} skipped — pipeline lock held.")
         return
 
+    # Lock is held from here on — guarantee release no matter how the body
+    # below exits (normal return, caught exception with its own return, or an
+    # exception that escapes uncaught). Without this, a hang/crash/killed
+    # process (e.g. laptop sleep mid-run) leaves the lock file on disk for the
+    # full 90-minute staleness window, silently skipping every retry in between.
+    try:
+        _run_slot_locked(slot, force=force, no_post=no_post)
+    finally:
+        _release_lock()
+
+
+def _run_slot_locked(slot: int, force: bool = False, no_post: bool = False):
     DATA.mkdir(exist_ok=True)
     OUTPUT.mkdir(exist_ok=True)
     TEMP.mkdir(exist_ok=True)
