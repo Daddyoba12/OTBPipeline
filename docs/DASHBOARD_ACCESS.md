@@ -1,6 +1,6 @@
 # OTB Pipeline — Getting Online Access
 
-*Added: 2026-10-05*
+*Added: 2026-10-05, updated 2026-10-06*
 
 There are two completely different kinds of "access" here. Don't mix them up — one is safe to hand to anyone who needs to check on things, the other is full control of the server and every API key on it.
 
@@ -49,6 +49,22 @@ This is SSH into the actual Oracle VM, or OCI Console access to the cloud accoun
 - **OCI Console**: add them as a user in the OCI Console (Identity & Security → Domains → Users) with whatever permissions they actually need, rather than sharing this account's API key.
 
 If you only need someone to *see* pipeline status, approve/reject posts, or check on a client — that's the dashboard in §1, not this.
+
+---
+
+## Troubleshooting
+
+### Every page 500s with a cryptic Jinja2 error ("unhashable type: 'dict'")
+
+Hit this during the initial 2026-10-05 deploy. Root cause: `deploy/deploy_dashboard_oracle.ps1` installs `fastapi uvicorn python-multipart jinja2` with **no version pins** — it just grabs whatever's current on PyPI. At some point, Starlette (FastAPI's underlying framework) changed `TemplateResponse()`'s signature to require `request` as the first positional argument (`TemplateResponse(request, name, context)`) instead of the old form (`TemplateResponse(name, context)` with `request` tucked inside `context`). Under the new signature, calling it the old way silently shuffles arguments: the template name string lands in the `request` parameter, and the context *dict* lands in the `name` parameter — which then gets used as a Jinja2 template cache key. Dicts aren't hashable, hence the error, three call-frames deep inside Jinja2 internals with no obvious connection to the real cause.
+
+Fixed 2026-10-05/06: all 29 `templates.TemplateResponse(...)` call sites in `dashboard/main.py` now pass `request` as the explicit first argument. If this exact error reappears after a future `deploy_dashboard_oracle.ps1` run pulls a dependency update, it's very unlikely to be this same bug again (the code's now written against the current signature) — check `sudo journalctl -u otb-dashboard --no-pager -n 50` on Oracle for the actual new traceback rather than assuming it's a repeat.
+
+**The underlying risk is still there**: because the deploy script pins nothing, *any* future redeploy can pull a newer FastAPI/Starlette/Jinja2 with its own breaking changes. If you want to stop this class of bug from recurring entirely, pin exact versions in the script's `pip3 install` line once a known-good combination is confirmed working.
+
+### Dashboard runs but isn't reachable (connection times out, not even refused)
+
+That's the Oracle Cloud Security List blocking the port — see §1's "Is it actually reachable right now?" section. A timeout (not a "connection refused") is the tell: the request never even reached the VM.
 
 ---
 
