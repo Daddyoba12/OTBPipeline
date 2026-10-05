@@ -408,10 +408,22 @@ Get-ScheduledTask -TaskName "OTB_Dispatch_*" | Get-ScheduledTaskInfo | Select Ta
 ```
 
 ### Force-run a slot now
+This section previously only showed BootHop's command — here's all three clients:
 ```powershell
 cd C:\users\babso\desktop\otb_pipeline
-python pipeline.py --slot 1 --force
+python pipeline.py --slot 1 --force              # BootHop (slots 1-4)
+python pipeline_d818.py --slot 1 --force         # D818 (slots 1-2 only — lunch/evening)
+python g_inspired\run.py --slot 1 --force        # G-Inspired (slots 1 or 4 only — check its client_profile.json)
 ```
+`pipeline.py` and `pipeline_d818.py` both also take `--no-post`, to render + preview without sending for approval or posting (useful for testing content/render changes) — `g_inspired\run.py` doesn't have this flag.
+
+### Call the dispatcher manually instead of waiting for Task Scheduler/cron
+```powershell
+python deploy\dispatch_scheduler.py --client d818          # run d818's check-and-fire logic once, right now
+python deploy\dispatch_scheduler.py --client d818 --dry-run # same, but only prints what WOULD fire — no execution
+python deploy\dispatch_scheduler.py --status                # show every client's schedule + next fire time, all timezones converted to UTC
+```
+Omitting `--client` processes all three clients sequentially in one process — this is the old pre-2026-09-28 behavior, kept as a manual fallback only (see the incident note above for why it's not used in production).
 
 ### Force V2 for next slot
 ```
@@ -421,6 +433,7 @@ or:
 ```powershell
 python pipeline.py --slot 1 --version v2
 ```
+(`pipeline_d818.py` has no `--version` flag — D818 is V1-only, there's no Kling/V2 routing for it.)
 
 ### Check Oracle logs
 ```powershell
