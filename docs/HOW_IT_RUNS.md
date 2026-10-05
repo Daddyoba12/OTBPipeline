@@ -1,6 +1,6 @@
 # OTB Pipeline — How It All Runs
 
-*Last updated: 2026-08-21*
+*Last updated: 2026-10-05*
 
 ---
 
@@ -10,16 +10,15 @@ The pipeline runs across two machines that work as primary + backup.
 
 | | Laptop (Windows) | Oracle Cloud VM |
 |---|---|---|
-| IP / Host | Local | 140.238.73.32 |
-| Primary role | Runs pipeline (generates + posts) | Backup pipeline + always-on services |
+| IP / Host | Local | **130.162.162.189** (corrected 2026-10-05 — most docs still say `140.238.73.32`, which is stale/wrong; see Known Gotchas) |
+| Primary role | **Backup** — per `dispatch_scheduler.py`, Oracle is primary and the laptop is backup, not the other way round (see §4's window math) | **Primary** — runs pipeline (generates + posts) |
 | Telegram Commander | Runs via Task Scheduler | Runs via systemd (`otb-commander.service`) |
 | Schedule trigger | Windows Task Scheduler | Linux cron |
 | Fires when | Laptop is awake | Always (even when laptop is off) |
-| Backup timing | — | 1 hour after laptop's scheduled time |
-| Code source | Local files | Cloned from GitHub, auto-pulls every 5 min |
+| Code source | Local files, pushed to GitHub manually | Its own clone at `/opt/otb_pipeline` — **does NOT auto-pull**. There is no `git pull` cron entry (checked the live crontab 2026-10-05). Only `pipeline.py` calls `_git_pull()` itself at the top of each run; `pipeline_d818.py` and `pipeline_kling.py` have no such call, so fixes to those two files sit on GitHub doing nothing until someone manually `scp`s them over. See Known Gotchas. |
 | API keys | `keys.env` in project root | `keys.env` in `/opt/otb_pipeline/` |
 
-**Double-post prevention**: When the laptop successfully posts a slot, it writes `data/pipeline_ran_today.json` and immediately SCPs it to Oracle. Oracle's `pipeline.py` checks this file at startup — if the slot is already marked for today, it exits without posting.
+**Double-post prevention**: the real, current mechanism is a **Supabase claim**, not just the SCP'd JSON file this section used to describe. Right after a slot's lock is acquired (before content generation even starts), the pipeline writes `{today}:{slot}` into the `otb_pipeline_state` table's `ran_slots_json` column (slot `0` = BootHop, `818` = D818) via `_claim_slot_supabase()`, and also to a local `*_ran_today.json` file. `_already_ran_today()` checks the local file first, then falls back to querying Supabase — so whichever machine claims a slot first, the other sees it within seconds regardless of which machine it is. The local `data/pipeline_ran_today.json` SCP push (`_push_ran_signal_to_oracle()`) still exists as a secondary signal, but Supabase is what actually prevents the double-post.
 
 ---
 
@@ -96,6 +95,16 @@ Every time a `--client <slug>` task/cron entry fires it (every 10–15 min depen
 6. Only one slot fires per dispatcher run
 
 Because each client is now its own process (see above), a slow/hung run only ever delays *that* client's next slot by up to 90 minutes — it no longer has any effect on the other two clients' schedules.
+
+### The pipeline lock (`data/pipeline.lock`, `data/d818_pipeline.lock`)
+
+Each client's pipeline script takes an exclusive local lock (a JSON file with `{slot, locked_at}`) at the very start of `run_slot()`, before it does anything else. If the lock file already exists and is less than 90 minutes old, the run reports `"pipeline lock held"` and exits immediately; past 90 minutes it's treated as stale and overwritten. This is a **per-machine, local** lock — it has nothing to do with the cross-machine Supabase claim described above, which is what actually stops two machines from duplicating a post.
+
+**Fixed 2026-10-04/05** (previously the source of repeated "pipeline lock held" Telegram messages — see incident notes below):
+1. **Lock wasn't guaranteed to release.** `run_slot()` relied on every individual code path manually calling `_release_lock()` before returning. Any uncaught exception, or the process just dying (laptop sleep mid-run, a killed subprocess), skipped that call entirely and left the lock stuck for the full 90 minutes. Fixed by wrapping the whole locked body in `try/finally: _release_lock()` in `pipeline.py` and `pipeline_d818.py`, so release is now unconditional.
+2. **Lock was held through the entire Telegram approval wait and posting, not just rendering.** The slot is already claimed in Supabase the moment a run starts — rendering is the only part that actually needs the local lock (to stop a second dispatcher tick from rendering the same slot twice). Approval-waiting and posting don't need it. Previously the lock stayed held for the full approval window (up to 60 min), so any dispatcher retry landing in that window collided and sent a noisy "lock held, try again shortly" message — even though nothing was actually wrong. Fixed by releasing the lock right after rendering completes, in all three render paths (`pipeline.py` V1, `pipeline_kling.py`'s V2, `pipeline_d818.py`). A retry during a normal approval wait now hits the quiet `_already_ran_today()` skip instead (no Telegram message at all), since the slot's already claimed.
+
+After these two fixes, a `"pipeline lock held"` message should only ever appear for a genuine, currently-in-progress render — if you see one that doesn't resolve within a few minutes, something is actually stuck (check `data/*.lock`'s `locked_at` timestamp and whether a matching python process is really running before deleting it).
 
 ---
 
@@ -293,8 +302,9 @@ A separate `scripts/commander_watchdog.py` runs via Task Scheduler and restarts 
 
 | Situation | What happens |
 |---|---|
-| Laptop on + awake at slot time | Laptop runs the pipeline (primary). After posting, pushes `pipeline_ran_today.json` to Oracle. Oracle backup fires 1h later, sees the file, and skips. |
-| Laptop off or asleep at slot time | Oracle's cron fires 1h later. Checks `pipeline_ran_today.json` (was pushed last time laptop ran). If today's slot isn't marked, Oracle runs the pipeline. |
+| Normal day | **Oracle is primary** — its dispatcher window opens first (`[nominal-30min, nominal+20min]`) and it fires the slot, claiming it in Supabase immediately. |
+| Laptop's turn comes | The laptop's backup window only opens *after* Oracle's closes (`[nominal+20min, nominal+50min]`) — non-overlapping by design. By the time it checks, Oracle's Supabase claim is already visible, so `_already_ran_today()` returns true and the laptop skips quietly, no render, no Telegram message. |
+| Oracle is down/unreachable | Nothing claims the slot in its primary window. The laptop's backup window opens 20+ min later, finds no claim, and runs the pipeline itself. |
 | Oracle run — platform post fails | Queued in `data/pending_posts.json`. Laptop picks it up on next sync. |
 | Both commanders running simultaneously | Each gets 409 Conflict from Telegram. Both back off 30 seconds and retry. One eventually processes the update. This is tolerable but not ideal. |
 
@@ -415,8 +425,30 @@ python pipeline.py --slot 1 --version v2
 ### Check Oracle logs
 ```powershell
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "tail -50 /home/ubuntu/otb_pipeline.log"
+ssh -i $k ubuntu@130.162.162.189 "tail -50 /home/ubuntu/dispatch_scheduler.log"
 ```
+
+### Check laptop dispatcher logs (added 2026-10-05)
+The laptop-side `OTB_Dispatch_*` tasks previously redirected their output nowhere — nothing to check if something went wrong. As of 2026-10-05 they append to the same shared log Oracle uses the convention for:
+```powershell
+Get-Content C:\Users\babso\Desktop\OTB_Pipeline\logs\dispatch_scheduler.log -Tail 50
+```
+If a task's Action doesn't end in `*>> '...\logs\dispatch_scheduler.log'`, the redirect got lost (e.g. the task was recreated from scratch) — re-add it with `Set-ScheduledTask` (requires an elevated/Admin PowerShell, since these tasks run with `RunLevel: Highest`):
+```powershell
+$cmd = "& 'C:\Python314\python.exe' 'C:\users\babso\desktop\otb_pipeline\deploy\dispatch_scheduler.py' --client d818 *>> 'C:\Users\babso\Desktop\OTB_Pipeline\logs\dispatch_scheduler.log'"
+$newAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-WindowStyle Hidden -ExecutionPolicy Bypass -Command `"$cmd`""
+Set-ScheduledTask -TaskName "OTB_Dispatch_D818" -Action $newAction
+```
+
+### Check / clear a stuck pipeline lock
+```powershell
+Get-Content data\pipeline.lock, data\d818_pipeline.lock -ErrorAction SilentlyContinue
+```
+Before deleting, confirm nothing is actually still running — on Windows: `Get-Process python | Select Id, StartTime`; on Oracle: `ssh ... "ps aux | grep pipeline"`. If the `locked_at` timestamp is old and nothing's running, it's safe to delete:
+```powershell
+Remove-Item data\pipeline.lock, data\d818_pipeline.lock -ErrorAction SilentlyContinue
+```
+Since the 2026-10-05 fix (see §4), this should rarely be needed — a crash/hang now self-clears via `try/finally`, and the lock no longer sits held through the whole approval wait. If you're seeing it repeatedly again, something's actually wrong, not just noisy.
 
 ### View last 50 crash log entries
 ```powershell
@@ -431,13 +463,13 @@ Get-ScheduledTask | Where-Object TaskName -like "OTB_*" | Enable-ScheduledTask
 ### Restore Oracle cron jobs (if lost)
 ```powershell
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "bash /opt/otb_pipeline/deploy/set_cron.sh"
+ssh -i $k ubuntu@130.162.162.189 "bash /opt/otb_pipeline/deploy/set_cron.sh"
 ```
 
 ### Restart Oracle commander
 ```powershell
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "sudo systemctl restart otb-commander"
+ssh -i $k ubuntu@130.162.162.189 "sudo systemctl restart otb-commander"
 ```
 
 ### Kill a duplicate commander on the laptop
@@ -448,14 +480,35 @@ Stop-Process -Id <OLD_PID> -Force
 ```
 
 ### Sync latest pipeline code to Oracle
+**Important (confirmed 2026-10-05): Oracle does NOT auto-pull from git.** There's no `git pull` cron entry, and `git status` on Oracle already shows several locally-modified files that were never committed — so a bare `git pull` risks a merge conflict with Oracle-only changes. Check `git diff <file>` there first; if the diff is something the laptop's current version already includes (i.e. it was already committed properly at some point), it's safe to overwrite. Otherwise, pushing to GitHub does **nothing** on Oracle until someone deploys it:
 ```powershell
-git push origin main   # push laptop changes to GitHub
+git push origin main   # pushes to GitHub, but Oracle won't see it on its own
+
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "cd /opt/otb_pipeline && git stash && git pull origin main"
-# Then copy un-tracked V2 files:
-scp -i $k pipeline_kling.py ubuntu@140.238.73.32:/opt/otb_pipeline/
-scp -i $k scripts/render_kling_video.py ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/
-scp -i $k scripts/analyse_kling_library.py ubuntu@140.238.73.22:/opt/otb_pipeline/scripts/
+# pipeline.py pulls git itself at the top of every run, but ONLY if Oracle's
+# working tree has no uncommitted changes blocking the pull — check first:
+ssh -i $k ubuntu@130.162.162.189 "cd /opt/otb_pipeline && git status --short"
+
+# pipeline_d818.py and pipeline_kling.py have NO self-pull — always scp them directly:
+scp -i $k pipeline_d818.py ubuntu@130.162.162.189:/opt/otb_pipeline/pipeline_d818.py
+scp -i $k pipeline_kling.py ubuntu@130.162.162.189:/opt/otb_pipeline/pipeline_kling.py
+scp -i $k scripts/render_kling_video.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
+scp -i $k scripts/analyse_kling_library.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
+```
+**Gotcha (found 2026-10-05):** Oracle has a *second*, untracked copy of `pipeline_kling.py` at `scripts/pipeline_kling.py` — a stray duplicate, same byte size as the real one at the time it was found. Because `sys.path` puts `scripts/` ahead of the project root, **that duplicate is the one Python actually imports**, not the root copy. A fix scp'd only to the root file silently does nothing. Deploy to *both* paths until someone deletes the stray copy for good:
+```powershell
+scp -i $k pipeline_kling.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/pipeline_kling.py
+```
+
+### Re-authenticate a dead YouTube token (BootHop or D818)
+```powershell
+python auth_youtube.py        # BootHop's channel — writes scripts/youtube_token.json
+python auth_youtube_d818.py   # D818's channel — writes scripts/youtube_token_d818.json
+```
+A browser opens — log into the correct channel's Google account (not the other one's). **Neither token file is synced to Oracle automatically** — there's no scp/sync step for `youtube_token*.json` anywhere in the deploy scripts. After re-authenticating on the laptop, push it manually or Oracle keeps failing with the same `invalid_grant` error indefinitely:
+```powershell
+$k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
+scp -i $k scripts/youtube_token_d818.json ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/youtube_token_d818.json
 ```
 
 ---
@@ -475,21 +528,25 @@ The Task Scheduler tasks can end up in a `Disabled` state. This happened in Augu
 **Version_state.json drift**
 If a slot keeps running the same version (always V1 or always V2), check `data/version_state.json`. The `next_version` field should alternate between `"v1"` and `"v2"`. If it's stuck, edit the file manually or use `/v1` or `/v2` in Telegram.
 
-**Oracle code out of date**
-Oracle pulls from GitHub every 5 minutes (via cron). But files not tracked in git (`pipeline_kling.py`, `scripts/render_kling_video.py`, `scripts/analyse_kling_library.py`) must be manually SCPed. See the sync command in section 13.
+**Oracle code out of date (corrected 2026-10-05 — this entry was wrong)**
+Oracle does **not** auto-pull from GitHub — there's no `git pull` cron entry on Oracle at all. `pipeline.py` pulls git itself at the start of every run (but can be blocked by Oracle's own uncommitted local changes — check `git status` there first). `pipeline_d818.py` and `pipeline_kling.py` have no self-pull logic whatsoever, so any fix to those two files sits inert on GitHub until manually `scp`'d over. This is exactly what happened 2026-10-04: a lock-handling fix was pushed and tested on the laptop, but Oracle (the *primary* machine — see §1) kept running the old broken code for hours because nothing ever deployed it there. See the sync command in §13, and the duplicate-`pipeline_kling.py` gotcha below.
+
+**Duplicate `scripts/pipeline_kling.py` on Oracle**
+Found 2026-10-05: Oracle has a second, untracked copy of `pipeline_kling.py` sitting at `scripts/pipeline_kling.py`, separate from the real tracked one at the project root. Because `sys.path.insert(0, BASE/"scripts")` runs after `sys.path.insert(0, BASE)`, the `scripts/` copy wins import resolution — meaning a fix deployed only to the root file can silently fail to take effect. Always scp to both paths (§13) until this stray copy is deleted.
 
 **TikTok 3-hour rate limit**
 If TikTok fails with a rate-limit error, it means two posts went out within 3 hours. The pipeline has a guard but if you force-run manually, be aware. Wait 3 hours before the next TikTok post.
 
-**YouTube re-auth**
-YouTube OAuth tokens expire. If you see `YT comment access denied — token may need re-auth`, run:
-```powershell
-python scripts/auth_youtube.py
-```
-Then approve in the browser and the new token saves to `scripts/youtube_token.json`.
+**YouTube re-auth — and it's per-channel AND per-machine**
+YouTube OAuth tokens expire or get revoked. If you see `invalid_grant: Token has been expired or revoked` (D818) or `YT comment access denied` (BootHop), re-run the matching script — see §13 for both commands and file paths. Two things that are easy to miss:
+- BootHop and D818 are **separate Google accounts/channels** with separate token files — re-authenticating one does nothing for the other.
+- **Neither token syncs to Oracle automatically.** Re-authenticating on the laptop only fixes the laptop; Oracle keeps using its own (possibly still-dead) copy until you manually `scp` the new token file over (§13). This bit us 2026-10-05: the D818 token was fixed on the laptop 2026-10-04 but Oracle — which actually handles most D818 posts as primary — kept failing with the exact same error a full day later, because nothing had deployed the fix there.
+
+**Pipeline lock (`data/pipeline.lock`, `data/d818_pipeline.lock`) stuck / repeated "pipeline lock held" messages**
+See the dedicated explanation in §4. Short version: fixed 2026-10-04/05 so the lock (a) always releases even on a crash/hang (previously could stay stuck up to 90 min), and (b) releases right after rendering instead of being held through the whole approval wait + posting (previously caused noisy false-positive "lock held, try again shortly" messages on every dispatcher retry during a normal, longer-than-10-min approval wait). If you're seeing this message again now, it means something is genuinely stuck — check `locked_at` age and whether a matching process is actually running (§13) before clearing it.
 
 **No post despite pipeline running**
-1. Check `data/pipeline_crash.log` for the error
+1. Check `data/pipeline_crash.log` (or `data/d818_pipeline_crash.log`) for the error
 2. Check `data/pipeline_step.txt` — is the pipeline stuck at a step?
 3. Check if it's in the Telegram approval window — approve or wait for timeout
-4. Check `data/pipeline_ran_today.json` — was the slot marked as already-ran prematurely?
+4. Check Supabase (`otb_pipeline_state` table, `ran_slots_json` column) and the local `*_ran_today.json` — was the slot marked as already-ran prematurely, or claimed by a machine that then failed to actually post?
