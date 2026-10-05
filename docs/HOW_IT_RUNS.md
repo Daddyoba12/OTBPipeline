@@ -2,6 +2,8 @@
 
 *Last updated: 2026-10-05*
 
+> Looking for the **web dashboard** or **who should get what kind of access**? See `docs/DASHBOARD_ACCESS.md`.
+
 ---
 
 ## 1. The Two Machines
