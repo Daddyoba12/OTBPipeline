@@ -624,12 +624,12 @@ async def onboard_submit(
     raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
     slug = re.sub(r"[\s_]+", "-", raw)[:30]
     if not slug:
-        return templates.TemplateResponse("onboard.html",
+        return templates.TemplateResponse(request, "onboard.html",
             {"request": request, "success": False, "slug": "", "error": "Invalid company name."})
 
     # Validate digest email must be official business domain
     if digest_email.strip() and not _is_business_email(digest_email.strip()):
-        return templates.TemplateResponse("onboard.html",
+        return templates.TemplateResponse(request, "onboard.html",
             {"request": request, "success": False, "slug": "",
              "error": "Daily digest email must be an official business email (no Gmail, Yahoo, Hotmail, etc.)."})
 
@@ -690,18 +690,18 @@ async def onboard_submit(
                  digest_email.strip(), digest_frequency.strip()),
             )
         _co_dir(slug)
-        return templates.TemplateResponse("onboard.html",
+        return templates.TemplateResponse(request, "onboard.html",
             {"request": request, "success": True, "slug": slug,
              "platforms": platforms, "has_digest": bool(digest_email), "error": ""})
     except sqlite3.IntegrityError:
-        return templates.TemplateResponse("onboard.html",
+        return templates.TemplateResponse(request, "onboard.html",
             {"request": request, "success": False, "slug": "",
              "error": f"'{company_name}' is already registered. Try a different name.", "platforms": []})
 
 
 @app.get("/pipeline-login", response_class=HTMLResponse)
 async def pipeline_login_page(request: Request):
-    return templates.TemplateResponse("pipeline_login.html", {"request": request, "error": ""})
+    return templates.TemplateResponse(request, "pipeline_login.html", {"request": request, "error": ""})
 
 
 @app.post("/pipeline-login")
@@ -716,7 +716,7 @@ async def pipeline_login_submit(
             (slug.strip().lower(), _hash(password))
         ).fetchone()
     if not row:
-        return templates.TemplateResponse("pipeline_login.html",
+        return templates.TemplateResponse(request, "pipeline_login.html",
             {"request": request, "error": "Wrong company ID or password."})
     token = _make_session(row["id"])
     resp  = RedirectResponse("/dashboard", status_code=303)
@@ -752,7 +752,7 @@ async def login_submit(
             (slug.strip().lower(), _hash(password))
         ).fetchone()
     if not row:
-        return templates.TemplateResponse("pipeline_login.html",
+        return templates.TemplateResponse(request, "pipeline_login.html",
             {"request": request, "error": "Wrong company ID or password."})
     token = _make_session(row["id"])
     resp  = RedirectResponse("/dashboard", status_code=303)
@@ -774,7 +774,7 @@ async def logout(session_token: str | None = Cookie(None)):
 
 @app.get("/client-onboarding", response_class=HTMLResponse)
 async def client_onboarding_page(request: Request):
-    return templates.TemplateResponse("client_onboarding.html", {"request": request})
+    return templates.TemplateResponse(request, "client_onboarding.html", {"request": request})
 
 
 @app.post("/api/onboard")
@@ -886,7 +886,7 @@ async def dashboard(request: Request, session_token: str | None = Cookie(None)):
                                           "label": f"▶ {sn} — V2"})
         videos = pipeline_vids + videos
 
-    return templates.TemplateResponse("dashboard.html", {
+    return templates.TemplateResponse(request, "dashboard.html", {
         "request":        request,
         "company":        sess,
         "music_tracks":   music,
@@ -1128,7 +1128,7 @@ async def download_bake(request: Request, bake_id: int, session_token: str | Non
 
 @app.get("/admin/login", response_class=HTMLResponse)
 async def admin_login_page(request: Request):
-    return templates.TemplateResponse("admin_login.html", {"request": request, "error": ""})
+    return templates.TemplateResponse(request, "admin_login.html", {"request": request, "error": ""})
 
 
 @app.post("/admin/login")
@@ -1139,7 +1139,7 @@ async def admin_login(request: Request, password: str = Form(...)):
     db_hash = row["password_h"] if row else None
     ok = (db_hash and db_hash == _hash(password)) or (not db_hash and password == ADMIN_PASSWORD)
     if not ok:
-        return templates.TemplateResponse("admin_login.html",
+        return templates.TemplateResponse(request, "admin_login.html",
             {"request": request, "error": "Wrong password."})
     token   = secrets.token_hex(32)
     expires = (datetime.now() + timedelta(hours=24)).isoformat()
@@ -1250,7 +1250,7 @@ def _send_reset_email(to_email: str, slug: str, token: str):
 
 @app.get("/forgot-password", response_class=HTMLResponse)
 async def forgot_password_page(request: Request):
-    return templates.TemplateResponse("forgot_password.html",
+    return templates.TemplateResponse(request, "forgot_password.html",
         {"request": request, "sent": False, "error": ""})
 
 
@@ -1268,7 +1268,7 @@ async def forgot_password_submit(
         ).fetchone()
     if not row or row["email"].strip().lower() != email.strip().lower():
         # Don't reveal whether slug exists — show same success screen
-        return templates.TemplateResponse("forgot_password.html",
+        return templates.TemplateResponse(request, "forgot_password.html",
             {"request": request, "sent": True, "error": ""})
     token   = secrets.token_hex(32)
     expires = (datetime.now() + timedelta(hours=1)).isoformat()
@@ -1282,7 +1282,7 @@ async def forgot_password_submit(
     # Also send email if the account has one
     if row["email"]:
         _send_reset_email(row["email"], slug, token)
-    return templates.TemplateResponse("forgot_password.html",
+    return templates.TemplateResponse(request, "forgot_password.html",
         {"request": request, "sent": True, "error": ""})
 
 
@@ -1294,9 +1294,9 @@ async def reset_password_page(request: Request, token: str):
             (token,)
         ).fetchone()
     if not row or datetime.fromisoformat(row["reset_expires"]) < datetime.now():
-        return templates.TemplateResponse("reset_password.html",
+        return templates.TemplateResponse(request, "reset_password.html",
             {"request": request, "token": token, "expired": True, "done": False, "error": ""})
-    return templates.TemplateResponse("reset_password.html",
+    return templates.TemplateResponse(request, "reset_password.html",
         {"request": request, "token": token, "expired": False, "done": False,
          "slug": row["slug"], "error": ""})
 
@@ -1309,11 +1309,11 @@ async def reset_password_submit(
     confirm_password: str = Form(...),
 ):
     if new_password != confirm_password:
-        return templates.TemplateResponse("reset_password.html",
+        return templates.TemplateResponse(request, "reset_password.html",
             {"request": request, "token": token, "expired": False, "done": False,
              "error": "Passwords do not match."})
     if len(new_password) < 8:
-        return templates.TemplateResponse("reset_password.html",
+        return templates.TemplateResponse(request, "reset_password.html",
             {"request": request, "token": token, "expired": False, "done": False,
              "error": "Password must be at least 8 characters."})
     with _db() as c:
@@ -1322,12 +1322,12 @@ async def reset_password_submit(
             (token,)
         ).fetchone()
     if not row or datetime.fromisoformat(row["reset_expires"]) < datetime.now():
-        return templates.TemplateResponse("reset_password.html",
+        return templates.TemplateResponse(request, "reset_password.html",
             {"request": request, "token": token, "expired": True, "done": False, "error": ""})
     with _db() as c:
         c.execute("UPDATE companies SET password_h=?, reset_token='', reset_expires='' WHERE id=?",
                   (_hash(new_password), row["id"]))
-    return templates.TemplateResponse("reset_password.html",
+    return templates.TemplateResponse(request, "reset_password.html",
         {"request": request, "token": token, "expired": False, "done": True, "error": ""})
 
 
@@ -1360,7 +1360,7 @@ async def client_change_password(
 
 @app.get("/get-started", response_class=HTMLResponse)
 async def get_started_page(request: Request):
-    return templates.TemplateResponse("get_started.html", {"request": request, "success": False, "error": ""})
+    return templates.TemplateResponse(request, "get_started.html", {"request": request, "success": False, "error": ""})
 
 
 @app.post("/get-started", response_class=HTMLResponse)
@@ -1397,7 +1397,7 @@ async def get_started_submit(
     raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
     slug = re.sub(r"[\s_]+", "-", raw)[:30]
     if not slug:
-        return templates.TemplateResponse("get_started.html",
+        return templates.TemplateResponse(request, "get_started.html",
             {"request": request, "success": False, "error": "Invalid company name."})
 
     platforms = [p for p, v in [
@@ -1429,10 +1429,10 @@ async def get_started_submit(
         _co_dir(slug)
         # Notify admin via Telegram
         _notify_admin_new_intake(company_name, slug, email, platforms)
-        return templates.TemplateResponse("get_started.html",
+        return templates.TemplateResponse(request, "get_started.html",
             {"request": request, "success": True, "slug": slug, "error": ""})
     except sqlite3.IntegrityError:
-        return templates.TemplateResponse("get_started.html",
+        return templates.TemplateResponse(request, "get_started.html",
             {"request": request, "success": False,
              "error": f"'{company_name}' is already registered. Try a different company name."})
 
@@ -1627,7 +1627,7 @@ async def admin_dashboard(request: Request, session_token: str | None = Cookie(N
             "SELECT COUNT(*) FROM companies WHERE intake_status IN ('submitted','stage2') AND id != -1"
         ).fetchone()[0]
 
-    return templates.TemplateResponse("admin.html", {
+    return templates.TemplateResponse(request, "admin.html", {
         "request":        request,
         "companies":      [dict(c) for c in companies],
         "total_bakes":    total_bakes,
@@ -1661,7 +1661,7 @@ async def admin_company_detail(
     creds      = json.loads(co_dict.get("credentials_json") or "{}")
     schedule   = json.loads(co_dict.get("schedule_json")    or "{}")
     platforms  = json.loads(co_dict.get("platforms_enabled") or "[]")
-    return templates.TemplateResponse("admin_company.html", {
+    return templates.TemplateResponse(request, "admin_company.html", {
         "request":  request,
         "co":       co_dict,
         "creds":    creds,
@@ -2092,7 +2092,7 @@ async def feed_page(request: Request, session_token: str | None = Cookie(None)):
     if not _get_sess(session_token):
         return RedirectResponse("/pipeline-login", status_code=303)
     feed = _build_feed(hours=48)
-    return templates.TemplateResponse("feed.html", {"request": request, "feed": feed})
+    return templates.TemplateResponse(request, "feed.html", {"request": request, "feed": feed})
 
 
 @app.get("/api/feed")
@@ -2252,7 +2252,7 @@ async def api_post_log(request: Request, days: int = 14):
 @app.get("/manual", response_class=HTMLResponse)
 async def client_manual(request: Request):
     """Public client guide — no login required."""
-    return templates.TemplateResponse("manual.html", {"request": request})
+    return templates.TemplateResponse(request, "manual.html", {"request": request})
 
 
 @app.get("/admin/guide", response_class=HTMLResponse)
@@ -2261,7 +2261,7 @@ async def admin_guide(request: Request, session_token: str | None = Cookie(None)
     sess = _get_sess(session_token)
     if not sess or not sess["is_admin"]:
         return RedirectResponse(f"{ADMIN_PREFIX}/login", status_code=303)
-    return templates.TemplateResponse("admin_guide.html", {"request": request})
+    return templates.TemplateResponse(request, "admin_guide.html", {"request": request})
 
 
 # ── Commander alias routes (used by web Commander portal via PIPELINE_BASE_URL) ──
