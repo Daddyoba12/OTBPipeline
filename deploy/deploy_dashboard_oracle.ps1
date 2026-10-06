@@ -24,8 +24,17 @@ Write-Host "[1/5] Pulling latest code on Oracle..." -ForegroundColor Yellow
 ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "cd $BasePath && git pull origin main 2>&1 | tail -3"
 
 # 2. Install Python packages
-Write-Host "[2/5] Installing Python packages..." -ForegroundColor Yellow
-ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "pip3 install fastapi uvicorn python-multipart jinja2 --quiet --break-system-packages 2>/dev/null || pip3 install fastapi uvicorn python-multipart jinja2 --quiet && echo 'Packages OK'"
+# Pinned to the exact versions confirmed working together on 2026-10-05/06
+# (see docs/DASHBOARD_ACCESS.md "Troubleshooting" for why this matters —
+# an unpinned install previously pulled a Starlette version whose
+# TemplateResponse() signature change broke every templated page).
+# Installed with `sudo pip3 install` (system dist-packages), not --user:
+# a prior --user install landed in ~/.local, which the systemd service
+# didn't reliably pick up ahead of the older apt-installed jinja2 at
+# /usr/lib/python3/dist-packages — system-level install avoids that
+# ambiguity entirely, regardless of how the service's HOME resolves.
+Write-Host "[2/5] Installing Python packages (pinned versions)..." -ForegroundColor Yellow
+ssh -i $KeyFile -o StrictHostKeyChecking=no "${OracleUser}@${OracleIP}" "sudo pip3 install fastapi==0.142.2 uvicorn==0.54.0 python-multipart==0.0.32 jinja2==3.1.6 --quiet && echo 'Packages OK'"
 
 # 3. Create directories
 Write-Host "[3/5] Creating directories..." -ForegroundColor Yellow

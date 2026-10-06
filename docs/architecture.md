@@ -13,7 +13,7 @@ OTB Pipeline is a fully automated video content production and posting system bu
 
 | Component | Where it runs |
 |---|---|
-| Oracle Cloud VM | `140.238.73.32` — Ubuntu 22.04, 1 OCPU, 6 GB RAM |
+| Oracle Cloud VM | `130.162.162.189` — Ubuntu 22.04, 1 OCPU, 6 GB RAM |
 | BootHop Website | Vercel (Next.js) — `www.boothop.com` |
 | GitHub (pipeline) | `github.com/Daddyoba12/OTBPipeline` |
 | GitHub (website) | `github.com/Daddyoba12/boothop` |
@@ -25,7 +25,7 @@ OTB Pipeline is a fully automated video content production and posting system bu
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    Oracle Cloud VM                       │
-│                   140.238.73.32                          │
+│                   130.162.162.189                          │
 │                                                          │
 │  ┌──────────────┐   ┌──────────────┐   ┌─────────────┐  │
 │  │  pipeline.py  │   │  telegram_   │   │  dashboard/ │  │
@@ -168,10 +168,10 @@ Port 1030 is intentionally not exposed externally — all external traffic goes 
 Vercel acts as a reverse proxy for the Oracle dashboard. Rewrites are server-side (invisible to the browser URL bar).
 
 ```
-/onboard            → http://140.238.73.32/onboard
-/client-onboarding  → http://140.238.73.32/client-onboarding
-/onboard/admin/*    → http://140.238.73.32/admin/*
-/pipeline/commander/* → http://140.238.73.32/* (legacy)
+/onboard            → http://130.162.162.189/onboard
+/client-onboarding  → http://130.162.162.189/client-onboarding
+/onboard/admin/*    → http://130.162.162.189/admin/*
+/pipeline/commander/* → http://130.162.162.189/* (legacy)
 ```
 
 `boothop.com/admin/*` is NOT proxied — it serves the original Next.js boothop admin pages directly.

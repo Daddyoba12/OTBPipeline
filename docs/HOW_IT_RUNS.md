@@ -510,10 +510,7 @@ scp -i $k pipeline_kling.py ubuntu@130.162.162.189:/opt/otb_pipeline/pipeline_kl
 scp -i $k scripts/render_kling_video.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
 scp -i $k scripts/analyse_kling_library.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
 ```
-**Gotcha (found 2026-10-05):** Oracle has a *second*, untracked copy of `pipeline_kling.py` at `scripts/pipeline_kling.py` — a stray duplicate, same byte size as the real one at the time it was found. Because `sys.path` puts `scripts/` ahead of the project root, **that duplicate is the one Python actually imports**, not the root copy. A fix scp'd only to the root file silently does nothing. Deploy to *both* paths until someone deletes the stray copy for good:
-```powershell
-scp -i $k pipeline_kling.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/pipeline_kling.py
-```
+(A stray duplicate of `pipeline_kling.py` used to also live at `scripts/pipeline_kling.py` on Oracle and would silently shadow the root copy — deleted 2026-10-06, see Known Gotchas. If a fix to this file ever seems to not be taking effect again, check for a reappeared duplicate before assuming something else is wrong.)
 
 ### Re-authenticate a dead YouTube token (BootHop or D818)
 ```powershell
@@ -546,8 +543,8 @@ If a slot keeps running the same version (always V1 or always V2), check `data/v
 **Oracle code out of date (corrected 2026-10-05 — this entry was wrong)**
 Oracle does **not** auto-pull from GitHub — there's no `git pull` cron entry on Oracle at all. `pipeline.py` pulls git itself at the start of every run (but can be blocked by Oracle's own uncommitted local changes — check `git status` there first). `pipeline_d818.py` and `pipeline_kling.py` have no self-pull logic whatsoever, so any fix to those two files sits inert on GitHub until manually `scp`'d over. This is exactly what happened 2026-10-04: a lock-handling fix was pushed and tested on the laptop, but Oracle (the *primary* machine — see §1) kept running the old broken code for hours because nothing ever deployed it there. See the sync command in §13, and the duplicate-`pipeline_kling.py` gotcha below.
 
-**Duplicate `scripts/pipeline_kling.py` on Oracle**
-Found 2026-10-05: Oracle has a second, untracked copy of `pipeline_kling.py` sitting at `scripts/pipeline_kling.py`, separate from the real tracked one at the project root. Because `sys.path.insert(0, BASE/"scripts")` runs after `sys.path.insert(0, BASE)`, the `scripts/` copy wins import resolution — meaning a fix deployed only to the root file can silently fail to take effect. Always scp to both paths (§13) until this stray copy is deleted.
+**Duplicate `scripts/pipeline_kling.py` on Oracle (fixed 2026-10-06)**
+Found 2026-10-05: Oracle had a second, untracked copy of `pipeline_kling.py` sitting at `scripts/pipeline_kling.py`, separate from the real tracked one at the project root. Because `sys.path.insert(0, BASE/"scripts")` runs after `sys.path.insert(0, BASE)`, the `scripts/` copy won import resolution — meaning a fix deployed only to the root file could silently fail to take effect. Confirmed both copies were byte-identical and nothing referenced the `scripts/` path explicitly, then deleted the stray copy on Oracle. §13's sync command now only needs to target the root path. Worth remembering the general lesson even though this specific instance is gone: if a second copy of a script ever turns up elsewhere in `sys.path`, the *earlier* path wins silently — always check both `sys.path` order and for stray duplicates before concluding a deployed fix "isn't working."
 
 **TikTok 3-hour rate limit**
 If TikTok fails with a rate-limit error, it means two posts went out within 3 hours. The pipeline has a guard but if you force-run manually, be aware. Wait 3 hours before the next TikTok post.

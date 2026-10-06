@@ -25,7 +25,7 @@ The system runs across two machines that act as primary and backup.
 ```
 ┌─────────────────────────────────┐     ┌──────────────────────────────────┐
 │         YOUR LAPTOP             │     │       ORACLE CLOUD VM            │
-│         (Windows)               │     │       140.238.73.32              │
+│         (Windows)               │     │       130.162.162.189              │
 │                                 │     │                                  │
 │  • Runs the pipeline            │     │  • Backup pipeline (1h later)    │
 │  • Generates + renders videos   │     │  • Always-on Telegram bot        │
@@ -335,7 +335,7 @@ The `pillar_weights.json` from the weekly review biases this selection. High-per
 ## Infrastructure Map
 
 ```
-LAPTOP (Windows)                    ORACLE VM (140.238.73.32)
+LAPTOP (Windows)                    ORACLE VM (130.162.162.189)
 ─────────────────────────────       ──────────────────────────────────
 Windows Task Scheduler              Linux cron
   OTB_MultiClientDispatcher           pipeline.py --slot 1  (08:00 UTC)
@@ -403,7 +403,7 @@ To resume: `/resume`
 ### Check Oracle's live pipeline log
 ```powershell
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "tail -50 /home/ubuntu/otb_pipeline.log"
+ssh -i $k ubuntu@130.162.162.189 "tail -50 /home/ubuntu/otb_pipeline.log"
 ```
 
 ### Re-enable all scheduled tasks (if they got disabled)
@@ -414,7 +414,7 @@ Get-ScheduledTask | Where-Object TaskName -like "OTB_*" | Enable-ScheduledTask
 ### Restart Oracle commander
 ```powershell
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "sudo systemctl restart otb-commander"
+ssh -i $k ubuntu@130.162.162.189 "sudo systemctl restart otb-commander"
 ```
 
 ### Restore Oracle cron jobs (if they get wiped)
@@ -427,11 +427,11 @@ ssh -i $k ubuntu@140.238.73.22 "bash /opt/otb_pipeline/deploy/set_cron.sh"
 ```powershell
 git push origin main
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-ssh -i $k ubuntu@140.238.73.32 "cd /opt/otb_pipeline && git stash && git pull origin main"
+ssh -i $k ubuntu@130.162.162.189 "cd /opt/otb_pipeline && git stash && git pull origin main"
 # V2 files (not in git) must be manually copied:
-scp -i $k pipeline_kling.py ubuntu@140.238.73.32:/opt/otb_pipeline/
-scp -i $k scripts/render_kling_video.py ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/
-scp -i $k scripts/analyse_kling_library.py ubuntu@140.238.73.32:/opt/otb_pipeline/scripts/
+scp -i $k pipeline_kling.py ubuntu@130.162.162.189:/opt/otb_pipeline/
+scp -i $k scripts/render_kling_video.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
+scp -i $k scripts/analyse_kling_library.py ubuntu@130.162.162.189:/opt/otb_pipeline/scripts/
 ```
 
 ---

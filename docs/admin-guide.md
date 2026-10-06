@@ -77,7 +77,7 @@ Once created, the account appears in Supabase → `pipeline_clients` table.
 
 Or via SSH:
 ```bash
-ssh -i ~/.ssh/oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189
 sqlite3 /opt/otb_pipeline/dashboard/otb.db
 SELECT id, slug, name, email, plan, active, created_at FROM companies;
 ```
@@ -87,7 +87,7 @@ Go to Supabase dashboard → Table Editor → `pipeline_clients`.
 
 ### Clients who completed the onboarding wizard:
 ```bash
-ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@130.162.162.189
 ls /opt/otb_pipeline/dashboard/clients/
 ```
 Each folder is one client. Check their config: `cat /opt/otb_pipeline/dashboard/clients/{slug}/pipeline_profile.json`
@@ -163,7 +163,7 @@ UPDATE pipeline_clients SET status = 'inactive' WHERE slug = 'their-company-id';
 | `boothop.com/onboard/admin/login` | Oracle admin login | ADMIN_PASSWORD |
 | `boothop.com/onboard/admin` | Oracle admin panel | Oracle admin session |
 | `boothop.com/onboard/admin/add-company` | Add Oracle client (POST) | Oracle admin session |
-| `140.238.73.32` | Direct Oracle access (bypass Vercel) | — |
+| `130.162.162.189` | Direct Oracle access (bypass Vercel) | — |
 
 ---
 
@@ -172,7 +172,7 @@ UPDATE pipeline_clients SET status = 'inactive' WHERE slug = 'their-company-id';
 SSH key location: `C:\Users\babso\.ssh\oracle_boothop.pem`
 
 ```bash
-ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@140.238.73.32
+ssh -i C:\Users\babso\.ssh\oracle_boothop.pem ubuntu@130.162.162.189
 ```
 
 ### Restart the dashboard:
