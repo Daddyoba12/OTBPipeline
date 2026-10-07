@@ -1,6 +1,6 @@
 # OTB Pipeline — Getting Online Access
 
-*Added: 2026-10-05, updated 2026-10-06*
+*Added: 2026-10-05, updated 2026-10-07*
 
 There are two completely different kinds of "access" here. Don't mix them up — one is safe to hand to anyone who needs to check on things, the other is full control of the server and every API key on it.
 
@@ -32,6 +32,21 @@ cd C:\Users\babso\Desktop\OTB_Pipeline
 
 - **OCI Console** → Networking → Virtual Cloud Networks → your VCN → subnet → Security List → Add Ingress Rules: Source CIDR `0.0.0.0/0`, IP Protocol TCP, Destination Port Range `8080`.
 - Or via the OCI Python SDK (`pip install oci` — this installs cleanly; `pip install oci-cli` does not, it needs a full C++ build toolchain for one of its dependencies) using the credentials already in `~/.oci/config`. This requires explicit per-action approval in Claude Code (a firewall change is flagged as a "security weaken" action) — expect a permission prompt rather than it running silently.
+
+---
+
+## What the dashboard can actually do (as of 2026-10-07)
+
+The dashboard existed well before this, but several of its controls looked like they worked and didn't — they updated the dashboard's own database and nothing else, with no error or indication anything was wrong. All of the below is now **confirmed working**, tested against a real profile (`client_profiles/d818.json`, local + Oracle) before being trusted:
+
+| Feature | Status | What it actually does |
+|---|---|---|
+| **Schedule tab** (`/admin/company/{id}` → Schedule) | ✅ Fixed 2026-10-06 | Writes slot times + active days + timezone directly into that client's `client_profile.json`, both locally and on Oracle (over SSH). Takes effect within 10-15 minutes via the normal dispatcher check — see `docs/HOW_IT_RUNS.md` §4/§5. |
+| **Activate/Pause buttons** (company detail page header) | ✅ Fixed 2026-10-07 | Now also sets `schedule.active` in the real profile file (local + Oracle), on top of the dashboard's own `intake_status`/`active` DB columns. Before this fix, clicking these only updated the DB — the pipeline kept running (or not) regardless of what the button said. |
+| **D818's own pause/resume** | ✅ Fixed 2026-10-04/05 | Previously toggled Windows Task Scheduler tasks (`D818-Morning` etc.) that were renamed to `OTB_Dispatch_D818` back in September — a silent no-op. Now uses the same profile-file mechanism as BootHop/G-Inspired. |
+| **Pause/resume syncing to Oracle at all** (any client) | ✅ Fixed 2026-10-07 | Found while testing the above: the helper that pushes an active/paused change to Oracle (`_oracle_set_active` in `dashboard/main.py`) had a bug that made every single call to it fail silently on Oracle specifically — it built Python code using JSON's `true`/`false` instead of Python's `True`/`False`. This existed before any of today's changes, so **BootHop and G-Inspired's pause/resume have never actually reached Oracle**, only the laptop's local copy, for as long as this function has existed. Fixing it benefits all three clients, not just D818. |
+
+None of this required a password change or re-login — if you were already relying on these buttons before 2026-10-07 and assumed they worked, it's worth double-checking each client's actual `schedule.active` state now matches what the dashboard says, since the two could have drifted apart silently.
 
 ---
 
