@@ -345,7 +345,24 @@ td{padding:9px 8px;vertical-align:middle}
     <form method="post" action="/admin/complete-intake/{{ co.id }}">
 
       <div class="cred-section">
-        <div class="cred-section-title"><div class="cred-dot" style="background:#00f2ea"></div>TikTok</div>
+        <div class="cred-section-title"><div class="cred-dot" style="background:#ffb800"></div>Zernio (TikTok + Instagram — recommended for new clients)</div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:12px;line-height:1.5">This is the only posting path currently wired for automatic provisioning. Fill this in (not the TikTok/Instagram sections below) for any client being set up through the generic pipeline.</p>
+        <label>Zernio API Key</label>
+        <input type="password" name="zernio_api_key" placeholder="••••••••••••">
+        <div class="field-row">
+          <div>
+            <label>Zernio TikTok Account ID</label>
+            <input type="text" name="zernio_tiktok_account_id" placeholder="acct_...">
+          </div>
+          <div>
+            <label>Zernio Instagram Account ID</label>
+            <input type="text" name="zernio_ig_account_id" placeholder="acct_...">
+          </div>
+        </div>
+      </div>
+
+      <div class="cred-section">
+        <div class="cred-section-title"><div class="cred-dot" style="background:#00f2ea"></div>TikTok (direct OAuth — legacy, BootHop only)</div>
         <label>TikTok Session ID</label>
         <input type="text" name="tiktok_session_id" placeholder="Paste from browser cookies">
         <div class="hint">Log into TikTok → F12 → Application → Cookies → tiktok.com → <strong>sessionid</strong></div>
@@ -356,7 +373,7 @@ td{padding:9px 8px;vertical-align:middle}
       </div>
 
       <div class="cred-section">
-        <div class="cred-section-title"><div class="cred-dot" style="background:#e1306c"></div>Instagram (via Facebook Graph API)</div>
+        <div class="cred-section-title"><div class="cred-dot" style="background:#e1306c"></div>Instagram (via Facebook Graph API — legacy, BootHop only)</div>
         <div class="field-row">
           <div>
             <label>Facebook App ID</label>

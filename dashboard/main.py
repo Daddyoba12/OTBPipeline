@@ -176,6 +176,56 @@ def _oracle_push_schedule(oracle_path: str, schedule_patch: dict) -> str:
             pass
 
 
+def _oracle_write_json(oracle_path: str, content: dict) -> str:
+    """Write/overwrite a whole JSON file on Oracle via scp (no SSH-side merge
+    needed, unlike _oracle_push_schedule — this is for files that are safe to
+    fully replace: a client's standalone credentials file, or a freshly
+    provisioned profile that doesn't exist yet). Staged through a local temp
+    file for the same reason as _oracle_push_schedule: avoids shell-escaping
+    nested JSON into an inline SSH command."""
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8")
+    try:
+        json.dump(content, tmp, indent=2)
+        tmp.close()
+        r = subprocess.run(
+            ["scp", "-i", str(_ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+             "-o", "ConnectTimeout=10", tmp.name, f"{_ORACLE_USER}@{_ORACLE_IP}:{oracle_path}"],
+            capture_output=True, text=True, timeout=20,
+        )
+        return "ok" if r.returncode == 0 else f"scp failed: {r.stderr.strip()[:120]}"
+    except Exception as e:
+        return str(e)[:120]
+    finally:
+        try:
+            os.unlink(tmp.name)
+        except Exception:
+            pass
+
+
+def _push_credentials_to_profile(slug: str, form: dict) -> str:
+    """If the submitted Credentials form included Zernio fields, write them
+    to client_profiles/<slug>.credentials.json (local + Oracle) — the shape
+    post_tiktok_zernio.py/post_instagram_zernio.py's credentials need.
+    Returns 'skipped' for any client not using the Zernio path (the 4
+    existing clients keep their manual keys.env-based credentials
+    completely untouched by this)."""
+    api_key = (form.get("zernio_api_key") or "").strip()
+    if not api_key:
+        return "skipped — no zernio_api_key submitted"
+    tt_id = (form.get("zernio_tiktok_account_id") or "").strip()
+    ig_id = (form.get("zernio_ig_account_id") or "").strip()
+    creds = {"zernio": {}}
+    if tt_id:
+        creds["zernio"]["tiktok"] = {"api_key": api_key, "account_id": tt_id}
+    if ig_id:
+        creds["zernio"]["instagram"] = {"api_key": api_key, "account_id": ig_id}
+    local_path = PIPELINE / "client_profiles" / f"{slug}.credentials.json"
+    local_path.parent.mkdir(exist_ok=True)
+    local_path.write_text(json.dumps(creds, indent=2), encoding="utf-8")
+    oracle_result = _oracle_write_json(f"/opt/otb_pipeline/client_profiles/{slug}.credentials.json", creds)
+    return f"ok (oracle: {oracle_result})"
+
+
 def _push_schedule_to_profile(cfg: dict, slot_times: dict, day_names: list, timezone: str) -> str:
     """Write slot times into the real client_profile.json (local + Oracle).
     Only touches slot numbers with a non-empty time value — leaves other
@@ -682,126 +732,17 @@ def _is_business_email(email: str) -> bool:
     return domain not in _FREE_EMAIL_DOMAINS
 
 
-@app.post("/onboard", response_class=HTMLResponse)
-async def onboard_submit(
-    request:           Request,
-    company_name:      str = Form(...),
-    contact_name:      str = Form(""),
-    email:             str = Form(""),
-    password:          str = Form(...),
-    tg_chat_id:        str = Form(""),
-    whatsapp:          str = Form(""),
-    plan:              str = Form("basic"),
-    # Platform toggles
-    platform_tiktok:   str = Form(""),
-    platform_instagram:str = Form(""),
-    platform_youtube:  str = Form(""),
-    platform_linkedin: str = Form(""),
-    platform_blog:     str = Form(""),
-    platform_email:    str = Form(""),
-    # TikTok
-    tt_handle:         str = Form(""),
-    tt_client_key:     str = Form(""),
-    tt_client_secret:  str = Form(""),
-    # Instagram
-    ig_username:       str = Form(""),
-    ig_app_id:         str = Form(""),
-    ig_app_secret:     str = Form(""),
-    ig_access_token:   str = Form(""),
-    ig_user_id:        str = Form(""),
-    # YouTube
-    yt_channel_url:    str = Form(""),
-    yt_api_key:        str = Form(""),
-    # LinkedIn
-    li_profile_url:    str = Form(""),
-    li_client_id:      str = Form(""),
-    li_client_secret:  str = Form(""),
-    li_access_token:   str = Form(""),
-    # Blog
-    blog_platform:     str = Form(""),
-    blog_url:          str = Form(""),
-    blog_id:           str = Form(""),
-    blog_refresh_token:str = Form(""),
-    # Digest
-    digest_email:      str = Form(""),
-    digest_frequency:  str = Form("daily"),
-):
-    raw  = re.sub(r"[^\w\s-]", "", company_name.lower()).strip()
-    slug = re.sub(r"[\s_]+", "-", raw)[:30]
-    if not slug:
-        return templates.TemplateResponse(request, "onboard.html",
-            {"request": request, "success": False, "slug": "", "error": "Invalid company name."})
-
-    # Validate digest email must be official business domain
-    if digest_email.strip() and not _is_business_email(digest_email.strip()):
-        return templates.TemplateResponse(request, "onboard.html",
-            {"request": request, "success": False, "slug": "",
-             "error": "Daily digest email must be an official business email (no Gmail, Yahoo, Hotmail, etc.)."})
-
-    # Build platforms list
-    platforms = [p for p, v in [
-        ("tiktok", platform_tiktok), ("instagram", platform_instagram),
-        ("youtube", platform_youtube), ("linkedin", platform_linkedin),
-        ("blog", platform_blog), ("email", platform_email),
-    ] if v]
-
-    # Build credentials object — never logged, stored separately
-    credentials = {}
-    if "tiktok" in platforms:
-        credentials["tiktok"] = {
-            "handle":        tt_handle.strip(),
-            "client_key":    tt_client_key.strip(),
-            "client_secret": tt_client_secret.strip(),
-            "access_token":  "",
-        }
-    if "instagram" in platforms:
-        credentials["instagram"] = {
-            "username":     ig_username.strip(),
-            "app_id":       ig_app_id.strip(),
-            "app_secret":   ig_app_secret.strip(),
-            "access_token": ig_access_token.strip(),
-            "ig_user_id":   ig_user_id.strip(),
-        }
-    if "youtube" in platforms:
-        credentials["youtube"] = {
-            "channel_url": yt_channel_url.strip(),
-            "api_key":     yt_api_key.strip(),
-        }
-    if "linkedin" in platforms:
-        credentials["linkedin"] = {
-            "profile_url":   li_profile_url.strip(),
-            "client_id":     li_client_id.strip(),
-            "client_secret": li_client_secret.strip(),
-            "access_token":  li_access_token.strip(),
-        }
-    if "blog" in platforms:
-        credentials["blog"] = {
-            "platform":      blog_platform.strip(),
-            "blog_url":      blog_url.strip(),
-            "blog_id":       blog_id.strip(),
-            "refresh_token": blog_refresh_token.strip(),
-        }
-
-    try:
-        with _db() as c:
-            c.execute(
-                "INSERT INTO companies "
-                "(slug,name,email,contact,plan,password_h,api_key,tg_chat_id,whatsapp,"
-                " platforms_enabled,credentials_json,digest_email,digest_frequency) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (slug, company_name, email, contact_name, plan,
-                 _hash(password), secrets.token_hex(16), tg_chat_id, whatsapp,
-                 json.dumps(platforms), json.dumps(credentials),
-                 digest_email.strip(), digest_frequency.strip()),
-            )
-        _co_dir(slug)
-        return templates.TemplateResponse(request, "onboard.html",
-            {"request": request, "success": True, "slug": slug,
-             "platforms": platforms, "has_digest": bool(digest_email), "error": ""})
-    except sqlite3.IntegrityError:
-        return templates.TemplateResponse(request, "onboard.html",
-            {"request": request, "success": False, "slug": "",
-             "error": f"'{company_name}' is already registered. Try a different name.", "platforms": []})
+@app.post("/onboard")
+async def onboard_submit(request: Request):
+    # Deprecated 2026-10-07: this form (onboard.html) is unreachable through
+    # any current UI — GET /onboard above 301-redirects to /get-started
+    # before this page could ever be shown, and landing.html's buttons now
+    # link straight to /get-started. This handler is kept only so a stale
+    # bookmark/old external link gets a clear error instead of a 404 or,
+    # worse, silently succeeding into the old nested-credentials schema
+    # that /admin/complete-intake's flat schema is incompatible with.
+    # See docs/HOW_IT_RUNS.md / the provisioning plan for the real flow.
+    raise HTTPException(410, "This form has been retired — please use /get-started instead.")
 
 
 @app.get("/pipeline-login", response_class=HTMLResponse)
@@ -1644,11 +1585,14 @@ async def admin_complete_intake(
         if key != "session_token" and val:
             creds[key] = val
     with _db() as c:
-        row = c.execute("SELECT credentials_json FROM companies WHERE id=?", (company_id,)).fetchone()
+        row = c.execute("SELECT credentials_json, slug FROM companies WHERE id=?", (company_id,)).fetchone()
         existing = json.loads(row["credentials_json"] or "{}") if row else {}
         existing.update(creds)
         c.execute("UPDATE companies SET credentials_json=?, intake_status=? WHERE id=?",
                   (json.dumps(existing), "stage2", company_id))
+    if row:
+        push_result = _push_credentials_to_profile(row["slug"], creds)
+        print(f"[Credentials] company_id={company_id} zernio push: {push_result}")
     return RedirectResponse(f"/admin/company/{company_id}?tab=credentials", status_code=303)
 
 
