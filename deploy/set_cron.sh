@@ -47,6 +47,11 @@ cat > /tmp/newcron << 'CRON'
 # dedup. Now goes through the same dispatcher window as the other 3 clients;
 # post_newsflash.py holds its own Supabase claim (slot=777) for the actual dedup.
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client newsflash  >> /home/ubuntu/dispatch_scheduler.log 2>&1
+# Dashboard DB backup (added 2026-10-07) — otb.db (every client's credentials,
+# schedule, and bake history) had no backup of any kind until now. Daily
+# sqlite3 .backup snapshot, 14 days kept, pruned automatically — see
+# deploy/backup_db.sh.
+0 3 * * * bash /opt/otb_pipeline/deploy/backup_db.sh >> /home/ubuntu/backup_db.log 2>&1
 CRON
 crontab /tmp/newcron
 echo "Crontab installed:"

@@ -459,7 +459,7 @@ story.append(row_table([
     ("Restart dashboard","sudo systemctl restart otb-dashboard"),
     ("View logs",        "sudo journalctl -u otb-dashboard -f"),
     ("GitHub sync",      "Manual — no cron pull. See docs/DASHBOARD_ACCESS.md for the deploy steps."),
-    ("DB backup",        "Copy dashboard/otb.db off-server weekly. No automated backup currently."),
+    ("DB backup",        "Automatic — deploy/backup_db.sh runs daily at 03:00 UTC via cron, keeps 14 days in dashboard/backups/."),
     ("keys.env",         "/opt/otb_pipeline/keys.env — never commit. "
                           "Contains TELEGRAM_TOKEN, TG_ADMIN_CHAT_ID, platform API keys. "
                           "ADMIN_PASSWORD is NOT read from here for the dashboard — the systemd "
