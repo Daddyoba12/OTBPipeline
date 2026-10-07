@@ -109,7 +109,7 @@ pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padd
   <div class="nav-section">Server & Deploy</div>
   <a class="nav-link" href="#server">Oracle server SSH</a>
   <a class="nav-link" href="#deploy">Deployments</a>
-  <a class="nav-link" href="#cron">cron.org schedule</a>
+  <a class="nav-link" href="#cron">how scheduling works</a>
 
   <div class="nav-section">Onboarding</div>
   <a class="nav-link" href="#onboarding">Onboarding workflow</a>
@@ -140,13 +140,13 @@ pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padd
     BootHop Pipeline is a Python-based FastAPI application running on Oracle Cloud. It finds trending topics, writes scripts using GPT/Perplexity, renders short-form videos, and posts them to social platforms on each client's agreed schedule. The admin portal manages all client accounts from one place.
   </p>
   <table class="data-table">
-    <tr><td>Server</td><td>Oracle Cloud Free Tier — Ubuntu 22.04 — <code>140.238.73.32</code></td></tr>
+    <tr><td>Server</td><td>Oracle Cloud Free Tier — Ubuntu 22.04 — <code>130.162.162.189</code></td></tr>
     <tr><td>App path</td><td><code>/opt/otb_pipeline</code></td></tr>
-    <tr><td>Auto-deploy</td><td>Cron pulls from GitHub every 5 minutes — push to <code>main</code> branch to deploy</td></tr>
+    <tr><td>Deploy</td><td>Manual — no auto-pull. SSH in, git pull or scp the changed file, restart the service</td></tr>
     <tr><td>Database</td><td>SQLite at <code>dashboard/otb.db</code> — not committed to git (server-only file)</td></tr>
-    <tr><td>Process manager</td><td>systemd service <code>otb-pipeline</code> — restart with <code>sudo systemctl restart otb-pipeline</code></td></tr>
+    <tr><td>Process manager</td><td>systemd service <code>otb-dashboard</code> — restart with <code>sudo systemctl restart otb-dashboard</code></td></tr>
     <tr><td>Environment vars</td><td><code>/opt/otb_pipeline/keys.env</code> — sourced by systemd service unit</td></tr>
-    <tr><td>Logs</td><td><code>journalctl -u otb-pipeline -f</code> for live logs</td></tr>
+    <tr><td>Logs</td><td><code>journalctl -u otb-dashboard -f</code> for live logs</td></tr>
   </table>
   <div class="card tip">
     <div class="card-label">Pipeline stages</div>
@@ -171,43 +171,43 @@ pre{background:var(--card);border:1px solid var(--border);border-radius:8px;padd
     Admin password is stored as a SHA-256 hash in the DB (<code>companies WHERE id=-1</code>). Change it from the bottom of the admin portal. Default fallback is the <code>ADMIN_PASSWORD</code> env var in keys.env.
   </div>
   <p>
-    Client logins are at <strong>boothop.com/pipeline-login</strong>. Admin login is at <strong>boothop.com/admin/login</strong> (or follow the redirect from boothop.com/admin).
+    Client logins are at <strong>130.162.162.189:8080/pipeline-login</strong>. Admin login is at <strong>130.162.162.189:8080/admin/login</strong> (or follow the redirect from 130.162.162.189:8080/admin).
   </p>
 
   <!-- ════════════════════ URLs ════════════════════ -->
   <h2 id="urls">All URLs</h2>
   <table class="data-table">
     <thead><tr><th>URL</th><th>Who it is for</th><th>Auth</th></tr></thead>
-    <tr><td>boothop.com/admin</td><td>Super user overview of all clients</td><td>Admin password</td></tr>
-    <tr><td>boothop.com/admin/login</td><td>Admin login page</td><td>—</td></tr>
-    <tr><td>boothop.com/admin/guide</td><td>This page</td><td>Admin</td></tr>
-    <tr><td>boothop.com/pipeline-login</td><td>Client login</td><td>Client password</td></tr>
-    <tr><td>boothop.com/dashboard</td><td>Client's own dashboard</td><td>Client session</td></tr>
-    <tr><td>boothop.com/manual</td><td>Public client guide</td><td>None — public</td></tr>
-    <tr><td>boothop.com/get-started</td><td>Public onboarding intake form</td><td>None — public</td></tr>
-    <tr><td>boothop.com/client-onboarding</td><td>Admin: manual client setup wizard</td><td>Admin</td></tr>
-    <tr><td>boothop.com/forgot-password</td><td>Client self-service password reset</td><td>None — public</td></tr>
-    <tr><td>boothop.com/feed</td><td>Live 48h pipeline activity feed</td><td>Admin</td></tr>
-    <tr><td>boothop.com/commander</td><td>Telegram commander portal</td><td>Admin</td></tr>
+    <tr><td>130.162.162.189:8080/admin</td><td>Super user overview of all clients</td><td>Admin password</td></tr>
+    <tr><td>130.162.162.189:8080/admin/login</td><td>Admin login page</td><td>—</td></tr>
+    <tr><td>130.162.162.189:8080/admin/guide</td><td>This page</td><td>Admin</td></tr>
+    <tr><td>130.162.162.189:8080/pipeline-login</td><td>Client login</td><td>Client password</td></tr>
+    <tr><td>130.162.162.189:8080/dashboard</td><td>Client's own dashboard</td><td>Client session</td></tr>
+    <tr><td>130.162.162.189:8080/manual</td><td>Public client guide</td><td>None — public</td></tr>
+    <tr><td>130.162.162.189:8080/get-started</td><td>Public onboarding intake form</td><td>None — public</td></tr>
+    <tr><td>130.162.162.189:8080/client-onboarding</td><td>Admin: manual client setup wizard</td><td>Admin</td></tr>
+    <tr><td>130.162.162.189:8080/forgot-password</td><td>Client self-service password reset</td><td>None — public</td></tr>
+    <tr><td>130.162.162.189:8080/feed</td><td>Live 48h pipeline activity feed</td><td>Admin</td></tr>
+    <tr><td>130.162.162.189:8080/commander</td><td>Telegram commander portal</td><td>Admin</td></tr>
   </table>
 
   <!-- ════════════════════ SERVER ════════════════════ -->
   <h2 id="server">Oracle Server — SSH Access</h2>
-  <pre>ssh -i ~/.ssh/oracle_boothop.pem ubuntu@140.238.73.32</pre>
+  <pre>ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189</pre>
   <p>The SSH key file is <code>oracle_boothop.pem</code>. Keep this safe — it is the only way to access the server directly. If you are on a new machine, copy the key over and <code>chmod 400 oracle_boothop.pem</code> first.</p>
 
   <h3>Useful server commands</h3>
   <pre>cd /opt/otb_pipeline          # go to app directory
-sudo systemctl status otb-pipeline   # check if app is running
-sudo systemctl restart otb-pipeline  # restart after config changes
-journalctl -u otb-pipeline -f        # live log stream
+sudo systemctl status otb-dashboard   # check if app is running
+sudo systemctl restart otb-dashboard  # restart after config changes
+journalctl -u otb-dashboard -f        # live log stream
 cat keys.env                         # view environment variables
-git pull                             # manual pull (auto-pull runs every 5 min)</pre>
+git pull                             # no auto-pull exists — always manual</pre>
 
   <h3>keys.env — environment variables</h3>
   <p>Located at <code>/opt/otb_pipeline/keys.env</code>. Add or edit API keys here. After editing, restart the service:</p>
   <pre>sudo nano /opt/otb_pipeline/keys.env
-sudo systemctl restart otb-pipeline</pre>
+sudo systemctl restart otb-dashboard</pre>
   <p>Key variables:</p>
   <table class="data-table">
     <tr><td>TELEGRAM_TOKEN</td><td>Bot token from @BotFather — used to send all pipeline notifications</td></tr>
@@ -231,49 +231,52 @@ sudo systemctl restart otb-pipeline</pre>
 
   <!-- ════════════════════ DEPLOY ════════════════════ -->
   <h2 id="deploy">Deployments</h2>
-  <p>The server pulls from GitHub's <code>main</code> branch every 5 minutes via a cron job. Normal workflow:</p>
+  <p>There is no auto-deploy of any kind — nothing watches GitHub or pulls on a schedule. Every deploy is manual:</p>
   <ol>
     <li>Make changes locally and commit to <code>main</code> branch</li>
     <li>Push to GitHub: <code>git push origin main</code></li>
-    <li>Within 5 minutes the server auto-pulls and the app restarts</li>
-    <li>To deploy immediately: SSH in and run <code>cd /opt/otb_pipeline && git pull && sudo systemctl restart otb-pipeline</code></li>
+    <li>SSH in and run <code>cd /opt/otb_pipeline && git pull && sudo systemctl restart otb-dashboard</code> — or, for files that don't self-update via git (like this dashboard's own main.py, or pipeline_d818.py / pipeline_kling.py), <code>scp</code> the changed file over directly and restart whichever service reads it</li>
+    <li>Check <code>sudo systemctl status otb-dashboard</code> (or the relevant service) to confirm it came back up</li>
   </ol>
+  <div class="card warn">
+    <div class="card-label">Oracle's working tree has uncommitted local changes</div>
+    Running a bare <code>git pull</code> can fail or conflict — check <code>git status</code> first. See docs/HOW_IT_RUNS.md and docs/DASHBOARD_ACCESS.md for the full picture.
+  </div>
   <div class="card warn">
     <div class="card-label">Database file</div>
     <code>dashboard/otb.db</code> is in <code>.gitignore</code> — it never gets overwritten by git pull. Client data is safe. If git pull says the DB is blocking the merge, run <code>git checkout dashboard/otb.db</code> first, then pull.
   </div>
 
-  <!-- ════════════════════ CRON ════════════════════ -->
-  <h2 id="cron">cron.org — Schedule Management</h2>
+  <!-- ════════════════════ SCHEDULING ════════════════════ -->
+  <h2 id="cron">How Scheduling Actually Works</h2>
   <p>
-    Each client's pipeline runs are triggered by cron.org firing HTTP GET requests to the Oracle server. cron.org runs in UTC — the admin company page automatically converts each client's local time slots to UTC when you save a schedule.
+    There's no external scheduling service. Each client's slot times live in their own profile file (<code>client_profile.json</code>, or <code>client_profiles/{slug}.json</code> for newer clients), read directly by <code>deploy/dispatch_scheduler.py</code>. Windows Task Scheduler runs it on the laptop every 15 minutes; Linux cron runs the same script on Oracle every 10 minutes — whichever finds a slot due fires it. Oracle is primary (checks first); the laptop only steps in as backup if Oracle is down.
   </p>
-  <p><strong>Login:</strong> <a href="https://cron.org" target="_blank">cron.org</a> — use the BootHop account credentials stored in your password manager.</p>
 
-  <h3>Adding a cron job for a new client</h3>
+  <h3>Setting a client's schedule</h3>
   <div class="steps">
-    <div class="step-row"><div class="step-num">1</div><div class="step-body"><h4>Open the admin company page</h4><p>Go to <code>/admin/company/{id}</code> → Schedule tab. Set the timezone and time slots, then click Save. The UTC cron expression is shown automatically — copy it.</p></div></div>
-    <div class="step-row"><div class="step-num">2</div><div class="step-body"><h4>Create job on cron.org</h4><p>Log in to cron.org → New Job. Paste the cron expression. URL format: <code>http://140.238.73.32:8000/run-pipeline/{slug}</code> — replace <code>{slug}</code> with the client's Company ID.</p></div></div>
-    <div class="step-row"><div class="step-num">3</div><div class="step-body"><h4>Test it</h4><p>Use cron.org's "Test Job" button to fire the job manually and verify the pipeline runs. Check the Telegram notification arrives.</p></div></div>
+    <div class="step-row"><div class="step-num">1</div><div class="step-body"><h4>Open the admin company page</h4><p>Go to <code>/admin/company/{id}</code> → Schedule tab. Set the timezone, time slots, and active days, then click Save.</p></div></div>
+    <div class="step-row"><div class="step-num">2</div><div class="step-body"><h4>It's written straight to the real profile file</h4><p>Save pushes directly into that client's <code>client_profile.json</code> — both the local copy and Oracle's, over SSH. No cron expression to copy anywhere.</p></div></div>
+    <div class="step-row"><div class="step-num">3</div><div class="step-body"><h4>Wait for the next dispatcher check</h4><p>Takes effect within 10-15 minutes. Confirm it fired via the Bakes tab or the Telegram notification.</p></div></div>
   </div>
   <div class="card info">
     <div class="card-label">DST handling</div>
-    The schedule page shows a DST warning for UK and US timezones. When clocks change (UK: last Sunday in March/October; US: first Sunday in November), cron.org UTC times must be updated manually. The admin page recalculates the correct UTC times if you re-save during those weeks.
+    The schedule stores a timezone name (e.g. <code>Europe/London</code>) alongside local time, so daylight saving shifts are handled automatically — there's nothing to update by hand when the clocks change.
   </div>
 
   <!-- ════════════════════ ONBOARDING ════════════════════ -->
   <h2 id="onboarding">Client Onboarding Workflow</h2>
   <ol>
-    <li><strong>Client fills in intake form</strong> at <code>boothop.com/get-started</code>. This creates a DB record with <code>intake_status=submitted</code>.</li>
+    <li><strong>Client fills in intake form</strong> at <code>130.162.162.189:8080/get-started</code>. This creates a DB record with <code>intake_status=submitted</code>.</li>
     <li><strong>You see it in admin portal</strong> under Intake Queue (amber highlight). Review their answers.</li>
     <li><strong>Onboarding call</strong> — agree on platforms, posting times, content style, and tone.</li>
     <li><strong>Set up credentials</strong> — go to <code>/admin/company/{id}</code> → Credentials tab. Enter all API tokens for the platforms they want to use.</li>
-    <li><strong>Set the schedule</strong> — Schedule tab. Choose timezone, pick time slots, copy UTC cron expression to cron.org.</li>
-    <li><strong>Set status to Active</strong> — Profile tab → Status → Active. This allows the pipeline to run.</li>
+    <li><strong>Set the schedule</strong> — Schedule tab. Choose timezone, pick time slots, Save — writes straight to their profile file, no external service to configure.</li>
+    <li><strong>Activate Pipeline</strong> (header button) — updates their account status and sends a welcome Telegram message. <strong>Note:</strong> this does NOT itself start posting — the Schedule tab's own active/paused state (step above) is what the pipeline actually checks. Make sure a schedule is set and active before telling a client they're live.</li>
     <li><strong>Set their password</strong> — Profile tab or send a password reset link from <code>/forgot-password</code>.</li>
-    <li><strong>Share their login details</strong> — Company ID, password, and link to <code>boothop.com/pipeline-login</code>.</li>
+    <li><strong>Share their login details</strong> — Company ID, password, and link to <code>130.162.162.189:8080/pipeline-login</code>.</li>
     <li><strong>Get their Telegram Chat ID</strong> (see below) and add it to their profile.</li>
-    <li><strong>Run first pipeline manually</strong> — trigger via cron.org Test Job or the admin Run button.</li>
+    <li><strong>Confirm the first post fires</strong> — either wait for the dispatcher's next check (10-15 min) or use the admin Run button to trigger one manually.</li>
   </ol>
 
   <!-- ════════════════════ TELEGRAM SETUP ════════════════════ -->
@@ -405,9 +408,9 @@ sudo systemctl restart otb-pipeline</pre>
 
   <h3>Pipeline not posting — no Telegram notification</h3>
   <ol>
-    <li>SSH into Oracle: <code>journalctl -u otb-pipeline -f</code> — look for errors in the last run</li>
-    <li>Check <code>intake_status</code> is <code>active</code> for that client (admin portal → company page)</li>
-    <li>Verify cron.org job is enabled and the URL is correct — fire a Test Job manually</li>
+    <li>SSH into Oracle: <code>tail -f /home/ubuntu/dispatch_scheduler.log</code> — this is a cron job, not a systemd service, so <code>journalctl -u otb-dashboard</code> won't show it (that's the web app's own logs, a separate thing)</li>
+    <li>Check the client's <code>schedule.active</code> is true in their profile file (Schedule tab shows this) — note <code>intake_status</code> in the DB is a separate field that doesn't control posting</li>
+    <li>Confirm the dispatcher's timing — Oracle checks every 10 min, the laptop every 15 min as backup</li>
     <li>Check the TELEGRAM_TOKEN is valid — try sending a test message manually with curl</li>
   </ol>
 
@@ -422,9 +425,9 @@ sudo systemctl restart otb-pipeline</pre>
 
   <h3>Server not responding / website down</h3>
   <ol>
-    <li>SSH in and check: <code>sudo systemctl status otb-pipeline</code></li>
-    <li>If stopped: <code>sudo systemctl start otb-pipeline</code></li>
-    <li>If error on startup: <code>journalctl -u otb-pipeline --since "5 min ago"</code> to see the crash reason</li>
+    <li>SSH in and check: <code>sudo systemctl status otb-dashboard</code></li>
+    <li>If stopped: <code>sudo systemctl start otb-dashboard</code></li>
+    <li>If error on startup: <code>journalctl -u otb-dashboard --since "5 min ago"</code> to see the crash reason</li>
     <li>Common cause: a recent code push with a Python syntax error. Run <code>python3 -m py_compile dashboard/main.py</code> to check</li>
     <li>Check disk space: <code>df -h</code>. If full, clear old video files in the render output folder</li>
   </ol>
