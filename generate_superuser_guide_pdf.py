@@ -158,16 +158,16 @@ story.append(rule())
 # ── 1. System Overview ────────────────────────────────────────
 story.append(Paragraph("1. System Overview", H2))
 story.append(Paragraph(
-    "The BootHop Pipeline is a FastAPI application running on Oracle Cloud (140.238.73.32). "
+    "The BootHop Pipeline is a FastAPI application running on Oracle Cloud (130.162.162.189). "
     "It manages multi-tenant content automation: each client (company) has its own isolated "
     "pipeline, schedule, credentials, and bake history, all stored in a single SQLite database "
     "at dashboard/otb.db.", BODY))
 story.append(Spacer(1, 0.2*cm))
 story.append(Paragraph("Key system facts:", H3))
 story.append(row_table([
-    ("Server",       "Oracle Cloud Always Free · 140.238.73.32 · Ubuntu 22.04"),
-    ("App",          "FastAPI + Uvicorn · auto-restarted by systemd · port 8000"),
-    ("GitHub sync",  "Cron pulls from GitHub every 5 minutes → /root/otb_pipeline"),
+    ("Server",       "Oracle Cloud · 130.162.162.189 · Ubuntu 22.04"),
+    ("App",          "FastAPI + Uvicorn · systemd service otb-dashboard · port 8080"),
+    ("GitHub sync",  "Manual — no auto-deploy. See docs/DASHBOARD_ACCESS.md"),
     ("Database",     "SQLite · dashboard/otb.db · one row per company"),
     ("Config",       "keys.env in pipeline root · loaded at startup · never commit this file"),
     ("Telegram bot", "Token in config.py · TELEGRAM_TOKEN · chat ID 8641867751 (admin)"),
@@ -191,11 +191,11 @@ user_data = [
      Paragraph("BootHop website staff", SMALL),
      Paragraph("Manage boothop.com website content and members", SMALL)],
     [Paragraph("Pipeline Client", SMALL),
-     Paragraph("boothop.com/pipeline-login", CODE),
+     Paragraph("130.162.162.189:8080/pipeline-login", CODE),
      Paragraph("Paying pipeline clients", SMALL),
      Paragraph("Their own dashboard: Pipeline, Revoice, Clients tabs", SMALL)],
     [Paragraph("Pipeline Super\nUser (Admin)", SMALL),
-     Paragraph("boothop.com/admin/login", CODE),
+     Paragraph("130.162.162.189:8080/admin/login", CODE),
      Paragraph("BootHop pipeline team", SMALL),
      Paragraph("All companies, intake queue, credentials, schedules, bake logs", SMALL)],
 ]
@@ -213,22 +213,26 @@ ut.setStyle(TableStyle([
 story.append(ut)
 story.append(Spacer(1, 0.2*cm))
 story.append(info_box(
-    "<b>Admin password:</b>  Set in dashboard/main.py line ~42 as ADMIN_PASSWORD. "
-    "Default: <font color='#ffb800' name='Courier'>otb-admin-2026</font>. "
-    "This is NOT in keys.env — change it directly in the file and redeploy."
+    "<b>Admin password:</b>  dashboard/main.py line 42 has a hardcoded fallback "
+    "(<font color='#ffb800' name='Courier'>otb-admin-2026</font>) via "
+    "ADMIN_PASSWORD = os.environ.get(\"ADMIN_PASSWORD\", ...). The actual deployed "
+    "password comes from the systemd service's ADMIN_PASSWORD environment variable, "
+    "which overrides that fallback — editing the file directly won't change the live "
+    "password. To change it, re-run deploy/deploy_dashboard_oracle.ps1 with a new "
+    "-AdminPassword value (see docs/DASHBOARD_ACCESS.md)."
 ))
 
 # ── 3. Admin Login ────────────────────────────────────────────
 story.append(Paragraph("3. Admin Login", H2))
 story.append(Paragraph(
     "Pipeline super user login is at:", BODY))
-story.append(Paragraph("boothop.com/admin/login", CODE))
+story.append(Paragraph("130.162.162.189:8080/admin/login", CODE))
 story.append(Paragraph(
     "This gives access to the admin dashboard showing all registered companies, "
     "the intake queue, company detail pages, and system controls.", BODY))
 story.append(warn_box(
     "Never share the admin password with clients. "
-    "If you suspect it is compromised, update ADMIN_PASSWORD in main.py immediately and redeploy."
+    "If you suspect it is compromised, re-run deploy_dashboard_oracle.ps1 with a new -AdminPassword immediately."
 ))
 
 # ── 4. Intake Workflow ────────────────────────────────────────
@@ -237,7 +241,7 @@ story.append(Paragraph(
     "New clients go through a two-stage intake before their pipeline is activated:", BODY))
 story.append(Spacer(1, 0.15*cm))
 story.append(step_table([
-    (1, "Client submits intake form (boothop.com/get-started)",
+    (1, "Client submits intake form (130.162.162.189:8080/get-started)",
         "Client fills in: company name, website, logo, industry, bio, location, target audience, "
         "tone, platforms, social handles, contact details, digest email. "
         "Status → 'submitted'. Admin receives a Telegram notification."),
@@ -249,7 +253,9 @@ story.append(step_table([
         "Click 'Save Credentials' — status → 'stage2'."),
     (3, "Set the schedule",
         "Go to the Schedule tab. Set slot times (up to 4 per day), toggle active days, "
-        "select timezone. Copy the generated cron expression and enter it in cron.org."),
+        "select timezone, then Save — this writes directly into the client's profile "
+        "file (client_profile.json / client_profiles/{slug}.json), both locally and "
+        "on Oracle. No external service or cron expression to configure."),
     (4, "Activate",
         "Click 'Activate Pipeline' on the company detail page. "
         "Status → 'active'. Client receives a Telegram notification with their schedule."),
@@ -260,38 +266,30 @@ story.append(tip_box(
     "A number > 0 on the 'Intake Pending' stat card means action is required."
 ))
 
-# ── 5. Schedule Setup & cron.org ─────────────────────────────
-story.append(Paragraph("5. Schedule Setup & cron.org", H2))
+# ── 5. How Scheduling Actually Works ──────────────────────────
+story.append(Paragraph("5. How Scheduling Actually Works", H2))
 story.append(Paragraph(
-    "BootHop Pipeline uses cron.org as the external scheduler — it fires an HTTP call "
-    "to the pipeline server at the configured times. You do not run cron jobs on the server directly.", BODY))
+    "There's no external scheduler. Each client's slot times live in their own profile "
+    "file, read directly by deploy/dispatch_scheduler.py. Windows Task Scheduler runs it "
+    "on the laptop every 15 minutes; Linux cron runs the same script on Oracle every "
+    "10 minutes — whichever finds a slot due fires it. Oracle is primary (checks first); "
+    "the laptop only acts as backup if Oracle is down.", BODY))
 story.append(Spacer(1, 0.15*cm))
-story.append(Paragraph("How to set up a cron.org job:", H3))
+story.append(Paragraph("Setting a client's schedule:", H3))
 story.append(step_table([
-    (1, "Generate the cron expression",
-        "Go to /admin/company/{id} → Schedule tab. Set the slot times and days. "
-        "The page automatically shows the correct cron expression — copy it with the button."),
-    (2, "Open cron.org",
-        "Go to https://cron.org and log in to the BootHop account. "
-        "Click 'Add Job'."),
-    (3, "Paste the cron expression",
-        "Paste the expression into the 'Schedule' field. "
-        "Example for 07:00 Mon–Fri: 0 7 * * 1-5"),
-    (4, "Set the URL",
-        "URL: https://boothop.com/api/run-pipeline/{slug} "
-        "Method: POST · add header: X-Pipeline-Secret: {pipeline_secret}"),
-    (5, "Save and test",
-        "Click Save. Use 'Run Now' to trigger a test bake — check the Pipeline tab "
-        "for the client to confirm a bake job appears."),
+    (1, "Open the Schedule tab",
+        "Go to /admin/company/{id} → Schedule tab. Set the slot times (client's local "
+        "time), active days, and timezone."),
+    (2, "Save",
+        "Writes straight to that client's client_profile.json, pushed to both the "
+        "laptop's local copy and Oracle's copy over SSH."),
+    (3, "Wait for the next dispatcher check",
+        "Takes effect within 10-15 minutes — whichever machine checks the schedule "
+        "next picks up the new time automatically."),
+    (4, "Confirm it fired",
+        "Check the Pipeline tab for the client, or watch for the Telegram "
+        "notification when the post goes out."),
 ]))
-story.append(Spacer(1, 0.2*cm))
-story.append(row_table([
-    ("Cron format", "minute hour day-of-month month day-of-week"),
-    ("07:00 daily", "0 7 * * *"),
-    ("12:00 Mon–Fri", "0 12 * * 1-5"),
-    ("18:00 Mon/Wed/Fri", "0 18 * * 1,3,5"),
-    ("09:00 Mondays only", "0 9 * * 1"),
-], col_w=[4*cm, W - 8*cm]))
 
 # ── 6. Stage 2 Credentials ───────────────────────────────────
 story.append(Paragraph("6. Stage 2 API Credentials", H2))
@@ -353,13 +351,20 @@ story.append(Paragraph("8. Activating & Pausing a Client", H2))
 story.append(Paragraph(
     "Activation and pause buttons are on the company detail page header area.", BODY))
 story.append(Spacer(1, 0.1*cm))
+story.append(warn_box(
+    "This 'Activate/Pause' button (company detail page header) only updates the "
+    "company's status in the dashboard's own database and sends the client a "
+    "welcome Telegram message — confirmed 2026-10-07, it does NOT touch the "
+    "client's actual schedule.active flag that the pipeline dispatcher reads. "
+    "To actually start or stop a client's posts, use the Schedule tab's own "
+    "active/paused control, which does write to the real profile file."
+))
 story.append(row_table([
-    ("Activate Pipeline",
-     "Sets intake_status = 'active'. Sends Telegram notification to client with schedule summary. "
-     "Pipeline will run at next cron.org slot."),
-    ("Pause Pipeline",
-     "Sets intake_status = 'paused'. Pipeline stops generating new bakes. "
-     "Existing bakes in queue are not affected. To fully stop: also disable the cron.org job."),
+    ("Activate Pipeline (header button)",
+     "Sets intake_status='active', active=1 in the DB. Sends a 'your pipeline is "
+     "now LIVE' Telegram message. Does not independently start posting — see warning above."),
+    ("Pause Pipeline (header button)",
+     "Toggles the DB's active flag. Does not independently stop posting — see warning above."),
     ("Reset Password",
      "Generates a new SHA-256 hash for the client's chosen password. "
      "You must tell the client their new password manually (Telegram or email)."),
@@ -449,19 +454,21 @@ story.append(t)
 # ── 12. Server & Deployment ──────────────────────────────────
 story.append(Paragraph("12. Server & Deployment", H2))
 story.append(row_table([
-    ("SSH access",       "ssh -i ~/.ssh/oracle_key ubuntu@140.238.73.32"),
-    ("App directory",    "/root/otb_pipeline (pulled from GitHub)"),
-    ("Restart app",      "sudo systemctl restart otb-pipeline"),
-    ("View logs",        "sudo journalctl -u otb-pipeline -f"),
-    ("GitHub sync",      "Cron job: */5 * * * * cd /root/otb_pipeline && git pull"),
+    ("SSH access",       "ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189"),
+    ("App directory",    "/opt/otb_pipeline (manually deployed, not auto-pulled)"),
+    ("Restart dashboard","sudo systemctl restart otb-dashboard"),
+    ("View logs",        "sudo journalctl -u otb-dashboard -f"),
+    ("GitHub sync",      "Manual — no cron pull. See docs/DASHBOARD_ACCESS.md for the deploy steps."),
     ("DB backup",        "Copy dashboard/otb.db off-server weekly. No automated backup currently."),
-    ("keys.env",         "/root/otb_pipeline/keys.env — never commit. "
-                          "Contains TELEGRAM_TOKEN, TG_ADMIN_CHAT_ID, platform API keys, ADMIN_PASSWORD env override."),
+    ("keys.env",         "/opt/otb_pipeline/keys.env — never commit. "
+                          "Contains TELEGRAM_TOKEN, TG_ADMIN_CHAT_ID, platform API keys. "
+                          "ADMIN_PASSWORD is NOT read from here for the dashboard — the systemd "
+                          "service's own environment variable overrides it (see §2)."),
 ]))
 story.append(Spacer(1, 0.2*cm))
 story.append(warn_box(
-    "keys.env is in .gitignore. If you add a new key variable, update keys.env on the server "
-    "manually via SSH — it will NOT be pulled from GitHub."
+    "keys.env is in .gitignore and there's no auto-deploy of any kind — update it on the "
+    "server manually via SSH, and restart whichever service reads it."
 ))
 
 # ── 13. Troubleshooting ──────────────────────────────────────
@@ -479,17 +486,21 @@ faqs = [
      "Check tg_chat_id is set correctly (no spaces, correct numeric ID). "
      "Ask client to message @userinfobot to confirm their ID. "
      "Check that the bot has not been blocked by the client."),
-    ("cron.org job fires but no bake appears",
-     "Check cron.org logs for the HTTP response code. "
-     "Common: 422 (wrong URL slug), 403 (wrong pipeline secret in header), "
-     "500 (server error — check journalctl)."),
-    ("Server unresponsive",
-     "SSH in and run: sudo systemctl status otb-pipeline. "
-     "If stopped: sudo systemctl start otb-pipeline. "
-     "If memory: sudo reboot (data is safe in DB)."),
+    ("Scheduled slot time passes but no bake appears",
+     "Check the dispatcher logs: tail -f /home/ubuntu/dispatch_scheduler.log on Oracle "
+     "(it's a cron job, not a systemd service — journalctl won't show it). On the laptop, "
+     "check logs/dispatch_scheduler.log in the pipeline folder. Confirm the client's "
+     "schedule.active is true in their profile file."),
+    ("Dashboard unresponsive",
+     "SSH in and run: sudo systemctl status otb-dashboard. "
+     "If stopped: sudo systemctl start otb-dashboard. "
+     "If memory: sudo reboot (data is safe in DB). This only affects the web dashboard — "
+     "the pipeline itself runs independently of it."),
     ("Need to add a new API key globally",
      "Add to keys.env on the server. Add os.environ.get('NEW_KEY') in config.py. "
-     "Restart the app: sudo systemctl restart otb-pipeline."),
+     "The pipeline scripts aren't a long-running process — they just pick up the new "
+     "key on their next scheduled run, no restart needed. Only restart "
+     "otb-dashboard if the dashboard app itself needs the new key."),
 ]
 for q, a in faqs:
     story.append(KeepTogether([

@@ -179,18 +179,18 @@ story.append(Paragraph(
 story.append(Spacer(1, 0.15*cm))
 story.append(Paragraph(
     "The system runs on an Oracle Cloud server (always on) and is managed through "
-    "a web dashboard at <b>boothop.com</b>. You control it from any browser. "
+    "a web dashboard at <b>http://130.162.162.189:8080</b>. You control it from any browser. "
     "Each client gets their own pipeline, schedule, and login.",
     BODY))
 story.append(Spacer(1, 0.3*cm))
 
 story.append(grid([
     ["Part",            "What it does",                             "Where it runs"],
-    ["Oracle Server",   "Hosts the app, runs the pipeline jobs",    "140.238.73.32 (always on)"],
-    ["Dashboard App",   "Web UI for you and your clients",          "boothop.com (port 8000)"],
+    ["Oracle Server",   "Hosts the app, runs the pipeline jobs",    "130.162.162.189 (always on)"],
+    ["Dashboard App",   "Web UI for you and your clients",          "130.162.162.189:8080"],
     ["SQLite Database", "Stores all client data and bake history",  "Server: /opt/otb_pipeline/dashboard/otb.db"],
-    ["GitHub Repo",     "Source of truth — server pulls every 5min","github.com/Daddyoba12/OTBPipeline"],
-    ["cron.org",        "Fires the pipeline at scheduled times",    "External service — manual setup"],
+    ["GitHub Repo",     "Source of truth — deployed manually, not auto-pulled","github.com/Daddyoba12/OTBPipeline"],
+    ["Dispatcher",      "Checks every 10-15 min, fires any due slot","Windows Task Scheduler (laptop) + Linux cron (Oracle)"],
     ["Telegram Bot",    "Notifications for you and clients",        "@BoothHopBot"],
     ["Supabase",        "Cloud video storage and sync",             "zwgngbzbdvnrdnanjded.supabase.co"],
 ], col_widths=[3.5*cm, 6.5*cm, CW-10*cm]))
@@ -215,7 +215,7 @@ story.append(Paragraph(
     "check intake applications, set API credentials, manage schedules, and activate pipelines.",
     BODY))
 story.append(Spacer(1, 0.1*cm))
-story.append(pw_row("Login URL",    "boothop.com/admin/login",  "Go here in any browser"))
+story.append(pw_row("Login URL",    "http://130.162.162.189:8080/admin/login",  "Go here in any browser"))
 story.append(pw_row("Password",     "otb-admin-2026",           "Default — change this immediately via Change Admin Password at the bottom of the admin page"))
 story.append(Spacer(1, 0.3*cm))
 story.append(tip_box(
@@ -231,7 +231,7 @@ story.append(Paragraph(
     "but see only their own pipeline, bakes, and settings.",
     BODY))
 story.append(Spacer(1, 0.1*cm))
-story.append(pw_row("Login URL", "boothop.com/pipeline-login", "Same for all clients"))
+story.append(pw_row("Login URL", "http://130.162.162.189:8080/pipeline-login", "Same for all clients"))
 story.append(Spacer(1, 0.2*cm))
 
 story.append(grid([
@@ -255,7 +255,7 @@ story.append(Paragraph(
     "Clients who forget their password do not need to call you. They can reset it themselves:",
     BODY))
 story.append(Spacer(1, 0.1*cm))
-story.append(pw_row("Forgot Password Page", "boothop.com/forgot-password", "Public — no login needed"))
+story.append(pw_row("Forgot Password Page", "http://130.162.162.189:8080/forgot-password", "Public — no login needed"))
 story.append(Spacer(1, 0.1*cm))
 story.append(info_box(
     "The client enters their Company ID and registered email. "
@@ -271,8 +271,8 @@ story.append(Paragraph(
     "It collects everything needed to set up their pipeline — no login required.",
     BODY))
 story.append(Spacer(1, 0.1*cm))
-story.append(pw_row("Intake Form",       "boothop.com/get-started",         "Public — share freely"))
-story.append(pw_row("Client Onboarding", "boothop.com/client-onboarding",   "Admin-only wizard (no auth needed but keep internal)"))
+story.append(pw_row("Intake Form",       "http://130.162.162.189:8080/get-started",         "Public — share freely"))
+story.append(pw_row("Client Onboarding", "http://130.162.162.189:8080/client-onboarding",   "Admin-only wizard (no auth needed but keep internal)"))
 
 story.append(PageBreak())
 
@@ -319,7 +319,8 @@ for stage, title, desc in steps:
 story.append(Spacer(1, 0.2*cm))
 story.append(tip_box(
     "Nothing in stages 1–5 requires any action from you or the client. "
-    "The whole process is fully automatic once the schedule is set up in cron.org."
+    "The whole process is fully automatic once the client's schedule is set — "
+    "a dispatcher checks every 10-15 minutes whether any slot is due and fires it."
 ))
 
 # ═══════════════════════════════════════════════════════════════
@@ -329,9 +330,10 @@ story.append(Spacer(1, 0.3*cm))
 story.append(Paragraph("4. Client Schedules and Timezones", H1))
 story.append(rule())
 story.append(Paragraph(
-    "Each client posts on their own local timezone. The admin portal converts "
-    "local times to UTC automatically when you set up a schedule — "
-    "because cron.org, which triggers the pipeline, always runs in UTC.",
+    "Each client posts on their own local timezone. The admin portal's Schedule tab "
+    "takes the slot times in the client's local time and writes them straight into "
+    "that client's profile file, which the dispatcher reads directly — there's no "
+    "manual UTC conversion step to do.",
     BODY))
 story.append(Spacer(1, 0.2*cm))
 
@@ -347,57 +349,55 @@ story.append(warning_box(
     "UK clocks change in late March (GMT → BST, clocks go forward 1 hour) "
     "and late October (BST → GMT, clocks go back). "
     "US Central clocks change in March and November. "
-    "When this happens, update the affected cron.org jobs by 1 hour — "
-    "otherwise posts will fire an hour early or late."
+    "The schedule stores local time and timezone name together, so daylight "
+    "saving shifts are handled automatically — nothing needs updating by hand "
+    "when the clocks change."
 ))
 story.append(Spacer(1, 0.2*cm))
 story.append(Paragraph(
     "To update or view a client's schedule: log in as admin → click the client → "
-    "Schedule tab. The page auto-calculates the correct UTC cron expression "
-    "with local-to-UTC chips showing the conversion for each slot. "
-    "Copy the expression and paste it into cron.org.",
+    "Schedule tab. Set the slot times (in the client's local time) and active days, "
+    "then Save — it's written directly into that client's profile file, both on the "
+    "laptop and on Oracle, and takes effect from the dispatcher's next check "
+    "(within 10-15 minutes).",
     BODY))
 
 story.append(PageBreak())
 
 # ═══════════════════════════════════════════════════════════════
-#  SECTION 5 — CRON.ORG SETUP
+#  SECTION 5 — HOW SCHEDULING ACTUALLY WORKS
 # ═══════════════════════════════════════════════════════════════
-story.append(Paragraph("5. Setting Up Schedules in cron.org", H1))
+story.append(Paragraph("5. How Scheduling Actually Works", H1))
 story.append(rule())
 story.append(Paragraph(
-    "cron.org is the external service that fires your pipeline at the right time. "
-    "It sends an HTTP request to your server at each scheduled slot. "
-    "You set it up once per client and only need to touch it when schedules change.",
+    "There's no external scheduling service involved — each client's slot times "
+    "live in their own profile file (client_profile.json, or client_profiles/"
+    "{slug}.json for newer clients), read directly by a dispatcher script. "
+    "Windows Task Scheduler runs it on the laptop every 15 minutes; Linux cron "
+    "runs the same script on Oracle every 10 minutes. Whichever one finds a slot "
+    "due fires it — Oracle is primary and checks first, the laptop is backup.",
     BODY))
 story.append(Spacer(1, 0.2*cm))
 
-cron_steps = [
-    ("1", "Generate the cron expression",
-     "Open boothop.com/admin/login → click the client → Schedule tab. "
-     "Set the slot times (in the client's local time) and active days. "
-     "The page immediately shows you the UTC cron expression and a local→UTC chip for each slot. "
-     "Click 'Copy All'."),
-    ("2", "Log into cron.org",
-     "Go to cron.org and sign in with the BootHop account. Click 'Add Job'."),
-    ("3", "Create one job per active slot",
-     "Paste the cron expression into the Schedule field. "
-     "Each active slot is a separate job. "
-     "Name them clearly: 'G-Inspired Slot 1 — 09:00 CT' for example."),
-    ("4", "Set the webhook URL",
-     "URL format: https://boothop.com/api/run-pipeline/{client-slug}\n"
-     "Method: POST\n"
-     "Header: X-Pipeline-Secret: {your pipeline secret from keys.env}"),
-    ("5", "Save and run a test",
-     "Click Save, then 'Run Now' to trigger a test bake. "
-     "Open the admin portal → click the client → Bakes tab. "
-     "A new bake should appear within 30 seconds."),
+sched_steps = [
+    ("1", "Set the schedule",
+     "Admin dashboard → click the client → Schedule tab. Set slot times (client's "
+     "local time) and active days, then Save."),
+    ("2", "It's written to the real profile file",
+     "The Schedule tab writes straight into that client's client_profile.json, "
+     "both locally and on Oracle — no copy-pasting a cron expression anywhere."),
+    ("3", "The dispatcher picks it up automatically",
+     "Within 10-15 minutes of the next scheduled slot time, whichever machine "
+     "checks first (normally Oracle) fires the pipeline for that client."),
+    ("4", "Confirm it ran",
+     "Open the admin portal → click the client → Bakes tab, or check the "
+     "Telegram notification that arrives when the post goes out."),
 ]
 data = [[
     Paragraph(num, s(f"n{i}", fontSize=13, textColor=ORANGE, fontName="Helvetica-Bold",
                      alignment=TA_CENTER)),
     [Paragraph(title, BOLD), Paragraph(desc, SMALL)]
-] for i, (num, title, desc) in enumerate(cron_steps)]
+] for i, (num, title, desc) in enumerate(sched_steps)]
 t = Table(data, colWidths=[1.1*cm, CW-1.1*cm])
 t.setStyle(TableStyle([
     ("VALIGN",        (0,0), (-1,-1), "TOP"),
@@ -409,18 +409,6 @@ t.setStyle(TableStyle([
 ]))
 story.append(t)
 story.append(Spacer(1, 0.2*cm))
-
-story.append(Paragraph("Common cron expressions:", H2))
-story.append(grid([
-    ["What you want",          "Cron expression (UTC)"],
-    ["09:00 London time (GMT)", "0 9 * * *"],
-    ["09:00 London time (BST)", "0 8 * * *   ← 1 hour earlier in UTC during BST"],
-    ["09:00 Chicago time (CST)","0 15 * * *"],
-    ["09:00 Chicago time (CDT)","0 14 * * *   ← 1 hour earlier in UTC during CDT"],
-    ["Mon–Fri only",            "0 9 * * 1-5"],
-    ["Mon, Wed, Fri only",      "0 9 * * 1,3,5"],
-    ["Every day",               "0 9 * * *"],
-], col_widths=[7*cm, CW-7*cm]))
 
 story.append(PageBreak())
 
@@ -437,11 +425,11 @@ story.append(Spacer(1, 0.2*cm))
 
 story.append(Paragraph("Option A — Client fills the intake form (recommended)", H2))
 onboard_a = [
-    ("1", "Share the intake URL with the client", "boothop.com/get-started"),
+    ("1", "Share the intake URL with the client", "http://130.162.162.189:8080/get-started"),
     ("2", "You receive a Telegram notification",  "Tells you the company name, email, and selected platforms"),
     ("3", "Book an onboarding call",              "Collect API credentials (TikTok, Instagram, YouTube keys etc.)"),
     ("4", "Fill Stage 2 credentials",             "Admin portal → client → Credentials tab → save"),
-    ("5", "Set the schedule",                     "Admin portal → client → Schedule tab → generate cron expression → set up in cron.org"),
+    ("5", "Set the schedule",                     "Admin portal → client → Schedule tab → Save (writes straight to the client's profile file)"),
     ("6", "Click Activate Pipeline",              "Admin portal → client → Activate button. Client receives a Telegram with their schedule."),
 ]
 data2 = [[Paragraph(n, s(f"x{i}", fontSize=10, textColor=ORANGE, fontName="Helvetica-Bold",
@@ -474,7 +462,7 @@ story.append(grid([
     ["submitted", "Client filled the intake form",  "Review, book onboarding call, fill Stage 2 credentials"],
     ["stage2",    "Credentials saved",              "Set the schedule in Schedule tab, then activate"],
     ["active",    "Pipeline is live and posting",   "Nothing — it runs automatically"],
-    ["paused",    "Pipeline temporarily stopped",   "Click Activate to resume, update cron.org if needed"],
+    ["paused",    "Pipeline temporarily stopped",   "Click Activate to resume — no other action needed"],
 ], col_widths=[2.5*cm, 5.5*cm, CW-8*cm]))
 
 story.append(PageBreak())
@@ -485,7 +473,7 @@ story.append(PageBreak())
 story.append(Paragraph("7. The Admin Portal", H1))
 story.append(rule())
 story.append(Paragraph(
-    "Everything you need to manage clients is at boothop.com/admin/login. "
+    "Everything you need to manage clients is at http://130.162.162.189:8080/admin/login. "
     "Here is what each section does.",
     BODY))
 story.append(Spacer(1, 0.2*cm))
@@ -505,7 +493,7 @@ story.append(Paragraph("Company Detail Page Tabs", H2))
 story.append(grid([
     ["Tab",          "What you can do"],
     ["Profile",      "View business info, social handles, contact details. Reset the client's password."],
-    ["Schedule",     "Set slot times in the client's timezone, choose active days, copy the UTC cron expression for cron.org."],
+    ["Schedule",     "Set slot times in the client's timezone, choose active days, Save — writes straight to the client's profile file."],
     ["Credentials",  "Enter API keys for TikTok, Instagram, YouTube, LinkedIn, Pexels, Pixabay after the onboarding call."],
     ["Bakes",        "Full history of every video generated — hook text, platforms, timestamp, status."],
     ["Danger",       "Permanently delete the company and all its data. Cannot be undone."],
@@ -642,7 +630,7 @@ story.append(Paragraph(
 
 story.append(Paragraph("Client forgot password — self-service reset", H2))
 story.append(Paragraph(
-    "The client goes to boothop.com/forgot-password, enters their Company ID and email. "
+    "The client goes to http://130.162.162.189:8080/forgot-password, enters their Company ID and email. "
     "A reset link is sent to their Telegram. They click the link, enter a new password, "
     "and can log in immediately. The link expires after 1 hour.",
     BODY))
@@ -667,21 +655,23 @@ story.append(Paragraph("11. Server and Deployment", H1))
 story.append(rule())
 story.append(Paragraph(
     "The system runs on an Oracle Cloud always-free server. "
-    "Code changes pushed to GitHub appear on the server within 5 minutes automatically.",
+    "There is no auto-deploy — code changes pushed to GitHub do NOT appear on the "
+    "server automatically. You (or whoever's helping you) need to SSH in and pull, "
+    "or copy the changed file over, then restart the affected service.",
     BODY))
 story.append(Spacer(1, 0.15*cm))
 
 story.append(grid([
     ["Item",             "Detail"],
-    ["Server IP",        "140.238.73.32"],
+    ["Server IP",        "130.162.162.189"],
     ["SSH key",          "~/.ssh/oracle_boothop.pem  (on your laptop)"],
-    ["SSH command",      "ssh -i ~/.ssh/oracle_boothop.pem ubuntu@140.238.73.32"],
+    ["SSH command",      "ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189"],
     ["App directory",    "/opt/otb_pipeline"],
     ["Database",         "/opt/otb_pipeline/dashboard/otb.db"],
     ["API keys file",    "/opt/otb_pipeline/keys.env  (never committed to GitHub)"],
-    ["Restart app",      "sudo systemctl restart otb-pipeline"],
-    ["View live logs",   "sudo journalctl -u otb-pipeline -f"],
-    ["GitHub sync",      "Automatic every 5 minutes — push to main branch to deploy"],
+    ["Restart dashboard","sudo systemctl restart otb-dashboard"],
+    ["View live logs",   "sudo journalctl -u otb-dashboard -f"],
+    ["Deploy code",      "Manual — see docs/HOW_IT_RUNS.md and docs/DASHBOARD_ACCESS.md"],
 ], col_widths=[3.8*cm, CW-3.8*cm]))
 
 story.append(Spacer(1, 0.25*cm))
@@ -704,9 +694,10 @@ problems = [
      "Check the Company ID is correct (lowercase, hyphens). "
      "Reset their password via Profile tab → Reset Password."),
     ("Pipeline is not posting",
-     "Check cron.org — is the job enabled and is it hitting the right URL? "
+     "Check the client's schedule.active flag isn't paused — Schedule tab shows this. "
      "Check the Bakes tab — is a new bake showing at all? "
-     "Check the server logs: sudo journalctl -u otb-pipeline -f"),
+     "Check the dispatcher logs: tail -f /home/ubuntu/dispatch_scheduler.log on Oracle "
+     "(it's a cron job, not a systemd service, so journalctl won't show it)."),
     ("Bake shows 'failed'",
      "Open the Bakes tab for the client and click the failed row. "
      "Common causes: expired API token (update in Credentials tab), "
@@ -716,13 +707,15 @@ problems = [
      "Ask them to message @userinfobot to confirm their Chat ID. "
      "Make sure they have not blocked the bot."),
     ("Wrong posting time — posts 1 hour off",
-     "Clocks have changed (DST). Update the cron.org UTC time by 1 hour for affected clients. "
-     "UK clients: update in March (forward) and October (back). "
-     "US clients: update in March and November."),
-    ("Server not responding",
-     "SSH in and run: sudo systemctl status otb-pipeline. "
-     "If stopped: sudo systemctl start otb-pipeline. "
-     "If out of memory: sudo reboot (data is safe)."),
+     "The schedule stores a timezone name (e.g. Europe/London) alongside local time, "
+     "so daylight saving shifts should be automatic — this shouldn't happen anymore. "
+     "If it does, check the client's profile file has the correct IANA timezone name "
+     "(not just a UTC offset) in schedule.timezone."),
+    ("Dashboard not responding",
+     "SSH in and run: sudo systemctl status otb-dashboard. "
+     "If stopped: sudo systemctl start otb-dashboard. "
+     "If out of memory: sudo reboot (data is safe). Note this only affects the web "
+     "dashboard — the pipeline itself keeps running on its own schedule regardless."),
     ("Forgot admin password",
      "The default password is otb-admin-2026. "
      "If you changed it and forgot it, SSH into the server and run: "
