@@ -40,13 +40,13 @@ tr:last-child td{border-bottom:none}
 
     <h2>Super User (Admin)</h2>
     <table>
-      <tr><td>Login URL</td><td>boothop.com/admin/login</td></tr>
-      <tr><td>Super User Guide</td><td>boothop.com/admin/guide</td></tr>
-      <tr><td>Password</td><td>Stored as hash in DB &mdash; change from bottom of boothop.com/admin</td></tr>
+      <tr><td>Login URL</td><td>130.162.162.189:8080/admin/login</td></tr>
+      <tr><td>Super User Guide</td><td>130.162.162.189:8080/admin/guide</td></tr>
+      <tr><td>Password</td><td>Stored as hash in DB &mdash; change from bottom of 130.162.162.189:8080/admin</td></tr>
     </table>
-    <div class="note">If ever locked out: SSH to Oracle and set ADMIN_PASSWORD in /opt/otb_pipeline/keys.env, then sudo systemctl restart otb-pipeline.</div>
+    <div class="note">If ever locked out: re-run deploy/deploy_dashboard_oracle.ps1 with a new -AdminPassword (editing keys.env alone won't work — the systemd service's own environment variable overrides it). See docs/DASHBOARD_ACCESS.md.</div>
 
-    <h2>Client Logins &mdash; boothop.com/pipeline-login</h2>
+    <h2>Client Logins &mdash; 130.162.162.189:8080/pipeline-login</h2>
     <table>
       <tr><td>G-Inspired</td><td>ID: g-inspired &nbsp;|&nbsp; PW: ginspired-2026</td></tr>
       <tr><td>D818 Catering</td><td>ID: d818 &nbsp;|&nbsp; PW: d818-2026</td></tr>
@@ -55,40 +55,40 @@ tr:last-child td{border-bottom:none}
 
     <h2>Password Reset Process</h2>
     <table>
-      <tr><td>Client self-service</td><td>boothop.com/forgot-password &mdash; enter Company ID + email, link sent to email AND Telegram, expires 1 hour</td></tr>
+      <tr><td>Client self-service</td><td>130.162.162.189:8080/forgot-password &mdash; enter Company ID + email, link sent to email AND Telegram, expires 1 hour</td></tr>
       <tr><td>Admin resets client</td><td>Admin portal &rarr; company page &rarr; Profile tab &rarr; set new password</td></tr>
-      <tr><td>Admin resets own PW</td><td>boothop.com/admin &rarr; scroll to bottom &rarr; Change Admin Password form</td></tr>
+      <tr><td>Admin resets own PW</td><td>130.162.162.189:8080/admin &rarr; scroll to bottom &rarr; Change Admin Password form</td></tr>
     </table>
 
     <h2>Online Manuals (live &mdash; auto-update)</h2>
     <table>
-      <tr><td>Client Guide</td><td>boothop.com/manual &mdash; PUBLIC, no login needed. Share this link with clients. Covers login, dashboard, Telegram setup, WhatsApp setup, FAQ.</td></tr>
-      <tr><td>Super User Guide</td><td>boothop.com/admin/guide &mdash; Admin login required. Full reference: server SSH, cron.org, all platform API credential guides, troubleshooting.</td></tr>
+      <tr><td>Client Guide</td><td>130.162.162.189:8080/manual &mdash; PUBLIC, no login needed. Share this link with clients. Covers login, dashboard, Telegram setup, WhatsApp setup, FAQ.</td></tr>
+      <tr><td>Super User Guide</td><td>130.162.162.189:8080/admin/guide &mdash; Admin login required. Full reference: server SSH, how scheduling works, all platform API credential guides, troubleshooting.</td></tr>
     </table>
     <div class="note">Both manuals update automatically every time a change is pushed to GitHub. Bookmark the URL &mdash; never save a PDF copy.</div>
 
     <h2>All Key URLs</h2>
     <table>
-      <tr><td>Admin overview</td><td>boothop.com/admin</td></tr>
-      <tr><td>Client login</td><td>boothop.com/pipeline-login</td></tr>
-      <tr><td>Forgot password</td><td>boothop.com/forgot-password</td></tr>
-      <tr><td>Client Guide</td><td>boothop.com/manual</td></tr>
-      <tr><td>Super User Guide</td><td>boothop.com/admin/guide</td></tr>
-      <tr><td>Onboarding form</td><td>boothop.com/get-started</td></tr>
-      <tr><td>Manual onboard</td><td>boothop.com/client-onboarding</td></tr>
-      <tr><td>48h activity feed</td><td>boothop.com/feed</td></tr>
-      <tr><td>Telegram commander</td><td>boothop.com/commander</td></tr>
+      <tr><td>Admin overview</td><td>130.162.162.189:8080/admin</td></tr>
+      <tr><td>Client login</td><td>130.162.162.189:8080/pipeline-login</td></tr>
+      <tr><td>Forgot password</td><td>130.162.162.189:8080/forgot-password</td></tr>
+      <tr><td>Client Guide</td><td>130.162.162.189:8080/manual</td></tr>
+      <tr><td>Super User Guide</td><td>130.162.162.189:8080/admin/guide</td></tr>
+      <tr><td>Onboarding form</td><td>130.162.162.189:8080/get-started</td></tr>
+      <tr><td>Manual onboard</td><td>130.162.162.189:8080/client-onboarding</td></tr>
+      <tr><td>48h activity feed</td><td>130.162.162.189:8080/feed</td></tr>
+      <tr><td>Telegram commander</td><td>130.162.162.189:8080/commander</td></tr>
     </table>
 
     <h2>Oracle Server (SSH)</h2>
     <table>
-      <tr><td>IP address</td><td>140.238.73.32</td></tr>
-      <tr><td>SSH command</td><td>ssh -i ~/.ssh/oracle_boothop.pem ubuntu@140.238.73.32</td></tr>
+      <tr><td>IP address</td><td>130.162.162.189</td></tr>
+      <tr><td>SSH command</td><td>ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189</td></tr>
       <tr><td>App path</td><td>/opt/otb_pipeline</td></tr>
       <tr><td>API keys file</td><td>/opt/otb_pipeline/keys.env</td></tr>
-      <tr><td>Restart app</td><td>sudo systemctl restart otb-pipeline</td></tr>
-      <tr><td>Live logs</td><td>journalctl -u otb-pipeline -f</td></tr>
-      <tr><td>Deploy</td><td>Push to GitHub main branch &mdash; server auto-pulls every 5 min</td></tr>
+      <tr><td>Restart app</td><td>sudo systemctl restart otb-dashboard</td></tr>
+      <tr><td>Live logs</td><td>journalctl -u otb-dashboard -f</td></tr>
+      <tr><td>Deploy</td><td>Push to GitHub main branch &mdash; manual deploy only — no auto-pull</td></tr>
     </table>
 
   </div>
@@ -103,45 +103,46 @@ plain = """BOOTHOP PIPELINE -- MASTER REFERENCE
 =====================================
 
 SUPER USER (ADMIN)
-  Login:      boothop.com/admin/login
-  Guide:      boothop.com/admin/guide
+  Login:      130.162.162.189:8080/admin/login
+  Guide:      130.162.162.189:8080/admin/guide
   Password:   Stored as DB hash -- change from bottom of admin portal
-  Locked out? Set ADMIN_PASSWORD in /opt/otb_pipeline/keys.env on Oracle
+  Locked out? Re-run deploy_dashboard_oracle.ps1 with a new -AdminPassword
+  (editing keys.env alone won't work -- systemd's own env var overrides it)
 
-CLIENT LOGINS  (boothop.com/pipeline-login)
+CLIENT LOGINS  (130.162.162.189:8080/pipeline-login)
   G-Inspired:   ID: g-inspired    PW: ginspired-2026
   D818:         ID: d818          PW: d818-2026
   BootHop:      ID: boothop       PW: boothop-pipeline-2026
 
 PASSWORD RESET
-  Client self-service:  boothop.com/forgot-password
+  Client self-service:  130.162.162.189:8080/forgot-password
                         Company ID + email -> link sent to email + Telegram (expires 1hr)
   Admin resets client:  Admin portal -> company -> Profile tab
-  Admin resets own PW:  boothop.com/admin -> scroll to bottom -> Change Admin Password
+  Admin resets own PW:  130.162.162.189:8080/admin -> scroll to bottom -> Change Admin Password
 
 ONLINE MANUALS (auto-update on every GitHub push)
-  Client Guide (public):    boothop.com/manual
-  Super User Guide (admin): boothop.com/admin/guide
+  Client Guide (public):    130.162.162.189:8080/manual
+  Super User Guide (admin): 130.162.162.189:8080/admin/guide
 
 ALL KEY URLS
-  Admin overview:      boothop.com/admin
-  Client login:        boothop.com/pipeline-login
-  Forgot password:     boothop.com/forgot-password
-  Client Guide:        boothop.com/manual
-  Super User Guide:    boothop.com/admin/guide
-  Onboarding form:     boothop.com/get-started
-  Manual onboard:      boothop.com/client-onboarding
-  48h feed:            boothop.com/feed
-  Commander:           boothop.com/commander
+  Admin overview:      130.162.162.189:8080/admin
+  Client login:        130.162.162.189:8080/pipeline-login
+  Forgot password:     130.162.162.189:8080/forgot-password
+  Client Guide:        130.162.162.189:8080/manual
+  Super User Guide:    130.162.162.189:8080/admin/guide
+  Onboarding form:     130.162.162.189:8080/get-started
+  Manual onboard:      130.162.162.189:8080/client-onboarding
+  48h feed:            130.162.162.189:8080/feed
+  Commander:           130.162.162.189:8080/commander
 
 ORACLE SERVER
-  IP:       140.238.73.32
-  SSH:      ssh -i ~/.ssh/oracle_boothop.pem ubuntu@140.238.73.32
+  IP:       130.162.162.189
+  SSH:      ssh -i ~/.ssh/oracle_boothop.pem ubuntu@130.162.162.189
   App:      /opt/otb_pipeline
   Keys:     /opt/otb_pipeline/keys.env
-  Restart:  sudo systemctl restart otb-pipeline
-  Logs:     journalctl -u otb-pipeline -f
-  Deploy:   push to GitHub main -- auto-pulls every 5 min
+  Restart:  sudo systemctl restart otb-dashboard
+  Logs:     journalctl -u otb-dashboard -f
+  Deploy:   push to GitHub main -- manual deploy only — no auto-pull
 """
 
 msg = MIMEMultipart("alternative")
