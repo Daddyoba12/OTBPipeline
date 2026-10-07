@@ -47,6 +47,14 @@ BASE_PATH       = os.environ.get("BASE_PATH", "")
 _ORACLE_IP   = "130.162.162.189"
 _ORACLE_USER = "ubuntu"
 _ORACLE_KEY  = Path.home() / ".ssh" / "oracle_boothop.pem"
+
+# This dashboard is NOT hosted at boothop.com (that's the separate Next.js site on
+# Vercel) — it runs directly on this box, no domain/TLS set up yet. Several places
+# used to hardcode "https://boothop.com/..." into real password-reset emails and
+# Telegram messages sent to actual clients, which would have been broken links.
+# Fixed 2026-10-07 — use this constant so there's one place to update if/when a
+# real domain + reverse proxy + TLS gets set up for this dashboard.
+_DASHBOARD_BASE_URL = f"http://{_ORACLE_IP}:8080"
 _G_INS_LOCAL = PIPELINE.parent / "g_inspired" / "client_profile.json"
 
 _SCHEDULE_PIPELINES = {
@@ -1280,7 +1288,7 @@ async def admin_change_password(
 def _send_reset_telegram(chat_id: str, slug: str, token: str):
     try:
         import requests as _r
-        url = f"https://boothop.com/reset-password/{token}"
+        url = f"{_DASHBOARD_BASE_URL}/reset-password/{token}"
         msg = (
             f"Password reset requested for: {slug}\n\n"
             f"Click the link below to set a new password:\n{url}\n\n"
@@ -1302,7 +1310,7 @@ def _send_reset_email(to_email: str, slug: str, token: str):
         import smtplib
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
-        reset_url = f"https://boothop.com/reset-password/{token}"
+        reset_url = f"{_DASHBOARD_BASE_URL}/reset-password/{token}"
         msg = MIMEMultipart("alternative")
         msg["Subject"] = "BootHop Pipeline — Password Reset"
         msg["From"]    = f"BootHop Pipeline <{gmail_user}>"
@@ -1327,7 +1335,7 @@ def _send_reset_email(to_email: str, slug: str, token: str):
   </a>
   <p style="color:#aaa;font-size:11px;margin-top:28px;line-height:1.6;border-top:1px solid #f0f0f0;padding-top:16px">
     This link expires in 1 hour. If you did not request a password reset, you can safely ignore this email.<br>
-    BootHop Pipeline &middot; boothop.com
+    BootHop Pipeline
   </p>
 </div></body></html>"""
         msg.attach(MIMEText(plain, "plain"))
@@ -1534,7 +1542,7 @@ def _notify_admin_new_intake(company: str, slug: str, email: str, platforms: lis
         msg = (f"New pipeline intake submitted!\n\n"
                f"Company: {company}\nSlug: {slug}\nEmail: {email or 'not provided'}\n"
                f"Platforms: {', '.join(platforms) or 'none selected'}\n\n"
-               f"Review at: boothop.com/admin")
+               f"Review at: {_DASHBOARD_BASE_URL}/admin")
         _r.post(
             f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage",
             json={"chat_id": TELEGRAM_CHAT_ID, "text": msg},
@@ -1676,7 +1684,7 @@ def _notify_client_activated(co: dict):
             f"You will receive a Telegram video preview each time a slot runs. "
             f"Reply to approve or use Revoice Studio to change the voiceover before it posts.\n\n"
             f"Log in to your dashboard:\n"
-            f"boothop.com/pipeline-login\n"
+            f"{_DASHBOARD_BASE_URL}/pipeline-login\n"
             f"Company ID: {co.get('slug', '')}"
         )
         _r.post(
