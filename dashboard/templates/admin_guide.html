@@ -238,9 +238,9 @@ sudo systemctl restart otb-dashboard</pre>
     <li>SSH in and run <code>cd /opt/otb_pipeline && git pull && sudo systemctl restart otb-dashboard</code> — or, for files that don't self-update via git (like this dashboard's own main.py, or pipeline_d818.py / pipeline_kling.py), <code>scp</code> the changed file over directly and restart whichever service reads it</li>
     <li>Check <code>sudo systemctl status otb-dashboard</code> (or the relevant service) to confirm it came back up</li>
   </ol>
-  <div class="card warn">
-    <div class="card-label">Oracle's working tree has uncommitted local changes</div>
-    Running a bare <code>git pull</code> can fail or conflict — check <code>git status</code> first. See docs/HOW_IT_RUNS.md and docs/DASHBOARD_ACCESS.md for the full picture.
+  <div class="card info">
+    <div class="card-label">Oracle's git state was reconciled 2026-10-07</div>
+    It had drifted 23 commits behind with several files showing as locally modified — turned out to be stale git bookkeeping, not real divergent edits (confirmed byte-identical to origin/main modulo line endings). Fixed with a verified-safe <code>git reset --hard origin/main</code>. Still always check <code>git status</code> before a bare <code>git pull</code> in case drift returns — see docs/HOW_IT_RUNS.md Known Gotchas.
   </div>
   <div class="card warn">
     <div class="card-label">Database file</div>

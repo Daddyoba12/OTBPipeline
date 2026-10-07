@@ -32,6 +32,12 @@ dashboard/companies/
 deploy/deploy/
 scripts/scripts/
 
+# Live runtime database — every client's credentials, schedule, bake history.
+# Found tracked by git 2026-10-07 (it shouldn't be — see deploy/backup_db.sh
+# for the actual backup mechanism). Untracking, not deleting.
+dashboard/otb.db
+dashboard/backups/
+
 # Credentials & secrets
 .env
 keys.env
@@ -40,6 +46,7 @@ social_credentials.json
 youtube_token*.json
 youtube_credentials*.json
 blog/config.json
+blog/pending/
 client_profile.json
 client_profiles/
 *.pem

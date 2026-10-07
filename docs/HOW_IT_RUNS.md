@@ -496,13 +496,12 @@ Stop-Process -Id <OLD_PID> -Force
 ```
 
 ### Sync latest pipeline code to Oracle
-**Important (confirmed 2026-10-05): Oracle does NOT auto-pull from git.** There's no `git pull` cron entry, and `git status` on Oracle already shows several locally-modified files that were never committed — so a bare `git pull` risks a merge conflict with Oracle-only changes. Check `git diff <file>` there first; if the diff is something the laptop's current version already includes (i.e. it was already committed properly at some point), it's safe to overwrite. Otherwise, pushing to GitHub does **nothing** on Oracle until someone deploys it:
+**Important: Oracle does NOT auto-pull from git.** There's no `git pull` cron entry — pushing to GitHub does **nothing** on Oracle until someone deploys it. (Oracle's git tracking was also stale/diverged for a long stretch — checked and fully reconciled 2026-10-07, see Known Gotchas. Still always check `git status` there before a bare `git pull`, in case new drift has crept back in.)
 ```powershell
 git push origin main   # pushes to GitHub, but Oracle won't see it on its own
 
 $k = "$env:USERPROFILE\.ssh\oracle_boothop.pem"
-# pipeline.py pulls git itself at the top of every run, but ONLY if Oracle's
-# working tree has no uncommitted changes blocking the pull — check first:
+# pipeline.py pulls git itself at the top of every run — quick sanity check:
 ssh -i $k ubuntu@130.162.162.189 "cd /opt/otb_pipeline && git status --short"
 
 # pipeline_d818.py and pipeline_kling.py have NO self-pull — always scp them directly:
@@ -542,7 +541,10 @@ The Task Scheduler tasks can end up in a `Disabled` state. This happened in Augu
 If a slot keeps running the same version (always V1 or always V2), check `data/version_state.json`. The `next_version` field should alternate between `"v1"` and `"v2"`. If it's stuck, edit the file manually or use `/v1` or `/v2` in Telegram.
 
 **Oracle code out of date (corrected 2026-10-05 — this entry was wrong)**
-Oracle does **not** auto-pull from GitHub — there's no `git pull` cron entry on Oracle at all. `pipeline.py` pulls git itself at the start of every run (but can be blocked by Oracle's own uncommitted local changes — check `git status` there first). `pipeline_d818.py` and `pipeline_kling.py` have no self-pull logic whatsoever, so any fix to those two files sits inert on GitHub until manually `scp`'d over. This is exactly what happened 2026-10-04: a lock-handling fix was pushed and tested on the laptop, but Oracle (the *primary* machine — see §1) kept running the old broken code for hours because nothing ever deployed it there. See the sync command in §13, and the duplicate-`pipeline_kling.py` gotcha below.
+Oracle does **not** auto-pull from GitHub — there's no `git pull` cron entry on Oracle at all. `pipeline.py` pulls git itself at the start of every run. `pipeline_d818.py` and `pipeline_kling.py` have no self-pull logic whatsoever, so any fix to those two files sits inert on GitHub until manually `scp`'d over. This is exactly what happened 2026-10-04: a lock-handling fix was pushed and tested on the laptop, but Oracle (the *primary* machine — see §1) kept running the old broken code for hours because nothing ever deployed it there. See the sync command in §13, and the duplicate-`pipeline_kling.py` gotcha below.
+
+**Oracle's git HEAD was stale for an unknown length of time (reconciled 2026-10-07)**
+`git status` on Oracle showed `config.py` and 7 `scripts/*.py` files as locally modified relative to Oracle's own git HEAD, which itself was 23 commits behind `origin/main` (still pointing at a commit from 2026-10-03). Diffed every one of those files against current `origin/main` before touching anything: all were **byte-identical modulo line endings** — someone had been `scp`-deploying already-committed changes straight to Oracle without ever updating its git ref, for who knows how long. Confirmed-safe `git reset --hard origin/main` resolved it in one shot — no content was at risk, no merge needed. Also found and removed while cleaning up: a `scripts_scripts_DEBRIS_safe_to_delete/` folder (unreferenced anywhere, but containing **live credential files** — `youtube_credentials.json`, `youtube_token.json`, `youtube_token_d818.json`, `social_credentials.json`) and a stray `scripts/user_clip_log.json` with a hardcoded Windows path, useless on a Linux box. If `git status` on Oracle ever shows a wall of modified files again, diff each against `origin/main` with `-b` (ignore whitespace) before assuming real content has diverged — it may just be line endings again.
 
 **Duplicate `scripts/pipeline_kling.py` on Oracle (fixed 2026-10-06)**
 Found 2026-10-05: Oracle had a second, untracked copy of `pipeline_kling.py` sitting at `scripts/pipeline_kling.py`, separate from the real tracked one at the project root. Because `sys.path.insert(0, BASE/"scripts")` runs after `sys.path.insert(0, BASE)`, the `scripts/` copy won import resolution — meaning a fix deployed only to the root file could silently fail to take effect. Confirmed both copies were byte-identical and nothing referenced the `scripts/` path explicitly, then deleted the stray copy on Oracle. §13's sync command now only needs to target the root path. Worth remembering the general lesson even though this specific instance is gone: if a second copy of a script ever turns up elsewhere in `sys.path`, the *earlier* path wins silently — always check both `sys.path` order and for stray duplicates before concluding a deployed fix "isn't working."
