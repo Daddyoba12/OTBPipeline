@@ -110,7 +110,13 @@ def _set_profile_active(path, active: bool):
 
 
 def _oracle_set_active(oracle_path: str, active: bool) -> str:
-    val = "true" if active else "false"
+    # Bug found + fixed 2026-10-07: this built Python code with the JSON
+    # spelling ("true"/"false") instead of Python's ("True"/"False"), so
+    # every call raised NameError on Oracle and silently failed (caught by
+    # the except Exception below) — the pause/resume + activate buttons
+    # never actually updated Oracle's copy of a client's profile, only the
+    # local one, for however long this existed.
+    val = "True" if active else "False"
     cmd = [
         "ssh", "-i", str(_ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
         "-o", "ConnectTimeout=10", f"{_ORACLE_USER}@{_ORACLE_IP}",
@@ -1646,6 +1652,26 @@ async def admin_complete_intake(
     return RedirectResponse(f"/admin/company/{company_id}?tab=credentials", status_code=303)
 
 
+def _sync_pipeline_active(company_id: int, active: bool) -> str:
+    """Mirror the dashboard's activate/pause state into the real profile file
+    (local + Oracle) that the pipeline dispatcher actually reads. Added
+    2026-10-07 — these buttons previously only touched the dashboard's own
+    DB columns (intake_status/active), same disconnect as the Schedule tab
+    fix: for the 3 provisioned clients, the pipeline's schedule.active flag
+    is what actually gates posting, and nothing wired this button to it."""
+    with _db() as c:
+        row = c.execute("SELECT slug FROM companies WHERE id=?", (company_id,)).fetchone()
+    if not row:
+        return "unknown company"
+    cfg = _SCHEDULE_PIPELINES.get(row["slug"].replace("-", "_"))
+    if not cfg or not cfg.get("local_profile"):
+        return "no pipeline wired up for this client — dashboard status only"
+    _set_profile_active(cfg["local_profile"], active)
+    oracle_path = cfg.get("oracle_profile")
+    oracle_result = _oracle_set_active(oracle_path, active) if oracle_path else "skipped"
+    return f"ok (oracle: {oracle_result})"
+
+
 @app.post("/admin/activate/{company_id}")
 async def admin_activate(company_id: int, session_token: str | None = Cookie(None)):
     sess = _get_sess(session_token)
@@ -1654,6 +1680,8 @@ async def admin_activate(company_id: int, session_token: str | None = Cookie(Non
     with _db() as c:
         c.execute("UPDATE companies SET intake_status='active', active=1 WHERE id=?", (company_id,))
         co = c.execute("SELECT * FROM companies WHERE id=?", (company_id,)).fetchone()
+    sync_result = _sync_pipeline_active(company_id, True)
+    print(f"[Activate] company_id={company_id} pipeline sync: {sync_result}")
     if co:
         _notify_client_activated(dict(co))
     return RedirectResponse(f"/admin/company/{company_id}?msg=activated", status_code=303)
@@ -1705,6 +1733,8 @@ async def admin_pause(company_id: int, session_token: str | None = Cookie(None))
         row = c.execute("SELECT active FROM companies WHERE id=?", (company_id,)).fetchone()
         new_active = 0 if row and row["active"] else 1
         c.execute("UPDATE companies SET active=? WHERE id=?", (new_active, company_id))
+    sync_result = _sync_pipeline_active(company_id, bool(new_active))
+    print(f"[Pause] company_id={company_id} new_active={new_active} pipeline sync: {sync_result}")
     return RedirectResponse(f"/admin/company/{company_id}", status_code=303)
 
 
