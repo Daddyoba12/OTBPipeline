@@ -45,7 +45,7 @@ Oracle backup fires exactly 1 hour after each UTC time above (08:00, 14:00, 21:0
 
 There are 10+ scheduled tasks under the `OTB_*` prefix. The key ones:
 
-- **OTB_Dispatch_BootHop / OTB_Dispatch_GInspired / OTB_Dispatch_D818** — three **independent** tasks (as of 2026-09-28; see incident note below), each running every 15 minutes, each calling `deploy/dispatch_scheduler.py --client <slug>`. Each checks only its own client's schedule and, if a slot is in-window, runs that client's pipeline script (blocking, with a 90-minute hard timeout — see below). Because each client has its own lock file and now its own task/process entirely, one client hanging can never block another's slot from firing.
+- **OTB_Dispatch_BootHop / OTB_Dispatch_GInspired / OTB_Dispatch_D818 / OTB_Dispatch_NewsFlash** — four **independent** tasks (NewsFlash added 2026-10-07; the other three as of 2026-09-28; see incident notes below), each running every 15 minutes, each calling `deploy/dispatch_scheduler.py --client <slug>`. Each checks only its own client's schedule and, if a slot is in-window, runs that client's pipeline script (blocking, with a 90-minute hard timeout — see below). Because each client has its own lock file and now its own task/process entirely, one client hanging can never block another's slot from firing.
 - **OTB_MultiClientDispatcher** — the old combined task (all 3 clients in one sequential loop). Disabled, kept only as a manual fallback. Do not re-enable without understanding why it was retired (see below).
 - **OTB_Commander** — starts `scripts/telegram_commander.py` and keeps it running.
 - **OTB_MusicRefresh** — runs at 06:00, fetches today's trending music tracks.
@@ -73,6 +73,7 @@ Get-ScheduledTask | Where-Object TaskName -like "OTB_*" | Enable-ScheduledTask
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client boothop    >> /home/ubuntu/dispatch_scheduler.log 2>&1
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client g_inspired >> /home/ubuntu/dispatch_scheduler.log 2>&1
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client d818       >> /home/ubuntu/dispatch_scheduler.log 2>&1
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client newsflash  >> /home/ubuntu/dispatch_scheduler.log 2>&1
 
 # Weekly intelligence — Monday 05:30 UTC (06:30 London BST) before slot 1 fires
 30  5 * * 1    cd /opt/otb_pipeline && python3 scripts/weekly_run.py
@@ -556,6 +557,9 @@ YouTube OAuth tokens expire or get revoked. If you see `invalid_grant: Token has
 
 **Pipeline lock (`data/pipeline.lock`, `data/d818_pipeline.lock`) stuck / repeated "pipeline lock held" messages**
 See the dedicated explanation in §4. Short version: fixed 2026-10-04/05 so the lock (a) always releases even on a crash/hang (previously could stay stuck up to 90 min), and (b) releases right after rendering instead of being held through the whole approval wait + posting (previously caused noisy false-positive "lock held, try again shortly" messages on every dispatcher retry during a normal, longer-than-10-min approval wait). If you're seeing this message again now, it means something is genuinely stuck — check `locked_at` age and whether a matching process is actually running (§13) before clearing it.
+
+**NewsFlash ran on the laptop with no Oracle coordination (fixed 2026-10-07)**
+`scripts/post_newsflash.py` was never part of the Oracle-primary/laptop-backup system described in §1/§4 — it ran on its own standalone daily Task Scheduler task (`OTB-NewsFlash`, flat trigger, no window check) with **no Oracle cron entry at all** and **no claim/lock logic of its own**, so it always ran on the laptop regardless of anything Oracle did. Fixed by: (1) adding `_already_ran_today()`/`_claim_today()` to `post_newsflash.py` itself, using the same Supabase `otb_pipeline_state` claim pattern as the other three pipelines (its own dedicated row, `slot=777`); (2) registering `newsflash` as a fourth client in `deploy/dispatch_scheduler.py`'s `CLIENTS` list (`client_profiles/newsflash.json`, single daily slot, `slot_arg: False` since it has no per-slot concept); (3) adding the matching cron line on Oracle and an `OTB_Dispatch_NewsFlash` task on the laptop (`deploy/add_newsflash_dispatch_task.ps1` — must be run from an elevated PowerShell), replacing the old standalone `OTB-NewsFlash` task (disabled, not deleted, same convention as `OTB_MultiClientDispatcher`).
 
 **No post despite pipeline running**
 1. Check `data/pipeline_crash.log` (or `data/d818_pipeline_crash.log`) for the error

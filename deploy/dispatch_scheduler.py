@@ -98,6 +98,21 @@ CLIENTS = [
         "slot_arg":    True,
         "env_base":    None,
     },
+    # BootHop Flight NewsFlash — single daily run, no --slot concept (platform is
+    # chosen internally by weekday). Added 2026-10-07: previously ran ONLY on a
+    # flat daily laptop Task Scheduler trigger with no Oracle equivalent and no
+    # dedup at all — see HOW_IT_RUNS.md Known Gotchas. Now goes through the same
+    # Oracle-primary/laptop-backup window as the other clients; post_newsflash.py
+    # itself holds the Supabase claim (slot=777) that prevents the double-run.
+    {
+        "slug":        "newsflash",
+        "name":        "BootHop NewsFlash",
+        "profile":     BASE / "client_profiles" / "newsflash.json",
+        "script":      BASE / "scripts" / "post_newsflash.py",
+        "cwd":         BASE,
+        "slot_arg":    False,
+        "env_base":    None,
+    },
 ]
 
 

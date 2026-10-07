@@ -36,6 +36,8 @@ import requests
 
 _LOG_PATH   = DATA / "newsflash_log.json"
 _DEALS_PATH = DATA / "flight_deals.json"
+RAN_TODAY       = DATA / "newsflash_ran_today.json"
+NEWSFLASH_SLOT  = 777  # dedicated otb_pipeline_state row — keeps clear of 0/818/919
 
 # Corridor priority score (higher = preferred Deal of Day)
 _CORRIDOR_PRIORITY = {
@@ -576,10 +578,81 @@ def _post(platform: str, video_path: Path, content: dict) -> bool:
         return False
 
 
+# ── Cross-machine dedup (laptop backup / Oracle primary) ───────────────────────
+# Same Supabase-claim pattern as pipeline.py / pipeline_d818.py / pipeline_g_inspired.py,
+# using NEWSFLASH_SLOT as this job's own otb_pipeline_state row. Needed because, unlike
+# those three, NewsFlash previously ran on a flat daily laptop trigger with no awareness
+# of Oracle at all — see HOW_IT_RUNS.md Known Gotchas, fixed 2026-10-07.
+
+def _already_ran_today() -> bool:
+    """Prevent double-runs of NewsFlash on the same day across laptop + Oracle."""
+    today = str(date.today())
+    try:
+        if RAN_TODAY.exists():
+            ran = json.loads(RAN_TODAY.read_text())
+            if ran.get(today):
+                return True
+    except Exception:
+        pass
+    try:
+        from scripts.push_pipeline_state import _rest
+        r = _rest("GET", f"otb_pipeline_state?slot=eq.{NEWSFLASH_SLOT}&select=ran_slots_json")
+        if r is not None and r.ok:
+            rows = r.json()
+            if rows:
+                raw = rows[0].get("ran_slots_json") or "[]"
+                claimed = json.loads(raw) if isinstance(raw, str) else raw
+                if f"{today}:news" in claimed:
+                    _log("[Guard] NewsFlash already claimed in Supabase today — skipping")
+                    return True
+    except Exception:
+        pass  # Supabase offline — fall through to local-only check
+    return False
+
+
+def _claim_today():
+    """Write today's claim locally + upsert to Supabase so both machines see it."""
+    today = str(date.today())
+    try:
+        existing = {}
+        if RAN_TODAY.exists():
+            existing = json.loads(RAN_TODAY.read_text())
+        existing[today] = True
+        RAN_TODAY.write_text(json.dumps(existing))
+    except Exception:
+        pass
+    try:
+        from scripts.push_pipeline_state import _rest
+        r = _rest("GET", f"otb_pipeline_state?slot=eq.{NEWSFLASH_SLOT}&select=ran_slots_json")
+        claimed = []
+        if r is not None and r.ok and r.json():
+            raw = r.json()[0].get("ran_slots_json") or "[]"
+            claimed = json.loads(raw) if isinstance(raw, str) else raw
+        claimed = [e for e in claimed if not e.startswith(("20", "19")) or e >= f"{today}:"]
+        entry = f"{today}:news"
+        if entry not in claimed:
+            claimed.append(entry)
+        # POST upsert (Prefer: resolution=merge-duplicates, via _rest's default headers)
+        # self-creates the slot=777 row on the very first run — no manual seeding needed.
+        _rest("POST", "otb_pipeline_state", json={
+            "slot":           NEWSFLASH_SLOT,
+            "ran_slots_json": json.dumps(claimed),
+            "updated_at":     datetime.now().isoformat(),
+        })
+    except Exception:
+        pass  # Non-fatal — local file is the fallback
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def run():
     _log("=== Flight News Flash starting ===")
+
+    if _already_ran_today():
+        _log("Already posted today on another machine — skipping")
+        return
+    _claim_today()
+
     today = date.today()
     platform = _PLATFORM_BY_DAY[today.weekday()]
     _log(f"Today is {today.strftime('%A')} — posting to {platform}")

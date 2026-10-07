@@ -42,6 +42,11 @@ cat > /tmp/newcron << 'CRON'
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client boothop    >> /home/ubuntu/dispatch_scheduler.log 2>&1
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client g_inspired >> /home/ubuntu/dispatch_scheduler.log 2>&1
 */10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client d818       >> /home/ubuntu/dispatch_scheduler.log 2>&1
+# NewsFlash (added 2026-10-07) — previously had NO Oracle cron entry at all, so
+# it only ever ran on the laptop's flat daily Task Scheduler trigger with no
+# dedup. Now goes through the same dispatcher window as the other 3 clients;
+# post_newsflash.py holds its own Supabase claim (slot=777) for the actual dedup.
+*/10 * * * * cd /opt/otb_pipeline && python3 deploy/dispatch_scheduler.py --client newsflash  >> /home/ubuntu/dispatch_scheduler.log 2>&1
 CRON
 crontab /tmp/newcron
 echo "Crontab installed:"
