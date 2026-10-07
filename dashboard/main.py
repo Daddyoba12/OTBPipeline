@@ -49,9 +49,6 @@ _ORACLE_USER = "ubuntu"
 _ORACLE_KEY  = Path.home() / ".ssh" / "oracle_boothop.pem"
 _G_INS_LOCAL = PIPELINE.parent / "g_inspired" / "client_profile.json"
 
-_D818_TASKS = ["D818-Morning", "D818-Afternoon", "D818-Evening",
-               "D818-Weekend", "D818-Weekly", "D818-ApprovalCheck"]
-
 _SCHEDULE_PIPELINES = {
     "boothop": {
         "label":         "BootHop",
@@ -73,9 +70,16 @@ _SCHEDULE_PIPELINES = {
     },
     "d818": {
         "label":         "D818",
-        "local_profile": None,
-        "oracle_profile": None,
-        "tasks":         _D818_TASKS,
+        # Fixed 2026-10-07: this used to toggle Windows Task Scheduler tasks
+        # named D818-Morning/D818-Afternoon/etc, which were renamed to
+        # OTB_Dispatch_D818 during the 2026-09-28 dispatcher
+        # consolidation (see HOW_IT_RUNS.md). The pause/resume buttons were
+        # silently no-ops against tasks that no longer exist. D818 runs
+        # through the same dispatcher + schedule.active flag as BootHop and
+        # G-Inspired now, so it uses the same profile-file mechanism here.
+        "local_profile": PIPELINE / "client_profiles" / "d818.json",
+        "oracle_profile": "/opt/otb_pipeline/client_profiles/d818.json",
+        "tasks":         [],
     },
 }
 
@@ -111,6 +115,93 @@ def _oracle_set_active(oracle_path: str, active: bool) -> str:
         return "ok" if r.returncode == 0 else r.stderr.strip()[:120]
     except Exception as e:
         return str(e)[:120]
+
+
+# Added 2026-10-07: wires the admin Schedule tab to the real profile files
+# dispatch_scheduler.py actually reads. Previously this tab only wrote to
+# the dashboard's own schedule_json DB column, which nothing else consumed
+# — editing a client's schedule here had zero effect on when the pipeline
+# fired. See HOW_IT_RUNS.md §2 for the real schedule.slots shape.
+_DAY_NAME_TO_INT = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
+
+
+def _oracle_push_schedule(oracle_path: str, schedule_patch: dict) -> str:
+    """Merge timezone+slots into the schedule dict of a profile file on Oracle,
+    leaving other schedule keys (like 'active') untouched. Patch is staged as
+    a temp file and scp'd over rather than inlined into the SSH command, since
+    the slots list is nested JSON that's fragile to shell-escape correctly."""
+    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False, encoding="utf-8")
+    try:
+        json.dump(schedule_patch, tmp)
+        tmp.close()
+        remote_tmp = f"/tmp/_schedule_patch_{os.getpid()}.json"
+        r1 = subprocess.run(
+            ["scp", "-i", str(_ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+             "-o", "ConnectTimeout=10", tmp.name, f"{_ORACLE_USER}@{_ORACLE_IP}:{remote_tmp}"],
+            capture_output=True, text=True, timeout=20,
+        )
+        if r1.returncode != 0:
+            return f"scp failed: {r1.stderr.strip()[:120]}"
+        r2 = subprocess.run(
+            ["ssh", "-i", str(_ORACLE_KEY), "-o", "StrictHostKeyChecking=no",
+             "-o", "ConnectTimeout=10", f"{_ORACLE_USER}@{_ORACLE_IP}",
+             f"python3 -c \"import json,os; p=json.load(open('{oracle_path}')); "
+             f"patch=json.load(open('{remote_tmp}')); "
+             f"p.setdefault('schedule', {{}}).update(patch); "
+             f"json.dump(p, open('{oracle_path}','w'), indent=2); "
+             f"os.remove('{remote_tmp}'); print('ok')\""],
+            capture_output=True, text=True, timeout=20,
+        )
+        return "ok" if r2.returncode == 0 else r2.stderr.strip()[:120]
+    except Exception as e:
+        return str(e)[:120]
+    finally:
+        try:
+            os.unlink(tmp.name)
+        except Exception:
+            pass
+
+
+def _push_schedule_to_profile(cfg: dict, slot_times: dict, day_names: list, timezone: str) -> str:
+    """Write slot times into the real client_profile.json (local + Oracle).
+    Only touches slot numbers with a non-empty time value — leaves other
+    slots in the file alone so a blank field in the form never deletes an
+    existing slot."""
+    path = cfg.get("local_profile")
+    if not path or not Path(path).exists():
+        return "no pipeline profile for this client (new/unprovisioned client) — saved to dashboard only"
+
+    p = json.loads(Path(path).read_text(encoding="utf-8"))
+    sched = p.setdefault("schedule", {})
+    sched["timezone"] = timezone
+    slots = sched.setdefault("slots", [])
+
+    day_ints = sorted(_DAY_NAME_TO_INT[d] for d in day_names if d in _DAY_NAME_TO_INT)
+    daily = len(day_ints) == 0 or len(day_ints) == 7
+
+    for slot_num, time_val in slot_times.items():
+        if not time_val:
+            continue
+        existing = next((s for s in slots if s.get("pipeline_slot") == slot_num), None)
+        if existing:
+            existing["time"] = time_val
+            if daily:
+                existing.pop("days", None)
+            else:
+                existing["days"] = day_ints
+        else:
+            new_slot = {"time": time_val, "pipeline_slot": slot_num, "label": f"slot{slot_num}"}
+            if not daily:
+                new_slot["days"] = day_ints
+            slots.append(new_slot)
+
+    Path(path).write_text(json.dumps(p, indent=2), encoding="utf-8")
+
+    oracle_path = cfg.get("oracle_profile")
+    if oracle_path:
+        oracle_result = _oracle_push_schedule(oracle_path, {"timezone": timezone, "slots": slots})
+        return f"ok (oracle: {oracle_result})"
+    return "ok (local only — no oracle profile configured for this client)"
 
 
 def _set_tasks(task_names: list, enable: bool):
@@ -1488,21 +1579,39 @@ async def admin_set_schedule(
     slot2_time: str = Form(""),
     slot3_time: str = Form(""),
     slot4_time: str = Form(""),
-    active_days: list[str] = Form([]),
+    active_days: str = Form(""),
     timezone:   str = Form("Europe/London"),
     session_token: str | None = Cookie(None),
 ):
     sess = _get_sess(session_token)
     if not sess or not sess["is_admin"]:
         raise HTTPException(403)
+    # active_days arrives as ONE comma-joined hidden field (see
+    # admin_company.html's #h-days input), not repeated form fields —
+    # this was previously declared as list[str] = Form([]), which silently
+    # captured it as a single one-element list instead of raising an error.
+    day_names = [d for d in active_days.split(",") if d]
     schedule = {
         "slot1": slot1_time, "slot2": slot2_time,
         "slot3": slot3_time, "slot4": slot4_time,
-        "days": active_days, "timezone": timezone,
+        "days": day_names, "timezone": timezone,
     }
     with _db() as c:
         c.execute("UPDATE companies SET schedule_json=? WHERE id=?",
                   (json.dumps(schedule), company_id))
+        row = c.execute("SELECT slug FROM companies WHERE id=?", (company_id,)).fetchone()
+
+    push_result = "unknown company"
+    if row:
+        pipeline_key = row["slug"].replace("-", "_")
+        cfg = _SCHEDULE_PIPELINES.get(pipeline_key)
+        if cfg:
+            slot_times = {1: slot1_time, 2: slot2_time, 3: slot3_time, 4: slot4_time}
+            push_result = _push_schedule_to_profile(cfg, slot_times, day_names, timezone)
+        else:
+            push_result = "no pipeline wired up for this client — saved to dashboard only"
+    print(f"[Schedule] company_id={company_id} push result: {push_result}")
+
     return RedirectResponse(f"/admin/company/{company_id}?tab=schedule", status_code=303)
 
 
