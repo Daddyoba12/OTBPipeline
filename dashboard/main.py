@@ -92,6 +92,37 @@ _SCHEDULE_PIPELINES = {
 }
 
 
+def _discover_generic_profiles() -> None:
+    """Mutates _SCHEDULE_PIPELINES in place, adding any client_profiles/<slug>.json
+    with pipeline_type == 'generic' not already present — Phase 7 of the dynamic
+    provisioning plan (.claude/plans/fluttering-singing-perlis.md). The 4 hardcoded
+    entries above are never touched; this only ADDS keys, so a newly provisioned
+    client gets working Activate/Pause/Schedule buttons with no code changes here.
+    Safe to call repeatedly — cheap local directory scan, wrapped in try/except."""
+    try:
+        for path in (PIPELINE / "client_profiles").glob("*.json"):
+            if path.name.endswith(".credentials.json"):
+                continue
+            try:
+                profile = json.loads(path.read_text(encoding="utf-8"))
+            except Exception:
+                continue
+            if profile.get("pipeline_type") != "generic":
+                continue
+            slug = profile.get("slug") or path.stem
+            key = slug.replace("-", "_")
+            if key in _SCHEDULE_PIPELINES:
+                continue
+            _SCHEDULE_PIPELINES[key] = {
+                "label":          profile.get("brand_name", slug),
+                "local_profile":  path,
+                "oracle_profile": f"/opt/otb_pipeline/client_profiles/{slug}.json",
+                "tasks":          [],
+            }
+    except Exception as e:
+        print(f"[Discover] generic profile scan failed: {e}")
+
+
 def _profile_active(path) -> bool | None:
     try:
         if path and Path(path).exists():
@@ -1558,6 +1589,7 @@ async def admin_set_schedule(
 
     push_result = "unknown company"
     if row:
+        _discover_generic_profiles()
         pipeline_key = row["slug"].replace("-", "_")
         cfg = _SCHEDULE_PIPELINES.get(pipeline_key)
         if cfg:
@@ -1714,6 +1746,7 @@ def _sync_pipeline_active(company_id: int, active: bool) -> str:
         row = c.execute("SELECT slug FROM companies WHERE id=?", (company_id,)).fetchone()
     if not row:
         return "unknown company"
+    _discover_generic_profiles()
     cfg = _SCHEDULE_PIPELINES.get(row["slug"].replace("-", "_"))
     if not cfg or not cfg.get("local_profile"):
         return "no pipeline wired up for this client — dashboard status only"
@@ -2162,6 +2195,7 @@ async def approve_slot(
 async def schedule_status_api(session_token: str | None = Cookie(None)):
     if not _get_sess(session_token):
         raise HTTPException(401)
+    _discover_generic_profiles()
     result = {}
     for key, cfg in _SCHEDULE_PIPELINES.items():
         if cfg["tasks"]:
@@ -2173,6 +2207,7 @@ async def schedule_status_api(session_token: str | None = Cookie(None)):
 
 
 def _apply_schedule_action(pipeline: str, active: bool) -> dict:
+    _discover_generic_profiles()
     keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
     results = {}
     for key in keys:
@@ -2194,6 +2229,7 @@ async def pause_pipeline_api(
 ):
     if not _get_sess(session_token):
         raise HTTPException(401)
+    _discover_generic_profiles()
     keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
     if not all(k in _SCHEDULE_PIPELINES for k in keys):
         raise HTTPException(400, "unknown pipeline")
@@ -2207,6 +2243,7 @@ async def resume_pipeline_api(
 ):
     if not _get_sess(session_token):
         raise HTTPException(401)
+    _discover_generic_profiles()
     keys = list(_SCHEDULE_PIPELINES.keys()) if pipeline == "all" else [pipeline]
     if not all(k in _SCHEDULE_PIPELINES for k in keys):
         raise HTTPException(400, "unknown pipeline")
