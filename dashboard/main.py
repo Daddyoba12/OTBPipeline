@@ -1596,6 +1596,113 @@ async def admin_complete_intake(
     return RedirectResponse(f"/admin/company/{company_id}?tab=credentials", status_code=303)
 
 
+# ── Dynamic client provisioning (added 2026-10-08) ─────────────────────────────
+# See .claude/plans/fluttering-singing-perlis.md. compile_profile() makes one
+# AI call to turn a company's onboarding data into the creative fields a real
+# client_profiles/<slug>.json needs; an admin reviews/edits the result before
+# anything is written to the path the pipeline dispatcher actually reads.
+
+@app.post("/admin/generate-profile/{company_id}")
+async def admin_generate_profile(company_id: int, session_token: str | None = Cookie(None)):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        co = c.execute("SELECT * FROM companies WHERE id=?", (company_id,)).fetchone()
+    if not co:
+        raise HTTPException(404)
+    co_dict = dict(co)
+    co_dict["platforms_enabled"] = json.loads(co_dict.get("platforms_enabled") or "[]")
+
+    sys.path.insert(0, str(PIPELINE / "scripts"))
+    from profile_compiler import compile_profile  # lazy import — keeps this
+    # heavy-ish dependency (ai_providers -> config) out of the dashboard's
+    # startup path; only loaded when an admin actually clicks "Generate".
+
+    try:
+        generated = compile_profile(co_dict)
+        error = None
+    except Exception as e:
+        generated = None
+        error = str(e)[:300]
+
+    if generated is not None:
+        gen_dir = _co_dir(co_dict["slug"])
+        (gen_dir / "generated_profile.json").write_text(
+            json.dumps(generated, indent=2), encoding="utf-8")
+
+    return RedirectResponse(
+        f"/admin/company/{company_id}?tab=provision"
+        + (f"&gen_error={error}" if error else "&msg=profile_generated"),
+        status_code=303,
+    )
+
+
+@app.post("/admin/provision/{company_id}")
+async def admin_provision(
+    company_id: int,
+    profile_json: str = Form(...),
+    session_token: str | None = Cookie(None),
+):
+    sess = _get_sess(session_token)
+    if not sess or not sess["is_admin"]:
+        raise HTTPException(403)
+    with _db() as c:
+        co = c.execute("SELECT * FROM companies WHERE id=?", (company_id,)).fetchone()
+    if not co:
+        raise HTTPException(404)
+    co_dict = dict(co)
+    slug = co_dict["slug"]
+
+    try:
+        generated = json.loads(profile_json)
+    except Exception as e:
+        return RedirectResponse(
+            f"/admin/company/{company_id}?tab=provision&gen_error=Invalid JSON: {str(e)[:200]}",
+            status_code=303,
+        )
+
+    social = {}
+    if co_dict.get("tt_handle"):
+        social["tiktok"] = co_dict["tt_handle"]
+    if co_dict.get("ig_handle"):
+        social["instagram"] = co_dict["ig_handle"]
+    if co_dict.get("facebook_url"):
+        social["facebook"] = co_dict["facebook_url"]
+
+    profile = {
+        "slug": slug,
+        "brand_name": co_dict.get("name", slug),
+        "niche": co_dict.get("business_bio", ""),
+        "website": co_dict.get("website_url", ""),
+        "location": co_dict.get("location", ""),
+        "area_covered": co_dict.get("area_covered", ""),
+        "phone": "",
+        "contact_email": co_dict.get("email", ""),
+        "contact_name": co_dict.get("contact", ""),
+        "industry": co_dict.get("business_type", ""),
+        "social": social,
+        "target_audience": co_dict.get("target_audience", ""),
+        "content_tone": co_dict.get("content_tone", ""),
+        "visual_keywords": co_dict.get("visual_keywords", ""),
+        "brand_voice": co_dict.get("brand_voice", ""),
+        "pipeline_type": "generic",
+        "schedule": {"active": False, "timezone": "Europe/London", "slots": []},
+        **generated,  # content_pillars, brand_lines, cta_phrases, hashtags,
+                      # end_card_palettes, hard_constraints,
+                      # visual_terms_allowlist, visual_query_qualifiers,
+                      # visual_query_fallback_bank
+    }
+
+    local_path = PIPELINE / "client_profiles" / f"{slug}.json"
+    local_path.parent.mkdir(exist_ok=True)
+    local_path.write_text(json.dumps(profile, indent=2), encoding="utf-8")
+    oracle_result = _oracle_write_json(f"/opt/otb_pipeline/client_profiles/{slug}.json", profile)
+    print(f"[Provision] company_id={company_id} slug={slug} oracle: {oracle_result}")
+
+    return RedirectResponse(f"/admin/company/{company_id}?tab=provision&msg=provisioned", status_code=303)
+
+
 def _sync_pipeline_active(company_id: int, active: bool) -> str:
     """Mirror the dashboard's activate/pause state into the real profile file
     (local + Oracle) that the pipeline dispatcher actually reads. Added
@@ -1752,6 +1859,13 @@ async def admin_company_detail(
     creds      = json.loads(co_dict.get("credentials_json") or "{}")
     schedule   = json.loads(co_dict.get("schedule_json")    or "{}")
     platforms  = json.loads(co_dict.get("platforms_enabled") or "[]")
+
+    gen_profile_path = _co_dir(co_dict["slug"]) / "generated_profile.json"
+    generated_profile_json = (gen_profile_path.read_text(encoding="utf-8")
+                               if gen_profile_path.exists() else "")
+    provisioned_path = PIPELINE / "client_profiles" / f"{co_dict['slug']}.json"
+    already_provisioned = provisioned_path.exists()
+
     return templates.TemplateResponse(request, "admin_company.html", {
         "request":  request,
         "co":       co_dict,
@@ -1761,6 +1875,9 @@ async def admin_company_detail(
         "bakes":    [dict(b) for b in bakes],
         "tab":      tab,
         "msg":      msg or request.query_params.get("msg", ""),
+        "gen_error": request.query_params.get("gen_error", ""),
+        "generated_profile_json": generated_profile_json,
+        "already_provisioned": already_provisioned,
     })
 
 

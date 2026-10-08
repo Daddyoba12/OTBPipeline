@@ -165,6 +165,7 @@ td{padding:9px 8px;vertical-align:middle}
   <button class="tab-btn {% if tab=='profile' %}active{% endif %}" onclick="switchTab('profile',this)">Profile</button>
   <button class="tab-btn {% if tab=='schedule' %}active{% endif %}" onclick="switchTab('schedule',this)">Schedule</button>
   <button class="tab-btn {% if tab=='credentials' %}active{% endif %}" onclick="switchTab('credentials',this)">Credentials</button>
+  <button class="tab-btn {% if tab=='provision' %}active{% endif %}" onclick="switchTab('provision',this)">Provision</button>
   <button class="tab-btn {% if tab=='bakes' %}active{% endif %}" onclick="switchTab('bakes',this)">Bakes ({{ bakes|length }})</button>
   <button class="tab-btn" onclick="switchTab('danger',this)">Danger</button>
 </div>
@@ -464,6 +465,56 @@ td{padding:9px 8px;vertical-align:middle}
       <button type="submit" class="save-btn">Save Credentials</button>
     </form>
   </div>
+
+</div>
+
+<!-- ── PROVISION TAB (added 2026-10-08, dynamic client provisioning) ── -->
+<div class="tab-pane {% if tab=='provision' %}active{% endif %}" id="tab-provision">
+
+  {% if already_provisioned %}
+  <div class="card" style="border-left:3px solid #2ecc71">
+    <div class="card-title">✓ Already provisioned</div>
+    <p style="font-size:.8rem;color:var(--muted);line-height:1.6">
+      client_profiles/{{ co.slug }}.json already exists — this client is wired
+      into the pipeline dispatcher. Re-provisioning below will overwrite its
+      content_pillars/brand_lines/CTAs/etc, but won't touch its schedule
+      (set that from the Schedule tab) or un-pause it.
+    </p>
+  </div>
+  {% endif %}
+
+  {% if gen_error %}
+  <div class="card" style="border-left:3px solid #e74c3c">
+    <div class="card-title">Generation failed</div>
+    <p style="font-size:.8rem;color:#e74c3c">{{ gen_error }}</p>
+  </div>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-title">1. Generate creative profile</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px;line-height:1.6">
+      One AI call, using this client's bio/tone/keywords from their intake
+      form, produces content pillars, brand lines, hashtags, end-card colours,
+      and visual-search rules. Review everything below before provisioning —
+      nothing is written to the live pipeline until you click Provision.
+    </p>
+    <form method="post" action="/admin/generate-profile/{{ co.id }}">
+      <button type="submit" class="save-btn">{{ 'Regenerate' if generated_profile_json else 'Generate Profile' }}</button>
+    </form>
+  </div>
+
+  {% if generated_profile_json %}
+  <div class="card">
+    <div class="card-title">2. Review &amp; edit</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:10px;line-height:1.6">
+      Edit anything that looks off before provisioning — this is plain JSON.
+    </p>
+    <form method="post" action="/admin/provision/{{ co.id }}">
+      <textarea name="profile_json" rows="24" style="width:100%;font-family:monospace;font-size:.78rem;background:#0d0d14;color:#e0e0f0;border:1px solid #ffffff18;border-radius:8px;padding:12px">{{ generated_profile_json }}</textarea>
+      <button type="submit" class="save-btn" style="margin-top:12px">3. Provision (writes to client_profiles/{{ co.slug }}.json)</button>
+    </form>
+  </div>
+  {% endif %}
 
 </div>
 
