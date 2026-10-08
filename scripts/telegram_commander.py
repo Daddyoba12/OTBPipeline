@@ -10,7 +10,7 @@ Pending queue:   pending_newspaper.json / pending_story.json / pending_linkedin.
 Cleanup:         48-hour message deletion (runs automatically on startup)
 """
 
-import json, os, subprocess, sys, tempfile, threading, time
+import json, os, re, subprocess, sys, tempfile, threading, time
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -107,6 +107,18 @@ def _write_web_approval_d818(slot: int, decision: str):
         print(f"[Cmdr] D818 approval written → {decision} (Slot {slot})")
     except Exception as e:
         print(f"[Cmdr] Could not write D818 approval file: {e}")
+
+
+def _write_web_approval_generic(client_slug: str, slot: int, decision: str):
+    """Same as _write_web_approval_d818 but namespaced by client_slug — added
+    2026-10-08 for dynamically-provisioned clients (see
+    .claude/plans/fluttering-singing-perlis.md Phase 5)."""
+    try:
+        f = DATA / f"web_approval_{client_slug}_{slot}.json"
+        f.write_text(json.dumps({"decision": decision, "source": "telegram_button"}))
+        print(f"[Cmdr] {client_slug} approval written → {decision} (Slot {slot})")
+    except Exception as e:
+        print(f"[Cmdr] Could not write {client_slug} approval file: {e}")
 
 
 def _log_message(msg_id: int):
@@ -2111,6 +2123,150 @@ def send_result_d818(slot: int, results: dict, content: dict = None):
     _send("\n".join(lines))
 
 
+# ── Generic (dynamically-provisioned) clients ──────────────────────────────────
+# Added 2026-10-08, see .claude/plans/fluttering-singing-perlis.md Phase 5.
+# Parameterized siblings of the _d818 functions above — same file-based
+# approval mechanism, same structure, just templated by client_slug/brand_name
+# instead of hardcoded to one client. New code only; send_video_preview_d818/
+# poll_for_decision_d818/send_result_d818 above are untouched.
+
+def send_video_preview_generic(video_path: str, caption: str, slot: int, content: dict,
+                                client_slug: str, brand_name: str) -> int | None:
+    """Send a generic-pipeline client's video preview to Telegram with
+    Post / Skip / Regen buttons."""
+    pillar = content.get("pillar", "")
+
+    v1_caption = (
+        f"🎬 <b>{brand_name} Slot {slot}</b>  {pillar.upper()}\n"
+        f"<b>Hook:</b> {content.get('hook', '')}\n"
+        f"<b>Lesson:</b> {content.get('lesson', '')}"
+    )
+    try:
+        with open(video_path, "rb") as vf:
+            r1 = requests.post(
+                f"{BASE_URL}/sendVideo",
+                data={"chat_id": TELEGRAM_CHAT_ID, "caption": v1_caption,
+                      "parse_mode": "HTML", "supports_streaming": "true"},
+                files={"video": vf}, timeout=120,
+            )
+        if r1.ok:
+            _log_message(r1.json().get("result", {}).get("message_id", 0))
+    except Exception as e:
+        print(f"[Cmdr] {client_slug} preview failed: {e}")
+
+    approval_text = (
+        f"🎬 <b>{brand_name} Slot {slot}</b> ready.\n\n"
+        f"<b>Hashtags:</b>\n<code>{content.get('hashtags_tiktok', '')[:200]}</code>\n\n"
+        f"<i>Tap Post Now to go live immediately, or Skip/Regen.</i>"
+    )
+    keyboard = {
+        "inline_keyboard": [
+            [
+                {"text": f"✅ Post Now ({brand_name})", "callback_data": f"g_{client_slug}_post_{slot}"},
+                {"text": "⏭ Skip",                       "callback_data": f"g_{client_slug}_skip_{slot}"},
+            ],
+            [
+                {"text": "🔄 Regen", "callback_data": f"g_{client_slug}_regen_{slot}"},
+            ],
+        ]
+    }
+    msg = _send(approval_text, keyboard)
+    return msg.get("result", {}).get("message_id")
+
+
+def poll_for_decision_generic(slot: int, client_slug: str, timeout_sec: int = 20 * 60) -> str:
+    """Poll for Post / Skip / Regen decision on a generic client's slot.
+    Returns "post" | "skip" | "regen" | "timeout" — same file-based mechanism
+    as poll_for_decision_d818, namespaced by client_slug instead of hardcoded."""
+    start        = time.time()
+    offset       = _load_offset()
+    cmdr_running = _is_commander_running()
+    print(
+        f"[Cmdr] Polling for {client_slug} Slot {slot} decision ({timeout_sec//60}min window) "
+        f"— commander {'RUNNING (file mode)' if cmdr_running else 'not running (TG mode)'}…"
+    )
+    _pa = DATA / f"pending_approval_{client_slug}_{slot}.json"
+    _pa.write_text(json.dumps({"slot": slot, "since": datetime.now().isoformat()}),
+                   encoding="utf-8")
+
+    while time.time() - start < timeout_sec:
+        web_approval = DATA / f"web_approval_{client_slug}_{slot}.json"
+        if web_approval.exists():
+            try:
+                d = json.loads(web_approval.read_text(encoding="utf-8"))
+                decision = d.get("decision", "")
+                web_approval.unlink(missing_ok=True)
+                if decision in ("post", "skip", "regen"):
+                    _pa.unlink(missing_ok=True)
+                    print(f"[Cmdr] {client_slug} decision: {decision} (Slot {slot})")
+                    return decision
+            except Exception:
+                web_approval.unlink(missing_ok=True)
+
+        if cmdr_running:
+            time.sleep(5)
+            continue
+
+        try:
+            r = requests.get(
+                f"{BASE_URL}/getUpdates",
+                params={"offset": offset, "timeout": 20, "allowed_updates": ["callback_query"]},
+                timeout=30,
+            )
+            updates = r.json().get("result", [])
+        except Exception as e:
+            print(f"[Cmdr] {client_slug} poll error: {e}")
+            time.sleep(5)
+            continue
+
+        for upd in updates:
+            offset = upd["update_id"] + 1
+            _save_offset(offset)
+            cb   = upd.get("callback_query", {})
+            data = cb.get("data", "")
+            try:
+                requests.post(f"{BASE_URL}/answerCallbackQuery",
+                              json={"callback_query_id": cb.get("id", "")}, timeout=5)
+            except Exception:
+                pass
+
+            if data == f"g_{client_slug}_post_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🎬 {client_slug} Slot {slot} — posting now!")
+                return "post"
+            elif data == f"g_{client_slug}_skip_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🎬 {client_slug} Slot {slot} — skipped.")
+                return "skip"
+            elif data == f"g_{client_slug}_regen_{slot}":
+                _pa.unlink(missing_ok=True)
+                _send(f"🎬 {client_slug} Slot {slot} — regenerating…")
+                return "regen"
+
+    _pa.unlink(missing_ok=True)
+    print(f"[Cmdr] {client_slug} Slot {slot} — window elapsed, auto-posting.")
+    _send(f"🎬 {client_slug} Slot {slot} — approval window passed, posting now.")
+    return "timeout"
+
+
+def send_result_generic(slot: int, results: dict, client_slug: str, brand_name: str, content: dict = None):
+    """Send post-slot results summary to Telegram for a generic client."""
+    lines = [f"🎬 <b>{brand_name} Slot {slot} — Results</b>"]
+    if content:
+        hook = content.get("hook", "")[:120]
+        if hook:
+            lines.append(f"🎯 <i>{hook}</i>")
+        lines.append("")
+    for platform, result in results.items():
+        icon  = "✅" if result else "❌"
+        label = _RESULT_LABELS.get(platform, platform.replace("_", " ").title())
+        if result and result not in ("posted", "failed"):
+            lines.append(f"{icon} {label}: <code>{result}</code>")
+        else:
+            lines.append(f"{icon} {label}: {'posted' if result else 'failed'}")
+    _send("\n".join(lines))
+
+
 # ── Control panel keyboard ────────────────────────────────────────────────────
 
 def _control_panel_keyboard() -> dict:
@@ -2547,6 +2703,23 @@ def _poll_once(offset: int) -> int:
                         "post":  f"🍽️ D818 Slot {_slot_str} — posting now!",
                         "skip":  f"🍽️ D818 Slot {_slot_str} — skipped.",
                         "regen": f"🍽️ D818 Slot {_slot_str} — regenerating…",
+                    }
+                    _send(_msgs.get(_decision, f"OK: {data}"))
+
+            # Generic-pipeline approval buttons from send_video_preview_generic
+            # (g_{client_slug}_post_N / g_{client_slug}_skip_N / g_{client_slug}_regen_N).
+            # "g_" prefix can never collide with BootHop's post_/skip_/regen_ or D818's
+            # d818post_/d818skip_/d818regen_. client_slug never contains underscores
+            # (slugify uses hyphens), so a plain regex split is safe.
+            elif data.startswith("g_"):
+                _m = re.match(r"^g_(.+)_(post|skip|regen)_(\d+)$", data)
+                if _m:
+                    _client_slug, _decision, _slot_str = _m.group(1), _m.group(2), _m.group(3)
+                    _write_web_approval_generic(_client_slug, int(_slot_str), _decision)
+                    _msgs = {
+                        "post":  f"🎬 {_client_slug} Slot {_slot_str} — posting now!",
+                        "skip":  f"🎬 {_client_slug} Slot {_slot_str} — skipped.",
+                        "regen": f"🎬 {_client_slug} Slot {_slot_str} — regenerating…",
                     }
                     _send(_msgs.get(_decision, f"OK: {data}"))
 
