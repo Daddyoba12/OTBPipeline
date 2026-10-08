@@ -116,6 +116,47 @@ CLIENTS = [
 ]
 
 
+# ── Dynamic discovery (Phase 6 of dynamic provisioning — additive only) ──────
+# Any client_profiles/<slug>.json with "pipeline_type": "generic" is picked up
+# automatically — no developer edits CLIENTS by hand for these. The 4 entries
+# above are a static literal and are never touched by this; discovery can only
+# ADD slugs not already present. Wrapped in its own try/except so a bad/
+# malformed profile can never break the dispatcher for the existing clients.
+
+def _discover_generic_clients(existing_slugs: set) -> list:
+    discovered = []
+    try:
+        for path in sorted((BASE / "client_profiles").glob("*.json")):
+            if path.name.endswith(".credentials.json"):
+                continue
+            try:
+                profile = _load_profile(path)
+                if profile.get("pipeline_type") != "generic":
+                    continue
+                slug = profile.get("slug") or path.stem
+                if slug in existing_slugs:
+                    continue
+                discovered.append({
+                    "slug":       slug,
+                    "name":       profile.get("brand_name", slug),
+                    "profile":    path,
+                    "script":     BASE / "pipeline_generic.py",
+                    "cwd":        BASE,
+                    "slot_arg":   True,
+                    "env_base":   None,
+                    "client_arg": slug,
+                })
+                existing_slugs.add(slug)
+            except Exception as e:
+                print(f"  [Discover] skipping {path.name}: {e}")
+    except Exception as e:
+        print(f"  [Discover] client_profiles scan failed: {e}")
+    return discovered
+
+
+CLIENTS += _discover_generic_clients({c["slug"] for c in CLIENTS})
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _next_fire(slot_time: str, tz: ZoneInfo) -> datetime:
@@ -156,6 +197,8 @@ def _run_client(client: dict, slot: dict, dry_run: bool):
     cmd = [PYTHON, str(client["script"])]
     if client["slot_arg"] and "pipeline_slot" in slot:
         cmd += ["--slot", str(slot["pipeline_slot"])]
+    if client.get("client_arg"):
+        cmd += ["--client", client["client_arg"]]
 
     env_override = {}
     if client["env_base"]:
