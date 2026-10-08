@@ -984,9 +984,21 @@ def _pixabay_video(query: str, exclude_ids: set, banned_terms: set | None = None
 
 
 def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR,
-                           banned_terms: set | None = None, whole_word: bool = False) -> bool:
-    """Fallback: download Pexels photo and convert to Ken Burns clip."""
+                           banned_terms: set | None = None, whole_word: bool = False,
+                           exclude_ids: set | None = None) -> str | None:
+    """Fallback: download Pexels photo and convert to Ken Burns clip.
+
+    Returns the photo's clip-library ID (e.g. "photo_12345") on success so
+    callers can feed it into the same 14-day Supabase cooldown as videos —
+    fixed 2026-10-08: this fallback previously had ZERO dedup (unlike
+    _pexels_video/_pixabay_video), so for a narrow, heavily banned-term-
+    filtered client whose video search often comes up empty (D818's catering
+    niche has far fewer qualifying Pexels videos than photos), the same
+    top-5 search result for an identical query repeated forever — the
+    client correctly reported "the same picture" showing up over and over.
+    Returns None on failure or if every candidate is still on cooldown."""
     _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
+    _exclude = exclude_ids or set()
     try:
         r = requests.get(
             "https://api.pexels.com/v1/search",
@@ -996,17 +1008,20 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR,
         )
         photos = r.json().get("photos", [])
         if not photos:
-            return False
-        # Filter out photos whose URL or photographer alt text contains banned terms
+            return None
+        # Filter out photos whose URL or photographer alt text contains banned
+        # terms, AND photos still in cooldown (same 14-day window as videos).
         photos = [
             p for p in photos
             if not _contains_banned_term(
                 p.get("url", "") + " " + p.get("alt", ""), _terms, whole_word=whole_word
             )
+            and f"photo_{p['id']}" not in _exclude
         ]
         if not photos:
-            return False
+            return None
         photo = random.choice(photos[:5])
+        photo_id = f"photo_{photo['id']}"
         url = photo["src"].get("large2x") or photo["src"].get("large")
         img = requests.get(url, timeout=20).content
         img_path = dest.with_suffix(".jpg")
@@ -1023,10 +1038,10 @@ def _pexels_photo_as_clip(query: str, dest: Path, duration: int = CLIP_DUR,
             "-r", str(VIDEO_FPS), "-pix_fmt", "yuv420p", "-an", str(dest),
         )
         img_path.unlink(missing_ok=True)
-        return ok and dest.exists()
+        return photo_id if (ok and dest.exists()) else None
     except Exception as e:
         print(f"    [PhotoFallback] {query}: {e}")
-    return False
+    return None
 
 
 def _real_car_photo_as_clip(photo_url: str, dest: Path, duration: int = CLIP_DUR) -> bool:
@@ -2454,9 +2469,14 @@ def render_video(content: dict, slot: int, output_path: str,
         if not got_video:
             print(f"    Clip {i}: falling back to Pexels photo")
             photo_raw = TEMP / f"{prefix}_photo_{i}.mp4"
-            if _pexels_photo_as_clip(query, photo_raw, banned_terms=_banned_terms, whole_word=_banned_whole_word):
+            _photo_id = _pexels_photo_as_clip(query, photo_raw, banned_terms=_banned_terms,
+                                               whole_word=_banned_whole_word, exclude_ids=used_ids)
+            if _photo_id:
                 if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                     got_video = True
+                    used_ids.add(_photo_id)
+                    own_ids.add(_photo_id)
+                    own_clips.append({"clip_id": _photo_id, "source": "pexels_photo", "beat_type": beat, "scene_desc": query})
                     try: report_hit(query, "photo")
                     except Exception: pass
                 photo_raw.unlink(missing_ok=True)
@@ -2483,9 +2503,14 @@ def render_video(content: dict, slot: int, output_path: str,
                 # Try as photo fallback too
                 if not got_video:
                     photo_alt = TEMP / f"{prefix}_photo_alt_{i}.mp4"
-                    if _pexels_photo_as_clip(alt_q, photo_alt, banned_terms=_banned_terms, whole_word=_banned_whole_word):
+                    _photo_id = _pexels_photo_as_clip(alt_q, photo_alt, banned_terms=_banned_terms,
+                                                       whole_word=_banned_whole_word, exclude_ids=used_ids)
+                    if _photo_id:
                         if _process_clip(photo_alt, proc, beat, text, beat_style, top_caption=top_caption):
                             got_video = True
+                            used_ids.add(_photo_id)
+                            own_ids.add(_photo_id)
+                            own_clips.append({"clip_id": _photo_id, "source": "pexels_photo", "beat_type": beat, "scene_desc": alt_q})
                             try: report_hit(alt_q, "perplexity_alt_photo")
                             except Exception: pass
                         photo_alt.unlink(missing_ok=True)
@@ -2563,9 +2588,14 @@ def render_video(content: dict, slot: int, output_path: str,
                     raw.unlink(missing_ok=True)
             if not got_video:
                 photo_raw = TEMP / f"{prefix}_photo_fb_{i}.mp4"
-                if _pexels_photo_as_clip(transport_q, photo_raw, banned_terms=_banned_terms, whole_word=_banned_whole_word):
+                _photo_id = _pexels_photo_as_clip(transport_q, photo_raw, banned_terms=_banned_terms,
+                                                   whole_word=_banned_whole_word, exclude_ids=used_ids)
+                if _photo_id:
                     if _process_clip(photo_raw, proc, beat, text, beat_style, top_caption=top_caption):
                         got_video = True
+                        used_ids.add(_photo_id)
+                        own_ids.add(_photo_id)
+                        own_clips.append({"clip_id": _photo_id, "source": "pexels_photo", "beat_type": beat, "scene_desc": transport_q})
                         try: report_hit(transport_q, "transport_photo_fallback")
                         except Exception: pass
                     photo_raw.unlink(missing_ok=True)
