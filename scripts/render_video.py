@@ -2174,15 +2174,39 @@ def render_video(content: dict, slot: int, output_path: str,
     _is_d818    = (_client == "d818")
     _car_data   = content.get("car", {})
 
+    # Dynamic client provisioning (added 2026-10-08, see
+    # .claude/plans/fluttering-singing-perlis.md Phase 4): any client whose
+    # profile has pipeline_type == "generic" falls here, NOT into the
+    # BootHop-default else-branches below. Purely additive — _is_generic can
+    # only be true for a slug none of the 4 hardcoded names match, so this
+    # has zero effect on boothop/d818/g-inspired/newsflash.
+    _is_generic = not (_is_car or _is_boothop or _is_d818)
+    _cp_early = {}
+    if _is_generic:
+        try:
+            _cp_early = json.loads((Path(__file__).parent.parent / "client_profiles" / f"{_client}.json").read_text(encoding="utf-8"))
+        except Exception:
+            _cp_early = {}
+
     # Per-client query-fetch guard: D818's entire visual domain is food/dining,
     # which BootHop's global _BANNED_FETCH_TERMS blocks outright. Everything else
     # (animals, farm/rural, holidays, generic clichés) stays banned for D818 too.
-    _banned_terms          = _BANNED_FETCH_TERMS_D818 if _is_d818 else _BANNED_FETCH_TERMS
-    _fallback_bank_default = _D818_FALLBACKS if _is_d818 else _TRANSPORT_FALLBACKS
-    # Whole-word matching for D818 only — its own vocabulary ("catering") contains
-    # banned substrings ("cat"). BootHop keeps the original substring-matching
-    # behaviour, which some of its banned-term entries may rely on.
-    _banned_whole_word = _is_d818
+    # Generic clients: profile_compiler.py (Phase 2) already computed exactly
+    # which banned terms this specific client legitimately needs — same
+    # exception-list-subtracted-from-a-universal-ban mechanism as D818's.
+    _banned_terms = (_BANNED_FETCH_TERMS_D818 if _is_d818
+                     else _BANNED_FETCH_TERMS - set(_cp_early.get("visual_terms_allowlist", []))
+                     if _is_generic else _BANNED_FETCH_TERMS)
+    _fallback_bank_default = (_D818_FALLBACKS if _is_d818
+                              else (_cp_early.get("visual_query_fallback_bank") or _TRANSPORT_FALLBACKS)
+                              if _is_generic else _TRANSPORT_FALLBACKS)
+    # Whole-word matching for D818 and generic clients — a client's own niche
+    # vocabulary could coincidentally contain a banned substring (D818's
+    # "catering" contains "cat"); safer default for any client we didn't
+    # hand-verify against the banned list in advance. BootHop keeps the
+    # original substring-matching behaviour, which some of its banned-term
+    # entries may rely on.
+    _banned_whole_word = _is_d818 or _is_generic
 
     # Per-client user-clip library: D818's real catering footage lives in its own
     # folder, untagged (no beat prefixes) — mix freely across beats. BootHop keeps
@@ -2515,6 +2539,8 @@ def render_video(content: dict, slot: int, output_path: str,
                 fb_bank = _CAR_FALLBACKS
             elif _is_d818:
                 fb_bank = _D818_FALLBACKS
+            elif _is_generic:
+                fb_bank = _cp_early.get("visual_query_fallback_bank") or _TRANSPORT_FALLBACKS
             elif slot == 2:
                 fb_bank = _AIRPORT_FALLBACKS
             else:
@@ -2881,10 +2907,19 @@ def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_onl
             )
 
             # 5. Render IG-specific end card (warm amber palette, IG CTA phrases)
+            # Fixed 2026-10-08: this used to import a load_client_profile
+            # function from cinematographer.py that doesn't exist there — the
+            # except below silently swallowed the ImportError every time, so
+            # Instagram end cards never actually got end_card_palettes/
+            # cta_phrases for ANY client (not just new ones). Same load-by-
+            # path pattern already used correctly a few hundred lines up for
+            # the main end card.
             _ig_client = content.get("client", "boothop")
+            _ig_is_boothop = (_ig_client == "boothop" or not _ig_client)
+            _ig_cp_path = Path(__file__).parent.parent / (
+                "client_profile.json" if _ig_is_boothop else f"client_profiles/{_ig_client}.json")
             try:
-                from cinematographer import load_client_profile as _lcp_ig
-                _ig_cp = _lcp_ig(_ig_client)
+                _ig_cp = json.loads(_ig_cp_path.read_text(encoding="utf-8"))
             except Exception:
                 _ig_cp = {}
             end_ok = _make_ig_end_card(
