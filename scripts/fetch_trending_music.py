@@ -85,14 +85,17 @@ _MONTHS = [
 ]
 
 
-def _build_slot_queries(slot: int) -> list[str]:
+def _build_slot_queries(slot: int) -> list[tuple[str, str]]:
     """
-    Build queries: for each priority artist, try current month → previous months
-    going back 6 months, then year-only as final fallback per artist.
-    e.g. "Wizkid September 2026", "Wizkid August 2026", ..., "Wizkid 2026"
+    Build (artist, query) pairs: for each priority artist, try current month →
+    previous months going back 6 months, then year-only as final fallback.
+    e.g. ("Wizkid", "Wizkid September 2026"), ("Wizkid", "Wizkid August 2026"), ...
+    The artist is carried alongside its query so _download_soundcloud() can
+    verify a candidate result actually matches who we searched for — see
+    _artist_matches().
     """
     today     = date.today()
-    queries: list[str] = []
+    queries: list[tuple[str, str]] = []
     artists   = _SLOT_ARTISTS.get(slot, _SLOT_ARTISTS[1])
 
     # Build 6-month window working backwards from this month
@@ -108,8 +111,8 @@ def _build_slot_queries(slot: int) -> list[str]:
     # For each artist: current-month query first, then step back, then year-only
     for artist in artists:
         for label in month_labels:
-            queries.append(f"{artist} {label}")
-        queries.append(f"{artist} {today.year}")
+            queries.append((artist, f"{artist} {label}"))
+        queries.append((artist, f"{artist} {today.year}"))
 
     return queries
 
@@ -204,10 +207,10 @@ def _load_current_tracks():
             # Rotate starting artist per slot
             start = (slot_num - 1) % n
             rotated = artists_in_order[start:] + artists_in_order[:start]
-            injected = [f"{a} {tracks[a]}" for a in rotated]
+            injected = [(a, f"{a} {tracks[a]}") for a in rotated]
             covered  = {a.lower() for a in artists_in_order}
-            deduped  = [q for q in SLOT_QUERIES[slot_num]
-                        if q.split()[0].lower() not in covered]
+            deduped  = [(a, q) for a, q in SLOT_QUERIES[slot_num]
+                        if a.lower() not in covered]
             SLOT_QUERIES[slot_num] = injected + deduped
     except Exception as e:
         print(f"  [Music] Could not load current tracks: {e}")
@@ -314,6 +317,41 @@ def _used_yesterday(title: str, log_file: Path | None = None) -> bool:
     )
 
 
+# SoundCloud's text search ranks generic monthly DJ-mix episodes, sample
+# packs, and unrelated reposts right alongside real songs whenever they share
+# a month/year keyword with the query — none of these are actual tracks by
+# the artist being searched. Confirmed in data/d818_music_log.json history:
+# "august 2026 mid (585)" by "SHH /", "june samples [2026] v1" by "xool",
+# "October 1, 2026 Prayer" by "AG365 Music" (not music at all), "[FREE] ...
+# Chike Type Beat" (coincidental name match on a producer tag, not the
+# artist). _artist_matches() + _is_junk_title() reject these before download.
+_JUNK_TITLE_RE = re.compile(
+    r"\b(type\s*beat|sample\s*pack|samples?|prayer|sermon|worship|megamix|"
+    r"mixtape|dj\s*mix|continuous\s*mix|monthly\s*mix|quarterly\s*mix|"
+    r"yearly\s*mix|opening\s*mix|podcast)\b"
+    # episode-numbered mix dumps like "august 2026 mid (585)" — no trailing \b
+    # since it would otherwise fail right after the closing paren
+    r"|\b(?:mix|mid)\s*\(\d+\)",
+    re.IGNORECASE,
+)
+
+
+def _is_junk_title(title: str) -> bool:
+    return bool(_JUNK_TITLE_RE.search(title))
+
+
+def _artist_matches(artist: str | None, title: str, uploader: str) -> bool:
+    """Require the searched artist's full name to actually appear in the
+    candidate's title or uploader. Without this, a search like "Chike
+    October 2026" happily matches anything containing those words in any
+    order/context, including unrelated mixes."""
+    if not artist:
+        return True
+    needle = re.sub(r"[^a-z0-9]+", " ", artist.lower()).strip()
+    hay    = re.sub(r"[^a-z0-9]+", " ", f"{title} {uploader}".lower())
+    return f" {needle} " in f" {hay} "
+
+
 # ── Hook extraction ────────────────────────────────────────────────────────────
 
 def _extract_hook(src_path: Path, out_path: Path, duration_s: int = 30) -> bool:
@@ -397,22 +435,29 @@ def _has_audio(path: Path, min_db: float = -60.0) -> bool:
 
 # ── SoundCloud downloader ──────────────────────────────────────────────────────
 
-def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None) -> dict | None:
+def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None,
+                          artist: str | None = None) -> dict | None:
     """
     Search SoundCloud for a track matching query and download it.
     Uses scsearch5 to get 5 candidates — official DRM-locked uploads are always
     first, so iterating past them reaches fan/unofficial uploads that download.
+    `artist`, when given, is enforced via _artist_matches() so generic DJ-mix/
+    sample-pack/unrelated reposts that merely share a keyword with the query
+    get skipped instead of downloaded as if they were a real match.
     Returns metadata dict on success, None on failure.
     """
     TMP_DIR.mkdir(parents=True, exist_ok=True)
 
     # ── Step 1: collect up to 5 candidate URLs without downloading ──────────────
+    # duration bounds (60s-7min) admit a real single while excluding DJ mixes/
+    # mixtapes/compilations, which is what was previously slipping through at
+    # "duration < 600" (anything up to 10 minutes).
     try:
         list_res = subprocess.run(
             [r"C:\Python314\Scripts\yt-dlp.exe",
              "--flat-playlist",
              "--print", "%(url)s|||%(title)s|||%(uploader)s",
-             "--match-filter", "duration < 600",
+             "--match-filter", "duration > 60 & duration < 420",
              "--quiet", "--no-warnings",
              f"scsearch5:{query}"],
             timeout=60, capture_output=True, text=True,
@@ -434,9 +479,15 @@ def _download_soundcloud(query: str, raw_out: Path, log_file: Path | None = None
         print(f"    [SC] No candidates found for: {query}")
         return None
 
-    # ── Step 2: try each candidate until one downloads (skip DRM/used) ──────────
+    # ── Step 2: try each candidate until one downloads (skip junk/mismatch/DRM/used) ──
     for url, title, uploader in candidates:
-        if _used_recently(title, days=7, log_file=log_file):
+        if _is_junk_title(title):
+            print(f"    [SC] Skip (non-song/junk title): {title[:55]}")
+            continue
+        if not _artist_matches(artist, title, uploader):
+            print(f"    [SC] Skip (doesn't match '{artist}'): {title[:55]}")
+            continue
+        if _used_recently(title, days=14, log_file=log_file):
             print(f"    [SC] Skip (used recently): {title[:55]}")
             continue
 
@@ -587,10 +638,10 @@ def fetch_trending_music(archive_only: bool = False) -> dict:
         # ── SoundCloud download (laptop only) ───────────────────────────────────
         if not archive_only:
             queries = SLOT_QUERIES.get(slot_num, SLOT_QUERIES[1])
-            for query in queries:
+            for artist, query in queries:
                 print(f"    Trying SoundCloud: {query}")
                 raw = TMP_DIR / "raw_download.mp3"
-                meta = _download_soundcloud(query, raw, log_file=MUSIC_LOG)
+                meta = _download_soundcloud(query, raw, log_file=MUSIC_LOG, artist=artist)
                 if not meta:
                     continue
 
@@ -677,10 +728,10 @@ def fetch_gi_music(archive_only: bool = False) -> dict:
 
     if not archive_only:
         queries = GI_SLOT_QUERIES.get(slot_num, GI_SLOT_QUERIES[1])
-        for query in queries:
+        for artist, query in queries:
             print(f"    Trying SoundCloud: {query}")
             raw  = TMP_DIR / "gi_raw.mp3"
-            meta = _download_soundcloud(query, raw, log_file=GI_MUSIC_LOG)
+            meta = _download_soundcloud(query, raw, log_file=GI_MUSIC_LOG, artist=artist)
             if not meta:
                 continue
             hooked = _extract_hook(raw, slot_out, duration_s=30)
@@ -741,10 +792,10 @@ def fetch_d818_music(archive_only: bool = False) -> dict:
 
         if not archive_only:
             queries = D818_SLOT_QUERIES.get(slot_num, D818_SLOT_QUERIES[1])
-            for query in queries:
+            for artist, query in queries:
                 print(f"    Trying SoundCloud: {query}")
                 raw  = TMP_DIR / f"d818_raw_{slot_num}.mp3"
-                meta = _download_soundcloud(query, raw, log_file=D818_MUSIC_LOG)
+                meta = _download_soundcloud(query, raw, log_file=D818_MUSIC_LOG, artist=artist)
                 if not meta:
                     continue
 
@@ -772,9 +823,24 @@ def fetch_d818_music(archive_only: bool = False) -> dict:
             print(f"  [D818 Slot {slot_num}] {src} — trying D818 archive (30-day gap)")
             archive_result = _archive_fallback(slot_out, slot_num, used_titles,
                                               archive_dir=D818_ARCHIVE, log_file=D818_MUSIC_LOG)
+
+            # D818's own pool (artist-specific SoundCloud pulls + its own
+            # archive) is much smaller than BootHop's, so it runs dry sooner.
+            # Rather than fail the slot, fall back to drawing from BootHop's
+            # shared archive pool — same broader Afrobeats/West African genre,
+            # just a bigger library. Logged under D818's own log (not
+            # BootHop's) so D818's 30-day repeat-gap still tracks it correctly.
             if archive_result is None:
-                msg = ("[D818 Music] CRITICAL: No non-repeat track available. "
-                       "Add tracks to music_d818/archive/.")
+                print(f"  [D818 Slot {slot_num}] D818 archive exhausted — trying shared BootHop pool")
+                archive_result = _archive_fallback(slot_out, slot_num, used_titles,
+                                                  archive_dir=ARCHIVE, log_file=D818_MUSIC_LOG)
+                if archive_result is not None:
+                    archive_result["source"] = "boothop_pool"
+
+            if archive_result is None:
+                msg = ("[D818 Music] CRITICAL: No non-repeat track available in "
+                       "D818 or shared BootHop archive. Add tracks to music_d818/archive/ "
+                       "or music/archive/.")
                 print(msg)
                 raise RuntimeError(msg)
             result = archive_result
