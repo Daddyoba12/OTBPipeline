@@ -2018,12 +2018,20 @@ def _add_music_with_voiceover(src: Path, dest: Path, tts_path: Path,
     return track
 
 
-def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
+def _make_youtube_thumbnail(content: dict, dest: Path, client_profile: dict | None = None) -> bool:
     """
     Generate a custom YouTube thumbnail (1280×720) via PIL.
-    Dark background, bold hook text in yellow, BootHop branding.
+    Dark background, bold hook text in yellow, client-branded bottom right.
     High CTR format: left=face shock visual area, right=text.
+
+    client_profile: the calling client's client_profile.json, so the brand
+    text/website shown actually match the video. Previously hardcoded to
+    "BootHop"/"boothop.com" unconditionally — every D818/G-Inspired/generic
+    client's YouTube thumbnail was showing BootHop's name on their own video.
     """
+    _cp      = client_profile or {}
+    _brand   = _cp.get("brand_name") or "BootHop"
+    _website = (_cp.get("website") or "").replace("https://", "").replace("http://", "").rstrip("/") or "boothop.com"
     try:
         from PIL import Image, ImageDraw
         TW, TH = 1280, 720
@@ -2060,7 +2068,7 @@ def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
         y += 40
 
         # Sub-text: lesson or brand line
-        sub = lesson[:60] if lesson else "boothop.com"
+        sub = lesson[:60] if lesson else _website
         sub_lines = _split_lines(sub, 28, 2)
         for line in sub_lines:
             try:
@@ -2071,8 +2079,8 @@ def _make_youtube_thumbnail(content: dict, dest: Path) -> bool:
             draw.text((x, y), line, font=ft_sub, fill=(200, 200, 200))
             y += 52
 
-        # BootHop brand bottom right
-        brand = "BootHop"
+        # Client brand bottom right
+        brand = _brand
         try:
             btw = draw.textbbox((0, 0), brand, font=ft_cta)[2]
         except Exception:
@@ -2946,7 +2954,15 @@ def render_for_platforms(content: dict, slot: int, base_path: str, tiktok_ig_onl
     # YouTube thumbnail — custom image boosts CTR on Shorts browse
     thumb_path = outdir / f"{stem}_thumb.jpg"
     print("  [Render] Generating YouTube thumbnail...")
-    if _make_youtube_thumbnail(content, thumb_path):
+    _thumb_client     = content.get("client", "boothop")
+    _thumb_is_boothop = (_thumb_client == "boothop" or not _thumb_client)
+    _thumb_cp_path    = Path(__file__).parent.parent / (
+        "client_profile.json" if _thumb_is_boothop else f"client_profiles/{_thumb_client}.json")
+    try:
+        _thumb_cp = json.loads(_thumb_cp_path.read_text(encoding="utf-8"))
+    except Exception:
+        _thumb_cp = {}
+    if _make_youtube_thumbnail(content, thumb_path, client_profile=_thumb_cp):
         paths["youtube_thumbnail"] = str(thumb_path)
         print(f"  [Render] Thumbnail OK ({thumb_path.stat().st_size // 1024}KB)")
 
