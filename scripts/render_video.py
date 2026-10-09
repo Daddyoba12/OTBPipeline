@@ -407,16 +407,61 @@ _CAR_FALLBACKS = [
 
 # West African catering fallbacks for D818 — used when stock footage fails.
 # food_origin_rule (client_profiles/d818.json): West African dishes only.
+# Each position holds several alternatives (people eating/enjoying the food,
+# not just static plated shots) — _pick_fallback() rotates between them
+# randomly. Previously each position was a single fixed string, so every
+# time the safety net fired for the hook beat it always searched the exact
+# same "jollof rice party platter close up" query — on Pexels/Pixabay's
+# narrow pool for that niche phrase, that meant the same handful of photos
+# over and over, which the client correctly flagged as "the same picture
+# every day."
 _D818_FALLBACKS = [
-    "jollof rice party platter close up",        # 0 hook
-    "suya skewers grilling wide shot",           # 1 hook
-    "small chops party platter closeup",         # 2 problem
-    "egusi soup pot closeup",                    # 3 problem
-    "West African wedding buffet table",         # 4 stakes
-    "catering staff serving jollof rice event",  # 5 resolution
-    "puff puff dessert plate closeup",           # 6 resolution
-    "party jollof rice table decor",             # 7 lesson
+    [  # 0 hook
+        "Nigerian family eating jollof rice dinner table laughing",
+        "friends enjoying West African party food smiling",
+        "woman tasting jollof rice smiling kitchen",
+        "African wedding guests eating party food celebration",
+    ],
+    [  # 1 hook
+        "suya skewers grilling wide shot",
+        "group eating Nigerian party food celebration",
+        "man enjoying suya skewer street food",
+        "chef plating jollof rice catering event",
+    ],
+    [  # 2 problem
+        "small chops party platter closeup",
+        "guests eating small chops at party",
+    ],
+    [  # 3 problem
+        "egusi soup pot closeup",
+        "woman stirring egusi soup kitchen",
+    ],
+    [  # 4 stakes
+        "West African wedding buffet table",
+        "guests serving themselves at buffet smiling",
+    ],
+    [  # 5 resolution
+        "catering staff serving jollof rice event",
+        "waiter serving plated jollof rice to guest",
+    ],
+    [  # 6 resolution
+        "puff puff dessert plate closeup",
+        "children eating puff puff smiling",
+    ],
+    [  # 7 lesson
+        "party jollof rice table decor",
+        "happy guests eating at West African party",
+    ],
 ]
+
+
+def _pick_fallback(bank: list, idx: int) -> str:
+    """Pick a fallback query for this beat position. Each bank entry may be a
+    single string (legacy — same string every time, used by other clients'
+    banks) or a list of alternatives to rotate through randomly, so the
+    safety-net query isn't identical on every run."""
+    entry = bank[idx % len(bank)]
+    return random.choice(entry) if isinstance(entry, list) else entry
 
 
 def _car_dalle_prompt(car: dict, beat: str) -> str:
@@ -608,7 +653,7 @@ def _guard_query(query: str, clip_index: int = 0,
     _terms = banned_terms if banned_terms is not None else _BANNED_FETCH_TERMS
     _bank  = fallback_bank if fallback_bank is not None else _TRANSPORT_FALLBACKS
     if _contains_banned_term(query, _terms, whole_word=whole_word):
-        safe = _bank[clip_index % len(_bank)]
+        safe = _pick_fallback(_bank, clip_index)
         print(f"    [QueryGuard] Blocked '{query}' -> '{safe}'")
         return safe
     return query
@@ -2570,7 +2615,7 @@ def render_video(content: dict, slot: int, output_path: str,
                 fb_bank = _AIRPORT_FALLBACKS
             else:
                 fb_bank = _TRANSPORT_FALLBACKS
-            transport_q = fb_bank[i % len(fb_bank)]
+            transport_q = _pick_fallback(fb_bank, i)
             print(f"    Clip {i}: safety fallback -> {transport_q}")
             clip_info = (_pexels_video(transport_q, used_ids, banned_terms=_banned_terms, whole_word=_banned_whole_word)
                          or _pixabay_video(transport_q, used_ids, banned_terms=_banned_terms)
